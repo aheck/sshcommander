@@ -41,11 +41,26 @@ MainWindow::MainWindow(QWidget *parent) :
     QVBoxLayout *boxLayout = new QVBoxLayout();
     boxLayout->addWidget(toolBar);
     boxLayout->addWidget(tabStack);
-    QWidget *rightWidget = new QWidget();
-    rightWidget->setLayout(boxLayout);
+    QWidget *sshSessionsWidget = new QWidget();
+    sshSessionsWidget->setLayout(boxLayout);
 
     splitter->addWidget(this->tabList);
-    splitter->addWidget(rightWidget);
+
+    QSplitter *sessionInfoSplitter = new QSplitter(Qt::Vertical);
+    sessionInfoSplitter->addWidget(sshSessionsWidget);
+
+    QTabWidget *sshSessionsInfo = new QTabWidget();
+    sshSessionsInfo->addTab(new QWidget(), "A");
+    sshSessionsInfo->addTab(new QWidget(), "B");
+    sshSessionsInfo->addTab(new QWidget(), "C");
+    sshSessionsInfo->addTab(new QWidget(), "D");
+
+    sessionInfoSplitter->addWidget(sshSessionsInfo);
+    sessionInfoSplitter->setStretchFactor(0, 10);
+    sessionInfoSplitter->setStretchFactor(1, 5);
+    sessionInfoSplitter->setCollapsible(0, false);
+
+    splitter->addWidget(sessionInfoSplitter);
     splitter->setStretchFactor(0, 1);
     splitter->setStretchFactor(1, 15);
     splitter->setCollapsible(1, false);

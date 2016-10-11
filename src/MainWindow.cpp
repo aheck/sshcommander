@@ -2,6 +2,13 @@
 
 #include <iostream>
 
+SSHConnectionEntry::SSHConnectionEntry()
+{
+    this->nextSessionNumber = 1;
+    this->args = NULL;
+    this->tabs = NULL;
+}
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
@@ -109,7 +116,7 @@ void MainWindow::createNewConnection()
     QTabWidget *tabs = new QTabWidget();
     tabs->setTabsClosable(true);
     tabs->setTabPosition(QTabWidget::North);
-    tabs->addTab(console, QString("Session 1"));
+    tabs->addTab(console, QString::asprintf("Session %d", connEntry->nextSessionNumber++));
     QObject::connect(tabs, SIGNAL (tabCloseRequested(int)), this, SLOT(closeSSHTab(int)));
     tabStack->addWidget(tabs);
 
@@ -128,18 +135,11 @@ void MainWindow::createNewConnection()
 
 void MainWindow::createNewSession()
 {
-    int currentRow = this->tabList->currentRow();
-    if (currentRow < 0) {
-        return;
-    }
-
-    printf("currentRow: %d\n", currentRow);
-
     SSHConnectionEntry *connEntry = this->getCurrentConnectionEntry();
     QTabWidget *tabs = connEntry->tabs;
 
     QTermWidget *console = createNewTermWidget(connEntry->args);
-    tabs->addTab(console, QString::asprintf("Session %d", tabs->count() + 1));
+    tabs->addTab(console, QString::asprintf("Session %d", connEntry->nextSessionNumber++));
     tabs->setCurrentWidget(console);
     tabs->setFocus();
     console->setFocus();

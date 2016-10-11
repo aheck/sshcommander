@@ -20,6 +20,10 @@
 
 struct SSHConnectionEntry
 {
+public:
+    SSHConnectionEntry();
+
+    unsigned int nextSessionNumber;
     const QStringList *args;
     QTabWidget *tabs;
 };

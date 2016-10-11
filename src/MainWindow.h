@@ -38,6 +38,7 @@ public slots:
     void createNewConnection();
     void createNewSession();
     void closeSSHTab(int tabIndex);
+    void quitProgram();
 
 private:
     const QString getCurrentUsernameAndHost();

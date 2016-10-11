@@ -13,6 +13,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMenu *connMenu = new QMenu("Connections", menuBar);
     menuBar->addMenu(connMenu);
     connMenu->addAction("&New", this->newDialog, SLOT(open()));
+    connMenu->addSeparator();
+    connMenu->addAction("&Quit", this, SLOT(quitProgram()));
 
     QMenu *helpMenu = new QMenu("Help", menuBar);
     menuBar->addMenu(helpMenu);
@@ -187,4 +189,9 @@ void MainWindow::closeSSHTab(int tabIndex)
         delete termWidget;
         tabWidget->removeTab(tabIndex);
     }
+}
+
+void MainWindow::quitProgram()
+{
+    qApp->quit();
 }

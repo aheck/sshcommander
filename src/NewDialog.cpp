@@ -11,6 +11,7 @@ NewDialog::NewDialog(MainWindow *mainWindow)
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
     horizontalLayout->addWidget(sshkeyLineEdit);
     QPushButton *fileButton = new QPushButton("...");
+    fileButton->setDefault(false);
     QObject::connect(fileButton, SIGNAL (clicked()), this, SLOT (selectKeyFile()));
     horizontalLayout->addWidget(fileButton);
 
@@ -21,9 +22,11 @@ NewDialog::NewDialog(MainWindow *mainWindow)
 
     QPushButton *connectButton = new QPushButton(tr("Connect"));
     QObject::connect(connectButton, SIGNAL (clicked()), this, SLOT (accept()));
+    connectButton->setDefault(true);
 
     QPushButton *cancelButton = new QPushButton(tr("Cancel"));
     QObject::connect(cancelButton, SIGNAL (clicked()), this, SLOT(reject()));
+    cancelButton->setDefault(false);
 
     QHBoxLayout *buttonsLayout = new QHBoxLayout;
     buttonsLayout->addWidget(connectButton);

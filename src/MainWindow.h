@@ -4,6 +4,7 @@
 #include <QMenuBar>
 #include <QApplication>
 #include <QListWidget>
+#include <QSplitter>
 #include <QStackedWidget>
 #include <QToolBar>
 #include <QPoint>

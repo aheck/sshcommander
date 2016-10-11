@@ -9,13 +9,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(newDialog, SIGNAL (accepted()), this, SLOT (createNewConnection()));
 
     this->menuBar = new QMenuBar(this);
-    QMenu *actionsMenu = new QMenu("Actions", menuBar);
-    menuBar->addMenu(actionsMenu);
-    actionsMenu->addAction("About Qt", qApp, SLOT(aboutQt()));
 
     QMenu *connMenu = new QMenu("Connections", menuBar);
     menuBar->addMenu(connMenu);
     connMenu->addAction("&New", this->newDialog, SLOT(open()));
+
+    QMenu *helpMenu = new QMenu("Help", menuBar);
+    menuBar->addMenu(helpMenu);
+    helpMenu->addAction("About Qt", qApp, SLOT(aboutQt()));
 
     setMenuBar(menuBar);
 
@@ -27,22 +28,21 @@ MainWindow::MainWindow(QWidget *parent) :
     toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "New Session", this, SLOT(createNewSession()));
     tabStack = new QStackedWidget();
 
-    QGridLayout *layout = new QGridLayout();
+    QSplitter *splitter = new QSplitter(Qt::Horizontal);
     QVBoxLayout *boxLayout = new QVBoxLayout();
     boxLayout->addWidget(toolBar);
     boxLayout->addWidget(tabStack);
+    QWidget *rightWidget = new QWidget();
+    rightWidget->setLayout(boxLayout);
 
-    layout->addWidget(this->tabList, 0, 0);
-    layout->addItem(boxLayout, 0, 1);
-
-    layout->setColumnStretch(0, 10);
-    layout->setColumnStretch(1, 25);
-
-    QWidget *centralWidget = new QWidget();
-    centralWidget->setLayout(layout);
+    splitter->addWidget(tabList);
+    splitter->addWidget(rightWidget);
+    splitter->setStretchFactor(0, 1);
+    splitter->setStretchFactor(1, 15);
+    splitter->setCollapsible(1, false);
 
     resize(1000, 700);
-    setCentralWidget(centralWidget);
+    setCentralWidget(splitter);
 }
 
 MainWindow::~MainWindow()

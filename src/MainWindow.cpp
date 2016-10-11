@@ -136,6 +136,10 @@ void MainWindow::createNewConnection()
 void MainWindow::createNewSession()
 {
     SSHConnectionEntry *connEntry = this->getCurrentConnectionEntry();
+    if (connEntry == NULL) {
+        return;
+    }
+
     QTabWidget *tabs = connEntry->tabs;
 
     QTermWidget *console = createNewTermWidget(connEntry->args);
@@ -172,8 +176,9 @@ QTabWidget* MainWindow::getCurrentTabWidget()
 
 void MainWindow::closeSSHTab(int tabIndex)
 {
+    printf("tabIndex: %d\n", tabIndex);
     QTabWidget *tabWidget = this->getCurrentTabWidget();
-    QTermWidget *termWidget = tabWidget->findChild<QTermWidget *>();
+    QTermWidget *termWidget = (QTermWidget*) tabWidget->widget(tabIndex);
 
     if (termWidget != NULL) {
         QMessageBox::StandardButton reply;
@@ -186,8 +191,8 @@ void MainWindow::closeSSHTab(int tabIndex)
             return;
         }
 
-        delete termWidget;
         tabWidget->removeTab(tabIndex);
+        delete termWidget;
     }
 }
 

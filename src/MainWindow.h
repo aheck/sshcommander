@@ -2,6 +2,7 @@
 #include <QStyle>
 #include <QMainWindow>
 #include <QMenuBar>
+#include <QMessageBox>
 #include <QApplication>
 #include <QListWidget>
 #include <QSplitter>
@@ -36,8 +37,13 @@ public slots:
     void changeConnection(int index);
     void createNewConnection();
     void createNewSession();
+    void closeSSHTab(int tabIndex);
 
 private:
+    const QString getCurrentUsernameAndHost();
+    SSHConnectionEntry *getCurrentConnectionEntry();
+    QTabWidget* getCurrentTabWidget();
+
     QMenuBar *menuBar;
     NewDialog *newDialog;
     QHash<QString, SSHConnectionEntry*> sshConnByHost;

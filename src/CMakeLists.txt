@@ -8,5 +8,11 @@ find_package(qtermwidget5)
 
 include_directories(${QTERMWIDGET_INCLUDE_DIRS})
 
-add_executable(sshcommander main.cpp MainWindow.cpp NewDialog.cpp)
+add_executable(sshcommander
+    main.cpp
+    MainWindow.cpp
+    NewDialog.cpp
+    CustomTabWidget.cpp
+    CustomTabBar.cpp
+)
 target_link_libraries(sshcommander Qt5::Widgets qtermwidget5)

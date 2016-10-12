@@ -14,6 +14,7 @@
 #include <qtermwidget.h>
 
 #include "NewDialog.h"
+#include "CustomTabWidget.h"
 
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
@@ -25,7 +26,7 @@ public:
 
     unsigned int nextSessionNumber;
     const QStringList *args;
-    QTabWidget *tabs;
+    CustomTabWidget *tabs;
 };
 
 class MainWindow : public QMainWindow
@@ -47,7 +48,7 @@ public slots:
 private:
     const QString getCurrentUsernameAndHost();
     SSHConnectionEntry *getCurrentConnectionEntry();
-    QTabWidget* getCurrentTabWidget();
+    CustomTabWidget* getCurrentTabWidget();
 
     QMenuBar *menuBar;
     NewDialog *newDialog;

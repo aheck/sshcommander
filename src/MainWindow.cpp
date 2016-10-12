@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QSplitter *sessionInfoSplitter = new QSplitter(Qt::Vertical);
     sessionInfoSplitter->addWidget(sshSessionsWidget);
 
-    QTabWidget *sshSessionsInfo = new QTabWidget();
+    CustomTabWidget *sshSessionsInfo = new CustomTabWidget();
     sshSessionsInfo->addTab(new QWidget(), "A");
     sshSessionsInfo->addTab(new QWidget(), "B");
     sshSessionsInfo->addTab(new QWidget(), "C");
@@ -128,9 +128,9 @@ void MainWindow::createNewConnection()
     qDebug() << " availableColorSchemes:" << console->availableColorSchemes();
     qDebug() << "* INFO END *********************";
 
-    QTabWidget *tabs = new QTabWidget();
+    CustomTabWidget *tabs = new CustomTabWidget();
     tabs->setTabsClosable(true);
-    tabs->setTabPosition(QTabWidget::North);
+    tabs->setTabPosition(CustomTabWidget::North);
     tabs->addTab(console, QString::asprintf("Session %d", connEntry->nextSessionNumber++));
     QObject::connect(tabs, SIGNAL (tabCloseRequested(int)), this, SLOT(closeSSHTab(int)));
     tabStack->addWidget(tabs);
@@ -155,7 +155,7 @@ void MainWindow::createNewSession()
         return;
     }
 
-    QTabWidget *tabs = connEntry->tabs;
+    CustomTabWidget *tabs = connEntry->tabs;
 
     QTermWidget *console = createNewTermWidget(connEntry->args);
     tabs->addTab(console, QString::asprintf("Session %d", connEntry->nextSessionNumber++));
@@ -183,7 +183,7 @@ SSHConnectionEntry* MainWindow::getCurrentConnectionEntry()
     return this->sshConnByHost[usernameAndHost];
 }
 
-QTabWidget* MainWindow::getCurrentTabWidget()
+CustomTabWidget* MainWindow::getCurrentTabWidget()
 {
     SSHConnectionEntry *connEntry = this->getCurrentConnectionEntry();
     return connEntry->tabs;
@@ -192,7 +192,7 @@ QTabWidget* MainWindow::getCurrentTabWidget()
 void MainWindow::closeSSHTab(int tabIndex)
 {
     printf("tabIndex: %d\n", tabIndex);
-    QTabWidget *tabWidget = this->getCurrentTabWidget();
+    CustomTabWidget *tabWidget = this->getCurrentTabWidget();
     QTermWidget *termWidget = (QTermWidget*) tabWidget->widget(tabIndex);
 
     if (termWidget != NULL) {

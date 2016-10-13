@@ -28,11 +28,11 @@ NewDialog::NewDialog(MainWindow *mainWindow)
     QObject::connect(cancelButton, SIGNAL (clicked()), this, SLOT(reject()));
     cancelButton->setDefault(false);
 
-    QHBoxLayout *buttonsLayout = new QHBoxLayout;
+    QHBoxLayout *buttonsLayout = new QHBoxLayout();
     buttonsLayout->addWidget(connectButton);
     buttonsLayout->addWidget(cancelButton);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout;
+    QVBoxLayout *mainLayout = new QVBoxLayout();
     mainLayout->addLayout(formLayout);
     mainLayout->addLayout(buttonsLayout);
     setLayout(mainLayout);

@@ -56,6 +56,9 @@ private:
     QListWidget *tabList;
     QStackedWidget *tabStack;
     QToolBar *toolBar;
+    QLineEdit *accessKeyLineEdit;
+    QLineEdit *secretKeyLineEdit;
+    QPushButton *awsLoginButton;
 };
 
 #endif

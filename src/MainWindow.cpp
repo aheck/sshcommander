@@ -47,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
     splitter->addWidget(this->tabList);
 
     QSplitter *sessionInfoSplitter = new QSplitter(Qt::Vertical);
+
     sessionInfoSplitter->addWidget(sshSessionsWidget);
 
     CustomTabWidget *sshSessionsInfo = new CustomTabWidget();
@@ -60,7 +61,22 @@ MainWindow::MainWindow(QWidget *parent) :
     sessionInfoSplitter->setStretchFactor(1, 5);
     sessionInfoSplitter->setCollapsible(0, false);
 
-    splitter->addWidget(sessionInfoSplitter);
+    QTabWidget *rightWidget = new QTabWidget();
+    rightWidget->addTab(sessionInfoSplitter, "SSH");
+
+    this->accessKeyLineEdit = new QLineEdit();
+    this->secretKeyLineEdit = new QLineEdit();
+    this->awsLoginButton = new QPushButton(tr("Login"));
+    QWidget *awsLoginWidget = new QWidget();
+    QFormLayout *awsFormLayout = new QFormLayout;
+    awsFormLayout->addRow(tr("AWS Access Key:"), accessKeyLineEdit);
+    awsFormLayout->addRow(tr("AWS Secret Key:"), secretKeyLineEdit);
+    awsFormLayout->addRow("", this->awsLoginButton);
+    awsLoginWidget->setLayout(awsFormLayout);
+
+    rightWidget->addTab(awsLoginWidget, "AWS");
+
+    splitter->addWidget(rightWidget);
     splitter->setStretchFactor(0, 1);
     splitter->setStretchFactor(1, 15);
     splitter->setCollapsible(1, false);

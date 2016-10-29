@@ -12,6 +12,7 @@ SSHConnectionEntry::SSHConnectionEntry()
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
+    this->awsConnector = new AWSConnector();
     this->newDialog = new NewDialog(this);
     QObject::connect(newDialog, SIGNAL (accepted()), this, SLOT (createNewConnection()));
 
@@ -31,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->tabList = new QListWidget();
     this->tabList->setSelectionMode(QAbstractItemView::SingleSelection);
-    QObject::connect(this->tabList, SIGNAL (currentRowChanged(int)), this, SLOT (changeConnection(int)));
+    QObject::connect(this->tabList, SIGNAL(currentRowChanged(int)), this, SLOT(changeConnection(int)));
 
     toolBar = new QToolBar("toolBar", 0);
     toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "New Session", this, SLOT(createNewSession()));
@@ -73,6 +74,7 @@ MainWindow::MainWindow(QWidget *parent) :
     awsFormLayout->addRow(tr("AWS Secret Key:"), secretKeyLineEdit);
     awsFormLayout->addRow("", this->awsLoginButton);
     awsLoginWidget->setLayout(awsFormLayout);
+    QObject::connect(this->awsLoginButton, SIGNAL(clicked()), this, SLOT(connectToAWS()));
 
     rightWidget->addTab(awsLoginWidget, "AWS");
 
@@ -230,4 +232,20 @@ void MainWindow::closeSSHTab(int tabIndex)
 void MainWindow::quitProgram()
 {
     qApp->quit();
+}
+
+void MainWindow::connectToAWS()
+{
+    QString accessKey = this->accessKeyLineEdit->text();
+    QString secretKey = this->secretKeyLineEdit->text();
+
+    std::cout << "Trying to connect to AWS..." << std::endl;
+
+    this->awsConnector->setAccessKey(accessKey);
+    this->awsConnector->setSecretKey(secretKey);
+    this->awsConnector->setRegion(AWSConnector::LOCATION_US_EAST_1);
+
+    AWSResult *result = this->awsConnector->describeInstances();
+
+    std::cout << "Reply body: " << result->replyBody.toStdString() << std::endl;
 }

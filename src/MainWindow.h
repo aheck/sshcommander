@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <QIcon>
 #include <QStyle>
 #include <QMainWindow>
@@ -15,6 +17,7 @@
 
 #include "NewDialog.h"
 #include "CustomTabWidget.h"
+#include "AWSConnector.h"
 
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
@@ -44,6 +47,7 @@ public slots:
     void createNewSession();
     void closeSSHTab(int tabIndex);
     void quitProgram();
+    void connectToAWS();
 
 private:
     const QString getCurrentUsernameAndHost();
@@ -59,6 +63,7 @@ private:
     QLineEdit *accessKeyLineEdit;
     QLineEdit *secretKeyLineEdit;
     QPushButton *awsLoginButton;
+    AWSConnector *awsConnector;
 };
 
 #endif

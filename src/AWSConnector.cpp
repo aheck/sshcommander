@@ -47,10 +47,9 @@ void AWSConnector::setRegion(QString region)
     this->region = region;
 }
 
-AWSResult* AWSConnector::describeInstances()
+void AWSConnector::describeInstances()
 {
     QDateTime now = QDateTime::currentDateTimeUtc();
-    AWSResult *result = new AWSResult();
 
     // Request Params
     QString paramAction = "DescribeInstances";
@@ -82,10 +81,6 @@ AWSResult* AWSConnector::describeInstances()
     // build HTTP request
     QString authorizationHeader = paramAmzAlgorithm + " Credential=" + this->accessKey + '/' + credentialScope + ", " +  "SignedHeaders=" + paramAmzSignedHeaders + ", " + "Signature=" + signature;
 
-    result->isSuccess = true;
-    result->httpStatus = 200;
-    result->replyBody = QString("");
-
     connect(&this->networkManager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));
 
@@ -93,24 +88,23 @@ AWSResult* AWSConnector::describeInstances()
     req.setRawHeader(QByteArray("Authorization"), authorizationHeader.toUtf8());
     req.setRawHeader(QByteArray("x-amz-date"), paramAmzDate.toUtf8());
     networkManager.get(req);
-
-    return result;
 }
 
 void AWSConnector::replyFinished(QNetworkReply *reply)
 {
-    if (reply->error()) {
-        qDebug() << "ERROR!";
-        qDebug() << reply->errorString();
-        std::cout << reply->readAll().toStdString();
-        std::cout << std::endl;
-    } else {
-        std::cout << "Content-Type: " << reply->header(QNetworkRequest::ContentTypeHeader).toString().toStdString() << std::endl;
-        std::cout << "Content-Length: " << reply->header(QNetworkRequest::ContentLengthHeader).toULongLong() << std::endl;
-        std::cout << "Status Code: " << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() << std::endl;
+    AWSResult *result = new AWSResult();
 
-        std::cout << reply->readAll().toStdString() << std::endl;
+    result->httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    result->httpBody = QString(reply->readAll());
+
+    if (reply->error()) {
+        result->isSuccess = false;
+        result->errorString = reply->errorString();
+    } else {
+        result->isSuccess = true;
     }
 
     reply->deleteLater();
+
+    emit awsReplyReceived(result);
 }

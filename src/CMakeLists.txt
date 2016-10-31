@@ -12,6 +12,7 @@ include_directories(${QTERMWIDGET_INCLUDE_DIRS})
 add_executable(sshcommander
     main.cpp
     AWSConnector.cpp
+    AWSWidget.cpp
     CustomTabBar.cpp
     CustomTabWidget.cpp
     MainWindow.cpp

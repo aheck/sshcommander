@@ -16,13 +16,33 @@
 struct AWSResult
 {
     bool isSuccess;
+    QString errorString;
     int httpStatus;
-    QString replyBody;
+    QString httpBody;
 };
 
-class AWSConnector : QObject
+struct AWSInstance
+{
+    QString id;
+    QString status;
+    QString type;
+    QString imageId;
+    QString launchTime;
+    QString publicIP;
+    QString privateIP;
+    QString subnetId;
+    QString vpcId;
+    QString virtualizationType;
+    QString architecture;
+    QString hypervisor;
+};
+
+class AWSConnector : public QObject
 {
     Q_OBJECT
+
+signals:
+    void awsReplyReceived(AWSResult *result);
 
 public:
     static const QString LOCATION_US_EAST_1;
@@ -33,17 +53,20 @@ public:
 
     static const QString AWS_DEFAULT_ENDPOINT;
 
-    AWSConnector();
+    explicit AWSConnector();
     ~AWSConnector();
 
     void setAccessKey(QString accessKey);
     void setSecretKey(QString secretKey);
     void setRegion(QString region);
 
-    AWSResult* describeInstances();
+    // These methods execute actual AWS API calls. They have no return value
+    // because the API is asynchronous. To receive replies the caller has to
+    // connect to the awsReplyReceived signal.
+    void describeInstances();
 
-public slots:
-    void replyFinished (QNetworkReply *reply);
+private slots:
+    void replyFinished(QNetworkReply *reply);
 
 private:
     QByteArray sign(QByteArray key, QByteArray message);

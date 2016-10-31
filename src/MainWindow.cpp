@@ -12,7 +12,6 @@ SSHConnectionEntry::SSHConnectionEntry()
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
-    this->awsConnector = new AWSConnector();
     this->newDialog = new NewDialog(this);
     QObject::connect(newDialog, SIGNAL (accepted()), this, SLOT (createNewConnection()));
 
@@ -45,7 +44,13 @@ MainWindow::MainWindow(QWidget *parent) :
     QWidget *sshSessionsWidget = new QWidget();
     sshSessionsWidget->setLayout(boxLayout);
 
-    splitter->addWidget(this->tabList);
+    QLabel *tabListLabel = new QLabel("SSH Hosts", this);
+    QWidget *tabListWidget = new QWidget(this);
+    QVBoxLayout *tabListLayout = new QVBoxLayout(tabListWidget);
+    tabListLayout->addWidget(tabListLabel);
+    tabListLayout->addWidget(this->tabList);
+    tabListWidget->setLayout(tabListLayout);
+    splitter->addWidget(tabListWidget);
 
     QSplitter *sessionInfoSplitter = new QSplitter(Qt::Vertical);
 
@@ -65,18 +70,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QTabWidget *rightWidget = new QTabWidget();
     rightWidget->addTab(sessionInfoSplitter, "SSH");
 
-    this->accessKeyLineEdit = new QLineEdit();
-    this->secretKeyLineEdit = new QLineEdit();
-    this->awsLoginButton = new QPushButton(tr("Login"));
-    QWidget *awsLoginWidget = new QWidget();
-    QFormLayout *awsFormLayout = new QFormLayout;
-    awsFormLayout->addRow(tr("AWS Access Key:"), accessKeyLineEdit);
-    awsFormLayout->addRow(tr("AWS Secret Key:"), secretKeyLineEdit);
-    awsFormLayout->addRow("", this->awsLoginButton);
-    awsLoginWidget->setLayout(awsFormLayout);
-    QObject::connect(this->awsLoginButton, SIGNAL(clicked()), this, SLOT(connectToAWS()));
-
-    rightWidget->addTab(awsLoginWidget, "AWS");
+    this->awsWidget = new AWSWidget();
+    rightWidget->addTab(this->awsWidget, "AWS");
 
     splitter->addWidget(rightWidget);
     splitter->setStretchFactor(0, 1);
@@ -232,20 +227,4 @@ void MainWindow::closeSSHTab(int tabIndex)
 void MainWindow::quitProgram()
 {
     qApp->quit();
-}
-
-void MainWindow::connectToAWS()
-{
-    QString accessKey = this->accessKeyLineEdit->text();
-    QString secretKey = this->secretKeyLineEdit->text();
-
-    std::cout << "Trying to connect to AWS..." << std::endl;
-
-    this->awsConnector->setAccessKey(accessKey);
-    this->awsConnector->setSecretKey(secretKey);
-    this->awsConnector->setRegion(AWSConnector::LOCATION_US_EAST_1);
-
-    AWSResult *result = this->awsConnector->describeInstances();
-
-    std::cout << "Reply body: " << result->replyBody.toStdString() << std::endl;
 }

@@ -6,6 +6,7 @@ set(CMAKE_CXX_FLAGS "-O0 -ggdb -std=c++11")
 
 find_package(Qt5Widgets)
 find_package(Qt5Network)
+find_package(Qt5Xml)
 find_package(qtermwidget5)
 
 include_directories(${QTERMWIDGET_INCLUDE_DIRS})
@@ -19,4 +20,4 @@ add_executable(sshcommander
     MainWindow.cpp
     NewDialog.cpp
 )
-target_link_libraries(sshcommander Qt5::Widgets Qt5::Network qtermwidget5)
+target_link_libraries(sshcommander Qt5::Widgets Qt5::Network Qt5::Xml qtermwidget5)

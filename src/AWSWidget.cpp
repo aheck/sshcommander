@@ -70,16 +70,68 @@ void AWSWidget::connectToAWS()
 QVector<AWSInstance*>* AWSWidget::parseDescribeInstancesResult(AWSResult *result)
 {
     QVector<AWSInstance*> *vector = new QVector<AWSInstance*>;
+    AWSInstance *instance = NULL;
 
-    AWSInstance *instance = new AWSInstance();
-    instance->id = "i-123456";
-    instance->status = "terminated";
-    instance->type = "m8.supersized";
-    instance->publicIP = "1.2.3.4";
-    instance->privateIP = "192.168.1.1";
-    instance->launchTime = "yesterday";
+    QBuffer buffer;
+    buffer.setData(result->httpBody.toUtf8());
+    buffer.open(QIODevice::ReadOnly);
+    QXmlStreamReader xml;
+    xml.setDevice(&buffer);
 
-    vector->append(instance);
+    bool instancesSet = false;
+    bool instanceState = false;
+    int itemLevel = 0;
+
+    while (!xml.isEndDocument()) {
+        xml.readNext();
+
+        if (xml.isStartElement()) {
+            QString name = xml.name().toString();
+            if (name == "instancesSet") {
+                instancesSet = true;
+            } else if (name == "item") {
+                itemLevel++;
+
+                if (instancesSet && itemLevel == 2) {
+                    instance = new AWSInstance();
+                    vector->append(instance);
+                }
+            } else if (name == "instanceState") {
+                instanceState = true;
+            } else if (instancesSet && itemLevel == 2) {
+                if (name == "instanceId") {
+                    instance->id = xml.readElementText();
+                } else if (name == "name" && instanceState == true) {
+                    instance->status = xml.readElementText();
+                } else if (name == "instanceType") {
+                    instance->type = xml.readElementText();
+                } else if (name == "ipAddress") {
+                    instance->publicIP = xml.readElementText();
+                } else if (name == "privateIpAddress") {
+                    instance->privateIP = xml.readElementText();
+                } else if (name == "launchTime") {
+                    instance->launchTime = xml.readElementText();
+                }
+            }
+        } else if (xml.isEndElement()) {
+            QString name = xml.name().toString();
+            if (name == "instancesSet") {
+                instancesSet = false;
+            } else if (name == "item") {
+                itemLevel--;
+            } else if (name == "instanceState") {
+                instanceState = false;
+            }
+
+            if (instancesSet && itemLevel < 2) {
+                instance = NULL;
+            }
+        }
+    }
+
+    if (xml.hasError()) {
+        std::cout << "XML error: " << xml.errorString().data() << std::endl;
+    }
 
     return vector;
 }

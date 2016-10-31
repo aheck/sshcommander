@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QBuffer>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLineEdit>
@@ -8,6 +9,7 @@
 #include <QTableWidget>
 #include <QToolBar>
 #include <QWidget>
+#include <QXmlStreamReader>
 
 #include "AWSConnector.h"
 

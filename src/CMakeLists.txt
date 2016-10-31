@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_CXX_FLAGS "-O0 -ggdb -std=c++11")
 
 find_package(Qt5Widgets)
 find_package(Qt5Network)

@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
     menuBar->addMenu(connMenu);
     connMenu->addAction("&New", this->newDialog, SLOT(open()));
     connMenu->addSeparator();
-    connMenu->addAction("&Quit", this, SLOT(quitProgram()));
+    connMenu->addAction("&Quit", qApp, SLOT(quit()));
 
     QMenu *helpMenu = new QMenu("Help", menuBar);
     menuBar->addMenu(helpMenu);
@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "New Session", this, SLOT(createNewSession()));
     tabStack = new QStackedWidget();
 
-    QSplitter *splitter = new QSplitter(Qt::Horizontal);
+    this->splitter = new QSplitter(Qt::Horizontal);
     QVBoxLayout *boxLayout = new QVBoxLayout();
     boxLayout->addWidget(toolBar);
     boxLayout->addWidget(tabStack);
@@ -50,11 +50,11 @@ MainWindow::MainWindow(QWidget *parent) :
     tabListLayout->addWidget(tabListLabel);
     tabListLayout->addWidget(this->tabList);
     tabListWidget->setLayout(tabListLayout);
-    splitter->addWidget(tabListWidget);
+    this->splitter->addWidget(tabListWidget);
 
-    QSplitter *sessionInfoSplitter = new QSplitter(Qt::Vertical);
+    this->sessionInfoSplitter = new QSplitter(Qt::Vertical);
 
-    sessionInfoSplitter->addWidget(sshSessionsWidget);
+    this->sessionInfoSplitter->addWidget(sshSessionsWidget);
 
     CustomTabWidget *sshSessionsInfo = new CustomTabWidget();
     sshSessionsInfo->addTab(new QWidget(), "A");
@@ -62,10 +62,10 @@ MainWindow::MainWindow(QWidget *parent) :
     sshSessionsInfo->addTab(new QWidget(), "C");
     sshSessionsInfo->addTab(new QWidget(), "D");
 
-    sessionInfoSplitter->addWidget(sshSessionsInfo);
-    sessionInfoSplitter->setStretchFactor(0, 10);
-    sessionInfoSplitter->setStretchFactor(1, 5);
-    sessionInfoSplitter->setCollapsible(0, false);
+    this->sessionInfoSplitter->addWidget(sshSessionsInfo);
+    this->sessionInfoSplitter->setStretchFactor(0, 10);
+    this->sessionInfoSplitter->setStretchFactor(1, 5);
+    this->sessionInfoSplitter->setCollapsible(0, false);
 
     QTabWidget *rightWidget = new QTabWidget();
     rightWidget->addTab(sessionInfoSplitter, "SSH");
@@ -73,13 +73,14 @@ MainWindow::MainWindow(QWidget *parent) :
     this->awsWidget = new AWSWidget();
     rightWidget->addTab(this->awsWidget, "AWS");
 
-    splitter->addWidget(rightWidget);
-    splitter->setStretchFactor(0, 1);
-    splitter->setStretchFactor(1, 15);
-    splitter->setCollapsible(1, false);
+    this->splitter->addWidget(rightWidget);
+    this->splitter->setStretchFactor(0, 1);
+    this->splitter->setStretchFactor(1, 15);
+    this->splitter->setCollapsible(1, false);
 
-    resize(1000, 700);
-    setCentralWidget(splitter);
+    setCentralWidget(this->splitter);
+
+    this->readSettings();
 }
 
 MainWindow::~MainWindow()
@@ -224,7 +225,31 @@ void MainWindow::closeSSHTab(int tabIndex)
     }
 }
 
-void MainWindow::quitProgram()
+void MainWindow::aboutToQuit()
 {
-    qApp->quit();
+    this->saveSettings();
+}
+
+void MainWindow::readSettings()
+{
+    QSettings settings;
+
+    settings.beginGroup("MainWindow");
+    this->resize(settings.value("size", QSize(1000, 700)).toSize());
+    this->move(settings.value("pos", QPoint(200, 200)).toPoint());
+    this->splitter->restoreState(settings.value("splitterSizes").toByteArray());
+    this->sessionInfoSplitter->restoreState(settings.value("sessionInfoSplitterSizes").toByteArray());
+    settings.endGroup();
+}
+
+void MainWindow::saveSettings()
+{
+    QSettings settings;
+
+    settings.beginGroup("MainWindow");
+    settings.setValue("size", this->size());
+    settings.setValue("pos", this->pos());
+    settings.setValue("splitterSizes", this->splitter->saveState());
+    settings.setValue("sessionInfoSplitterSizes", this->sessionInfoSplitter->saveState());
+    settings.endGroup();
 }

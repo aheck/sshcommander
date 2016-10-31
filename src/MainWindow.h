@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QListWidget>
+#include <QSettings>
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QToolBar>
@@ -41,13 +42,15 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     QTermWidget* createNewTermWidget(const QStringList *args);
+    void readSettings();
+    void saveSettings();
 
 public slots:
     void changeConnection(int index);
     void createNewConnection();
     void createNewSession();
     void closeSSHTab(int tabIndex);
-    void quitProgram();
+    void aboutToQuit();
 
 private:
     const QString getCurrentUsernameAndHost();
@@ -57,6 +60,8 @@ private:
     QMenuBar *menuBar;
     NewDialog *newDialog;
     QHash<QString, SSHConnectionEntry*> sshConnByHost;
+    QSplitter *splitter;
+    QSplitter *sessionInfoSplitter;
     QListWidget *tabList;
     QStackedWidget *tabStack;
     QToolBar *toolBar;

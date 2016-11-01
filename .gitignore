@@ -1,0 +1,8 @@
+Makefile
+CMakeFiles
+moc_*
+*.swp
+*_automoc.cpp
+CMakeCache.txt
+sshcommander
+cmake_install.cmake

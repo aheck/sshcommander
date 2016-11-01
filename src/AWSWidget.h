@@ -32,6 +32,7 @@ public:
 
 private slots:
     void loadInstances();
+    void changeRegion(QString region);
 
 private:
     void readSettings();
@@ -56,6 +57,7 @@ private:
     QTableWidget *instanceTable;
     QToolBar *toolBar;
     QComboBox *regionComboBox;
+    QString region;
     bool requestRunning;
     bool firstTryToLogin;
 };

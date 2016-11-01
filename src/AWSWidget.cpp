@@ -2,6 +2,7 @@
 
 AWSWidget::AWSWidget()
 {
+    this->region = AWSConnector::LOCATION_US_EAST_1;
     this->firstTryToLogin = false;
     this->requestRunning = false;
     this->awsConnector = new AWSConnector();
@@ -28,6 +29,7 @@ AWSWidget::AWSWidget()
     this->regionComboBox = new QComboBox();
     this->regionComboBox->addItems(AWSConnector::Regions);
     this->regionComboBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+    QObject::connect(this->regionComboBox, SIGNAL(currentTextChanged(QString)), this, SLOT(changeRegion(QString)));
     this->instanceTable = new QTableWidget(this->mainWidget);
     this->instanceTable->setColumnCount(6);
     QStringList headerLabels;
@@ -88,7 +90,7 @@ void AWSWidget::loadInstances()
 
     this->awsConnector->setAccessKey(this->accessKey);
     this->awsConnector->setSecretKey(this->secretKey);
-    this->awsConnector->setRegion(AWSConnector::LOCATION_US_EAST_1);
+    this->awsConnector->setRegion(this->region);
 
     this->awsConnector->describeInstances();
 }
@@ -231,4 +233,9 @@ void AWSWidget::saveAWSCredentials()
     settings.setValue("accessKey", this->accessKey);
     settings.setValue("secretKey", this->secretKey);
     settings.endGroup();
+}
+
+void AWSWidget::changeRegion(QString region)
+{
+    this->region = region;
 }

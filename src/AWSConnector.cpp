@@ -11,8 +11,6 @@ const QString AWSConnector::LOCATION_US_EAST_2 = "us-east-2";
 const QString AWSConnector::LOCATION_EU_WEST_1 = "eu-west-1";
 const QString AWSConnector::LOCATION_EU_CENTRAL_1 = "eu-central-1";
 
-const QString EC2_DEFAULT_ENDPOINT = "ec2.amazonaws.com";
-
 AWSConnector::AWSConnector()
 {
     connect(&this->networkManager, SIGNAL(finished(QNetworkReply*)),
@@ -72,7 +70,7 @@ void AWSConnector::describeInstances()
     canonicalQueryString += '&';
     canonicalQueryString += QString("Version=").toUtf8() + QUrl::toPercentEncoding(paramVersion);
 
-    QString host = "ec2.amazonaws.com";
+    QString host = "ec2." + this->region + ".amazonaws.com";
     QString canonicalHeaders = QString("host:%1\nx-amz-date:%2\n").arg(host).arg(paramAmzDate);
     QString payloadHash = QCryptographicHash::hash(QByteArray("", 0), QCryptographicHash::Sha256).toHex();
 
@@ -88,7 +86,7 @@ void AWSConnector::describeInstances()
     // build HTTP request
     QString authorizationHeader = paramAmzAlgorithm + " Credential=" + this->accessKey + '/' + credentialScope + ", " +  "SignedHeaders=" + paramAmzSignedHeaders + ", " + "Signature=" + signature;
 
-    QNetworkRequest req = QNetworkRequest(QUrl(QString("http://") + EC2_DEFAULT_ENDPOINT + "/?" + canonicalQueryString));
+    QNetworkRequest req = QNetworkRequest(QUrl(QString("http://") + host + "/?" + canonicalQueryString));
     req.setRawHeader(QByteArray("Authorization"), authorizationHeader.toUtf8());
     req.setRawHeader(QByteArray("x-amz-date"), paramAmzDate.toUtf8());
     networkManager.get(req);

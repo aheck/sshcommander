@@ -23,7 +23,11 @@ AWSWidget::AWSWidget()
     this->mainWidget = new QWidget();
     this->mainWidget->setLayout(new QVBoxLayout(this->mainWidget));
     this->toolBar = new QToolBar("toolBar", this->mainWidget);
-    toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "Refresh", this, SLOT(loadInstances()));
+    this->toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "Refresh", this, SLOT(loadInstances()));
+    this->toolBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    this->regionComboBox = new QComboBox();
+    this->regionComboBox->addItems(AWSConnector::Regions);
+    this->regionComboBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     this->instanceTable = new QTableWidget(this->mainWidget);
     this->instanceTable->setColumnCount(6);
     QStringList headerLabels;
@@ -34,7 +38,10 @@ AWSWidget::AWSWidget()
     headerLabels << QString("Private IP");
     headerLabels << QString("Launch Time");
     this->instanceTable->setHorizontalHeaderLabels(headerLabels);
-    this->mainWidget->layout()->addWidget(this->toolBar);
+    QHBoxLayout *toolBarLayout = new QHBoxLayout();
+    toolBarLayout->addWidget(this->toolBar);
+    toolBarLayout->addWidget(this->regionComboBox);
+    ((QVBoxLayout*) this->mainWidget->layout())->addLayout(toolBarLayout);
     this->mainWidget->layout()->addWidget(this->instanceTable);
 
     this->setLayout(new QVBoxLayout(this));

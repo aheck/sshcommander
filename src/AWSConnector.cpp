@@ -1,5 +1,10 @@
 #include "AWSConnector.h"
 
+const QStringList AWSConnector::Regions = QStringList()
+    << "us-east-1" << "us-east-2" << "us-west-1" << "us-west-2" << "eu-west-1"
+    << "eu-central-1" << "ap-northeast-1" << "ap-northeast-2"
+    << "ap-southeast-1" << "ap-southeast-2" << "ap-south-1" << "sa-east-1";
+
 const QString AWSConnector::LOCATION_US_EAST_1 = "us-east-1";
 const QString AWSConnector::LOCATION_US_EAST_2 = "us-east-2";
 

@@ -45,6 +45,8 @@ signals:
     void awsReplyReceived(AWSResult *result);
 
 public:
+    static const QStringList Regions;
+
     static const QString LOCATION_US_EAST_1;
     static const QString LOCATION_US_EAST_2;
 

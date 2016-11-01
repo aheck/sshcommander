@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QBuffer>
+#include <QComboBox>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLineEdit>
@@ -54,6 +55,7 @@ private:
 
     QTableWidget *instanceTable;
     QToolBar *toolBar;
+    QComboBox *regionComboBox;
     bool requestRunning;
     bool firstTryToLogin;
 };

@@ -3,6 +3,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QFileDialog>
+#include <QMessageBox>
 
 #ifndef NEWDIALOG_H
 #define NEWDIALOG_H
@@ -24,6 +25,7 @@ public:
 
 public slots:
     void selectKeyFile();
+    void acceptDialog();
 
 private:
     MainWindow *mainWindow;

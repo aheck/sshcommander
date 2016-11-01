@@ -21,7 +21,7 @@ NewDialog::NewDialog(MainWindow *mainWindow)
     formLayout->addRow(tr("SSH Key:"), horizontalLayout);
 
     QPushButton *connectButton = new QPushButton(tr("Connect"));
-    QObject::connect(connectButton, SIGNAL (clicked()), this, SLOT (accept()));
+    QObject::connect(connectButton, SIGNAL (clicked()), this, SLOT (acceptDialog()));
     connectButton->setDefault(true);
 
     QPushButton *cancelButton = new QPushButton(tr("Cancel"));
@@ -51,4 +51,25 @@ void NewDialog::selectKeyFile()
     if (!filename.isEmpty()) {
         sshkeyLineEdit->setText(filename);
     }
+}
+
+void NewDialog::acceptDialog()
+{
+    QMessageBox msgBox;
+
+    if (this->hostnameLineEdit->text().isEmpty()) {
+        msgBox.setText(tr("Hostname must not be empty!"));
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+
+        return;
+    } else if (this->usernameLineEdit->text().isEmpty()) {
+        msgBox.setText(QString("Username must not be empty!"));
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+
+        return;
+    }
+
+    this->accept();
 }

@@ -7,6 +7,7 @@ SSHConnectionEntry::SSHConnectionEntry()
     this->nextSessionNumber = 1;
     this->args = NULL;
     this->tabs = NULL;
+    this->awsInstance = NULL;
 }
 
 MainWindow::MainWindow(QWidget *parent) :

@@ -32,6 +32,7 @@ public:
     unsigned int nextSessionNumber;
     const QStringList *args;
     CustomTabWidget *tabs;
+    AWSInstance *awsInstance;
 };
 
 class MainWindow : public QMainWindow

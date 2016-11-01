@@ -10,6 +10,8 @@ const QString EC2_DEFAULT_ENDPOINT = "ec2.amazonaws.com";
 
 AWSConnector::AWSConnector()
 {
+    connect(&this->networkManager, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(replyFinished(QNetworkReply*)));
 }
 
 AWSConnector::~AWSConnector()
@@ -81,9 +83,6 @@ void AWSConnector::describeInstances()
     // build HTTP request
     QString authorizationHeader = paramAmzAlgorithm + " Credential=" + this->accessKey + '/' + credentialScope + ", " +  "SignedHeaders=" + paramAmzSignedHeaders + ", " + "Signature=" + signature;
 
-    connect(&this->networkManager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(replyFinished(QNetworkReply*)));
-
     QNetworkRequest req = QNetworkRequest(QUrl(QString("http://") + EC2_DEFAULT_ENDPOINT + "/?" + canonicalQueryString));
     req.setRawHeader(QByteArray("Authorization"), authorizationHeader.toUtf8());
     req.setRawHeader(QByteArray("x-amz-date"), paramAmzDate.toUtf8());
@@ -105,6 +104,7 @@ void AWSConnector::replyFinished(QNetworkReply *reply)
     }
 
     reply->deleteLater();
+    reply = NULL;
 
     emit awsReplyReceived(result);
 }

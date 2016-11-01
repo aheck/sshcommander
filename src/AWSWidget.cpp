@@ -2,6 +2,7 @@
 
 AWSWidget::AWSWidget()
 {
+    this->firstTryToLogin = false;
     this->requestRunning = false;
     this->awsConnector = new AWSConnector();
     QObject::connect(this->awsConnector, SIGNAL(awsReplyReceived(AWSResult*)), this, SLOT(handleAWSResult(AWSResult*)));
@@ -22,7 +23,7 @@ AWSWidget::AWSWidget()
     this->mainWidget = new QWidget();
     this->mainWidget->setLayout(new QVBoxLayout(this->mainWidget));
     this->toolBar = new QToolBar("toolBar", this->mainWidget);
-    toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "Refresh", this, SLOT(connectToAWS()));
+    toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "Refresh", this, SLOT(loadInstances()));
     this->instanceTable = new QTableWidget(this->mainWidget);
     this->instanceTable->setColumnCount(6);
     QStringList headerLabels;
@@ -35,12 +36,23 @@ AWSWidget::AWSWidget()
     this->instanceTable->setHorizontalHeaderLabels(headerLabels);
     this->mainWidget->layout()->addWidget(this->toolBar);
     this->mainWidget->layout()->addWidget(this->instanceTable);
-    this->mainWidget->setVisible(false);
 
     this->setLayout(new QVBoxLayout(this));
     this->layout()->addWidget(this->loginWidget);
     this->layout()->addWidget(this->mainWidget);
-    this->curWidget = this->loginWidget;
+
+    this->readSettings();
+
+    // we only show the login widget if we haven't read any AWS credentials
+    // from the program settings
+    if (!this->accessKey.isEmpty() && !this->secretKey.isEmpty()) {
+        this->loginWidget->setVisible(false);
+        this->curWidget = this->mainWidget;
+        this->loadInstances();
+    } else {
+        this->mainWidget->setVisible(false);
+        this->curWidget = this->loginWidget;
+    }
 }
 
 AWSWidget::~AWSWidget()
@@ -49,19 +61,26 @@ AWSWidget::~AWSWidget()
 
 void AWSWidget::connectToAWS()
 {
+    this->firstTryToLogin = true;
+
+    this->accessKey = this->accessKeyLineEdit->text();
+    this->secretKey = this->secretKeyLineEdit->text();
+
+    this->loadInstances();
+}
+
+void AWSWidget::loadInstances()
+{
     if (this->requestRunning) {
         return;
     }
 
     this->requestRunning = true;
 
-    QString accessKey = this->accessKeyLineEdit->text();
-    QString secretKey = this->secretKeyLineEdit->text();
-
     std::cout << "Trying to connect to AWS..." << std::endl;
 
-    this->awsConnector->setAccessKey(accessKey);
-    this->awsConnector->setSecretKey(secretKey);
+    this->awsConnector->setAccessKey(this->accessKey);
+    this->awsConnector->setSecretKey(this->secretKey);
     this->awsConnector->setRegion(AWSConnector::LOCATION_US_EAST_1);
 
     this->awsConnector->describeInstances();
@@ -71,6 +90,10 @@ QVector<AWSInstance*>* AWSWidget::parseDescribeInstancesResult(AWSResult *result
 {
     QVector<AWSInstance*> *vector = new QVector<AWSInstance*>;
     AWSInstance *instance = NULL;
+
+    if (result->httpBody.isEmpty()) {
+        return vector;
+    }
 
     QBuffer buffer;
     buffer.setData(result->httpBody.toUtf8());
@@ -138,7 +161,7 @@ QVector<AWSInstance*>* AWSWidget::parseDescribeInstancesResult(AWSResult *result
 
 void AWSWidget::handleAWSResult(AWSResult *result)
 {
-    std::cout << "AWS Result received in MainWindow" << std::endl;
+    std::cout << "AWS Result received in AWSWidget" << std::endl;
     std::cout << "Success: " << result->isSuccess << std::endl;
     std::cout << "HTTP Status: " << result->httpStatus << std::endl;
     std::cout << "Body: " << result->httpBody.toStdString() << std::endl;
@@ -156,6 +179,8 @@ void AWSWidget::handleAWSResult(AWSResult *result)
         }
 
         QVector<AWSInstance*>* vector = this->parseDescribeInstancesResult(result);
+        this->instanceTable->clearContents();
+        this->instanceTable->setRowCount(0);
 
         for (QVector<AWSInstance*>::iterator it = vector->begin(); it != vector->end(); it++) {
             int curRow = this->instanceTable->rowCount();
@@ -168,8 +193,35 @@ void AWSWidget::handleAWSResult(AWSResult *result)
             this->instanceTable->setItem(curRow, 5, new QTableWidgetItem((*it)->launchTime, 0));
             curRow++;
         }
+
+        if (this->firstTryToLogin) {
+            this->accessKey = this->accessKeyLineEdit->text();
+            this->secretKey = this->secretKeyLineEdit->text();
+            this->saveAWSCredentials();
+            this->firstTryToLogin = false;
+        }
     }
 
     this->requestRunning = false;
     delete result;
+}
+
+void AWSWidget::readSettings()
+{
+    QSettings settings;
+
+    settings.beginGroup("AWS");
+    this->accessKey = settings.value("accessKey", "").toString();
+    this->secretKey = settings.value("secretKey", "").toString();
+    settings.endGroup();
+}
+
+void AWSWidget::saveAWSCredentials()
+{
+    QSettings settings;
+
+    settings.beginGroup("AWS");
+    settings.setValue("accessKey", this->accessKey);
+    settings.setValue("secretKey", this->secretKey);
+    settings.endGroup();
 }

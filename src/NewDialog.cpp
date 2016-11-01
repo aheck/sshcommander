@@ -64,7 +64,7 @@ void NewDialog::acceptDialog()
 
         return;
     } else if (this->usernameLineEdit->text().isEmpty()) {
-        msgBox.setText(QString("Username must not be empty!"));
+        msgBox.setText(tr("Username must not be empty!"));
         msgBox.setIcon(QMessageBox::Warning);
         msgBox.exec();
 

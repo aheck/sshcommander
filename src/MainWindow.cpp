@@ -1,7 +1,5 @@
 #include "MainWindow.h"
 
-#include <iostream>
-
 SSHConnectionEntry::SSHConnectionEntry()
 {
     this->nextSessionNumber = 1;

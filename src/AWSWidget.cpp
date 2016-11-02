@@ -238,4 +238,5 @@ void AWSWidget::saveAWSCredentials()
 void AWSWidget::changeRegion(QString region)
 {
     this->region = region;
+    this->loadInstances();
 }

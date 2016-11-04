@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_CXX_FLAGS "-O0 -ggdb -std=c++11")
+set(CMAKE_CXX_FLAGS "-O1 -ggdb -std=c++11 -Wall")
 
 find_package(Qt5Widgets)
 find_package(Qt5Network)
@@ -19,5 +19,7 @@ add_executable(sshcommander
     CustomTabWidget.cpp
     MainWindow.cpp
     NewDialog.cpp
+    SSHConnectionEntry.cpp
+    SSHConnectionItemModel.cpp
 )
 target_link_libraries(sshcommander Qt5::Widgets Qt5::Network Qt5::Xml qtermwidget5)

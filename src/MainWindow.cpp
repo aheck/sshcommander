@@ -1,13 +1,5 @@
 #include "MainWindow.h"
 
-SSHConnectionEntry::SSHConnectionEntry()
-{
-    this->nextSessionNumber = 1;
-    this->args = NULL;
-    this->tabs = NULL;
-    this->awsInstance = NULL;
-}
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
@@ -28,9 +20,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setMenuBar(menuBar);
 
-    this->tabList = new QListWidget();
+    this->connectionModel = new SSHConnectionItemModel();
+    this->tabList = new QListView();
     this->tabList->setSelectionMode(QAbstractItemView::SingleSelection);
-    QObject::connect(this->tabList, SIGNAL(currentRowChanged(int)), this, SLOT(changeConnection(int)));
+    this->tabList->setSelectionMode(QAbstractItemView::SingleSelection);
+    this->tabList->setModel(this->connectionModel);
+    QObject::connect(this->tabList->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(changeConnection(QItemSelection, QItemSelection)));
 
     toolBar = new QToolBar("toolBar", 0);
     toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "New Session", this, SLOT(createNewSession()));
@@ -86,9 +81,11 @@ MainWindow::~MainWindow()
 {
 }
 
-void MainWindow::changeConnection(int index)
+void MainWindow::changeConnection(const QItemSelection &selected, const QItemSelection &deselected)
 {
-    tabStack->setCurrentIndex(index);
+    QModelIndexList indexes = selected.indexes();
+    QModelIndex index = indexes.at(0);
+    tabStack->setCurrentIndex(index.row());
 }
 
 QTermWidget* MainWindow::createNewTermWidget(const QStringList *args)
@@ -121,6 +118,7 @@ void MainWindow::createNewConnection()
     QString sshkey = this->newDialog->sshkeyLineEdit->text();
     QString label = QString("%1@%2").arg(username).arg(hostname);
     SSHConnectionEntry *connEntry = new SSHConnectionEntry();
+    connEntry->name = label;
 
     if (sshkey.isEmpty()) {
         const QStringList *args = new QStringList(label);
@@ -151,9 +149,9 @@ void MainWindow::createNewConnection()
     connEntry->tabs = tabs;
     this->sshConnByHost[label] = connEntry;
 
-    this->tabList->addItem(label);
-    this->tabList->setCurrentRow(this->tabList->count() - 1);
-    //tabStack->setCurrentIndex(index);
+    this->connectionModel->appendConnectionEntry(connEntry);
+    QModelIndex index = this->connectionModel->index(this->connectionModel->rowCount(QModelIndex()) - 1, 0, QModelIndex());
+    this->tabList->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
     tabs->setCurrentWidget(console);
     tabs->setFocus();
     console->setFocus();
@@ -181,12 +179,12 @@ void MainWindow::createNewSession()
 
 const QString MainWindow::getCurrentUsernameAndHost()
 {
-    int currentRow = this->tabList->currentRow();
-    if (currentRow < 0) {
+    QModelIndexList indexes = this->tabList->selectionModel()->selectedIndexes();
+    if (indexes.isEmpty()) {
         return QString("");
     }
 
-    return this->tabList->item(currentRow)->text();
+    return this->connectionModel->data(indexes.first()).toString();
 }
 
 SSHConnectionEntry* MainWindow::getCurrentConnectionEntry()

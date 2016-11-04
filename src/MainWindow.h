@@ -7,7 +7,7 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QApplication>
-#include <QListWidget>
+#include <QListView>
 #include <QSettings>
 #include <QSplitter>
 #include <QStackedWidget>
@@ -17,23 +17,14 @@
 
 #include <qtermwidget.h>
 
-#include "NewDialog.h"
-#include "CustomTabWidget.h"
 #include "AWSWidget.h"
+#include "CustomTabWidget.h"
+#include "NewDialog.h"
+#include "SSHConnectionEntry.h"
+#include "SSHConnectionItemModel.h"
 
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
-struct SSHConnectionEntry
-{
-public:
-    SSHConnectionEntry();
-
-    unsigned int nextSessionNumber;
-    const QStringList *args;
-    CustomTabWidget *tabs;
-    AWSInstance *awsInstance;
-};
 
 class MainWindow : public QMainWindow
 {
@@ -47,7 +38,7 @@ public:
     void saveSettings();
 
 public slots:
-    void changeConnection(int index);
+    void changeConnection(const QItemSelection &selected, const QItemSelection &deselected);
     void createNewConnection();
     void createNewSession();
     void closeSSHTab(int tabIndex);
@@ -63,10 +54,11 @@ private:
     QHash<QString, SSHConnectionEntry*> sshConnByHost;
     QSplitter *splitter;
     QSplitter *sessionInfoSplitter;
-    QListWidget *tabList;
+    QListView *tabList;
     QStackedWidget *tabStack;
     QToolBar *toolBar;
     AWSWidget *awsWidget;
+    SSHConnectionItemModel *connectionModel;
 };
 
 #endif

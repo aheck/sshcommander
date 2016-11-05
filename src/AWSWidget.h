@@ -8,12 +8,13 @@
 #include <QPushButton>
 #include <QStringList>
 #include <QSettings>
-#include <QTableWidget>
+#include <QTableView>
 #include <QToolBar>
 #include <QWidget>
 #include <QXmlStreamReader>
 
 #include "AWSConnector.h"
+#include "InstanceItemModel.h"
 
 #ifndef AWSWIDGET_H
 #define AWSWIDGET_H
@@ -37,7 +38,7 @@ private slots:
 private:
     void readSettings();
     void saveAWSCredentials();
-    QVector<AWSInstance*>* parseDescribeInstancesResult(AWSResult *result);
+    QVector<AWSInstance*> parseDescribeInstancesResult(AWSResult *result);
 
     QLineEdit *accessKeyLineEdit;
     QLineEdit *secretKeyLineEdit;
@@ -54,7 +55,8 @@ private:
 
     QWidget *curWidget;
 
-    QTableWidget *instanceTable;
+    QTableView *instanceTable;
+    InstanceItemModel *instanceModel;
     QToolBar *toolBar;
     QComboBox *regionComboBox;
     QString region;

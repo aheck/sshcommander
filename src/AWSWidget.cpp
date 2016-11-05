@@ -30,16 +30,10 @@ AWSWidget::AWSWidget()
     this->regionComboBox->addItems(AWSConnector::Regions);
     this->regionComboBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     QObject::connect(this->regionComboBox, SIGNAL(currentTextChanged(QString)), this, SLOT(changeRegion(QString)));
-    this->instanceTable = new QTableWidget(this->mainWidget);
-    this->instanceTable->setColumnCount(6);
-    QStringList headerLabels;
-    headerLabels << QString("ID");
-    headerLabels << QString("Status");
-    headerLabels << QString("Type");
-    headerLabels << QString("Public IP");
-    headerLabels << QString("Private IP");
-    headerLabels << QString("Launch Time");
-    this->instanceTable->setHorizontalHeaderLabels(headerLabels);
+    this->instanceTable = new QTableView(this->mainWidget);
+    this->instanceModel = new InstanceItemModel();
+    this->instanceTable->setModel(this->instanceModel);
+
     QHBoxLayout *toolBarLayout = new QHBoxLayout();
     toolBarLayout->addWidget(this->toolBar);
     toolBarLayout->addWidget(this->regionComboBox);
@@ -95,9 +89,9 @@ void AWSWidget::loadInstances()
     this->awsConnector->describeInstances();
 }
 
-QVector<AWSInstance*>* AWSWidget::parseDescribeInstancesResult(AWSResult *result)
+QVector<AWSInstance*> AWSWidget::parseDescribeInstancesResult(AWSResult *result)
 {
-    QVector<AWSInstance*> *vector = new QVector<AWSInstance*>;
+    QVector<AWSInstance*> vector;
     AWSInstance *instance = NULL;
 
     if (result->httpBody.isEmpty()) {
@@ -126,7 +120,7 @@ QVector<AWSInstance*>* AWSWidget::parseDescribeInstancesResult(AWSResult *result
 
                 if (instancesSet && itemLevel == 2) {
                     instance = new AWSInstance();
-                    vector->append(instance);
+                    vector << instance;
                 }
             } else if (name == "instanceState") {
                 instanceState = true;
@@ -187,28 +181,8 @@ void AWSWidget::handleAWSResult(AWSResult *result)
             this->curWidget = this->mainWidget;
         }
 
-        QVector<AWSInstance*>* vector = this->parseDescribeInstancesResult(result);
-        this->instanceTable->clearContents();
-        this->instanceTable->setRowCount(0);
-
-        for (QVector<AWSInstance*>::iterator it = vector->begin(); it != vector->end(); it++) {
-            int curRow = this->instanceTable->rowCount();
-            this->instanceTable->insertRow(curRow);
-            this->instanceTable->setItem(curRow, 0, new QTableWidgetItem((*it)->id, 0));
-            this->instanceTable->setItem(curRow, 1, new QTableWidgetItem((*it)->status, 0));
-            this->instanceTable->setItem(curRow, 2, new QTableWidgetItem((*it)->type, 0));
-            this->instanceTable->setItem(curRow, 3, new QTableWidgetItem((*it)->publicIP, 0));
-            this->instanceTable->setItem(curRow, 4, new QTableWidgetItem((*it)->privateIP, 0));
-            this->instanceTable->setItem(curRow, 5, new QTableWidgetItem((*it)->launchTime, 0));
-            curRow++;
-        }
-
-        if (this->firstTryToLogin) {
-            this->accessKey = this->accessKeyLineEdit->text();
-            this->secretKey = this->secretKeyLineEdit->text();
-            this->saveAWSCredentials();
-            this->firstTryToLogin = false;
-        }
+        QVector<AWSInstance*> vector = this->parseDescribeInstancesResult(result);
+        this->instanceModel->setInstances(vector);
     }
 
     this->requestRunning = false;

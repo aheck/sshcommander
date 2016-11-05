@@ -17,6 +17,7 @@ add_executable(sshcommander
     AWSWidget.cpp
     CustomTabBar.cpp
     CustomTabWidget.cpp
+    InstanceItemModel.cpp
     MainWindow.cpp
     NewDialog.cpp
     SSHConnectionEntry.cpp

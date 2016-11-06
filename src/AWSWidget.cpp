@@ -33,6 +33,9 @@ AWSWidget::AWSWidget()
     this->instanceTable = new QTableView(this->mainWidget);
     this->instanceModel = new InstanceItemModel();
     this->instanceTable->setModel(this->instanceModel);
+    for (int i = 0; i < this->instanceTable->horizontalHeader()->count(); i++) {
+        this->instanceTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Stretch);
+    }
 
     QHBoxLayout *toolBarLayout = new QHBoxLayout();
     toolBarLayout->addWidget(this->toolBar);

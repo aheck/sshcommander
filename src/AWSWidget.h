@@ -3,6 +3,7 @@
 #include <QComboBox>
 #include <QFormLayout>
 #include <QHBoxLayout>
+#include <QHeaderView>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>

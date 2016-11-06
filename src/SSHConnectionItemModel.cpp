@@ -49,3 +49,18 @@ SSHConnectionEntry* SSHConnectionItemModel::getConnEntryByName(const QString nam
 {
     return this->sshConnByHost[name];
 }
+
+QModelIndex SSHConnectionItemModel::getIndexForSSHConnectionEntry(const SSHConnectionEntry *entry) const
+{
+    if (entry == NULL) {
+        return QModelIndex();
+    }
+
+    for (int i = 0; i < this->entries.size(); i++) {
+        if (this->entries.at(i) == entry) {
+            return this->index(i, 0);
+        }
+    }
+
+    return QModelIndex();
+}

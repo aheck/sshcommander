@@ -20,6 +20,7 @@ public:
     void appendConnectionEntry(SSHConnectionEntry *entry);
     void removeConnectionEntry(SSHConnectionEntry *entry);
     SSHConnectionEntry* getConnEntryByName(const QString name);
+    QModelIndex getIndexForSSHConnectionEntry(const SSHConnectionEntry *entry) const;
 
 private:
     QList<SSHConnectionEntry*> entries;

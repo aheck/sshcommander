@@ -118,7 +118,20 @@ void MainWindow::createNewConnection()
     //QString password = this->newDialog->passwordLineEdit->text();
     QString sshkey = this->newDialog->sshkeyLineEdit->text();
     QString label = QString("%1@%2").arg(username).arg(hostname);
-    SSHConnectionEntry *connEntry = new SSHConnectionEntry();
+    SSHConnectionEntry *connEntry;
+
+    // Check if a connection for username@hostname already exists.
+    // If this is the case we create no new connection but bring the existing
+    // connection to the foreground.
+    connEntry = this->connectionModel->getConnEntryByName(label);
+    if (connEntry != NULL) {
+        this->rightWidget->setCurrentIndex(0);
+        QModelIndex index = this->connectionModel->getIndexForSSHConnectionEntry(connEntry);
+        this->tabList->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+        return;
+    }
+
+    connEntry = new SSHConnectionEntry();
     connEntry->name = label;
 
     if (sshkey.isEmpty()) {

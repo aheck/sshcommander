@@ -1,3 +1,4 @@
+#include <QAction>
 #include <QApplication>
 #include <QBuffer>
 #include <QComboBox>
@@ -32,9 +33,14 @@ public:
     AWSWidget();
     ~AWSWidget();
 
+signals:
+    void newConnection(const AWSInstance &instance);
+
 private slots:
     void loadInstances();
+    void connectToInstance();
     void changeRegion(QString region);
+    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
     void readSettings();
@@ -63,6 +69,7 @@ private:
     QString region;
     bool requestRunning;
     bool firstTryToLogin;
+    QAction *connectButton;
 };
 
 #endif

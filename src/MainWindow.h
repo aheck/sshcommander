@@ -43,6 +43,7 @@ public slots:
     void createNewSession();
     void closeSSHTab(int tabIndex);
     void aboutToQuit();
+    void createSSHConnectionToAWS(const AWSInstance &instance);
 
 private:
     const QString getCurrentUsernameAndHost();
@@ -58,6 +59,7 @@ private:
     QToolBar *toolBar;
     AWSWidget *awsWidget;
     SSHConnectionItemModel *connectionModel;
+    QTabWidget *rightWidget;
 };
 
 #endif

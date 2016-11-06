@@ -61,10 +61,11 @@ MainWindow::MainWindow(QWidget *parent) :
     this->sessionInfoSplitter->setStretchFactor(1, 5);
     this->sessionInfoSplitter->setCollapsible(0, false);
 
-    QTabWidget *rightWidget = new QTabWidget();
+    this->rightWidget = new QTabWidget();
     rightWidget->addTab(sessionInfoSplitter, "SSH");
 
     this->awsWidget = new AWSWidget();
+    QObject::connect(this->awsWidget, SIGNAL(newConnection(AWSInstance)), this, SLOT(createSSHConnectionToAWS(AWSInstance)));
     rightWidget->addTab(this->awsWidget, "AWS");
 
     this->splitter->addWidget(rightWidget);
@@ -153,6 +154,7 @@ void MainWindow::createNewConnection()
     this->tabList->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
     tabs->setCurrentWidget(console);
     tabs->setFocus();
+    this->rightWidget->setCurrentIndex(0);
     console->setFocus();
 
     console->startShellProgram();
@@ -248,4 +250,11 @@ void MainWindow::saveSettings()
     settings.setValue("splitterSizes", this->splitter->saveState());
     settings.setValue("sessionInfoSplitterSizes", this->sessionInfoSplitter->saveState());
     settings.endGroup();
+}
+
+void MainWindow::createSSHConnectionToAWS(const AWSInstance &instance)
+{
+    this->newDialog->hostnameLineEdit->setText(instance.publicIP);
+    this->newDialog->usernameLineEdit->setFocus();
+    this->newDialog->open();
 }

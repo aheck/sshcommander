@@ -25,6 +25,8 @@ AWSWidget::AWSWidget()
     this->mainWidget->setLayout(new QVBoxLayout(this->mainWidget));
     this->toolBar = new QToolBar("toolBar", this->mainWidget);
     this->toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_BrowserReload), "Refresh", this, SLOT(loadInstances()));
+    this->connectButton = this->toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_CommandLink), "Connect to Instance", this, SLOT(connectToInstance()));
+    this->connectButton->setEnabled(false);
     this->toolBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     this->regionComboBox = new QComboBox();
     this->regionComboBox->addItems(AWSConnector::Regions);
@@ -37,6 +39,7 @@ AWSWidget::AWSWidget()
     for (int i = 0; i < this->instanceTable->horizontalHeader()->count(); i++) {
         this->instanceTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Stretch);
     }
+    QObject::connect(this->instanceTable->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(selectionChanged(QItemSelection, QItemSelection)));
 
     QHBoxLayout *toolBarLayout = new QHBoxLayout();
     toolBarLayout->addWidget(this->toolBar);
@@ -91,6 +94,20 @@ void AWSWidget::loadInstances()
     this->awsConnector->setRegion(this->region);
 
     this->awsConnector->describeInstances();
+}
+
+void AWSWidget::connectToInstance()
+{
+    AWSInstance *instance;
+
+    QModelIndexList indexes = this->instanceTable->selectionModel()->selectedIndexes();
+    if (indexes.isEmpty()) {
+        return;
+    }
+
+    instance = this->instanceModel->getInstance(indexes.first());
+    std::cout << "test: " << instance->publicIP.toStdString() << std::endl;
+    emit newConnection(*instance);
 }
 
 QVector<AWSInstance*> AWSWidget::parseDescribeInstancesResult(AWSResult *result)
@@ -189,6 +206,7 @@ void AWSWidget::handleAWSResult(AWSResult *result)
 
         QVector<AWSInstance*> vector = this->parseDescribeInstancesResult(result);
         this->instanceModel->setInstances(vector);
+        this->connectButton->setEnabled(false);
     }
 
     this->requestRunning = false;
@@ -219,4 +237,10 @@ void AWSWidget::changeRegion(QString region)
 {
     this->region = region;
     this->loadInstances();
+}
+
+void AWSWidget::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+{
+    bool enabled = selected.size() != 0;
+    this->connectButton->setEnabled(enabled);
 }

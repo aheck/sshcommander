@@ -19,6 +19,7 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
     void setInstances(QVector<AWSInstance*> instances);
+    AWSInstance* getInstance(const QModelIndex &index);
 
 private:
     QVector<AWSInstance*> instances;

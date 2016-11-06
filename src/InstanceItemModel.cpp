@@ -92,3 +92,12 @@ void InstanceItemModel::setInstances(QVector<AWSInstance*> instances)
 
     this->endResetModel();
 }
+
+AWSInstance* InstanceItemModel::getInstance(const QModelIndex &index)
+{
+    if (index.row() > (this->instances.size() - 1)) {
+        return NULL;
+    }
+
+    return this->instances.at(index.row());
+}

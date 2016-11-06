@@ -24,7 +24,7 @@ AWSWidget::AWSWidget()
     this->mainWidget = new QWidget();
     this->mainWidget->setLayout(new QVBoxLayout(this->mainWidget));
     this->toolBar = new QToolBar("toolBar", this->mainWidget);
-    this->toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "Refresh", this, SLOT(loadInstances()));
+    this->toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_BrowserReload), "Refresh", this, SLOT(loadInstances()));
     this->toolBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     this->regionComboBox = new QComboBox();
     this->regionComboBox->addItems(AWSConnector::Regions);

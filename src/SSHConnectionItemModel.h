@@ -19,9 +19,11 @@ public:
 
     void appendConnectionEntry(SSHConnectionEntry *entry);
     void removeConnectionEntry(SSHConnectionEntry *entry);
+    SSHConnectionEntry* getConnEntryByName(const QString name);
 
 private:
     QList<SSHConnectionEntry*> entries;
+    QHash<QString, SSHConnectionEntry*> sshConnByHost;
 };
 
 #endif

@@ -36,10 +36,16 @@ void SSHConnectionItemModel::appendConnectionEntry(SSHConnectionEntry *entry)
     int pos = this->rowCount();
     this->beginInsertRows(QModelIndex(), pos, pos);
     this->entries << entry;
+    this->sshConnByHost[entry->name] = entry;
     this->endInsertRows();
 }
 
 void SSHConnectionItemModel::removeConnectionEntry(SSHConnectionEntry *entry)
 {
 
+}
+
+SSHConnectionEntry* SSHConnectionItemModel::getConnEntryByName(const QString name)
+{
+    return this->sshConnByHost[name];
 }

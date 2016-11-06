@@ -51,7 +51,6 @@ private:
 
     QMenuBar *menuBar;
     NewDialog *newDialog;
-    QHash<QString, SSHConnectionEntry*> sshConnByHost;
     QSplitter *splitter;
     QSplitter *sessionInfoSplitter;
     QListView *tabList;

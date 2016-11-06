@@ -147,7 +147,6 @@ void MainWindow::createNewConnection()
     tabStack->addWidget(tabs);
 
     connEntry->tabs = tabs;
-    this->sshConnByHost[label] = connEntry;
 
     this->connectionModel->appendConnectionEntry(connEntry);
     QModelIndex index = this->connectionModel->index(this->connectionModel->rowCount(QModelIndex()) - 1, 0, QModelIndex());
@@ -191,7 +190,7 @@ SSHConnectionEntry* MainWindow::getCurrentConnectionEntry()
 {
     const QString usernameAndHost = this->getCurrentUsernameAndHost();
 
-    return this->sshConnByHost[usernameAndHost];
+    return this->connectionModel->getConnEntryByName(usernameAndHost);
 }
 
 CustomTabWidget* MainWindow::getCurrentTabWidget()

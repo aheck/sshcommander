@@ -33,6 +33,7 @@ AWSWidget::AWSWidget()
     this->instanceTable = new QTableView(this->mainWidget);
     this->instanceModel = new InstanceItemModel();
     this->instanceTable->setModel(this->instanceModel);
+    this->instanceTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     for (int i = 0; i < this->instanceTable->horizontalHeader()->count(); i++) {
         this->instanceTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Stretch);
     }

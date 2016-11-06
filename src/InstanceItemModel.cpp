@@ -81,6 +81,14 @@ QVariant InstanceItemModel::data(const QModelIndex &index, int role) const
 void InstanceItemModel::setInstances(QVector<AWSInstance*> instances)
 {
     this->beginResetModel();
+
+    // free the memory of the old instance objects before we lose access to
+    // their pointers
+    for (int i = 0; i < this->instances.size(); i++) {
+        delete this->instances.at(i);
+    }
+
     this->instances = instances;
+
     this->endResetModel();
 }

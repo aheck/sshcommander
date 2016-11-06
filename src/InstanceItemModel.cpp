@@ -17,7 +17,7 @@ int InstanceItemModel::rowCount(const QModelIndex &parent = QModelIndex()) const
 
 int InstanceItemModel::columnCount(const QModelIndex &parent = QModelIndex()) const
 {
-    return 6;
+    return 7;
 }
 
 QVariant InstanceItemModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -38,10 +38,12 @@ QVariant InstanceItemModel::headerData(int section, Qt::Orientation orientation,
         case 2:
             return QVariant("Type");
         case 3:
-            return QVariant("Public IP");
+            return QVariant("SSH Key");
         case 4:
-            return QVariant("Private IP");
+            return QVariant("Public IP");
         case 5:
+            return QVariant("Private IP");
+        case 6:
             return QVariant("Launch Time");
     }
 
@@ -64,10 +66,12 @@ QVariant InstanceItemModel::data(const QModelIndex &index, int role) const
         case 2:
             return QVariant(instance->type);
         case 3:
-            return QVariant(instance->publicIP);
+            return QVariant(instance->keyname);
         case 4:
-            return QVariant(instance->privateIP);
+            return QVariant(instance->publicIP);
         case 5:
+            return QVariant(instance->privateIP);
+        case 6:
             return QVariant(instance->launchTime);
     }
 

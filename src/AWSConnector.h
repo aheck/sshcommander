@@ -25,6 +25,7 @@ struct AWSInstance
 {
     QString id;
     QString status;
+    QString keyname;
     QString type;
     QString imageId;
     QString launchTime;

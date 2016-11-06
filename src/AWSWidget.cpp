@@ -131,6 +131,8 @@ QVector<AWSInstance*> AWSWidget::parseDescribeInstancesResult(AWSResult *result)
                     instance->status = xml.readElementText();
                 } else if (name == "instanceType") {
                     instance->type = xml.readElementText();
+                } else if (name == "keyName") {
+                    instance->keyname = xml.readElementText();
                 } else if (name == "ipAddress") {
                     instance->publicIP = xml.readElementText();
                 } else if (name == "privateIpAddress") {

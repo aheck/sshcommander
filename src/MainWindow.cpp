@@ -255,6 +255,23 @@ void MainWindow::saveSettings()
 void MainWindow::createSSHConnectionToAWS(const AWSInstance &instance)
 {
     this->newDialog->hostnameLineEdit->setText(instance.publicIP);
+    this->newDialog->sshkeyLineEdit->setText(this->findSSHKey(instance.keyname));
     this->newDialog->usernameLineEdit->setFocus();
     this->newDialog->open();
+}
+
+QString MainWindow::findSSHKey(const QString keyname)
+{
+    QString result;
+
+    QString keynameInDotSSH = QDir::homePath() + "/.ssh/" + keyname;
+    if (QFileInfo::exists(keynameInDotSSH)) {
+        QFileInfo info(keynameInDotSSH);
+
+        if (info.isFile()) {
+            result = keynameInDotSSH;
+        }
+    }
+
+    return result;
 }

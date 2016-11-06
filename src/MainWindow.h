@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include <QFileInfo>
 #include <QIcon>
 #include <QStyle>
 #include <QLabel>
@@ -49,6 +50,7 @@ private:
     const QString getCurrentUsernameAndHost();
     SSHConnectionEntry *getCurrentConnectionEntry();
     CustomTabWidget* getCurrentTabWidget();
+    QString findSSHKey(const QString keyname);
 
     QMenuBar *menuBar;
     NewDialog *newDialog;

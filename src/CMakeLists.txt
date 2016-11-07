@@ -10,6 +10,7 @@ find_package(Qt5Xml)
 find_package(qtermwidget5)
 
 include_directories(${QTERMWIDGET_INCLUDE_DIRS})
+link_directories("/usr/local/lib")
 
 add_executable(sshcommander
     main.cpp
@@ -23,4 +24,4 @@ add_executable(sshcommander
     SSHConnectionEntry.cpp
     SSHConnectionItemModel.cpp
 )
-target_link_libraries(sshcommander Qt5::Widgets Qt5::Network Qt5::Xml qtermwidget5)
+target_link_libraries(sshcommander Qt5::Widgets Qt5::Network Qt5::Xml ${QTERMWIDGET_LIBRARIES})

@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QMenu *connMenu = new QMenu("Connections", menuBar);
     menuBar->addMenu(connMenu);
-    connMenu->addAction("&New", this->newDialog, SLOT(open()));
+    connMenu->addAction("&New", this->newDialog, SLOT(exec()));
     connMenu->addSeparator();
     connMenu->addAction("&Quit", qApp, SLOT(quit()));
 
@@ -270,7 +270,7 @@ void MainWindow::createSSHConnectionToAWS(const AWSInstance &instance)
     this->newDialog->hostnameLineEdit->setText(instance.publicIP);
     this->newDialog->sshkeyLineEdit->setText(this->findSSHKey(instance.keyname));
     this->newDialog->usernameLineEdit->setFocus();
-    this->newDialog->open();
+    this->newDialog->exec();
 }
 
 QString MainWindow::findSSHKey(const QString keyname)

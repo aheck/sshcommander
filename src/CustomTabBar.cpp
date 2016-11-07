@@ -18,6 +18,9 @@ void CustomTabBar::mouseDoubleClickEvent(QMouseEvent *event)
                 this->tabText(tabIndex), &success);
  
     if (success) {
-        setTabText(tabIndex, name);
+        QString newName = name.trimmed();
+        if (!newName.isEmpty()) {
+            setTabText(tabIndex, newName);
+        }
     }
 }

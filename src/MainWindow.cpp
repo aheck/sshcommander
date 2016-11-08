@@ -23,9 +23,10 @@ MainWindow::MainWindow(QWidget *parent) :
     this->connectionModel = new SSHConnectionItemModel();
     this->tabList = new QListView();
     this->tabList->setSelectionMode(QAbstractItemView::SingleSelection);
-    this->tabList->setSelectionMode(QAbstractItemView::SingleSelection);
     this->tabList->setModel(this->connectionModel);
     QObject::connect(this->tabList->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(changeConnection(QItemSelection, QItemSelection)));
+    this->tabList->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this->tabList, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showTabListContextMenu(QPoint)));
 
     toolBar = new QToolBar("toolBar", 0);
     toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "New Session", this, SLOT(createNewSession()));
@@ -85,6 +86,11 @@ MainWindow::~MainWindow()
 void MainWindow::changeConnection(const QItemSelection &selected, const QItemSelection &deselected)
 {
     QModelIndexList indexes = selected.indexes();
+
+    if (indexes.size() == 0) {
+        return;
+    }
+
     QModelIndex index = indexes.at(0);
     tabStack->setCurrentIndex(index.row());
 }
@@ -287,4 +293,33 @@ QString MainWindow::findSSHKey(const QString keyname)
     }
 
     return result;
+}
+
+void MainWindow::showTabListContextMenu(QPoint pos)
+{
+    QPoint globalPos = this->tabList->mapToGlobal(pos);
+
+    QMenu menu;
+    menu.addAction("Delete", this, SLOT(removeConnection()));
+
+    if (this->tabList->indexAt(pos).isValid()) {
+        menu.exec(globalPos);
+    }
+}
+
+void MainWindow::removeConnection()
+{
+    SSHConnectionEntry *entry = this->getCurrentConnectionEntry();
+
+    CustomTabWidget *tabWidget = entry->tabs;
+    for(int i = tabWidget->count(); i >= 0; --i) {
+        QTermWidget *termWidget = (QTermWidget*) tabWidget->widget(i);
+        tabWidget->removeTab(i);
+        delete termWidget;
+    }
+
+    this->connectionModel->removeConnectionEntry(entry);
+    this->tabStack->removeWidget(tabWidget);
+
+    delete entry;
 }

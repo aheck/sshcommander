@@ -10,6 +10,7 @@ struct SSHConnectionEntry
 {
 public:
     SSHConnectionEntry();
+    ~SSHConnectionEntry();
 
     QString name;
     unsigned int nextSessionNumber;

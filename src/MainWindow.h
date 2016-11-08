@@ -45,6 +45,8 @@ public slots:
     void closeSSHTab(int tabIndex);
     void aboutToQuit();
     void createSSHConnectionToAWS(const AWSInstance &instance);
+    void showTabListContextMenu(QPoint pos);
+    void removeConnection();
 
 private:
     const QString getCurrentUsernameAndHost();

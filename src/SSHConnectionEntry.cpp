@@ -7,3 +7,8 @@ SSHConnectionEntry::SSHConnectionEntry()
     this->tabs = NULL;
     this->awsInstance = NULL;
 }
+
+SSHConnectionEntry::~SSHConnectionEntry()
+{
+    delete this->tabs;
+}

@@ -42,7 +42,12 @@ void SSHConnectionItemModel::appendConnectionEntry(SSHConnectionEntry *entry)
 
 void SSHConnectionItemModel::removeConnectionEntry(SSHConnectionEntry *entry)
 {
+    QModelIndex index = this->getIndexForSSHConnectionEntry(entry);
 
+    beginRemoveRows(QModelIndex(), index.row(), index.row());
+    this->entries.removeAt(index.row());
+    this->sshConnByHost.remove(entry->name);
+    endRemoveRows();
 }
 
 SSHConnectionEntry* SSHConnectionItemModel::getConnEntryByName(const QString name)

@@ -20,6 +20,7 @@
 
 #include "AWSWidget.h"
 #include "CustomTabWidget.h"
+#include "MachineInfoWidget.h"
 #include "NewDialog.h"
 #include "SSHConnectionEntry.h"
 #include "SSHConnectionItemModel.h"
@@ -54,6 +55,7 @@ private:
     SSHConnectionEntry *getCurrentConnectionEntry();
     CustomTabWidget* getCurrentTabWidget();
     QString findSSHKey(const QString keyname);
+    void updateConnectionTabs();
 
     QMenuBar *menuBar;
     NewDialog *newDialog;
@@ -65,6 +67,7 @@ private:
     AWSWidget *awsWidget;
     SSHConnectionItemModel *connectionModel;
     QTabWidget *rightWidget;
+    MachineInfoWidget machineInfo;
 };
 
 #endif

@@ -52,11 +52,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->sessionInfoSplitter->addWidget(sshSessionsWidget);
 
-    CustomTabWidget *sshSessionsInfo = new CustomTabWidget();
-    sshSessionsInfo->addTab(new QWidget(), "A");
-    sshSessionsInfo->addTab(new QWidget(), "B");
-    sshSessionsInfo->addTab(new QWidget(), "C");
-    sshSessionsInfo->addTab(new QWidget(), "D");
+    QTabWidget *sshSessionsInfo = new QTabWidget();
+    sshSessionsInfo->addTab(&this->machineInfo, "Machine");
+    sshSessionsInfo->addTab(new QWidget(), "AWS");
 
     this->sessionInfoSplitter->addWidget(sshSessionsInfo);
     this->sessionInfoSplitter->setStretchFactor(0, 10);
@@ -94,6 +92,7 @@ void MainWindow::changeConnection(const QItemSelection &selected, const QItemSel
 
     QModelIndex index = indexes.at(0);
     tabStack->setCurrentIndex(index.row());
+    this->updateConnectionTabs();
 }
 
 QTermWidget* MainWindow::createNewTermWidget(const QStringList *args)
@@ -140,6 +139,8 @@ void MainWindow::createNewConnection()
 
     connEntry = new SSHConnectionEntry();
     connEntry->name = label;
+    connEntry->hostname = hostname;
+    connEntry->username = username;
 
     if (sshkey.isEmpty()) {
         const QStringList *args = new QStringList(label);
@@ -371,4 +372,16 @@ void MainWindow::removeConnection()
     this->tabStack->removeWidget(tabWidget);
 
     delete entry;
+}
+
+void MainWindow::updateConnectionTabs()
+{
+    SSHConnectionEntry *connEntry = this->getCurrentConnectionEntry();
+
+    if (connEntry == NULL) {
+        return;
+    }
+
+    this->machineInfo.setHostname(connEntry->hostname);
+    this->machineInfo.setUsername(connEntry->username);
 }

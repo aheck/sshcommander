@@ -13,6 +13,8 @@ public:
     ~SSHConnectionEntry();
 
     QString name;
+    QString hostname;
+    QString username;
     unsigned int nextSessionNumber;
     const QStringList *args;
     CustomTabWidget *tabs;

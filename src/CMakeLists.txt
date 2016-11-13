@@ -19,6 +19,7 @@ add_executable(sshcommander
     CustomTabBar.cpp
     CustomTabWidget.cpp
     InstanceItemModel.cpp
+    MachineInfoWidget.cpp
     MainWindow.cpp
     NewDialog.cpp
     SSHConnectionEntry.cpp

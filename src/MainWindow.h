@@ -18,6 +18,7 @@
 
 #include <qtermwidget.h>
 
+#include "AWSInfoWidget.h"
 #include "AWSWidget.h"
 #include "CustomTabWidget.h"
 #include "MachineInfoWidget.h"
@@ -68,6 +69,8 @@ private:
     SSHConnectionItemModel *connectionModel;
     QTabWidget *rightWidget;
     MachineInfoWidget machineInfo;
+    AWSInfoWidget awsInfo;
+    QTabWidget *sshSessionsInfo;
 };
 
 #endif

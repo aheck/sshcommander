@@ -14,7 +14,6 @@ MachineInfoWidget::MachineInfoWidget()
     this->gridLayout.setRowStretch(2, 1);
     this->gridLayout.setColumnStretch(2, 1);
 
-    this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     this->setLayout(&this->gridLayout);
 }
 

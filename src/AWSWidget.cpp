@@ -141,6 +141,7 @@ QVector<AWSInstance*> AWSWidget::parseDescribeInstancesResult(AWSResult *result)
 
                 if (instancesSet && itemLevel == 2) {
                     instance = new AWSInstance();
+                    instance->region = this->region;
                     vector << instance;
                 }
             } else if (name == "instanceState") {

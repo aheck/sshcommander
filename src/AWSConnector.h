@@ -24,6 +24,7 @@ struct AWSResult
 struct AWSInstance
 {
     QString id;
+    QString region;
     QString status;
     QString keyname;
     QString type;

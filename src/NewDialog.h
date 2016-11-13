@@ -5,6 +5,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+#include "AWSConnector.h"
+
 #ifndef NEWDIALOG_H
 #define NEWDIALOG_H
 
@@ -22,6 +24,9 @@ public:
     QLineEdit *usernameLineEdit;
     QLineEdit *passwordLineEdit;
     QLineEdit *sshkeyLineEdit;
+
+    bool isAwsInstance;
+    AWSInstance awsInstance;
 
 public slots:
     void selectKeyFile();

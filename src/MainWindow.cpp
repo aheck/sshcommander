@@ -52,9 +52,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->sessionInfoSplitter->addWidget(sshSessionsWidget);
 
-    QTabWidget *sshSessionsInfo = new QTabWidget();
+    this->sshSessionsInfo = new QTabWidget();
     sshSessionsInfo->addTab(&this->machineInfo, "Machine");
-    sshSessionsInfo->addTab(new QWidget(), "AWS");
+    sshSessionsInfo->addTab(&this->awsInfo, "AWS");
 
     this->sessionInfoSplitter->addWidget(sshSessionsInfo);
     this->sessionInfoSplitter->setStretchFactor(0, 10);
@@ -141,6 +141,11 @@ void MainWindow::createNewConnection()
     connEntry->name = label;
     connEntry->hostname = hostname;
     connEntry->username = username;
+
+    if (this->newDialog->isAwsInstance) {
+        connEntry->isAwsInstance = true;
+        connEntry->awsInstance = this->newDialog->awsInstance;
+    }
 
     if (sshkey.isEmpty()) {
         const QStringList *args = new QStringList(label);
@@ -326,7 +331,11 @@ void MainWindow::createSSHConnectionToAWS(const AWSInstance &instance)
     this->newDialog->hostnameLineEdit->setText(instance.publicIP);
     this->newDialog->sshkeyLineEdit->setText(this->findSSHKey(instance.keyname));
     this->newDialog->usernameLineEdit->setFocus();
+
+    this->newDialog->isAwsInstance = true;
+    this->newDialog->awsInstance = instance;
     this->newDialog->exec();
+    this->newDialog->isAwsInstance = false;
 }
 
 QString MainWindow::findSSHKey(const QString keyname)
@@ -384,4 +393,9 @@ void MainWindow::updateConnectionTabs()
 
     this->machineInfo.setHostname(connEntry->hostname);
     this->machineInfo.setUsername(connEntry->username);
+
+    if (connEntry->isAwsInstance) {
+        this->awsInfo.setInstanceId(connEntry->awsInstance.id);
+        this->awsInfo.setRegion(connEntry->awsInstance.region);
+    }
 }

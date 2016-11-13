@@ -15,6 +15,7 @@ link_directories("/usr/local/lib")
 add_executable(sshcommander
     main.cpp
     AWSConnector.cpp
+    AWSInfoWidget.cpp
     AWSWidget.cpp
     CustomTabBar.cpp
     CustomTabWidget.cpp

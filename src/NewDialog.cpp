@@ -4,6 +4,7 @@ NewDialog::NewDialog(MainWindow *mainWindow)
 {
     this->mainWindow = mainWindow;
     this->setWindowTitle(tr("New SSH Connection..."));
+    this->isAwsInstance = false;
 
     hostnameLineEdit = new QLineEdit();
     usernameLineEdit = new QLineEdit();

@@ -5,7 +5,7 @@ SSHConnectionEntry::SSHConnectionEntry()
     this->nextSessionNumber = 1;
     this->args = NULL;
     this->tabs = NULL;
-    this->awsInstance = NULL;
+    this->isAwsInstance = false;
 }
 
 SSHConnectionEntry::~SSHConnectionEntry()

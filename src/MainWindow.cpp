@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     toolBar = new QToolBar("toolBar", 0);
     toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "New Session", this, SLOT(createNewSession()));
+    toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_BrowserReload), "Restart Session", this, SLOT(restartSession()));
     tabStack = new QStackedWidget();
 
     this->splitter = new QSplitter(Qt::Horizontal);
@@ -191,10 +192,58 @@ void MainWindow::createNewSession()
     QTermWidget *console = createNewTermWidget(connEntry->args);
     tabs->addTab(console, QString::asprintf("Session %d", connEntry->nextSessionNumber++));
     tabs->setCurrentWidget(console);
+
+    console->startShellProgram();
+
+    tabs->setFocus();
+    console->setFocus();
+}
+
+void MainWindow::restartSession()
+{
+    QWidget *oldWidget = NULL;
+    SSHConnectionEntry *connEntry = this->getCurrentConnectionEntry();
+    if (connEntry == NULL) {
+        return;
+    }
+
+    CustomTabWidget *tabs = connEntry->tabs;
+
+    if (tabs->count() == 0) {
+        return;
+    }
+
+    int tabIndex = tabs->currentIndex();
+    const QString tabText = tabs->tabText(tabIndex);
+
+    if (tabs->currentWidget() != NULL) {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Restart Session?",
+                QString("Do you really want to restart SSH session '%1' with '%2'?").arg(tabText).arg(connEntry->name),
+                QMessageBox::Yes|QMessageBox::No);
+
+        if (reply == QMessageBox::No) {
+            return;
+        }
+
+        oldWidget = tabs->currentWidget();
+    }
+
+    QTermWidget *console = createNewTermWidget(connEntry->args);
+    tabs->setUpdatesEnabled(false);
+    tabs->removeTab(tabIndex);
+    tabs->insertTab(tabIndex, console, tabText);
+    tabs->setCurrentIndex(tabIndex);
+    tabs->setUpdatesEnabled(true);
+
+    console->startShellProgram();
+
     tabs->setFocus();
     console->setFocus();
 
-    console->startShellProgram();
+    if (oldWidget) {
+        delete oldWidget;
+    }
 }
 
 const QString MainWindow::getCurrentUsernameAndHost()

@@ -42,6 +42,7 @@ public slots:
     void changeConnection(const QItemSelection &selected, const QItemSelection &deselected);
     void createNewConnection();
     void createNewSession();
+    void restartSession();
     void closeSSHTab(int tabIndex);
     void aboutToQuit();
     void createSSHConnectionToAWS(const AWSInstance &instance);

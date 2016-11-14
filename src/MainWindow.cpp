@@ -76,6 +76,8 @@ MainWindow::MainWindow(QWidget *parent) :
     setCentralWidget(this->splitter);
 
     this->readSettings();
+
+    this->awsWidget->loadInstances();
 }
 
 MainWindow::~MainWindow()
@@ -311,6 +313,7 @@ void MainWindow::readSettings()
     this->move(settings.value("pos", QPoint(200, 200)).toPoint());
     this->splitter->restoreState(settings.value("splitterSizes").toByteArray());
     this->sessionInfoSplitter->restoreState(settings.value("sessionInfoSplitterSizes").toByteArray());
+    this->awsWidget->setRegion(settings.value("selectedAwsRegion", "").toString());
     settings.endGroup();
 }
 
@@ -323,6 +326,8 @@ void MainWindow::saveSettings()
     settings.setValue("pos", this->pos());
     settings.setValue("splitterSizes", this->splitter->saveState());
     settings.setValue("sessionInfoSplitterSizes", this->sessionInfoSplitter->saveState());
+    settings.setValue("sessionInfoSplitterSizes", this->sessionInfoSplitter->saveState());
+    settings.setValue("selectedAwsRegion", this->awsWidget->getRegion());
     settings.endGroup();
 }
 

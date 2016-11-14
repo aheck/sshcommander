@@ -28,16 +28,19 @@ class AWSWidget : public QWidget
 public slots:
     void connectToAWS();
     void handleAWSResult(AWSResult *result);
+    void loadInstances();
 
 public:
     AWSWidget();
     ~AWSWidget();
 
+    QString getRegion() const;
+    void setRegion(const QString region);
+
 signals:
     void newConnection(const AWSInstance &instance);
 
 private slots:
-    void loadInstances();
     void connectToInstance();
     void changeRegion(QString region);
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);

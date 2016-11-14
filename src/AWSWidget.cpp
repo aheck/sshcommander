@@ -58,7 +58,6 @@ AWSWidget::AWSWidget()
     if (!this->accessKey.isEmpty() && !this->secretKey.isEmpty()) {
         this->loginWidget->setVisible(false);
         this->curWidget = this->mainWidget;
-        this->loadInstances();
     } else {
         this->mainWidget->setVisible(false);
         this->curWidget = this->loginWidget;
@@ -81,7 +80,7 @@ void AWSWidget::connectToAWS()
 
 void AWSWidget::loadInstances()
 {
-    if (this->requestRunning) {
+    if (this->requestRunning || this->accessKey.isEmpty()) {
         return;
     }
 
@@ -244,4 +243,15 @@ void AWSWidget::selectionChanged(const QItemSelection &selected, const QItemSele
 {
     bool enabled = selected.size() != 0;
     this->connectButton->setEnabled(enabled);
+}
+
+QString AWSWidget::getRegion() const
+{
+    return this->region;
+}
+
+void AWSWidget::setRegion(const QString region)
+{
+    this->region = region;
+    this->regionComboBox->setCurrentIndex(this->regionComboBox->findText(region));
 }

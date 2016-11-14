@@ -154,12 +154,24 @@ QVector<AWSInstance*> AWSWidget::parseDescribeInstancesResult(AWSResult *result)
                     instance->type = xml.readElementText();
                 } else if (name == "keyName") {
                     instance->keyname = xml.readElementText();
+                } else if (name == "imageId") {
+                    instance->imageId = xml.readElementText();
                 } else if (name == "ipAddress") {
                     instance->publicIP = xml.readElementText();
                 } else if (name == "privateIpAddress") {
                     instance->privateIP = xml.readElementText();
                 } else if (name == "launchTime") {
                     instance->launchTime = xml.readElementText();
+                } else if (name == "vpcId") {
+                    instance->vpcId = xml.readElementText();
+                } else if (name == "subnetId") {
+                    instance->subnetId = xml.readElementText();
+                } else if (name == "virtualizationType") {
+                    instance->virtualizationType = xml.readElementText();
+                } else if (name == "hypervisor") {
+                    instance->hypervisor = xml.readElementText();
+                } else if (name == "architecture") {
+                    instance->architecture = xml.readElementText();
                 }
             }
         } else if (xml.isEndElement()) {

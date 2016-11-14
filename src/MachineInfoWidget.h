@@ -1,5 +1,7 @@
 #include <QGridLayout>
 #include <QLabel>
+#include <QScrollArea>
+#include <QVBoxLayout>
 #include <QWidget>
 
 #ifndef MACHINEINFOWIDGET_H
@@ -17,11 +19,11 @@ public:
     void setUsername(const QString username);
 
 private:
-    QGridLayout gridLayout;
-    QLabel labelHostname;
-    QLabel valueHostname;
-    QLabel labelUsername;
-    QLabel valueUsername;
+    QGridLayout *gridLayout;
+    QLabel *labelHostname;
+    QLabel *valueHostname;
+    QLabel *labelUsername;
+    QLabel *valueUsername;
 };
 
 #endif

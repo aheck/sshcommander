@@ -400,7 +400,9 @@ void MainWindow::updateConnectionTabs()
     this->machineInfo.setUsername(connEntry->username);
 
     if (connEntry->isAwsInstance) {
-        this->awsInfo.setInstanceId(connEntry->awsInstance.id);
-        this->awsInfo.setRegion(connEntry->awsInstance.region);
+        this->awsInfo.setAWSEnabled(true);
+        this->awsInfo.update(connEntry->awsInstance);
+    } else {
+        this->awsInfo.setAWSEnabled(false);
     }
 }

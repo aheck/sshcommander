@@ -6,6 +6,16 @@ AWSInfoWidget::AWSInfoWidget()
 
     this->awsPage = new QWidget();
     this->noAWSPage = new QWidget();
+    QVBoxLayout *noAWSLayout = new QVBoxLayout();
+    noAWSLayout->setAlignment(Qt::AlignCenter);
+    QLabel *noAWSLabel = new QLabel("No AWS Data");
+    QFont font = noAWSLabel->font();
+    font.setPointSize(24);
+    font.setBold(true);
+    noAWSLabel->setFont(font);
+    noAWSLabel->setStyleSheet("QLabel { color : grey; }");
+    noAWSLayout->addWidget(noAWSLabel);
+    this->noAWSPage->setLayout(noAWSLayout);
 
     this->scrollArea = new QScrollArea();
     this->scrollArea->setWidgetResizable(true);

@@ -1,6 +1,7 @@
 #include <QGridLayout>
 #include <QLabel>
 #include <QScrollArea>
+#include <QStackedWidget>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -17,8 +18,13 @@ public:
 
     void setHostname(const QString hostname);
     void setUsername(const QString username);
+    void setMachineEnabled(bool enabled);
 
 private:
+    bool enabled;
+    QWidget *page;
+    QWidget *disabledPage;
+    QStackedWidget *widgetStack;
     QGridLayout *gridLayout;
     QLabel *labelHostname;
     QLabel *valueHostname;

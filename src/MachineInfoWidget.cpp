@@ -2,7 +2,21 @@
 
 MachineInfoWidget::MachineInfoWidget()
 {
-    QWidget *page = new QWidget();
+    this->enabled = false;
+    this->widgetStack = new QStackedWidget();
+    this->page = new QWidget();
+
+    this->disabledPage = new QWidget();
+    QVBoxLayout *disabledLayout = new QVBoxLayout();
+    disabledLayout->setAlignment(Qt::AlignCenter);
+    QLabel *disabledLabel = new QLabel("No Machine Data");
+    QFont font = disabledLabel->font();
+    font.setPointSize(24);
+    font.setBold(true);
+    disabledLabel->setFont(font);
+    disabledLabel->setStyleSheet("QLabel { color : grey; }");
+    disabledLayout->addWidget(disabledLabel);
+    this->disabledPage->setLayout(disabledLayout);
 
     this->labelHostname = new QLabel("Hostname:");
     this->labelUsername = new QLabel("Username:");
@@ -22,14 +36,17 @@ MachineInfoWidget::MachineInfoWidget()
     this->gridLayout->setRowStretch(2, 1);
     this->gridLayout->setColumnStretch(2, 1);
 
-    page->setLayout(this->gridLayout);
+    this->page->setLayout(this->gridLayout);
 
     QScrollArea *scrollArea = new QScrollArea();
     scrollArea->setWidgetResizable(true);
-    scrollArea->setWidget(page);
+    scrollArea->setWidget(this->page);
+
+    this->widgetStack->addWidget(this->disabledPage);
+    this->widgetStack->addWidget(this->page);
 
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(scrollArea);
+    layout->addWidget(this->widgetStack);
     this->setLayout(layout);
 }
 
@@ -46,4 +63,15 @@ void MachineInfoWidget::setHostname(const QString hostname)
 void MachineInfoWidget::setUsername(const QString username)
 {
     this->valueUsername->setText(username);
+}
+
+void MachineInfoWidget::setMachineEnabled(bool enabled)
+{
+    this->enabled = enabled;
+
+    if (this->enabled) {
+        this->widgetStack->setCurrentIndex(1);
+    } else {
+        this->widgetStack->setCurrentIndex(0);
+    }
 }

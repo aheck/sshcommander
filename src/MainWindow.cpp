@@ -404,6 +404,11 @@ void MainWindow::removeConnection()
     this->connectionModel->removeConnectionEntry(entry);
     this->tabStack->removeWidget(tabWidget);
 
+    if (this->connectionModel->rowCount(QModelIndex()) == 0) {
+        this->machineInfo->setMachineEnabled(false);
+        this->awsInfo->setAWSEnabled(false);
+    }
+
     delete entry;
 }
 
@@ -415,6 +420,7 @@ void MainWindow::updateConnectionTabs()
         return;
     }
 
+    this->machineInfo->setMachineEnabled(true);
     this->machineInfo->setHostname(connEntry->hostname);
     this->machineInfo->setUsername(connEntry->username);
 

@@ -50,6 +50,7 @@ public slots:
     void createSSHConnectionToAWS(const AWSInstance &instance);
     void showTabListContextMenu(QPoint pos);
     void removeConnection();
+    void toggleSessionEnlarged();
 
 private:
     const QString getCurrentUsernameAndHost();
@@ -58,18 +59,22 @@ private:
     QString findSSHKey(const QString keyname);
     void updateConnectionTabs();
 
+    bool viewEnlarged;
+    QWidget *sshSessionsWidget;
+    QWidget *hiddenPage;
     QMenuBar *menuBar;
     NewDialog *newDialog;
     QSplitter *splitter;
     QSplitter *sessionInfoSplitter;
     QListView *tabList;
+    QStackedWidget *widgetStack;
     QStackedWidget *tabStack;
     QToolBar *toolBar;
     AWSWidget *awsWidget;
     SSHConnectionItemModel *connectionModel;
     QTabWidget *rightWidget;
-    MachineInfoWidget machineInfo;
-    AWSInfoWidget awsInfo;
+    MachineInfoWidget *machineInfo;
+    AWSInfoWidget *awsInfo;
     QTabWidget *sshSessionsInfo;
 };
 

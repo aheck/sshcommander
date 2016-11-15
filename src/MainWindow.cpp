@@ -6,6 +6,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->newDialog = new NewDialog(this);
     QObject::connect(newDialog, SIGNAL (accepted()), this, SLOT (createNewConnection()));
 
+    this->viewEnlarged = false;
+
+    // build the menu bar
     this->menuBar = new QMenuBar(this);
 
     QMenu *connMenu = new QMenu("Connections", menuBar);
@@ -20,6 +23,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setMenuBar(menuBar);
 
+    this->machineInfo = new MachineInfoWidget();
+    this->awsInfo = new AWSInfoWidget();
+
+    this->widgetStack = new QStackedWidget();
+
     this->connectionModel = new SSHConnectionItemModel();
     this->tabList = new QListView();
     this->tabList->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -31,14 +39,17 @@ MainWindow::MainWindow(QWidget *parent) :
     toolBar = new QToolBar("toolBar", 0);
     toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "New Session", this, SLOT(createNewSession()));
     toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_BrowserReload), "Restart Session", this, SLOT(restartSession()));
-    tabStack = new QStackedWidget();
+    toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_ArrowUp), "Toggle Enlarged View", this, SLOT(toggleSessionEnlarged()));
+    this->tabStack = new QStackedWidget();
 
     this->splitter = new QSplitter(Qt::Horizontal);
+    this->splitter->setContentsMargins(0, 0, 0, 0);
     QVBoxLayout *boxLayout = new QVBoxLayout();
+    boxLayout->setContentsMargins(0, 0, 0, 0);
     boxLayout->addWidget(toolBar);
-    boxLayout->addWidget(tabStack);
-    QWidget *sshSessionsWidget = new QWidget();
-    sshSessionsWidget->setLayout(boxLayout);
+    boxLayout->addWidget(this->tabStack);
+    this->sshSessionsWidget = new QWidget();
+    this->sshSessionsWidget->setLayout(boxLayout);
 
     QLabel *tabListLabel = new QLabel("SSH Hosts", this);
     QWidget *tabListWidget = new QWidget(this);
@@ -50,19 +61,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->sessionInfoSplitter = new QSplitter(Qt::Vertical);
 
-    this->sessionInfoSplitter->addWidget(sshSessionsWidget);
+    this->sessionInfoSplitter->addWidget(this->sshSessionsWidget);
 
     this->sshSessionsInfo = new QTabWidget();
-    sshSessionsInfo->addTab(&this->machineInfo, "Machine");
-    sshSessionsInfo->addTab(&this->awsInfo, "AWS");
+    this->sshSessionsInfo->addTab(this->machineInfo, "Machine");
+    this->sshSessionsInfo->addTab(this->awsInfo, "AWS");
 
-    this->sessionInfoSplitter->addWidget(sshSessionsInfo);
+    this->sessionInfoSplitter->addWidget(this->sshSessionsInfo);
     this->sessionInfoSplitter->setStretchFactor(0, 10);
     this->sessionInfoSplitter->setStretchFactor(1, 5);
     this->sessionInfoSplitter->setCollapsible(0, false);
 
     this->rightWidget = new QTabWidget();
-    rightWidget->addTab(sessionInfoSplitter, "SSH");
+    rightWidget->addTab(this->sessionInfoSplitter, "SSH");
 
     this->awsWidget = new AWSWidget();
     QObject::connect(this->awsWidget, SIGNAL(newConnection(AWSInstance)), this, SLOT(createSSHConnectionToAWS(AWSInstance)));
@@ -73,7 +84,15 @@ MainWindow::MainWindow(QWidget *parent) :
     this->splitter->setStretchFactor(1, 15);
     this->splitter->setCollapsible(1, false);
 
-    setCentralWidget(this->splitter);
+    this->widgetStack->addWidget(this->splitter);
+    this->hiddenPage = new QWidget();
+    QVBoxLayout *hiddenLayout = new QVBoxLayout();
+    hiddenLayout->setContentsMargins(0, 0, 0, 0);
+    this->hiddenPage->setLayout(hiddenLayout);
+    this->widgetStack->addWidget(this->hiddenPage);
+    this->widgetStack->setCurrentIndex(0);
+
+    setCentralWidget(this->widgetStack);
 
     this->readSettings();
 
@@ -132,7 +151,7 @@ void MainWindow::createNewConnection()
     // If this is the case we create no new connection but bring the existing
     // connection to the foreground.
     connEntry = this->connectionModel->getConnEntryByName(label);
-    if (connEntry != NULL) {
+    if (connEntry != nullptr) {
         this->rightWidget->setCurrentIndex(0);
         QModelIndex index = this->connectionModel->getIndexForSSHConnectionEntry(connEntry);
         this->tabList->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
@@ -191,7 +210,7 @@ void MainWindow::createNewConnection()
 void MainWindow::createNewSession()
 {
     SSHConnectionEntry *connEntry = this->getCurrentConnectionEntry();
-    if (connEntry == NULL) {
+    if (connEntry == nullptr) {
         return;
     }
 
@@ -209,9 +228,9 @@ void MainWindow::createNewSession()
 
 void MainWindow::restartSession()
 {
-    QWidget *oldWidget = NULL;
+    QWidget *oldWidget = nullptr;
     SSHConnectionEntry *connEntry = this->getCurrentConnectionEntry();
-    if (connEntry == NULL) {
+    if (connEntry == nullptr) {
         return;
     }
 
@@ -224,7 +243,7 @@ void MainWindow::restartSession()
     int tabIndex = tabs->currentIndex();
     const QString tabText = tabs->tabText(tabIndex);
 
-    if (tabs->currentWidget() != NULL) {
+    if (tabs->currentWidget() != nullptr) {
         QMessageBox::StandardButton reply;
         reply = QMessageBox::question(this, "Restart Session?",
                 QString("Do you really want to restart SSH session '%1' with '%2'?").arg(tabText).arg(connEntry->name),
@@ -283,7 +302,7 @@ void MainWindow::closeSSHTab(int tabIndex)
     CustomTabWidget *tabWidget = this->getCurrentTabWidget();
     QTermWidget *termWidget = (QTermWidget*) tabWidget->widget(tabIndex);
 
-    if (termWidget != NULL) {
+    if (termWidget != nullptr) {
         QMessageBox::StandardButton reply;
         const QString usernameAndHost = this->getCurrentUsernameAndHost();
         reply = QMessageBox::question(this, "Closing Session",
@@ -392,17 +411,38 @@ void MainWindow::updateConnectionTabs()
 {
     SSHConnectionEntry *connEntry = this->getCurrentConnectionEntry();
 
-    if (connEntry == NULL) {
+    if (connEntry == nullptr) {
         return;
     }
 
-    this->machineInfo.setHostname(connEntry->hostname);
-    this->machineInfo.setUsername(connEntry->username);
+    this->machineInfo->setHostname(connEntry->hostname);
+    this->machineInfo->setUsername(connEntry->username);
 
     if (connEntry->isAwsInstance) {
-        this->awsInfo.setAWSEnabled(true);
-        this->awsInfo.update(connEntry->awsInstance);
+        this->awsInfo->setAWSEnabled(true);
+        this->awsInfo->update(connEntry->awsInstance);
     } else {
-        this->awsInfo.setAWSEnabled(false);
+        this->awsInfo->setAWSEnabled(false);
+    }
+}
+
+void MainWindow::toggleSessionEnlarged()
+{
+    if (this->getCurrentConnectionEntry() == nullptr) {
+        return;
+    }
+
+    if (this->viewEnlarged) {
+        this->hiddenPage->layout()->removeWidget(this->sshSessionsWidget);
+        this->sessionInfoSplitter->insertWidget(0, this->sshSessionsWidget);
+        this->widgetStack->setCurrentIndex(0);
+        this->menuBar->show();
+        this->viewEnlarged = false;
+    } else {
+        this->sshSessionsWidget->setParent(this->hiddenPage);
+        this->hiddenPage->layout()->addWidget(this->sshSessionsWidget);
+        this->widgetStack->setCurrentIndex(1);
+        this->menuBar->hide();
+        this->viewEnlarged = true;
     }
 }

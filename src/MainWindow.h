@@ -1,23 +1,29 @@
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
 #include <iostream>
 
+#include <QApplication>
+#include <QDesktopServices>
 #include <QFileInfo>
 #include <QIcon>
-#include <QStyle>
 #include <QLabel>
 #include <QMainWindow>
 #include <QMenuBar>
 #include <QMessageBox>
-#include <QApplication>
 #include <QListView>
+#include <QPoint>
 #include <QSettings>
 #include <QSplitter>
 #include <QStackedWidget>
+#include <QStyle>
 #include <QToolBar>
-#include <QPoint>
+#include <QUrl>
 #include <QtDebug>
 
 #include <qtermwidget.h>
 
+#include "AboutDialog.h"
 #include "AWSInfoWidget.h"
 #include "AWSWidget.h"
 #include "CustomTabWidget.h"
@@ -25,9 +31,6 @@
 #include "NewDialog.h"
 #include "SSHConnectionEntry.h"
 #include "SSHConnectionItemModel.h"
-
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
 
 class MainWindow : public QMainWindow
 {
@@ -51,6 +54,7 @@ public slots:
     void showTabListContextMenu(QPoint pos);
     void removeConnection();
     void toggleSessionEnlarged();
+    void openWebsite();
 
 private:
     const QString getCurrentUsernameAndHost();
@@ -60,6 +64,7 @@ private:
     void updateConnectionTabs();
 
     bool viewEnlarged;
+    AboutDialog *aboutDialog;
     QWidget *sshSessionsWidget;
     QWidget *hiddenPage;
     QMenuBar *menuBar;

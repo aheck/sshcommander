@@ -3,6 +3,8 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
+    // dialogs
+    this->aboutDialog = new AboutDialog();
     this->newDialog = new NewDialog(this);
     QObject::connect(newDialog, SIGNAL (accepted()), this, SLOT (createNewConnection()));
 
@@ -19,7 +21,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QMenu *helpMenu = new QMenu("Help", menuBar);
     menuBar->addMenu(helpMenu);
-    helpMenu->addAction("About Qt", qApp, SLOT(aboutQt()));
+    helpMenu->addAction("Website", this, SLOT(openWebsite()));
+    helpMenu->addSeparator();
+    helpMenu->addAction("About", this->aboutDialog, SLOT(exec()));
 
     setMenuBar(menuBar);
 
@@ -457,4 +461,9 @@ void MainWindow::toggleSessionEnlarged()
         this->menuBar->hide();
         this->viewEnlarged = true;
     }
+}
+
+void MainWindow::openWebsite()
+{
+    QDesktopServices::openUrl(QUrl("https://github.com/aheck/sshcommander"));
 }

@@ -12,8 +12,14 @@ find_package(qtermwidget5)
 include_directories(${QTERMWIDGET_INCLUDE_DIRS})
 link_directories("/usr/local/lib")
 
+add_custom_target(
+    update_git_commit_id
+    COMMAND ../update_git_commit_id.sh
+)
+
 add_executable(sshcommander
     main.cpp
+    AboutDialog.cpp
     AWSConnector.cpp
     AWSInfoWidget.cpp
     AWSWidget.cpp
@@ -26,4 +32,6 @@ add_executable(sshcommander
     SSHConnectionEntry.cpp
     SSHConnectionItemModel.cpp
 )
+
 target_link_libraries(sshcommander Qt5::Widgets Qt5::Network Qt5::Xml ${QTERMWIDGET_LIBRARIES})
+add_dependencies(sshcommander update_git_commit_id)

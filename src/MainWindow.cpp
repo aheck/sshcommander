@@ -420,6 +420,16 @@ void MainWindow::removeConnection()
         return;
     }
 
+    QMessageBox::StandardButton reply;
+    const QString usernameAndHost = this->getCurrentUsernameAndHost();
+    reply = QMessageBox::question(this, "Removing Connection",
+            QString("Do you really want to remove the SSH connection '%1'?").arg(usernameAndHost),
+            QMessageBox::Yes|QMessageBox::No);
+
+    if (reply == QMessageBox::No) {
+        return;
+    }
+
     CustomTabWidget *tabWidget = entry->tabs;
     for(int i = tabWidget->count(); i >= 0; --i) {
         QTermWidget *termWidget = (QTermWidget*) tabWidget->widget(i);

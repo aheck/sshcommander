@@ -51,10 +51,12 @@ MainWindow::MainWindow(QWidget *parent) :
     this->sshSessionsWidget = new QWidget();
     this->sshSessionsWidget->setLayout(boxLayout);
 
-    QLabel *tabListLabel = new QLabel("SSH Hosts", this);
+    QToolBar *connectionsToolbar = new QToolBar();
+    connectionsToolbar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "New Connection", this->newDialog, SLOT(exec()));
+    connectionsToolbar->addAction(qApp->style()->standardIcon(QStyle::SP_TrashIcon), "Delete Connection", this, SLOT(removeConnection()));
     QWidget *tabListWidget = new QWidget(this);
     QVBoxLayout *tabListLayout = new QVBoxLayout(tabListWidget);
-    tabListLayout->addWidget(tabListLabel);
+    tabListLayout->addWidget(connectionsToolbar);
     tabListLayout->addWidget(this->tabList);
     tabListWidget->setLayout(tabListLayout);
     this->splitter->addWidget(tabListWidget);
@@ -393,6 +395,10 @@ void MainWindow::showTabListContextMenu(QPoint pos)
 void MainWindow::removeConnection()
 {
     SSHConnectionEntry *entry = this->getCurrentConnectionEntry();
+
+    if (entry == nullptr) {
+        return;
+    }
 
     CustomTabWidget *tabWidget = entry->tabs;
     for(int i = tabWidget->count(); i >= 0; --i) {

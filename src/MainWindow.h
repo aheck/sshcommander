@@ -74,6 +74,7 @@ private:
     QListView *tabList;
     QStackedWidget *widgetStack;
     QStackedWidget *tabStack;
+    QStackedWidget *sshSessionsStack;
     QToolBar *toolBar;
     AWSWidget *awsWidget;
     SSHConnectionItemModel *connectionModel;

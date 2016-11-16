@@ -40,20 +40,35 @@ MainWindow::MainWindow(QWidget *parent) :
     this->tabList->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this->tabList, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showTabListContextMenu(QPoint)));
 
+    this->splitter = new QSplitter(Qt::Horizontal);
+    this->splitter->setContentsMargins(0, 0, 0, 0);
+
+    // build sshSessionsWidget (the widget which contains the ssh sessions and
+    // the ssh session tabs)
+    this->sshSessionsStack = new QStackedWidget();
+    QWidget *sshSessionsDisabledPage = new QWidget();
+    sshSessionsDisabledPage->setLayout(new QVBoxLayout);
+    QLabel *sshDisabledLabel = new QLabel("No SSH Connection");
+    QFont font = sshDisabledLabel->font();
+    font.setPointSize(24);
+    font.setBold(true);
+    sshDisabledLabel->setFont(font);
+    sshDisabledLabel->setStyleSheet("QLabel { color : grey; }");
+    sshSessionsDisabledPage->layout()->setAlignment(Qt::AlignCenter);
+    sshSessionsDisabledPage->layout()->addWidget(sshDisabledLabel);
+    this->sshSessionsStack->addWidget(sshSessionsDisabledPage);
     toolBar = new QToolBar("toolBar", 0);
     toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "New Session", this, SLOT(createNewSession()));
     toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_BrowserReload), "Restart Session", this, SLOT(restartSession()));
     toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_ArrowUp), "Toggle Enlarged View", this, SLOT(toggleSessionEnlarged()));
     this->tabStack = new QStackedWidget();
-
-    this->splitter = new QSplitter(Qt::Horizontal);
-    this->splitter->setContentsMargins(0, 0, 0, 0);
     QVBoxLayout *boxLayout = new QVBoxLayout();
     boxLayout->setContentsMargins(0, 0, 0, 0);
     boxLayout->addWidget(toolBar);
     boxLayout->addWidget(this->tabStack);
     this->sshSessionsWidget = new QWidget();
     this->sshSessionsWidget->setLayout(boxLayout);
+    this->sshSessionsStack->addWidget(this->sshSessionsWidget);
 
     QToolBar *connectionsToolbar = new QToolBar();
     connectionsToolbar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "New Connection", this->newDialog, SLOT(exec()));
@@ -67,7 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->sessionInfoSplitter = new QSplitter(Qt::Vertical);
 
-    this->sessionInfoSplitter->addWidget(this->sshSessionsWidget);
+    this->sessionInfoSplitter->addWidget(this->sshSessionsStack);
 
     this->sshSessionsInfo = new QTabWidget();
     this->sshSessionsInfo->addTab(this->machineInfo, "Machine");
@@ -207,6 +222,7 @@ void MainWindow::createNewConnection()
     this->tabList->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
     tabs->setCurrentWidget(console);
     tabs->setFocus();
+    this->sshSessionsStack->setCurrentIndex(1);
     this->rightWidget->setCurrentIndex(0);
     console->setFocus();
 
@@ -417,6 +433,7 @@ void MainWindow::removeConnection()
     if (this->connectionModel->rowCount(QModelIndex()) == 0) {
         this->machineInfo->setMachineEnabled(false);
         this->awsInfo->setAWSEnabled(false);
+        this->sshSessionsStack->setCurrentIndex(0);
     }
 
     delete entry;

@@ -1,3 +1,6 @@
+#ifndef AWSINFOWIDGET_H
+#define AWSINFOWIDGET_H
+
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
@@ -6,9 +9,6 @@
 #include <QWidget>
 
 #include "AWSConnector.h"
-
-#ifndef AWSINFOWIDGET_H
-#define AWSINFOWIDGET_H
 
 class AWSInfoWidget : public QWidget
 {

@@ -1,11 +1,11 @@
+#ifndef INSTANCEITEMMODEL_H
+#define INSTANCEITEMMODEL_H
+
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QVector>
 
 #include "AWSConnector.h"
-
-#ifndef INSTANCEITEMMODEL_H
-#define INSTANCEITEMMODEL_H
 
 class InstanceItemModel : public QAbstractItemModel
 {

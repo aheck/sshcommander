@@ -112,7 +112,7 @@ void AWSWidget::connectToInstance()
 QVector<AWSInstance*> AWSWidget::parseDescribeInstancesResult(AWSResult *result)
 {
     QVector<AWSInstance*> vector;
-    AWSInstance *instance = NULL;
+    AWSInstance *instance = nullptr;
 
     if (result->httpBody.isEmpty()) {
         return vector;
@@ -185,7 +185,7 @@ QVector<AWSInstance*> AWSWidget::parseDescribeInstancesResult(AWSResult *result)
             }
 
             if (instancesSet && itemLevel < 2) {
-                instance = NULL;
+                instance = nullptr;
             }
         }
     }

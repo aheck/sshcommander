@@ -1,10 +1,10 @@
+#ifndef SSHCONNECTIONENTRY_H
+#define SSHCONNECTIONENTRY_H
+
 #include <QStringList>
 
 #include "AWSConnector.h"
 #include "CustomTabWidget.h"
-
-#ifndef SSHCONNECTIONENTRY_H
-#define SSHCONNECTIONENTRY_H
 
 struct SSHConnectionEntry
 {

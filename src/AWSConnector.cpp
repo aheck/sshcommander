@@ -107,7 +107,7 @@ void AWSConnector::replyFinished(QNetworkReply *reply)
     }
 
     reply->deleteLater();
-    reply = NULL;
+    reply = nullptr;
 
     emit awsReplyReceived(result);
 }

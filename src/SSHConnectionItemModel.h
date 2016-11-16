@@ -1,11 +1,11 @@
+#ifndef SSHCONNECTIONITEMMODEL_H
+#define SSHCONNECTIONITEMMODEL_H
+
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QList>
 
 #include "SSHConnectionEntry.h"
-
-#ifndef SSHCONNECTIONITEMMODEL_H
-#define SSHCONNECTIONITEMMODEL_H
 
 class SSHConnectionItemModel : public QAbstractItemModel
 {

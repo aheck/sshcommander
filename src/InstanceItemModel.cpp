@@ -96,7 +96,7 @@ void InstanceItemModel::setInstances(QVector<AWSInstance*> instances)
 AWSInstance* InstanceItemModel::getInstance(const QModelIndex &index)
 {
     if (index.row() > (this->instances.size() - 1)) {
-        return NULL;
+        return nullptr;
     }
 
     return this->instances.at(index.row());

@@ -1,3 +1,6 @@
+#ifndef AWSWIDGET_H
+#define AWSWIDGET_H
+
 #include <QAction>
 #include <QApplication>
 #include <QBuffer>
@@ -17,9 +20,6 @@
 
 #include "AWSConnector.h"
 #include "InstanceItemModel.h"
-
-#ifndef AWSWIDGET_H
-#define AWSWIDGET_H
 
 class AWSWidget : public QWidget
 {

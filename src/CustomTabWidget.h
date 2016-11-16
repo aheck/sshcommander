@@ -1,9 +1,9 @@
+#ifndef CUSTOMTABWIDGET_H
+#define CUSTOMTABWIDGET_H
+
 #include <QTabWidget>
 
 #include "CustomTabBar.h"
-
-#ifndef CUSTOMTABWIDGET_H
-#define CUSTOMTABWIDGET_H
 
 class CustomTabWidget : public QTabWidget
 {

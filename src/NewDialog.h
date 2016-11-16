@@ -1,3 +1,6 @@
+#ifndef NEWDIALOG_H
+#define NEWDIALOG_H
+
 #include <QDialog>
 #include <QFormLayout>
 #include <QLineEdit>
@@ -6,9 +9,6 @@
 #include <QMessageBox>
 
 #include "AWSConnector.h"
-
-#ifndef NEWDIALOG_H
-#define NEWDIALOG_H
 
 class MainWindow;
 

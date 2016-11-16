@@ -57,7 +57,7 @@ SSHConnectionEntry* SSHConnectionItemModel::getConnEntryByName(const QString nam
 
 QModelIndex SSHConnectionItemModel::getIndexForSSHConnectionEntry(const SSHConnectionEntry *entry) const
 {
-    if (entry == NULL) {
+    if (entry == nullptr) {
         return QModelIndex();
     }
 

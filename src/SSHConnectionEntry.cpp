@@ -3,8 +3,8 @@
 SSHConnectionEntry::SSHConnectionEntry()
 {
     this->nextSessionNumber = 1;
-    this->args = NULL;
-    this->tabs = NULL;
+    this->args = nullptr;
+    this->tabs = nullptr;
     this->isAwsInstance = false;
 }
 

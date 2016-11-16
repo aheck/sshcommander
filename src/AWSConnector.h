@@ -1,3 +1,6 @@
+#ifndef AWSCONNECTOR_H
+#define AWSCONNECTOR_H
+
 #include <iostream>
 
 #include <QByteArray>
@@ -9,9 +12,6 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QUrl>
-
-#ifndef AWSCONNECTOR_H
-#define AWSCONNECTOR_H
 
 struct AWSResult
 {

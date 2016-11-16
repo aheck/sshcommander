@@ -1,12 +1,12 @@
+#ifndef MACHINEINFOWIDGET_H
+#define MACHINEINFOWIDGET_H
+
 #include <QGridLayout>
 #include <QLabel>
 #include <QScrollArea>
 #include <QStackedWidget>
 #include <QVBoxLayout>
 #include <QWidget>
-
-#ifndef MACHINEINFOWIDGET_H
-#define MACHINEINFOWIDGET_H
 
 class MachineInfoWidget : public QWidget
 {

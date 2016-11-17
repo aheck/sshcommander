@@ -254,6 +254,15 @@ void AWSWidget::changeRegion(QString region)
 void AWSWidget::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
     bool enabled = selected.size() != 0;
+
+    if (enabled) {
+        QModelIndex index = selected.indexes().first();
+        AWSInstance *instance = this->instanceModel->getInstance(index);
+        if (instance->publicIP.isEmpty() || instance->status != "running") {
+            return;
+        }
+    }
+
     this->connectButton->setEnabled(enabled);
 }
 

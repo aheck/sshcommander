@@ -19,6 +19,7 @@ public:
 
     void appendConnectionEntry(SSHConnectionEntry *entry);
     void removeConnectionEntry(SSHConnectionEntry *entry);
+    SSHConnectionEntry* getConnEntry(int index);
     SSHConnectionEntry* getConnEntryByName(const QString name);
     QModelIndex getIndexForSSHConnectionEntry(const SSHConnectionEntry *entry) const;
 

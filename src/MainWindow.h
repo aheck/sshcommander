@@ -7,6 +7,9 @@
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QIcon>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
 #include <QMainWindow>
 #include <QMenuBar>

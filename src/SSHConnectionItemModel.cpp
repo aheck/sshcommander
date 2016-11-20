@@ -50,6 +50,19 @@ void SSHConnectionItemModel::removeConnectionEntry(SSHConnectionEntry *entry)
     endRemoveRows();
 }
 
+SSHConnectionEntry* SSHConnectionItemModel::getConnEntry(int index)
+{
+    if (index < 0) {
+        return nullptr;
+    }
+
+    if (index > (this->entries.size() - 1)) {
+        return nullptr;
+    }
+
+    return this->entries.at(index);
+}
+
 SSHConnectionEntry* SSHConnectionItemModel::getConnEntryByName(const QString name)
 {
     return this->sshConnByHost[name];

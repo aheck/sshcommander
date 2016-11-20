@@ -190,7 +190,7 @@ void MainWindow::createNewConnection()
     }
 
     if (sshkey.isEmpty()) {
-        const QStringList *args = new QStringList(label);
+        QStringList *args = new QStringList(label);
         connEntry->args = args;
     } else {
         QStringList *args = new QStringList(label);
@@ -356,12 +356,52 @@ void MainWindow::readSettings()
     this->sessionInfoSplitter->restoreState(settings.value("sessionInfoSplitterSizes").toByteArray());
     this->awsWidget->setRegion(settings.value("selectedAwsRegion", "").toString());
     settings.endGroup();
+
+    QString filename = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("connections.json");
+    QFile file(filename);
+    if (!file.open(QFile::ReadOnly)) {
+        std::cout << "Failed to open connections.json" << std::endl;
+        return;
+    }
+
+    QByteArray fileContent(file.readAll());
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(fileContent);
+
+    std::cout << jsonDoc.toJson().toStdString() << std::endl;
+    std::cout << "Trying to restore sessions" << std::endl;
+    QJsonObject jsonObj = jsonDoc.object();
+    QJsonArray connArray(jsonObj["connections"].toArray());
+    std::cout << "Count: " << connArray.count() << std::endl;
+    for (int i = 0; i < connArray.count(); i++) {
+        QJsonValue curValue = connArray.at(i);
+        SSHConnectionEntry *entry = new SSHConnectionEntry();
+        entry->read(curValue.toObject());
+
+        CustomTabWidget *tabs = new CustomTabWidget();
+        tabs->setTabsClosable(true);
+        tabs->setTabPosition(CustomTabWidget::North);
+        tabs->addTab(new QWidget(), QString::asprintf("Session %d", entry->nextSessionNumber++));
+        QObject::connect(tabs, SIGNAL (tabCloseRequested(int)), this, SLOT(closeSSHTab(int)));
+        tabStack->addWidget(tabs);
+
+        entry->tabs = tabs;
+
+        this->connectionModel->appendConnectionEntry(entry);
+        std::cout << "Entry name: " << entry->name.toStdString() << std::endl;
+
+        this->sshSessionsStack->setCurrentIndex(1);
+        this->rightWidget->setCurrentIndex(0);
+    }
+    std::cout << "End of restoring" << std::endl;
+
+    file.close();
 }
 
 void MainWindow::saveSettings()
 {
     QSettings settings;
 
+    // We store all our program settings with QSettings.
     settings.beginGroup("MainWindow");
     settings.setValue("size", this->size());
     settings.setValue("pos", this->pos());
@@ -370,6 +410,58 @@ void MainWindow::saveSettings()
     settings.setValue("sessionInfoSplitterSizes", this->sessionInfoSplitter->saveState());
     settings.setValue("selectedAwsRegion", this->awsWidget->getRegion());
     settings.endGroup();
+
+    // The SSH connections are serialized to JSON and stored in a separate file.
+    // This saves us from having to deal with limitations of the native settings
+    // storage mechanism used by QSettings.
+    QJsonObject jsonObject;
+    QJsonDocument jsonDoc;
+
+    QJsonArray connArray = QJsonArray();
+
+    for (int i = 0; i < this->connectionModel->rowCount(QModelIndex()); i++) {
+        QJsonObject curObj;
+        SSHConnectionEntry *entry = this->connectionModel->getConnEntry(i);
+
+        entry->write(curObj);
+        connArray.append(curObj);
+    }
+
+    jsonObject["connections"] = connArray;
+    jsonDoc.setObject(jsonObject);
+
+    QDir jsonDir = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+
+    if (!jsonDir.exists()) {
+        if (!jsonDir.mkpath(jsonDir.path())) {
+            QMessageBox msgBox;
+            msgBox.setText("Failed to create directory '" + jsonDir.path() + "'");
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.exec();
+            return;
+        }
+    }
+
+    QString jsonFilePath = jsonDir.filePath("connections.json");
+    QFile file(jsonFilePath);
+
+    if (!file.open(QIODevice::WriteOnly)) {
+        QMessageBox msgBox;
+        msgBox.setText("Failed to open file '" + jsonFilePath + "' for writing.");
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+        return;
+    }
+
+    qint64 bytesWritten = file.write(jsonDoc.toJson());
+    if (bytesWritten == -1) {
+        QMessageBox msgBox;
+        msgBox.setText("Failed to write to file '" + jsonFilePath + "'");
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.exec();
+    }
+
+    file.close();
 }
 
 void MainWindow::createSSHConnectionToAWS(const AWSInstance &instance)

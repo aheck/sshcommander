@@ -22,6 +22,7 @@ add_executable(sshcommander
     AboutDialog.cpp
     AWSConnector.cpp
     AWSInfoWidget.cpp
+    AWSInstance.cpp
     AWSWidget.cpp
     CustomTabBar.cpp
     CustomTabWidget.cpp

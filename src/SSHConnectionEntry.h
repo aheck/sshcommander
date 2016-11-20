@@ -1,6 +1,8 @@
 #ifndef SSHCONNECTIONENTRY_H
 #define SSHCONNECTIONENTRY_H
 
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QStringList>
 
 #include "AWSConnector.h"
@@ -12,11 +14,14 @@ public:
     SSHConnectionEntry();
     ~SSHConnectionEntry();
 
+    void read(const QJsonObject &json);
+    void write(QJsonObject &json) const;
+
     QString name;
     QString hostname;
     QString username;
     unsigned int nextSessionNumber;
-    const QStringList *args;
+    QStringList *args;
     CustomTabWidget *tabs;
     bool isAwsInstance;
     AWSInstance awsInstance;

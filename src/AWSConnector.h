@@ -13,30 +13,14 @@
 #include <QNetworkReply>
 #include <QUrl>
 
+#include "AWSInstance.h"
+
 struct AWSResult
 {
     bool isSuccess;
     QString errorString;
     int httpStatus;
     QString httpBody;
-};
-
-struct AWSInstance
-{
-    QString id;
-    QString region;
-    QString status;
-    QString keyname;
-    QString type;
-    QString imageId;
-    QString launchTime;
-    QString publicIP;
-    QString privateIP;
-    QString subnetId;
-    QString vpcId;
-    QString virtualizationType;
-    QString architecture;
-    QString hypervisor;
 };
 
 class AWSConnector : public QObject

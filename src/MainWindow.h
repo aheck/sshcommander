@@ -65,6 +65,8 @@ private:
     CustomTabWidget* getCurrentTabWidget();
     QString findSSHKey(const QString keyname);
     void updateConnectionTabs();
+    void selectFirstConnection();
+    void selectConnection(SSHConnectionEntry *connEntry);
 
     bool viewEnlarged;
     AboutDialog *aboutDialog;

@@ -175,8 +175,7 @@ void MainWindow::createNewConnection()
     connEntry = this->connectionModel->getConnEntryByName(userAtHost);
     if (connEntry != nullptr) {
         this->rightWidget->setCurrentIndex(0);
-        QModelIndex index = this->connectionModel->getIndexForSSHConnectionEntry(connEntry);
-        this->tabList->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+        this->selectConnection(connEntry);
         return;
     }
 
@@ -375,13 +374,9 @@ void MainWindow::readSettings()
     QByteArray fileContent(file.readAll());
     QJsonDocument jsonDoc = QJsonDocument::fromJson(fileContent);
 
-    std::cout << jsonDoc.toJson().toStdString() << std::endl;
-    std::cout << "Trying to restore sessions" << std::endl;
     QJsonObject jsonObj = jsonDoc.object();
     QJsonArray connArray(jsonObj["connections"].toArray());
-    std::cout << "Count: " << connArray.count() << std::endl;
-    for (int i = 0; i < connArray.count(); i++) {
-        QJsonValue curValue = connArray.at(i);
+    for (QJsonValue curValue : connArray) {
         SSHConnectionEntry *entry = new SSHConnectionEntry();
         entry->read(curValue.toObject());
 
@@ -395,12 +390,11 @@ void MainWindow::readSettings()
         entry->tabs = tabs;
 
         this->connectionModel->appendConnectionEntry(entry);
-        std::cout << "Entry name: " << entry->name.toStdString() << std::endl;
 
         this->sshSessionsStack->setCurrentIndex(1);
         this->rightWidget->setCurrentIndex(0);
+        this->selectFirstConnection();
     }
-    std::cout << "End of restoring" << std::endl;
 
     file.close();
 }
@@ -593,4 +587,20 @@ void MainWindow::toggleSessionEnlarged()
 void MainWindow::openWebsite()
 {
     QDesktopServices::openUrl(QUrl("https://github.com/aheck/sshcommander"));
+}
+
+void MainWindow::selectFirstConnection()
+{
+    if (this->connectionModel->rowCount(QModelIndex()) < 1) {
+        return;
+    }
+
+    SSHConnectionEntry *entry = this->connectionModel->getConnEntry(0);
+    this->selectConnection(entry);
+}
+
+void MainWindow::selectConnection(SSHConnectionEntry *connEntry)
+{
+    QModelIndex index = this->connectionModel->getIndexForSSHConnectionEntry(connEntry);
+    this->tabList->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
 }

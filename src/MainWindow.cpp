@@ -190,21 +190,18 @@ void MainWindow::createNewConnection()
     }
 
     // build the argument list for ssh
-    QStringList *args = new QStringList();
+    connEntry->args->clear();
     if (!sshkey.isEmpty()) {
-        args->append("-i");
-        args->append(sshkey);
-        connEntry->args = args;
+        connEntry->args->append("-i");
+        connEntry->args->append(sshkey);
     }
 
     if (port != QString(DEFAULT_SSH_PORT).toInt(nullptr, 10)) {
-        args->append("-p");
-        args->append(QString(port));
+        connEntry->args->append("-p");
+        connEntry->args->append(QString(port));
     }
 
-    args->append(userAtHost);
-
-    connEntry->args = args;
+    connEntry->args->append(userAtHost);
 
     QTermWidget *console = createNewTermWidget(connEntry->args);
 
@@ -383,7 +380,11 @@ void MainWindow::readSettings()
         CustomTabWidget *tabs = new CustomTabWidget();
         tabs->setTabsClosable(true);
         tabs->setTabPosition(CustomTabWidget::North);
-        tabs->addTab(new QWidget(), QString::asprintf("Session %d", entry->nextSessionNumber++));
+
+        for (int i = 0; i < entry->tabNames->size(); i++) {
+            tabs->addTab(new QWidget(), entry->tabNames->at(i));
+        }
+
         QObject::connect(tabs, SIGNAL (tabCloseRequested(int)), this, SLOT(closeSSHTab(int)));
         tabStack->addWidget(tabs);
 
@@ -424,6 +425,11 @@ void MainWindow::saveSettings()
     for (int i = 0; i < this->connectionModel->rowCount(QModelIndex()); i++) {
         QJsonObject curObj;
         SSHConnectionEntry *entry = this->connectionModel->getConnEntry(i);
+
+        entry->tabNames->clear();
+        for (int j = 0; j < entry->tabs->count(); j++) {
+            entry->tabNames->append(entry->tabs->tabText(j));
+        }
 
         entry->write(curObj);
         connArray.append(curObj);

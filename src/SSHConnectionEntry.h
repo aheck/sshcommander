@@ -23,6 +23,7 @@ public:
     unsigned int nextSessionNumber;
     QStringList *args;
     CustomTabWidget *tabs;
+    QStringList *tabNames;
     bool isAwsInstance;
     AWSInstance awsInstance;
 };

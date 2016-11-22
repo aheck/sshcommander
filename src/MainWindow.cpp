@@ -576,14 +576,14 @@ void MainWindow::toggleSessionEnlarged()
     }
 
     if (this->viewEnlarged) {
-        this->hiddenPage->layout()->removeWidget(this->sshSessionsWidget);
-        this->sessionInfoSplitter->insertWidget(0, this->sshSessionsWidget);
+        this->hiddenPage->layout()->removeWidget(this->sshSessionsStack);
+        this->sessionInfoSplitter->insertWidget(0, this->sshSessionsStack);
         this->widgetStack->setCurrentIndex(0);
         this->menuBar->show();
         this->viewEnlarged = false;
     } else {
-        this->sshSessionsWidget->setParent(this->hiddenPage);
-        this->hiddenPage->layout()->addWidget(this->sshSessionsWidget);
+        this->sshSessionsStack->setParent(this->hiddenPage);
+        this->hiddenPage->layout()->addWidget(this->sshSessionsStack);
         this->widgetStack->setCurrentIndex(1);
         this->menuBar->hide();
         this->viewEnlarged = true;

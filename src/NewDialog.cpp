@@ -1,26 +1,32 @@
 #include "NewDialog.h"
 
-NewDialog::NewDialog(MainWindow *mainWindow)
+NewDialog::NewDialog()
 {
-    this->mainWindow = mainWindow;
     this->setWindowTitle(tr("New SSH Connection..."));
     this->isAwsInstance = false;
 
     hostnameLineEdit = new QLineEdit();
     usernameLineEdit = new QLineEdit();
     sshkeyLineEdit = new QLineEdit();
+    portLineEdit = new QLineEdit(DEFAULT_SSH_PORT);
+    portLineEdit->setEnabled(false);
 
-    QHBoxLayout *horizontalLayout = new QHBoxLayout();
-    horizontalLayout->addWidget(sshkeyLineEdit);
+    QHBoxLayout *fileLayout = new QHBoxLayout();
+    fileLayout->addWidget(sshkeyLineEdit);
     QPushButton *fileButton = new QPushButton("...");
     fileButton->setDefault(false);
     QObject::connect(fileButton, SIGNAL (clicked()), this, SLOT (selectKeyFile()));
-    horizontalLayout->addWidget(fileButton);
+    fileLayout->addWidget(fileButton);
+
+    QCheckBox *portCheckBox = new QCheckBox();
+    QObject::connect(portCheckBox, SIGNAL (clicked(bool)), this, SLOT (portCheckBoxStateChanged(bool)));
 
     QFormLayout *formLayout = new QFormLayout;
     formLayout->addRow(tr("Hostname:"), hostnameLineEdit);
     formLayout->addRow(tr("Username:"), usernameLineEdit);
-    formLayout->addRow(tr("SSH Key:"), horizontalLayout);
+    formLayout->addRow(tr("SSH Key:"), fileLayout);
+    formLayout->addRow(tr("Custom SSH Port:"), portCheckBox);
+    formLayout->addRow(tr("SSH Port:"), portLineEdit);
 
     QPushButton *connectButton = new QPushButton(tr("Connect"));
     QObject::connect(connectButton, SIGNAL (clicked()), this, SLOT (acceptDialog()));
@@ -58,20 +64,48 @@ void NewDialog::selectKeyFile()
 void NewDialog::acceptDialog()
 {
     QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Warning);
 
     if (this->hostnameLineEdit->text().isEmpty()) {
         msgBox.setText(tr("Hostname must not be empty!"));
-        msgBox.setIcon(QMessageBox::Warning);
         msgBox.exec();
 
         return;
     } else if (this->usernameLineEdit->text().isEmpty()) {
         msgBox.setText(tr("Username must not be empty!"));
-        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+
+        return;
+    }
+
+    bool ok;
+    int portNumber = this->portLineEdit->text().toInt(&ok, 10);
+
+    if (!ok) {
+        msgBox.setText(tr("Port must be a number!"));
+        msgBox.exec();
+
+        return;
+    } else if (portNumber < 1 || portNumber > 65535) {
+        msgBox.setText(tr("Port number must be between 1 and 65535"));
         msgBox.exec();
 
         return;
     }
 
     this->accept();
+}
+
+int NewDialog::getPortNumber()
+{
+    return this->portLineEdit->text().toInt(nullptr, 10);
+}
+
+void NewDialog::portCheckBoxStateChanged(bool checked)
+{
+    if (!checked) {
+        this->portLineEdit->setText(DEFAULT_SSH_PORT);
+    }
+
+    this->portLineEdit->setEnabled(checked);
 }

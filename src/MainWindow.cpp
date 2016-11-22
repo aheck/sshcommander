@@ -5,7 +5,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     // dialogs
     this->aboutDialog = new AboutDialog();
-    this->newDialog = new NewDialog(this);
+    this->newDialog = new NewDialog();
     QObject::connect(newDialog, SIGNAL (accepted()), this, SLOT (createNewConnection()));
 
     this->viewEnlarged = false;
@@ -165,13 +165,14 @@ void MainWindow::createNewConnection()
     QString username = this->newDialog->usernameLineEdit->text();
     //QString password = this->newDialog->passwordLineEdit->text();
     QString sshkey = this->newDialog->sshkeyLineEdit->text();
-    QString label = QString("%1@%2").arg(username).arg(hostname);
+    int port = this->newDialog->getPortNumber();
+    QString userAtHost = QString("%1@%2").arg(username).arg(hostname);
     SSHConnectionEntry *connEntry;
 
     // Check if a connection for username@hostname already exists.
     // If this is the case we create no new connection but bring the existing
     // connection to the foreground.
-    connEntry = this->connectionModel->getConnEntryByName(label);
+    connEntry = this->connectionModel->getConnEntryByName(userAtHost);
     if (connEntry != nullptr) {
         this->rightWidget->setCurrentIndex(0);
         QModelIndex index = this->connectionModel->getIndexForSSHConnectionEntry(connEntry);
@@ -180,7 +181,7 @@ void MainWindow::createNewConnection()
     }
 
     connEntry = new SSHConnectionEntry();
-    connEntry->name = label;
+    connEntry->name = userAtHost;
     connEntry->hostname = hostname;
     connEntry->username = username;
 
@@ -189,15 +190,22 @@ void MainWindow::createNewConnection()
         connEntry->awsInstance = this->newDialog->awsInstance;
     }
 
-    if (sshkey.isEmpty()) {
-        QStringList *args = new QStringList(label);
-        connEntry->args = args;
-    } else {
-        QStringList *args = new QStringList(label);
+    // build the argument list for ssh
+    QStringList *args = new QStringList();
+    if (!sshkey.isEmpty()) {
         args->append("-i");
         args->append(sshkey);
         connEntry->args = args;
     }
+
+    if (port != QString(DEFAULT_SSH_PORT).toInt(nullptr, 10)) {
+        args->append("-p");
+        args->append(QString(port));
+    }
+
+    args->append(userAtHost);
+
+    connEntry->args = args;
 
     QTermWidget *console = createNewTermWidget(connEntry->args);
 

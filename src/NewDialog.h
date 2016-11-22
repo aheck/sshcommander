@@ -1,6 +1,7 @@
 #ifndef NEWDIALOG_H
 #define NEWDIALOG_H
 
+#include <QCheckBox>
 #include <QDialog>
 #include <QFormLayout>
 #include <QLineEdit>
@@ -9,21 +10,23 @@
 #include <QMessageBox>
 
 #include "AWSConnector.h"
-
-class MainWindow;
+#include "globals.h"
 
 class NewDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    NewDialog(MainWindow *mainWindow);
+    NewDialog();
     ~NewDialog();
+
+    int getPortNumber();
 
     QLineEdit *hostnameLineEdit;
     QLineEdit *usernameLineEdit;
     QLineEdit *passwordLineEdit;
     QLineEdit *sshkeyLineEdit;
+    QLineEdit *portLineEdit;
 
     bool isAwsInstance;
     AWSInstance awsInstance;
@@ -31,9 +34,7 @@ public:
 public slots:
     void selectKeyFile();
     void acceptDialog();
-
-private:
-    MainWindow *mainWindow;
+    void portCheckBoxStateChanged(bool checked);
 };
 
 #endif

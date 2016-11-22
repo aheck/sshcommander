@@ -1,1 +1,2 @@
 #define SSHCOMMANDER_VERSION "0.1"
+#define DEFAULT_SSH_PORT "22"

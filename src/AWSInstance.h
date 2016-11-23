@@ -1,14 +1,18 @@
 #ifndef AWSINSTANCE_H
 #define AWSINSTANCE_H
 
-#include <QString>
 #include <QJsonObject>
+#include <QJsonArray>
+#include <QList>
+#include <QString>
+
+#include "AWSSecurityGroup.h"
+#include "AWSTag.h"
 
 class AWSInstance
 {
 public:
     AWSInstance();
-    ~AWSInstance();
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
@@ -27,6 +31,8 @@ public:
     QString virtualizationType;
     QString architecture;
     QString hypervisor;
+    QList<AWSSecurityGroup> securityGroups;
+    QList<AWSTag> tags;
 };
 
 #endif

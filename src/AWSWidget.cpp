@@ -126,6 +126,8 @@ QVector<AWSInstance*> AWSWidget::parseDescribeInstancesResult(AWSResult *result)
 
     bool instancesSet = false;
     bool instanceState = false;
+    bool groupSet = false;
+    bool tagSet = false;
     int itemLevel = 0;
 
     while (!xml.isEndDocument()) {
@@ -142,9 +144,19 @@ QVector<AWSInstance*> AWSWidget::parseDescribeInstancesResult(AWSResult *result)
                     instance = new AWSInstance();
                     instance->region = this->region;
                     vector << instance;
+                } else if (groupSet && itemLevel == 3) {
+                    AWSSecurityGroup securityGroup;
+                    instance->securityGroups.append(securityGroup);
+                } else if (tagSet && itemLevel == 3) {
+                    AWSTag tag;
+                    instance->tags.append(tag);
                 }
             } else if (name == "instanceState") {
                 instanceState = true;
+            } else if (name == "groupSet"){
+                groupSet = true;
+            } else if (name == "tagSet"){
+                tagSet = true;
             } else if (instancesSet && itemLevel == 2) {
                 if (name == "instanceId") {
                     instance->id = xml.readElementText();
@@ -173,11 +185,27 @@ QVector<AWSInstance*> AWSWidget::parseDescribeInstancesResult(AWSResult *result)
                 } else if (name == "architecture") {
                     instance->architecture = xml.readElementText();
                 }
+            } else if (groupSet && itemLevel == 3) {
+                if (name == "groupId") {
+                    instance->securityGroups.last().id = xml.readElementText();
+                } else if (name == "groupName") {
+                    instance->securityGroups.last().name = xml.readElementText();
+                }
+            } else if (tagSet && itemLevel == 3) {
+                if (name == "key") {
+                    instance->tags.last().key = xml.readElementText();
+                } else if (name == "value") {
+                    instance->tags.last().value = xml.readElementText();
+                }
             }
         } else if (xml.isEndElement()) {
             QString name = xml.name().toString();
             if (name == "instancesSet") {
                 instancesSet = false;
+            } else if (name == "groupSet") {
+                groupSet = false;
+            } else if (name == "tagSet") {
+                tagSet = false;
             } else if (name == "item") {
                 itemLevel--;
             } else if (name == "instanceState") {

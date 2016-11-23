@@ -17,7 +17,7 @@ int InstanceItemModel::rowCount(const QModelIndex &parent = QModelIndex()) const
 
 int InstanceItemModel::columnCount(const QModelIndex &parent = QModelIndex()) const
 {
-    return 7;
+    return 8;
 }
 
 QVariant InstanceItemModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -34,16 +34,18 @@ QVariant InstanceItemModel::headerData(int section, Qt::Orientation orientation,
         case 0:
             return QVariant("ID");
         case 1:
-            return QVariant("Status");
+            return QVariant("Name");
         case 2:
-            return QVariant("Type");
+            return QVariant("Status");
         case 3:
-            return QVariant("SSH Key");
+            return QVariant("Type");
         case 4:
-            return QVariant("Public IP");
+            return QVariant("SSH Key");
         case 5:
-            return QVariant("Private IP");
+            return QVariant("Public IP");
         case 6:
+            return QVariant("Private IP");
+        case 7:
             return QVariant("Launch Time");
     }
 
@@ -62,16 +64,23 @@ QVariant InstanceItemModel::data(const QModelIndex &index, int role) const
         case 0:
             return QVariant(instance->id);
         case 1:
-            return QVariant(instance->status);
+            for (AWSTag tag : instance->tags) {
+                if (tag.key == "Name") {
+                    return QVariant(tag.value);
+                }
+            }
+            return QVariant("");
         case 2:
-            return QVariant(instance->type);
+            return QVariant(instance->status);
         case 3:
-            return QVariant(instance->keyname);
+            return QVariant(instance->type);
         case 4:
-            return QVariant(instance->publicIP);
+            return QVariant(instance->keyname);
         case 5:
-            return QVariant(instance->privateIP);
+            return QVariant(instance->publicIP);
         case 6:
+            return QVariant(instance->privateIP);
+        case 7:
             return QVariant(instance->launchTime);
     }
 

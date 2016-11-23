@@ -5,11 +5,6 @@ AWSInstance::AWSInstance()
 
 }
 
-AWSInstance::~AWSInstance()
-{
-
-}
-
 void AWSInstance::read(const QJsonObject &json)
 {
     this->id = json["id"].toString();
@@ -26,6 +21,18 @@ void AWSInstance::read(const QJsonObject &json)
     this->virtualizationType = json["virtualizationType"].toString();
     this->architecture = json["architecture"].toString();
     this->hypervisor = json["hypervisor"].toString();
+
+    for (QJsonValueRef ref: json["securityGroups"].toArray()) {
+        AWSSecurityGroup securityGroup;
+        securityGroup.read(ref.toObject());
+        this->securityGroups.append(securityGroup);
+    }
+
+    for (QJsonValueRef ref: json["tags"].toArray()) {
+        AWSTag tag;
+        tag.read(ref.toObject());
+        this->tags.append(tag);
+    }
 }
 
 void AWSInstance::write(QJsonObject &json) const
@@ -44,4 +51,20 @@ void AWSInstance::write(QJsonObject &json) const
     json["virtualizationType"] = this->virtualizationType;
     json["architecture"] = this->architecture;
     json["hypervisor"] = this->hypervisor;
+
+    QJsonArray securityGroups;
+    for (AWSSecurityGroup securityGroup: this->securityGroups) {
+        QJsonObject obj;
+        securityGroup.write(obj);
+        securityGroups.append(obj);
+    }
+    json["securityGroups"] = securityGroups;
+
+    QJsonArray tags;
+    for (AWSTag tag: this->tags) {
+        QJsonObject obj;
+        tag.write(obj);
+        tags.append(obj);
+    }
+    json["tags"] = tags;
 }

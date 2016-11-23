@@ -23,6 +23,8 @@ add_executable(sshcommander
     AWSConnector.cpp
     AWSInfoWidget.cpp
     AWSInstance.cpp
+    AWSTag.cpp
+    AWSSecurityGroup.cpp
     AWSWidget.cpp
     CustomTabBar.cpp
     CustomTabWidget.cpp

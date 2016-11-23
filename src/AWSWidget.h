@@ -8,6 +8,7 @@
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
@@ -32,7 +33,6 @@ public slots:
 
 public:
     AWSWidget();
-    ~AWSWidget();
 
     QString getRegion() const;
     void setRegion(const QString region);
@@ -49,6 +49,7 @@ private:
     void readSettings();
     void saveAWSCredentials();
     QVector<AWSInstance*> parseDescribeInstancesResult(AWSResult *result);
+    void updateNumberOfInstances();
 
     QLineEdit *accessKeyLineEdit;
     QLineEdit *secretKeyLineEdit;
@@ -73,6 +74,7 @@ private:
     bool requestRunning;
     bool firstTryToLogin;
     QAction *connectButton;
+    QLabel *instanceNumLabel;
 };
 
 #endif

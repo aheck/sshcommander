@@ -46,6 +46,8 @@ AWSWidget::AWSWidget()
     toolBarLayout->addWidget(this->regionComboBox);
     ((QVBoxLayout*) this->mainWidget->layout())->addLayout(toolBarLayout);
     this->mainWidget->layout()->addWidget(this->instanceTable);
+    this->instanceNumLabel = new QLabel();
+    this->mainWidget->layout()->addWidget(this->instanceNumLabel);
 
     this->setLayout(new QVBoxLayout(this));
     this->layout()->addWidget(this->loginWidget);
@@ -62,10 +64,6 @@ AWSWidget::AWSWidget()
         this->mainWidget->setVisible(false);
         this->curWidget = this->loginWidget;
     }
-}
-
-AWSWidget::~AWSWidget()
-{
 }
 
 void AWSWidget::connectToAWS()
@@ -225,6 +223,17 @@ QVector<AWSInstance*> AWSWidget::parseDescribeInstancesResult(AWSResult *result)
     return vector;
 }
 
+void AWSWidget::updateNumberOfInstances()
+{
+    int numberOfInstances = this->instanceModel->rowCount(QModelIndex());
+
+    if (numberOfInstances == 1) {
+        this->instanceNumLabel->setText("1 Instance");
+    } else {
+        this->instanceNumLabel->setText(QString("%1 Instances").arg(numberOfInstances));
+    }
+}
+
 void AWSWidget::handleAWSResult(AWSResult *result)
 {
     std::cout << "AWS Result received in AWSWidget" << std::endl;
@@ -247,6 +256,7 @@ void AWSWidget::handleAWSResult(AWSResult *result)
         QVector<AWSInstance*> vector = this->parseDescribeInstancesResult(result);
         this->instanceModel->setInstances(vector);
         this->connectButton->setEnabled(false);
+        this->updateNumberOfInstances();
     }
 
     this->requestRunning = false;

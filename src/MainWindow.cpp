@@ -270,13 +270,15 @@ void MainWindow::restartSession()
     const QString tabText = tabs->tabText(tabIndex);
 
     if (tabs->currentWidget() != nullptr) {
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this, "Restart Session?",
-                QString("Do you really want to restart SSH session '%1' with '%2'?").arg(tabText).arg(connEntry->name),
-                QMessageBox::Yes|QMessageBox::No);
+        if (QString("QTermWidget") == tabs->currentWidget()->metaObject()->className()) {
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(this, "Restart Session?",
+                    QString("Do you really want to restart SSH session '%1' with '%2'?").arg(tabText).arg(connEntry->name),
+                    QMessageBox::Yes|QMessageBox::No);
 
-        if (reply == QMessageBox::No) {
-            return;
+            if (reply == QMessageBox::No) {
+                return;
+            }
         }
 
         oldWidget = tabs->currentWidget();
@@ -382,7 +384,9 @@ void MainWindow::readSettings()
         tabs->setTabPosition(CustomTabWidget::North);
 
         for (int i = 0; i < entry->tabNames->size(); i++) {
-            tabs->addTab(new QWidget(), entry->tabNames->at(i));
+            InactiveSessionWidget *inactiveSessionWidget = new InactiveSessionWidget();
+            QObject::connect(inactiveSessionWidget, SIGNAL(createSession()), this, SLOT(restartSession()));
+            tabs->addTab(inactiveSessionWidget, entry->tabNames->at(i));
         }
 
         QObject::connect(tabs, SIGNAL (tabCloseRequested(int)), this, SLOT(closeSSHTab(int)));

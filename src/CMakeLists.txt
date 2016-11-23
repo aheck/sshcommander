@@ -26,6 +26,7 @@ add_executable(sshcommander
     AWSWidget.cpp
     CustomTabBar.cpp
     CustomTabWidget.cpp
+    InactiveSessionWidget.cpp
     InstanceItemModel.cpp
     MachineInfoWidget.cpp
     MainWindow.cpp

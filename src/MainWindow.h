@@ -30,6 +30,7 @@
 #include "AWSInfoWidget.h"
 #include "AWSWidget.h"
 #include "CustomTabWidget.h"
+#include "InactiveSessionWidget.h"
 #include "MachineInfoWidget.h"
 #include "NewDialog.h"
 #include "SSHConnectionEntry.h"

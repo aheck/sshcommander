@@ -297,7 +297,7 @@ void AWSWidget::selectionChanged(const QItemSelection &selected, const QItemSele
         QModelIndex index = selected.indexes().first();
         AWSInstance *instance = this->instanceModel->getInstance(index);
         if (instance->publicIP.isEmpty() || instance->status != "running") {
-            return;
+            enabled = false;
         }
     }
 

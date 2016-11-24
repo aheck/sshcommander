@@ -18,6 +18,7 @@ public:
     void write(QJsonObject &json) const;
 
     QString id;
+    QString name;
     QString region;
     QString status;
     QString keyname;

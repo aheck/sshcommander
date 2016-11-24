@@ -64,12 +64,7 @@ QVariant InstanceItemModel::data(const QModelIndex &index, int role) const
         case 0:
             return QVariant(instance->id);
         case 1:
-            for (AWSTag tag : instance->tags) {
-                if (tag.key == "Name") {
-                    return QVariant(tag.value);
-                }
-            }
-            return QVariant("");
+            return QVariant(instance->name);
         case 2:
             return QVariant(instance->status);
         case 3:
@@ -109,4 +104,59 @@ AWSInstance* InstanceItemModel::getInstance(const QModelIndex &index)
     }
 
     return this->instances.at(index.row());
+}
+
+struct Comparator {
+    int column;
+    Qt::SortOrder order;
+
+    bool operator() (AWSInstance *a, AWSInstance *b) {
+        bool result = false;
+
+        switch (this->column) {
+            case 0:
+                result = a->id.compare(b->id) < 0;
+                break;
+            case 1:
+                result = a->name.compare(b->name) < 0;
+                break;
+            case 2:
+                result = a->status.compare(b->status) < 0;
+                break;
+            case 3:
+                result = a->type.compare(b->type) < 0;
+                break;
+            case 4:
+                result = a->keyname.compare(b->keyname) < 0;
+                break;
+            case 5:
+                result = a->publicIP.compare(b->publicIP) < 0;
+                break;
+            case 6:
+                result = a->privateIP.compare(b->privateIP) < 0;
+                break;
+            case 7:
+                result = a->launchTime.compare(b->launchTime) < 0;
+                break;
+        }
+
+        if (this->order == Qt::AscendingOrder) {
+            return !result;
+        }
+
+        return result;
+    }
+};
+
+void InstanceItemModel::sort(int column, Qt::SortOrder order)
+{
+    Comparator cmp;
+
+    emit layoutAboutToBeChanged();
+
+    cmp.column = column;
+    cmp.order = order;
+    std::sort(this->instances.begin(), this->instances.end(), cmp);
+
+    emit layoutChanged();
 }

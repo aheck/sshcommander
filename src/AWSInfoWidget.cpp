@@ -26,6 +26,7 @@ AWSInfoWidget::AWSInfoWidget()
     this->widgetStack->addWidget(this->scrollArea);
 
     this->labelInstanceId = new QLabel("Instance ID:");
+    this->labelName = new QLabel("Name:");
     this->labelRegion = new QLabel("Region:");
     this->labelStatus = new QLabel("Status:");
     this->labelKeyname = new QLabel("Keyname:");
@@ -42,6 +43,8 @@ AWSInfoWidget::AWSInfoWidget()
 
     this->valueInstanceId = new QLabel("");
     this->valueInstanceId->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    this->valueName = new QLabel("");
+    this->valueName->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueRegion = new QLabel("");
     this->valueRegion->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueStatus = new QLabel("");
@@ -72,40 +75,43 @@ AWSInfoWidget::AWSInfoWidget()
     this->gridLayout = new QGridLayout();
     this->gridLayout->addWidget(this->labelInstanceId, 0, 0, Qt::AlignLeft);
     this->gridLayout->addWidget(this->valueInstanceId, 0, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelRegion, 1, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueRegion, 1, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelName, 1, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueName, 1, 1, Qt::AlignLeft);
 
-    this->gridLayout->addWidget(this->labelStatus, 2, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueStatus, 2, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelKeyname, 3, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueKeyname, 3, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelRegion, 2, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueRegion, 2, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelStatus, 3, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueStatus, 3, 1, Qt::AlignLeft);
 
-    this->gridLayout->addWidget(this->labelType, 4, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueType, 4, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelImageId, 5, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueImageId, 5, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelKeyname, 4, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueKeyname, 4, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelType, 5, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueType, 5, 1, Qt::AlignLeft);
 
-    this->gridLayout->addWidget(this->labelLaunchTime, 6, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueLaunchTime, 6, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelPublicIP, 7, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valuePublicIP, 7, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelImageId, 6, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueImageId, 6, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelLaunchTime, 7, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueLaunchTime, 7, 1, Qt::AlignLeft);
 
-    this->gridLayout->addWidget(this->labelPrivateIP, 8, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valuePrivateIP, 8, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelSubnetId, 9, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueSubnetId, 9, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelPublicIP, 8, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valuePublicIP, 8, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelPrivateIP, 9, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valuePrivateIP, 9, 1, Qt::AlignLeft);
 
-    this->gridLayout->addWidget(this->labelVpcId, 10, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueVpcId, 10, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelVirtualizationType, 11, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueVirtualizationType, 11, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelSubnetId, 10, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueSubnetId, 10, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelVpcId, 11, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueVpcId, 11, 1, Qt::AlignLeft);
 
-    this->gridLayout->addWidget(this->labelArchitecture, 12, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueArchitecture, 12, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelHypervisor, 13, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueHypervisor, 13, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelVirtualizationType, 12, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueVirtualizationType, 12, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelArchitecture, 13, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueArchitecture, 13, 1, Qt::AlignLeft);
 
-    this->gridLayout->setRowStretch(14, 1);
+    this->gridLayout->addWidget(this->labelHypervisor, 14, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueHypervisor, 14, 1, Qt::AlignLeft);
+
+    this->gridLayout->setRowStretch(15, 1);
     this->gridLayout->setColumnStretch(2, 1);
 
     this->awsPage->setLayout(this->gridLayout);
@@ -123,6 +129,7 @@ AWSInfoWidget::~AWSInfoWidget()
 void AWSInfoWidget::update(const AWSInstance &instance)
 {
     this->valueInstanceId->setText(instance.id);
+    this->valueName->setText(instance.name);
     this->valueRegion->setText(instance.region);
     this->valueStatus->setText(instance.status);
     this->valueKeyname->setText(instance.keyname);

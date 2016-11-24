@@ -36,8 +36,10 @@ AWSWidget::AWSWidget()
     this->instanceModel = new InstanceItemModel();
     this->instanceTable->setModel(this->instanceModel);
     this->instanceTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    this->instanceTable->setSortingEnabled(true);
+    this->instanceTable->horizontalHeader()->setStretchLastSection(true);
     for (int i = 0; i < this->instanceTable->horizontalHeader()->count(); i++) {
-        this->instanceTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Stretch);
+        this->instanceTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Interactive);
     }
     QObject::connect(this->instanceTable->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(selectionChanged(QItemSelection, QItemSelection)));
 
@@ -192,8 +194,14 @@ QVector<AWSInstance*> AWSWidget::parseDescribeInstancesResult(AWSResult *result)
             } else if (tagSet && itemLevel == 3) {
                 if (name == "key") {
                     instance->tags.last().key = xml.readElementText();
+                    if (instance->tags.last().key == "Name") {
+                        instance->name = instance->tags.last().value;
+                    }
                 } else if (name == "value") {
                     instance->tags.last().value = xml.readElementText();
+                    if (instance->tags.last().key == "Name") {
+                        instance->name = instance->tags.last().value;
+                    }
                 }
             }
         } else if (xml.isEndElement()) {

@@ -31,6 +31,7 @@ private:
     QVBoxLayout *mainLayout;
 
     QLabel *labelInstanceId;
+    QLabel *labelName;
     QLabel *labelRegion;
     QLabel *labelStatus;
     QLabel *labelKeyname;
@@ -46,6 +47,7 @@ private:
     QLabel *labelHypervisor;
 
     QLabel *valueInstanceId;
+    QLabel *valueName;
     QLabel *valueRegion;
     QLabel *valueStatus;
     QLabel *valueKeyname;

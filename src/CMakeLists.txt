@@ -33,6 +33,8 @@ add_executable(sshcommander
     MachineInfoWidget.cpp
     MainWindow.cpp
     NewDialog.cpp
+    Preferences.cpp
+    PreferencesDialog.cpp
     SSHConnectionEntry.cpp
     SSHConnectionItemModel.cpp
 )

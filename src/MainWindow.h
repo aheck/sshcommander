@@ -33,6 +33,8 @@
 #include "InactiveSessionWidget.h"
 #include "MachineInfoWidget.h"
 #include "NewDialog.h"
+#include "Preferences.h"
+#include "PreferencesDialog.h"
 #include "SSHConnectionEntry.h"
 #include "SSHConnectionItemModel.h"
 
@@ -59,6 +61,7 @@ public slots:
     void removeConnection();
     void toggleSessionEnlarged();
     void openWebsite();
+    void showPreferencesDialog();
 
 private:
     const QString getCurrentUsernameAndHost();
@@ -68,6 +71,7 @@ private:
     void updateConnectionTabs();
     void selectFirstConnection();
     void selectConnection(SSHConnectionEntry *connEntry);
+    void updateConsoleSettings(const QFont &font);
 
     bool viewEnlarged;
     AboutDialog *aboutDialog;
@@ -75,6 +79,7 @@ private:
     QWidget *hiddenPage;
     QMenuBar *menuBar;
     NewDialog *newDialog;
+    PreferencesDialog *preferencesDialog;
     QSplitter *splitter;
     QSplitter *sessionInfoSplitter;
     QListView *tabList;
@@ -88,6 +93,7 @@ private:
     MachineInfoWidget *machineInfo;
     AWSInfoWidget *awsInfo;
     QTabWidget *sshSessionsInfo;
+    Preferences preferences;
 };
 
 #endif

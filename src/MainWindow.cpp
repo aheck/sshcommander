@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // dialogs
     this->aboutDialog = new AboutDialog();
     this->newDialog = new NewDialog();
+    this->preferencesDialog = new PreferencesDialog();
     QObject::connect(newDialog, SIGNAL (accepted()), this, SLOT (createNewConnection()));
 
     this->viewEnlarged = false;
@@ -13,17 +14,21 @@ MainWindow::MainWindow(QWidget *parent) :
     // build the menu bar
     this->menuBar = new QMenuBar(this);
 
-    QMenu *connMenu = new QMenu("Connections", menuBar);
+    QMenu *connMenu = new QMenu(tr("Connection"), menuBar);
     menuBar->addMenu(connMenu);
-    connMenu->addAction("&New", this->newDialog, SLOT(exec()));
+    connMenu->addAction(tr("&New"), this->newDialog, SLOT(exec()));
     connMenu->addSeparator();
-    connMenu->addAction("&Quit", qApp, SLOT(quit()));
+    connMenu->addAction(tr("&Quit"), qApp, SLOT(quit()));
 
-    QMenu *helpMenu = new QMenu("Help", menuBar);
+    QMenu *editMenu = new QMenu(tr("Edit"));
+    menuBar->addMenu(editMenu);
+    editMenu->addAction(tr("Preferences"), this, SLOT(showPreferencesDialog()));
+
+    QMenu *helpMenu = new QMenu(tr("Help"), menuBar);
     menuBar->addMenu(helpMenu);
-    helpMenu->addAction("Website", this, SLOT(openWebsite()));
+    helpMenu->addAction(tr("Website"), this, SLOT(openWebsite()));
     helpMenu->addSeparator();
-    helpMenu->addAction("About", this->aboutDialog, SLOT(exec()));
+    helpMenu->addAction(tr("About"), this->aboutDialog, SLOT(exec()));
 
     setMenuBar(menuBar);
 
@@ -141,20 +146,13 @@ QTermWidget* MainWindow::createNewTermWidget(const QStringList *args)
 {
     const QString *program = new QString("/usr/bin/ssh");
 
-    QFont font("monospace");
-    font.setPointSize(12);
-    font.setStyleHint(QFont::Monospace);
-    font.setStyleHint(QFont::TypeWriter);
-    font.setFamily("courier");
-
     QTermWidget *console = new QTermWidget(0);
     console->setShellProgram(*program);
     console->setArgs(*args);
-    console->setTerminalFont(font);
+    console->setTerminalFont(this->preferences.getTerminalFont());
 
     console->setColorScheme("COLOR_SCHEME_BLACK_ON_LIGHT_YELLOW");
     console->setScrollBarPosition(QTermWidget::ScrollBarRight);
-    console->setKeyBindings("macbook");
 
     return console;
 }
@@ -361,6 +359,20 @@ void MainWindow::readSettings()
     this->splitter->restoreState(settings.value("splitterSizes").toByteArray());
     this->sessionInfoSplitter->restoreState(settings.value("sessionInfoSplitterSizes").toByteArray());
     this->awsWidget->setRegion(settings.value("selectedAwsRegion", "").toString());
+    QString terminalFontStr = settings.value("terminalFont", "").toString();
+    QFont terminalFont;
+
+    if (terminalFontStr.isEmpty()) {
+        // get the default terminal font
+        QTermWidget *console = new QTermWidget(0);
+        terminalFont = console->getTerminalFont();
+        delete console;
+    } else {
+        terminalFont.fromString(terminalFontStr);
+    }
+
+    this->preferences.setTerminalFont(terminalFont);
+
     settings.endGroup();
 
     QString filename = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("connections.json");
@@ -416,6 +428,8 @@ void MainWindow::saveSettings()
     settings.setValue("sessionInfoSplitterSizes", this->sessionInfoSplitter->saveState());
     settings.setValue("sessionInfoSplitterSizes", this->sessionInfoSplitter->saveState());
     settings.setValue("selectedAwsRegion", this->awsWidget->getRegion());
+
+    settings.setValue("terminalFont", this->preferences.getTerminalFont().toString());
     settings.endGroup();
 
     // The SSH connections are serialized to JSON and stored in a separate file.
@@ -613,4 +627,32 @@ void MainWindow::selectConnection(SSHConnectionEntry *connEntry)
 {
     QModelIndex index = this->connectionModel->getIndexForSSHConnectionEntry(connEntry);
     this->tabList->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+}
+
+void MainWindow::showPreferencesDialog()
+{
+    this->preferencesDialog->setFont(this->preferences.getTerminalFont());
+
+    if (this->preferencesDialog->exec() == QDialog::Accepted) {
+        // did the user change the font?
+        if (this->preferencesDialog->getFont() != this->preferences.getTerminalFont()) {
+            this->preferences.setTerminalFont(this->preferencesDialog->getFont());
+            this->updateConsoleSettings(this->preferences.getTerminalFont());
+        }
+    }
+}
+
+void MainWindow::updateConsoleSettings(const QFont &font)
+{
+    // update all running QTermWidget instances
+    for (int i = 0; i < this->connectionModel->rowCount(QModelIndex()); i++) {
+        SSHConnectionEntry *entry = this->connectionModel->getConnEntry(i);
+        for (int j = 0; j < entry->tabs->count(); j++) {
+            QWidget *widget = entry->tabs->widget(j);
+            if (widget->metaObject()->className() == QString("QTermWidget")) {
+                QTermWidget *console = (QTermWidget*) widget;
+                console->setTerminalFont(font);
+            }
+        }
+    }
 }

@@ -43,7 +43,7 @@ MachineInfoWidget::MachineInfoWidget()
     scrollArea->setWidget(this->page);
 
     this->widgetStack->addWidget(this->disabledPage);
-    this->widgetStack->addWidget(this->page);
+    this->widgetStack->addWidget(scrollArea);
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(this->widgetStack);

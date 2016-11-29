@@ -117,8 +117,8 @@ AWSInfoWidget::AWSInfoWidget()
     this->awsPage->setLayout(this->gridLayout);
 
     this->mainLayout = new QVBoxLayout();
-    this->setLayout(mainLayout);
     this->mainLayout->addWidget(this->widgetStack);
+    this->setLayout(mainLayout);
 }
 
 AWSInfoWidget::~AWSInfoWidget()

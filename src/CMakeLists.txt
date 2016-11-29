@@ -24,6 +24,7 @@ add_executable(sshcommander
     AWSInfoWidget.cpp
     AWSInstance.cpp
     AWSTag.cpp
+    AWSResponseParsers.cpp
     AWSSecurityGroup.cpp
     AWSWidget.cpp
     CustomTabBar.cpp
@@ -35,6 +36,7 @@ add_executable(sshcommander
     NewDialog.cpp
     Preferences.cpp
     PreferencesDialog.cpp
+    SecurityGroupsDialog.cpp
     SSHConnectionEntry.cpp
     SSHConnectionItemModel.cpp
 )

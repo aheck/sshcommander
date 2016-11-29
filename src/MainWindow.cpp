@@ -522,10 +522,10 @@ void MainWindow::showTabListContextMenu(QPoint pos)
 {
     QPoint globalPos = this->tabList->mapToGlobal(pos);
 
-    QMenu menu;
-    menu.addAction("Delete", this, SLOT(removeConnection()));
-
     if (this->tabList->indexAt(pos).isValid()) {
+        QMenu menu;
+        menu.addAction("Delete", this, SLOT(removeConnection()));
+
         menu.exec(globalPos);
     }
 }

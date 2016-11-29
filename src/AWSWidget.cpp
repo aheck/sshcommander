@@ -8,6 +8,8 @@ AWSWidget::AWSWidget()
     this->awsConnector = new AWSConnector();
     QObject::connect(this->awsConnector, SIGNAL(awsReplyReceived(AWSResult*)), this, SLOT(handleAWSResult(AWSResult*)));
 
+    this->securityGroupsDialog = new SecurityGroupsDialog();
+
     // build the loginWidget
     this->loginWidget = new QWidget();
     this->accessKeyLineEdit = new QLineEdit(this->loginWidget);
@@ -42,6 +44,8 @@ AWSWidget::AWSWidget()
         this->instanceTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Interactive);
     }
     QObject::connect(this->instanceTable->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(selectionChanged(QItemSelection, QItemSelection)));
+    this->instanceTable->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this->instanceTable, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showInstanceContextMenu(QPoint)));
 
     QHBoxLayout *toolBarLayout = new QHBoxLayout();
     toolBarLayout->addWidget(this->toolBar);
@@ -97,7 +101,7 @@ void AWSWidget::loadInstances()
 
 void AWSWidget::connectToInstance()
 {
-    AWSInstance *instance;
+    std::shared_ptr<AWSInstance> instance;
 
     QModelIndexList indexes = this->instanceTable->selectionModel()->selectedIndexes();
     if (indexes.isEmpty()) {
@@ -107,128 +111,6 @@ void AWSWidget::connectToInstance()
     instance = this->instanceModel->getInstance(indexes.first());
     std::cout << "test: " << instance->publicIP.toStdString() << std::endl;
     emit newConnection(*instance);
-}
-
-QVector<AWSInstance*> AWSWidget::parseDescribeInstancesResult(AWSResult *result)
-{
-    QVector<AWSInstance*> vector;
-    AWSInstance *instance = nullptr;
-
-    if (result->httpBody.isEmpty()) {
-        return vector;
-    }
-
-    QBuffer buffer;
-    buffer.setData(result->httpBody.toUtf8());
-    buffer.open(QIODevice::ReadOnly);
-    QXmlStreamReader xml;
-    xml.setDevice(&buffer);
-
-    bool instancesSet = false;
-    bool instanceState = false;
-    bool groupSet = false;
-    bool tagSet = false;
-    int itemLevel = 0;
-
-    while (!xml.isEndDocument()) {
-        xml.readNext();
-
-        if (xml.isStartElement()) {
-            QString name = xml.name().toString();
-            if (name == "instancesSet") {
-                instancesSet = true;
-            } else if (name == "item") {
-                itemLevel++;
-
-                if (instancesSet && itemLevel == 2) {
-                    instance = new AWSInstance();
-                    instance->region = this->region;
-                    vector << instance;
-                } else if (groupSet && itemLevel == 3) {
-                    AWSSecurityGroup securityGroup;
-                    instance->securityGroups.append(securityGroup);
-                } else if (tagSet && itemLevel == 3) {
-                    AWSTag tag;
-                    instance->tags.append(tag);
-                }
-            } else if (name == "instanceState") {
-                instanceState = true;
-            } else if (name == "groupSet"){
-                groupSet = true;
-            } else if (name == "tagSet"){
-                tagSet = true;
-            } else if (instancesSet && itemLevel == 2) {
-                if (name == "instanceId") {
-                    instance->id = xml.readElementText();
-                } else if (name == "name" && instanceState == true) {
-                    instance->status = xml.readElementText();
-                } else if (name == "instanceType") {
-                    instance->type = xml.readElementText();
-                } else if (name == "keyName") {
-                    instance->keyname = xml.readElementText();
-                } else if (name == "imageId") {
-                    instance->imageId = xml.readElementText();
-                } else if (name == "ipAddress") {
-                    instance->publicIP = xml.readElementText();
-                } else if (name == "privateIpAddress") {
-                    instance->privateIP = xml.readElementText();
-                } else if (name == "launchTime") {
-                    instance->launchTime = xml.readElementText();
-                } else if (name == "vpcId") {
-                    instance->vpcId = xml.readElementText();
-                } else if (name == "subnetId") {
-                    instance->subnetId = xml.readElementText();
-                } else if (name == "virtualizationType") {
-                    instance->virtualizationType = xml.readElementText();
-                } else if (name == "hypervisor") {
-                    instance->hypervisor = xml.readElementText();
-                } else if (name == "architecture") {
-                    instance->architecture = xml.readElementText();
-                }
-            } else if (groupSet && itemLevel == 3) {
-                if (name == "groupId") {
-                    instance->securityGroups.last().id = xml.readElementText();
-                } else if (name == "groupName") {
-                    instance->securityGroups.last().name = xml.readElementText();
-                }
-            } else if (tagSet && itemLevel == 3) {
-                if (name == "key") {
-                    instance->tags.last().key = xml.readElementText();
-                    if (instance->tags.last().key == "Name") {
-                        instance->name = instance->tags.last().value;
-                    }
-                } else if (name == "value") {
-                    instance->tags.last().value = xml.readElementText();
-                    if (instance->tags.last().key == "Name") {
-                        instance->name = instance->tags.last().value;
-                    }
-                }
-            }
-        } else if (xml.isEndElement()) {
-            QString name = xml.name().toString();
-            if (name == "instancesSet") {
-                instancesSet = false;
-            } else if (name == "groupSet") {
-                groupSet = false;
-            } else if (name == "tagSet") {
-                tagSet = false;
-            } else if (name == "item") {
-                itemLevel--;
-            } else if (name == "instanceState") {
-                instanceState = false;
-            }
-
-            if (instancesSet && itemLevel < 2) {
-                instance = nullptr;
-            }
-        }
-    }
-
-    if (xml.hasError()) {
-        std::cout << "XML error: " << xml.errorString().data() << std::endl;
-    }
-
-    return vector;
 }
 
 void AWSWidget::updateNumberOfInstances()
@@ -261,10 +143,55 @@ void AWSWidget::handleAWSResult(AWSResult *result)
             this->curWidget = this->mainWidget;
         }
 
-        QVector<AWSInstance*> vector = this->parseDescribeInstancesResult(result);
-        this->instanceModel->setInstances(vector);
-        this->connectButton->setEnabled(false);
-        this->updateNumberOfInstances();
+        if (result->responseType == "DescribeInstancesResponse") {
+            QVector<std::shared_ptr<AWSInstance>> vector = ::parseDescribeInstancesResponse(result, this->region);
+            this->instanceModel->setInstances(vector);
+            this->connectButton->setEnabled(false);
+            this->updateNumberOfInstances();
+        } else if (result->responseType == "DescribeSecurityGroupsResponse") {
+            QVector<std::shared_ptr<AWSSecurityGroup>> securityGroups = parseDescribeSecurityGroupsResponse(result, this->region);
+
+            for (std::shared_ptr<AWSSecurityGroup> sg : securityGroups) {
+                QListWidgetItem *item = new QListWidgetItem(QString("SG: %1 (%2)").arg(sg->name).arg(sg->id),
+                        this->securityGroupsDialog->list, QListWidgetItem::Type);
+                QFont font = item->font();
+                font.setBold(true);
+                item->setFont(font);
+                item->setToolTip(sg->description);
+                this->securityGroupsDialog->list->addItem(item);
+                this->securityGroupsDialog->list->addItem("Ingress");
+                for (AWSIngressPermission perm : sg->ingressPermissions) {
+                    QString item = perm.ipProtocol + ": " + perm.fromPort + "-" + perm.toPort + " ";
+
+                    int i = 0;
+                    for (QString cidr : perm.cidrs) {
+                        if (i != 0) {
+                            item += ",";
+                        }
+                        item += cidr;
+                        i++;
+                    }
+
+                    this->securityGroupsDialog->list->addItem(item);
+                }
+
+                this->securityGroupsDialog->list->addItem("Egress");
+                for (AWSEgressPermission perm : sg->egressPermissions) {
+                    QString item = perm.ipProtocol + ": " + perm.fromPort + "-" + perm.toPort + " ";
+
+                    int i = 0;
+                    for (QString cidr : perm.cidrs) {
+                        if (i != 0) {
+                            item += ",";
+                        }
+                        item += cidr;
+                        i++;
+                    }
+
+                    this->securityGroupsDialog->list->addItem(item);
+                }
+            }
+        }
     }
 
     this->requestRunning = false;
@@ -303,7 +230,7 @@ void AWSWidget::selectionChanged(const QItemSelection &selected, const QItemSele
 
     if (enabled) {
         QModelIndex index = selected.indexes().first();
-        AWSInstance *instance = this->instanceModel->getInstance(index);
+        std::shared_ptr<AWSInstance> instance = this->instanceModel->getInstance(index);
         if (instance->publicIP.isEmpty() || instance->status != "running") {
             enabled = false;
         }
@@ -321,4 +248,50 @@ void AWSWidget::setRegion(const QString region)
 {
     this->region = region;
     this->regionComboBox->setCurrentIndex(this->regionComboBox->findText(region));
+}
+
+void AWSWidget::showInstanceContextMenu(QPoint pos)
+{
+    QPoint globalPos = this->instanceTable->mapToGlobal(pos);
+
+    if (this->instanceTable->indexAt(pos).isValid()) {
+        QMenu menu;
+        menu.addAction(tr("View Security Groups"), this, SLOT(showSecurityGroups()));
+
+        menu.exec(globalPos);
+    }
+}
+
+void AWSWidget::showSecurityGroups()
+{
+    QString title;
+    QModelIndexList indexes = this->instanceTable->selectionModel()->selectedIndexes();
+
+    if (indexes.isEmpty()) {
+        return;
+    }
+
+    std::shared_ptr<AWSInstance> instance = this->instanceModel->getInstance(indexes.first());
+
+    if (instance == nullptr) {
+        return;
+    }
+
+    if (instance->name.isEmpty()) {
+        title = QString("Security Groups of instance %1").arg(instance->id);
+    } else {
+        title = QString("Security Groups of instance '%1' (%2)").arg(instance->name).arg(instance->id);
+    }
+
+    this->securityGroupsDialog->setWindowTitle(title);
+
+    this->securityGroupsDialog->list->clear();
+
+    QList<QString> groupIds;
+    for (AWSSecurityGroup sg : instance->securityGroups) {
+        groupIds.append(sg.id);
+    }
+    this->awsConnector->describeSecurityGroups(groupIds);
+
+    this->securityGroupsDialog->exec();
 }

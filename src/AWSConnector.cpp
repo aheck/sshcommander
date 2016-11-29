@@ -52,12 +52,19 @@ void AWSConnector::setRegion(QString region)
     this->region = region;
 }
 
-void AWSConnector::describeInstances()
+void AWSConnector::sendRequest(const QString action)
+{
+    QList<QString> extraParams;
+    this->sendRequest(action, extraParams);
+}
+
+void AWSConnector::sendRequest(const QString action, QList<QString> &extraParams)
 {
     QDateTime now = QDateTime::currentDateTimeUtc();
+    QList<QString> params = extraParams;
 
     // Request Params
-    QString paramAction = "DescribeInstances";
+    QString paramAction = action;
     QString paramVersion = "2016-09-15";
     QString paramAmzAlgorithm = "AWS4-HMAC-SHA256";
     QString paramAmzDate = now.toString("yyyyMMddTHHmmssZ");
@@ -66,9 +73,17 @@ void AWSConnector::describeInstances()
     QString method = "GET";
     QString canonicalUri = "/";
     QByteArray canonicalQueryString;
-    canonicalQueryString += QString("Action=").toUtf8() + QUrl::toPercentEncoding(paramAction);
-    canonicalQueryString += '&';
-    canonicalQueryString += QString("Version=").toUtf8() + QUrl::toPercentEncoding(paramVersion);
+
+    params.append(QString("Action=") + QUrl::toPercentEncoding(paramAction));
+    params.append(QString("Version=") + QUrl::toPercentEncoding(paramVersion));
+    std::sort(params.begin(), params.end());
+
+    for (int i = 0; i < params.count(); i++) {
+        if (i != 0) {
+            canonicalQueryString += "&";
+        }
+        canonicalQueryString += params.at(i).toUtf8();
+    }
 
     QString host = "ec2." + this->region + ".amazonaws.com";
     QString canonicalHeaders = QString("host:%1\nx-amz-date:%2\n").arg(host).arg(paramAmzDate);
@@ -86,10 +101,28 @@ void AWSConnector::describeInstances()
     // build HTTP request
     QString authorizationHeader = paramAmzAlgorithm + " Credential=" + this->accessKey + '/' + credentialScope + ", " +  "SignedHeaders=" + paramAmzSignedHeaders + ", " + "Signature=" + signature;
 
-    QNetworkRequest req = QNetworkRequest(QUrl(QString("http://") + host + "/?" + canonicalQueryString));
+    QString urlStr = "http://" + host + "/?" + canonicalQueryString;
+
+    QNetworkRequest req = QNetworkRequest(QUrl(urlStr));
     req.setRawHeader(QByteArray("Authorization"), authorizationHeader.toUtf8());
     req.setRawHeader(QByteArray("x-amz-date"), paramAmzDate.toUtf8());
     networkManager.get(req);
+}
+
+void AWSConnector::describeInstances()
+{
+    this->sendRequest("DescribeInstances");
+}
+
+void AWSConnector::describeSecurityGroups(QList<QString> groupIds)
+{
+    QList<QString> extraParams;
+    for (int i = 0; i < groupIds.count(); i++) {
+        QString groupIdParam = "GroupId." + QString::number(i + 1) + "=" + groupIds.at(i);
+        extraParams.append(groupIdParam);
+    }
+
+    this->sendRequest("DescribeSecurityGroups", extraParams);
 }
 
 void AWSConnector::replyFinished(QNetworkReply *reply)
@@ -98,6 +131,13 @@ void AWSConnector::replyFinished(QNetworkReply *reply)
 
     result->httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     result->httpBody = QString(reply->readAll());
+
+    // find the response type (the name of the enclosing XML tag)
+    QRegularExpression re("<([a-zA-Z]+)");
+    QRegularExpressionMatch match = re.match(result->httpBody);
+    if (match.hasMatch()) {
+        result->responseType = match.captured(1);
+    }
 
     if (reply->error()) {
         result->isSuccess = false;

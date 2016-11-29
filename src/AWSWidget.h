@@ -3,11 +3,11 @@
 
 #include <QAction>
 #include <QApplication>
-#include <QBuffer>
 #include <QComboBox>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QMenu>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -17,10 +17,11 @@
 #include <QTableView>
 #include <QToolBar>
 #include <QWidget>
-#include <QXmlStreamReader>
 
 #include "AWSConnector.h"
+#include "AWSResponseParsers.h"
 #include "InstanceItemModel.h"
+#include "SecurityGroupsDialog.h"
 
 class AWSWidget : public QWidget
 {
@@ -44,11 +45,12 @@ private slots:
     void connectToInstance();
     void changeRegion(QString region);
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void showInstanceContextMenu(QPoint pos);
+    void showSecurityGroups();
 
 private:
     void readSettings();
     void saveAWSCredentials();
-    QVector<AWSInstance*> parseDescribeInstancesResult(AWSResult *result);
     void updateNumberOfInstances();
 
     QLineEdit *accessKeyLineEdit;
@@ -75,6 +77,7 @@ private:
     bool firstTryToLogin;
     QAction *connectButton;
     QLabel *instanceNumLabel;
+    SecurityGroupsDialog *securityGroupsDialog;
 };
 
 #endif

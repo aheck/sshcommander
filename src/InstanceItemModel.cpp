@@ -58,7 +58,7 @@ QVariant InstanceItemModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    AWSInstance *instance = this->instances.at(index.row());
+    std::shared_ptr<AWSInstance> instance = this->instances.at(index.row());
 
     switch (index.column()) {
         case 0:
@@ -82,22 +82,25 @@ QVariant InstanceItemModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void InstanceItemModel::setInstances(QVector<AWSInstance*> instances)
+void InstanceItemModel::setInstances(QVector<std::shared_ptr<AWSInstance>> instances)
 {
     this->beginResetModel();
 
     // free the memory of the old instance objects before we lose access to
     // their pointers
+    /*
     for (int i = 0; i < this->instances.size(); i++) {
-        delete this->instances.at(i);
+        this->instances.at(i).reset();
     }
+    */
+    this->instances.clear();
 
     this->instances = instances;
 
     this->endResetModel();
 }
 
-AWSInstance* InstanceItemModel::getInstance(const QModelIndex &index)
+std::shared_ptr<AWSInstance> InstanceItemModel::getInstance(const QModelIndex &index)
 {
     if (index.row() > (this->instances.size() - 1)) {
         return nullptr;
@@ -110,7 +113,7 @@ struct Comparator {
     int column;
     Qt::SortOrder order;
 
-    bool operator() (AWSInstance *a, AWSInstance *b) {
+    bool operator() (std::shared_ptr<AWSInstance> a, std::shared_ptr<AWSInstance> b) {
         bool result = false;
 
         switch (this->column) {

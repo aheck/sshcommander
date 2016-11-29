@@ -1,8 +1,27 @@
 #ifndef AWSSECURITYGROUP_H
 #define AWSSECURITYGROUP_H
 
-#include <QString>
 #include <QJsonObject>
+#include <QList>
+#include <QString>
+
+class AWSIngressPermission {
+public:
+    QString ipProtocol;
+    QString fromPort;
+    QString toPort;
+
+    QList<QString> cidrs;
+};
+
+class AWSEgressPermission {
+public:
+    QString ipProtocol;
+    QString fromPort;
+    QString toPort;
+
+    QList<QString> cidrs;
+};
 
 class AWSSecurityGroup
 {
@@ -14,6 +33,11 @@ public:
 
     QString id;
     QString name;
+    QString description;
+    QString vpcId;
+
+    QList<AWSIngressPermission> ingressPermissions;
+    QList<AWSEgressPermission> egressPermissions;
 };
 
 #endif

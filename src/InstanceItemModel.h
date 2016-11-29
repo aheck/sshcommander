@@ -1,6 +1,8 @@
 #ifndef INSTANCEITEMMODEL_H
 #define INSTANCEITEMMODEL_H
 
+#include <memory>
+
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QVector>
@@ -19,11 +21,11 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
 
-    void setInstances(QVector<AWSInstance*> instances);
-    AWSInstance* getInstance(const QModelIndex &index);
+    void setInstances(QVector<std::shared_ptr<AWSInstance>> instances);
+    std::shared_ptr<AWSInstance> getInstance(const QModelIndex &index);
 
 private:
-    QVector<AWSInstance*> instances;
+    QVector<std::shared_ptr<AWSInstance>> instances;
 };
 
 #endif

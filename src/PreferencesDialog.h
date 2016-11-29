@@ -29,6 +29,10 @@ public:
     void setFont(const QFont &font);
     void setFontColor(const QColor &color);
     void setBackgroundColor(const QColor &color);
+    const QString getAWSAccessKey();
+    void setAWSAccessKey(const QString accessKey);
+    const QString getAWSSecretKey();
+    void setAWSSecretKey(const QString secretKey);
 
 public slots:
     void selectFont();
@@ -43,6 +47,10 @@ private:
     QPushButton *backgroundColorButton;
     QColor fontColor;
     QColor backgroundColor;
+    QString accessKey;
+    QString secretKey;
+    QLineEdit *accessKeyLineEdit;
+    QLineEdit *secretKeyLineEdit;
 
     bool newFontSelected;
     QFont newFont;

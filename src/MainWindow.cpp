@@ -3,6 +3,9 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
+    // read in the user preferences from QSettings
+    this->preferences.read();
+
     // dialogs
     this->aboutDialog = new AboutDialog();
     this->newDialog = new NewDialog();
@@ -101,7 +104,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->rightWidget = new QTabWidget();
     rightWidget->addTab(this->sessionInfoSplitter, "SSH");
 
-    this->awsWidget = new AWSWidget();
+    this->awsWidget = new AWSWidget(&this->preferences);
     QObject::connect(this->awsWidget, SIGNAL(newConnection(AWSInstance)), this, SLOT(createSSHConnectionToAWS(AWSInstance)));
     rightWidget->addTab(this->awsWidget, "AWS");
 
@@ -359,20 +362,6 @@ void MainWindow::readSettings()
     this->splitter->restoreState(settings.value("splitterSizes").toByteArray());
     this->sessionInfoSplitter->restoreState(settings.value("sessionInfoSplitterSizes").toByteArray());
     this->awsWidget->setRegion(settings.value("selectedAwsRegion", "").toString());
-    QString terminalFontStr = settings.value("terminalFont", "").toString();
-    QFont terminalFont;
-
-    if (terminalFontStr.isEmpty()) {
-        // get the default terminal font
-        QTermWidget *console = new QTermWidget(0);
-        terminalFont = console->getTerminalFont();
-        delete console;
-    } else {
-        terminalFont.fromString(terminalFontStr);
-    }
-
-    this->preferences.setTerminalFont(terminalFont);
-
     settings.endGroup();
 
     QString filename = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("connections.json");
@@ -428,8 +417,6 @@ void MainWindow::saveSettings()
     settings.setValue("sessionInfoSplitterSizes", this->sessionInfoSplitter->saveState());
     settings.setValue("sessionInfoSplitterSizes", this->sessionInfoSplitter->saveState());
     settings.setValue("selectedAwsRegion", this->awsWidget->getRegion());
-
-    settings.setValue("terminalFont", this->preferences.getTerminalFont().toString());
     settings.endGroup();
 
     // The SSH connections are serialized to JSON and stored in a separate file.
@@ -632,6 +619,8 @@ void MainWindow::selectConnection(SSHConnectionEntry *connEntry)
 void MainWindow::showPreferencesDialog()
 {
     this->preferencesDialog->setFont(this->preferences.getTerminalFont());
+    this->preferencesDialog->setAWSAccessKey(this->preferences.getAWSAccessKey());
+    this->preferencesDialog->setAWSSecretKey(this->preferences.getAWSSecretKey());
 
     if (this->preferencesDialog->exec() == QDialog::Accepted) {
         // did the user change the font?
@@ -639,6 +628,13 @@ void MainWindow::showPreferencesDialog()
             this->preferences.setTerminalFont(this->preferencesDialog->getFont());
             this->updateConsoleSettings(this->preferences.getTerminalFont());
         }
+
+        // update the AWS credentials
+        this->preferences.setAWSAccessKey(this->preferencesDialog->getAWSAccessKey());
+        this->preferences.setAWSSecretKey(this->preferencesDialog->getAWSSecretKey());
+
+        // save the preferences with QSettings
+        this->preferences.save();
     }
 }
 

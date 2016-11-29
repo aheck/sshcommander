@@ -21,6 +21,7 @@
 #include "AWSConnector.h"
 #include "AWSResponseParsers.h"
 #include "InstanceItemModel.h"
+#include "Preferences.h"
 #include "SecurityGroupsDialog.h"
 
 class AWSWidget : public QWidget
@@ -33,7 +34,7 @@ public slots:
     void loadInstances();
 
 public:
-    AWSWidget();
+    AWSWidget(Preferences *preferences);
 
     QString getRegion() const;
     void setRegion(const QString region);
@@ -49,17 +50,14 @@ private slots:
     void showSecurityGroups();
 
 private:
-    void readSettings();
-    void saveAWSCredentials();
     void updateNumberOfInstances();
+
+    Preferences *preferences;
 
     QLineEdit *accessKeyLineEdit;
     QLineEdit *secretKeyLineEdit;
     QPushButton *awsLoginButton;
     AWSConnector *awsConnector;
-
-    QString accessKey;
-    QString secretKey;
 
     // before login the user sees the loginWidget afterwards the mainWidget with
     // a listing of AWS instances etc.

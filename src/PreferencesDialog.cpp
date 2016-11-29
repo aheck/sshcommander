@@ -7,6 +7,7 @@ PreferencesDialog::PreferencesDialog()
 
     this->tabs = new QTabWidget();
 
+    // Terminal tab
     QWidget *terminalPage = new QWidget();
     QFormLayout *terminalLayout = new QFormLayout();
 
@@ -23,9 +24,22 @@ PreferencesDialog::PreferencesDialog()
     terminalLayout->addRow(tr("Background Color:"), this->backgroundColorButton);
 
     terminalPage->setLayout(terminalLayout);
-
     this->tabs->addTab(terminalPage, tr("Terminal"));
 
+    // AWS tab
+    QWidget *awsPage = new QWidget();
+    QFormLayout *awsLayout = new QFormLayout();
+
+    this->accessKeyLineEdit = new QLineEdit();
+    awsLayout->addRow(tr("Access Key:"), this->accessKeyLineEdit);
+
+    this->secretKeyLineEdit = new QLineEdit();
+    awsLayout->addRow(tr("Secret Key:"), this->secretKeyLineEdit);
+
+    awsPage->setLayout(awsLayout);
+    this->tabs->addTab(awsPage, tr("AWS"));
+
+    // General dialog layout
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *okButton = new QPushButton(tr("OK"));
     QObject::connect(okButton, SIGNAL (clicked()), this, SLOT (accept()));
@@ -97,4 +111,24 @@ void PreferencesDialog::selectBackgroundColor()
     if (color.isValid()) {
         this->setBackgroundColor(color);
     }
+}
+
+const QString PreferencesDialog::getAWSAccessKey()
+{
+    return this->accessKeyLineEdit->text();
+}
+
+void PreferencesDialog::setAWSAccessKey(const QString accessKey)
+{
+    this->accessKeyLineEdit->setText(accessKey);
+}
+
+const QString PreferencesDialog::getAWSSecretKey()
+{
+    return this->secretKeyLineEdit->text();
+}
+
+void PreferencesDialog::setAWSSecretKey(const QString secretKey)
+{
+    this->secretKeyLineEdit->setText(secretKey);
 }

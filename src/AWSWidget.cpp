@@ -1,7 +1,9 @@
 #include "AWSWidget.h"
 
-AWSWidget::AWSWidget()
+AWSWidget::AWSWidget(Preferences *preferences)
 {
+    this->preferences = preferences;
+
     this->region = AWSConnector::LOCATION_US_EAST_1;
     this->firstTryToLogin = false;
     this->requestRunning = false;
@@ -59,11 +61,9 @@ AWSWidget::AWSWidget()
     this->layout()->addWidget(this->loginWidget);
     this->layout()->addWidget(this->mainWidget);
 
-    this->readSettings();
-
     // we only show the login widget if we haven't read any AWS credentials
     // from the program settings
-    if (!this->accessKey.isEmpty() && !this->secretKey.isEmpty()) {
+    if (!this->preferences->getAWSAccessKey().isEmpty() && !this->preferences->getAWSSecretKey().isEmpty()) {
         this->loginWidget->setVisible(false);
         this->curWidget = this->mainWidget;
     } else {
@@ -76,15 +76,15 @@ void AWSWidget::connectToAWS()
 {
     this->firstTryToLogin = true;
 
-    this->accessKey = this->accessKeyLineEdit->text();
-    this->secretKey = this->secretKeyLineEdit->text();
+    this->preferences->setAWSAccessKey(this->accessKeyLineEdit->text());
+    this->preferences->setAWSSecretKey(this->secretKeyLineEdit->text());
 
     this->loadInstances();
 }
 
 void AWSWidget::loadInstances()
 {
-    if (this->requestRunning || this->accessKey.isEmpty()) {
+    if (this->requestRunning || this->preferences->getAWSAccessKey().isEmpty()) {
         return;
     }
 
@@ -92,8 +92,10 @@ void AWSWidget::loadInstances()
 
     std::cout << "Trying to connect to AWS..." << std::endl;
 
-    this->awsConnector->setAccessKey(this->accessKey);
-    this->awsConnector->setSecretKey(this->secretKey);
+    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
+    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    this->preferences->save();
+
     this->awsConnector->setRegion(this->region);
 
     this->awsConnector->describeInstances();
@@ -196,26 +198,6 @@ void AWSWidget::handleAWSResult(AWSResult *result)
 
     this->requestRunning = false;
     delete result;
-}
-
-void AWSWidget::readSettings()
-{
-    QSettings settings;
-
-    settings.beginGroup("AWS");
-    this->accessKey = settings.value("accessKey", "").toString();
-    this->secretKey = settings.value("secretKey", "").toString();
-    settings.endGroup();
-}
-
-void AWSWidget::saveAWSCredentials()
-{
-    QSettings settings;
-
-    settings.beginGroup("AWS");
-    settings.setValue("accessKey", this->accessKey);
-    settings.setValue("secretKey", this->secretKey);
-    settings.endGroup();
 }
 
 void AWSWidget::changeRegion(QString region)

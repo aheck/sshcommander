@@ -5,8 +5,7 @@
 
 #include <QApplication>
 #include <QCheckBox>
-#include <QColor>
-#include <QColorDialog>
+#include <QComboBox>
 #include <QDialog>
 #include <QFontDialog>
 #include <QFormLayout>
@@ -18,6 +17,8 @@
 #include <QVBoxLayout>
 #include <QTabWidget>
 
+#include "qtermwidget.h"
+
 class PreferencesDialog : public QDialog
 {
     Q_OBJECT
@@ -27,30 +28,25 @@ public:
 
     QFont getFont();
     void setFont(const QFont &font);
-    void setFontColor(const QColor &color);
-    void setBackgroundColor(const QColor &color);
     const QString getAWSAccessKey();
     void setAWSAccessKey(const QString accessKey);
     const QString getAWSSecretKey();
     void setAWSSecretKey(const QString secretKey);
+    const QString getColorScheme();
+    void setColorScheme(const QString colorScheme);
 
 public slots:
     void selectFont();
-    void selectFontColor();
-    void selectBackgroundColor();
 
 private:
     QTabWidget *tabs;
     QFont terminalFont;
     QPushButton *fontButton;
-    QPushButton *fontColorButton;
-    QPushButton *backgroundColorButton;
-    QColor fontColor;
-    QColor backgroundColor;
     QString accessKey;
     QString secretKey;
     QLineEdit *accessKeyLineEdit;
     QLineEdit *secretKeyLineEdit;
+    QComboBox *colorSchemeComboBox;
 
     bool newFontSelected;
     QFont newFont;

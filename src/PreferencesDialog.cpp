@@ -15,13 +15,9 @@ PreferencesDialog::PreferencesDialog()
     QObject::connect(this->fontButton, SIGNAL (clicked()), this, SLOT (selectFont()));
     terminalLayout->addRow(tr("Font:"), fontButton);
 
-    this->fontColorButton = new QPushButton();
-    QObject::connect(this->fontColorButton, SIGNAL (clicked()), this, SLOT (selectFontColor()));
-    terminalLayout->addRow(tr("Text Color:"), this->fontColorButton);
-
-    this->backgroundColorButton = new QPushButton();
-    QObject::connect(this->backgroundColorButton, SIGNAL (clicked()), this, SLOT (selectBackgroundColor()));
-    terminalLayout->addRow(tr("Background Color:"), this->backgroundColorButton);
+    this->colorSchemeComboBox = new QComboBox();
+    this->colorSchemeComboBox->addItems(QTermWidget::availableColorSchemes());
+    terminalLayout->addRow(tr("Color Scheme"), this->colorSchemeComboBox);
 
     terminalPage->setLayout(terminalLayout);
     this->tabs->addTab(terminalPage, tr("Terminal"));
@@ -79,40 +75,6 @@ void PreferencesDialog::setFont(const QFont &font)
     this->fontButton->setFont(buttonFont);
 }
 
-void PreferencesDialog::setFontColor(const QColor &color)
-{
-    this->fontColor = color;
-    QString styleSheet = QString("QPushButton {background-color: rgb(%1, %2, %3);}").arg(
-            this->fontColor.red()).arg(this->fontColor.green()).arg(this->fontColor.blue());
-    this->fontColorButton->setStyleSheet(styleSheet);
-}
-
-void PreferencesDialog::setBackgroundColor(const QColor &color)
-{
-    this->backgroundColor = color;
-    QString styleSheet = QString("QPushButton {background-color: rgb(%1, %2, %3);}").arg(
-            this->backgroundColor.red()).arg(this->backgroundColor.green()).arg(this->backgroundColor.blue());
-    this->backgroundColorButton->setStyleSheet(styleSheet);
-}
-
-void PreferencesDialog::selectFontColor()
-{
-    QColor color = QColorDialog::getColor(this->fontColor, this, "Select a font color...");
-
-    if (color.isValid()) {
-        this->setFontColor(color);
-    }
-}
-
-void PreferencesDialog::selectBackgroundColor()
-{
-    QColor color = QColorDialog::getColor(this->backgroundColor, this, "Select a background color...");
-
-    if (color.isValid()) {
-        this->setBackgroundColor(color);
-    }
-}
-
 const QString PreferencesDialog::getAWSAccessKey()
 {
     return this->accessKeyLineEdit->text();
@@ -131,4 +93,14 @@ const QString PreferencesDialog::getAWSSecretKey()
 void PreferencesDialog::setAWSSecretKey(const QString secretKey)
 {
     this->secretKeyLineEdit->setText(secretKey);
+}
+
+const QString PreferencesDialog::getColorScheme()
+{
+    return this->colorSchemeComboBox->currentText();
+}
+
+void PreferencesDialog::setColorScheme(const QString colorScheme)
+{
+    this->colorSchemeComboBox->setCurrentText(colorScheme);
 }

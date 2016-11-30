@@ -12,6 +12,9 @@ void Preferences::read()
     settings.beginGroup("AWS");
     this->setAWSAccessKey(settings.value("accessKey", "").toString());
     this->setAWSSecretKey(settings.value("secretKey", "").toString());
+    settings.endGroup();
+
+    settings.beginGroup("Terminal");
     QString terminalFontStr = settings.value("terminalFont", "").toString();
     QFont terminalFont;
 
@@ -22,6 +25,8 @@ void Preferences::read()
     }
 
     this->setTerminalFont(terminalFont);
+
+    this->setColorScheme(settings.value("colorScheme", "Linux").toString());
     settings.endGroup();
 }
 
@@ -31,6 +36,7 @@ void Preferences::save()
 
     settings.beginGroup("Terminal");
     settings.setValue("terminalFont", this->getTerminalFont().toString());
+    settings.setValue("colorScheme", this->getColorScheme());
     settings.endGroup();
 
     settings.beginGroup("AWS");
@@ -79,4 +85,14 @@ const QString Preferences::getAWSSecretKey()
 void Preferences::setAWSSecretKey(const QString secretKey)
 {
     this->awsSecretKey = secretKey;
+}
+
+const QString Preferences::getColorScheme()
+{
+    return this->colorScheme;
+}
+
+void Preferences::setColorScheme(const QString colorScheme)
+{
+    this->colorScheme = colorScheme;
 }

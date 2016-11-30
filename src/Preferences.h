@@ -29,12 +29,16 @@ public:
     const QString getAWSSecretKey();
     void setAWSSecretKey(const QString secretKey);
 
+    const QString getColorScheme();
+    void setColorScheme(const QString colorScheme);
+
 private:
     bool hasDefaultTerminalFont;
     QFont defaultTerminalFont;
     QFont terminalFont;
     QString awsAccessKey;
     QString awsSecretKey;
+    QString colorScheme;
 };
 
 #endif

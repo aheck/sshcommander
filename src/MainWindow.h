@@ -71,7 +71,7 @@ private:
     void updateConnectionTabs();
     void selectFirstConnection();
     void selectConnection(SSHConnectionEntry *connEntry);
-    void updateConsoleSettings(const QFont &font);
+    void updateConsoleSettings(const QFont &font, const QString colorScheme);
 
     bool viewEnlarged;
     AboutDialog *aboutDialog;

@@ -154,7 +154,7 @@ QTermWidget* MainWindow::createNewTermWidget(const QStringList *args)
     console->setArgs(*args);
     console->setTerminalFont(this->preferences.getTerminalFont());
 
-    console->setColorScheme("COLOR_SCHEME_BLACK_ON_LIGHT_YELLOW");
+    console->setColorScheme(this->preferences.getColorScheme());
     console->setScrollBarPosition(QTermWidget::ScrollBarRight);
 
     return console;
@@ -619,14 +619,18 @@ void MainWindow::selectConnection(SSHConnectionEntry *connEntry)
 void MainWindow::showPreferencesDialog()
 {
     this->preferencesDialog->setFont(this->preferences.getTerminalFont());
+    this->preferencesDialog->setColorScheme(this->preferences.getColorScheme());
     this->preferencesDialog->setAWSAccessKey(this->preferences.getAWSAccessKey());
     this->preferencesDialog->setAWSSecretKey(this->preferences.getAWSSecretKey());
 
     if (this->preferencesDialog->exec() == QDialog::Accepted) {
-        // did the user change the font?
-        if (this->preferencesDialog->getFont() != this->preferences.getTerminalFont()) {
+        // did the user change the font or the color scheme?
+        if (this->preferencesDialog->getFont() != this->preferences.getTerminalFont() ||
+                this->preferencesDialog->getColorScheme() != this->preferences.getColorScheme()) {
             this->preferences.setTerminalFont(this->preferencesDialog->getFont());
-            this->updateConsoleSettings(this->preferences.getTerminalFont());
+            this->preferences.setColorScheme(this->preferencesDialog->getColorScheme());
+            this->updateConsoleSettings(this->preferences.getTerminalFont(),
+                    this->preferences.getColorScheme());
         }
 
         // update the AWS credentials
@@ -638,7 +642,7 @@ void MainWindow::showPreferencesDialog()
     }
 }
 
-void MainWindow::updateConsoleSettings(const QFont &font)
+void MainWindow::updateConsoleSettings(const QFont &font, const QString colorScheme)
 {
     // update all running QTermWidget instances
     for (int i = 0; i < this->connectionModel->rowCount(QModelIndex()); i++) {
@@ -648,6 +652,8 @@ void MainWindow::updateConsoleSettings(const QFont &font)
             if (widget->metaObject()->className() == QString("QTermWidget")) {
                 QTermWidget *console = (QTermWidget*) widget;
                 console->setTerminalFont(font);
+                console->setColorScheme(colorScheme);
+                console->update();
             }
         }
     }

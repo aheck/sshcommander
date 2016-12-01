@@ -1,6 +1,8 @@
 #ifndef NEWDIALOG_H
 #define NEWDIALOG_H
 
+#include <memory>
+
 #include <QCheckBox>
 #include <QDialog>
 #include <QFormLayout>
@@ -29,7 +31,7 @@ public:
     QLineEdit *portLineEdit;
 
     bool isAwsInstance;
-    AWSInstance awsInstance;
+    std::shared_ptr<AWSInstance> awsInstance;
 
 public slots:
     void selectKeyFile();

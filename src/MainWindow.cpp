@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setMenuBar(menuBar);
 
     this->machineInfo = new MachineInfoWidget();
-    this->awsInfo = new AWSInfoWidget();
+    this->awsInfo = new AWSInfoWidget(&this->preferences);
 
     this->widgetStack = new QStackedWidget();
 
@@ -105,7 +105,7 @@ MainWindow::MainWindow(QWidget *parent) :
     rightWidget->addTab(this->sessionInfoSplitter, "SSH");
 
     this->awsWidget = new AWSWidget(&this->preferences);
-    QObject::connect(this->awsWidget, SIGNAL(newConnection(AWSInstance)), this, SLOT(createSSHConnectionToAWS(AWSInstance)));
+    QObject::connect(this->awsWidget, SIGNAL(newConnection(std::shared_ptr<AWSInstance>)), this, SLOT(createSSHConnectionToAWS(std::shared_ptr<AWSInstance>)));
     rightWidget->addTab(this->awsWidget, "AWS");
 
     this->splitter->addWidget(rightWidget);
@@ -477,10 +477,10 @@ void MainWindow::saveSettings()
     file.close();
 }
 
-void MainWindow::createSSHConnectionToAWS(const AWSInstance &instance)
+void MainWindow::createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance)
 {
-    this->newDialog->hostnameLineEdit->setText(instance.publicIP);
-    this->newDialog->sshkeyLineEdit->setText(this->findSSHKey(instance.keyname));
+    this->newDialog->hostnameLineEdit->setText(instance->publicIP);
+    this->newDialog->sshkeyLineEdit->setText(this->findSSHKey(instance->keyname));
     this->newDialog->usernameLineEdit->setFocus();
 
     this->newDialog->isAwsInstance = true;

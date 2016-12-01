@@ -31,7 +31,8 @@ void SSHConnectionEntry::read(const QJsonObject &json)
 
     this->isAwsInstance = json["isAwsInstance"].toBool();
     if (this->isAwsInstance) {
-        this->awsInstance.read(json["awsInstance"].toObject());
+        this->awsInstance = std::make_shared<AWSInstance>();
+        this->awsInstance->read(json["awsInstance"].toObject());
     }
 }
 
@@ -47,7 +48,7 @@ void SSHConnectionEntry::write(QJsonObject &json) const
     json["tabNames"] = QJsonArray::fromStringList(*this->tabNames);
     json["isAwsInstance"] = this->isAwsInstance;
     if (this->isAwsInstance) {
-        this->awsInstance.write(awsInstanceJson);
+        this->awsInstance->write(awsInstanceJson);
         json["awsInstance"] = awsInstanceJson;
     }
 }

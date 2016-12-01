@@ -1,8 +1,15 @@
 #include "AWSInfoWidget.h"
 
-AWSInfoWidget::AWSInfoWidget()
+AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
 {
+    this->preferences = preferences;
+
     this->enabled = false;
+
+    this->securityGroupsDialog = new SecurityGroupsDialog();
+
+    this->awsConnector = new AWSConnector();
+    QObject::connect(this->awsConnector, SIGNAL(awsReplyReceived(AWSResult*)), this, SLOT(handleAWSResult(AWSResult*)));
 
     this->awsPage = new QWidget();
     this->noAWSPage = new QWidget();
@@ -37,6 +44,7 @@ AWSInfoWidget::AWSInfoWidget()
     this->labelPrivateIP = new QLabel("Private IP:");
     this->labelSubnetId = new QLabel("Subnet ID:");
     this->labelVpcId = new QLabel("VPC ID:");
+    this->labelSecurityGroups = new QLabel("Security Groups:");
     this->labelVirtualizationType = new QLabel("Virtualization Type:");
     this->labelArchitecture = new QLabel("Architecture:");
     this->labelHypervisor = new QLabel("Hypervisor:");
@@ -65,6 +73,11 @@ AWSInfoWidget::AWSInfoWidget()
     this->valueSubnetId->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueVpcId = new QLabel("");
     this->valueVpcId->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    this->valueSecurityGroups = new QLabel();
+    this->valueSecurityGroups->setText("<a href=\"http://localhost/\">View Security Groups</a>");
+    this->valueSecurityGroups->setTextFormat(Qt::RichText);
+    this->valueSecurityGroups->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    QObject::connect(this->valueSecurityGroups, SIGNAL(linkActivated(QString)), this, SLOT(showSecurityGroups()));
     this->valueVirtualizationType = new QLabel("");
     this->valueVirtualizationType->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueArchitecture = new QLabel("");
@@ -103,15 +116,17 @@ AWSInfoWidget::AWSInfoWidget()
     this->gridLayout->addWidget(this->labelVpcId, 11, 0, Qt::AlignLeft);
     this->gridLayout->addWidget(this->valueVpcId, 11, 1, Qt::AlignLeft);
 
-    this->gridLayout->addWidget(this->labelVirtualizationType, 12, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueVirtualizationType, 12, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelArchitecture, 13, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueArchitecture, 13, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelSecurityGroups, 12, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueSecurityGroups, 12, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelVirtualizationType, 13, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueVirtualizationType, 13, 1, Qt::AlignLeft);
 
-    this->gridLayout->addWidget(this->labelHypervisor, 14, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueHypervisor, 14, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelArchitecture, 14, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueArchitecture, 14, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelHypervisor, 15, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueHypervisor, 15, 1, Qt::AlignLeft);
 
-    this->gridLayout->setRowStretch(15, 1);
+    this->gridLayout->setRowStretch(16, 1);
     this->gridLayout->setColumnStretch(2, 1);
 
     this->awsPage->setLayout(this->gridLayout);
@@ -123,29 +138,32 @@ AWSInfoWidget::AWSInfoWidget()
 
 AWSInfoWidget::~AWSInfoWidget()
 {
-
+    delete this->securityGroupsDialog;
+    delete this->awsConnector;
 }
 
-void AWSInfoWidget::update(const AWSInstance &instance)
+void AWSInfoWidget::update(std::shared_ptr<AWSInstance> instance)
 {
-    this->valueInstanceId->setText(instance.id);
-    this->valueName->setText(instance.name);
-    this->valueRegion->setText(instance.region);
-    this->valueStatus->setText(instance.status);
-    this->valueKeyname->setText(instance.keyname);
+    this->instance = instance;
 
-    this->valueType->setText(instance.type);
-    this->valueImageId->setText(instance.imageId);
-    this->valueLaunchTime->setText(instance.launchTime);
-    this->valuePublicIP->setText(instance.publicIP);
+    this->valueInstanceId->setText(instance->id);
+    this->valueName->setText(instance->name);
+    this->valueRegion->setText(instance->region);
+    this->valueStatus->setText(instance->status);
+    this->valueKeyname->setText(instance->keyname);
 
-    this->valuePrivateIP->setText(instance.privateIP);
-    this->valueSubnetId->setText(instance.subnetId);
-    this->valueVpcId->setText(instance.vpcId);
-    this->valueVirtualizationType->setText(instance.virtualizationType);
+    this->valueType->setText(instance->type);
+    this->valueImageId->setText(instance->imageId);
+    this->valueLaunchTime->setText(instance->launchTime);
+    this->valuePublicIP->setText(instance->publicIP);
 
-    this->valueArchitecture->setText(instance.architecture);
-    this->valueHypervisor->setText(instance.hypervisor);
+    this->valuePrivateIP->setText(instance->privateIP);
+    this->valueSubnetId->setText(instance->subnetId);
+    this->valueVpcId->setText(instance->vpcId);
+    this->valueVirtualizationType->setText(instance->virtualizationType);
+
+    this->valueArchitecture->setText(instance->architecture);
+    this->valueHypervisor->setText(instance->hypervisor);
 }
 
 void AWSInfoWidget::setAWSEnabled(bool enabled)
@@ -157,4 +175,37 @@ void AWSInfoWidget::setAWSEnabled(bool enabled)
     } else {
         this->widgetStack->setCurrentIndex(0);
     }
+}
+
+void AWSInfoWidget::handleAWSResult(AWSResult *result)
+{
+    std::cout << "AWS Result received in AWSWidget" << std::endl;
+    std::cout << "Success: " << result->isSuccess << std::endl;
+    std::cout << "HTTP Status: " << result->httpStatus << std::endl;
+    std::cout << "Body: " << result->httpBody.toStdString() << std::endl;
+
+    if (!result->isSuccess) {
+        QMessageBox msgBox;
+        msgBox.setText(QString("AWS communication error: ") + result->errorString);
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.exec();
+    } else {
+        if (result->responseType == "DescribeSecurityGroupsResponse") {
+            QVector<std::shared_ptr<AWSSecurityGroup>> securityGroups = parseDescribeSecurityGroupsResponse(result, this->instance->region);
+
+            this->securityGroupsDialog->updateData(securityGroups);
+        }
+    }
+
+    delete result;
+}
+
+void AWSInfoWidget::showSecurityGroups()
+{
+    std::cout << "Show security groups..." << std::endl;
+
+    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
+    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    this->awsConnector->setRegion(this->instance->region);
+    this->securityGroupsDialog->showDialog(this->awsConnector, instance);
 }

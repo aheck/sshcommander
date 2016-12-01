@@ -56,7 +56,7 @@ public slots:
     void restartSession();
     void closeSSHTab(int tabIndex);
     void aboutToQuit();
-    void createSSHConnectionToAWS(const AWSInstance &instance);
+    void createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance);
     void showTabListContextMenu(QPoint pos);
     void removeConnection();
     void toggleSessionEnlarged();

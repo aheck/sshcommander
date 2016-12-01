@@ -1,6 +1,8 @@
 #ifndef SSHCONNECTIONENTRY_H
 #define SSHCONNECTIONENTRY_H
 
+#include <memory>
+
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QStringList>
@@ -25,7 +27,7 @@ public:
     CustomTabWidget *tabs;
     QStringList *tabNames;
     bool isAwsInstance;
-    AWSInstance awsInstance;
+    std::shared_ptr<AWSInstance> awsInstance;
 };
 
 #endif

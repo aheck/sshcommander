@@ -40,7 +40,7 @@ public:
     void setRegion(const QString region);
 
 signals:
-    void newConnection(const AWSInstance &instance);
+    void newConnection(std::shared_ptr<AWSInstance> instance);
 
 private slots:
     void connectToInstance();

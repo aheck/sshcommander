@@ -111,8 +111,7 @@ void AWSWidget::connectToInstance()
     }
 
     instance = this->instanceModel->getInstance(indexes.first());
-    std::cout << "test: " << instance->publicIP.toStdString() << std::endl;
-    emit newConnection(*instance);
+    emit newConnection(instance);
 }
 
 void AWSWidget::updateNumberOfInstances()
@@ -153,46 +152,7 @@ void AWSWidget::handleAWSResult(AWSResult *result)
         } else if (result->responseType == "DescribeSecurityGroupsResponse") {
             QVector<std::shared_ptr<AWSSecurityGroup>> securityGroups = parseDescribeSecurityGroupsResponse(result, this->region);
 
-            for (std::shared_ptr<AWSSecurityGroup> sg : securityGroups) {
-                QListWidgetItem *item = new QListWidgetItem(QString("SG: %1 (%2)").arg(sg->name).arg(sg->id),
-                        this->securityGroupsDialog->list, QListWidgetItem::Type);
-                QFont font = item->font();
-                font.setBold(true);
-                item->setFont(font);
-                item->setToolTip(sg->description);
-                this->securityGroupsDialog->list->addItem(item);
-                this->securityGroupsDialog->list->addItem("Ingress");
-                for (AWSIngressPermission perm : sg->ingressPermissions) {
-                    QString item = perm.ipProtocol + ": " + perm.fromPort + "-" + perm.toPort + " ";
-
-                    int i = 0;
-                    for (QString cidr : perm.cidrs) {
-                        if (i != 0) {
-                            item += ",";
-                        }
-                        item += cidr;
-                        i++;
-                    }
-
-                    this->securityGroupsDialog->list->addItem(item);
-                }
-
-                this->securityGroupsDialog->list->addItem("Egress");
-                for (AWSEgressPermission perm : sg->egressPermissions) {
-                    QString item = perm.ipProtocol + ": " + perm.fromPort + "-" + perm.toPort + " ";
-
-                    int i = 0;
-                    for (QString cidr : perm.cidrs) {
-                        if (i != 0) {
-                            item += ",";
-                        }
-                        item += cidr;
-                        i++;
-                    }
-
-                    this->securityGroupsDialog->list->addItem(item);
-                }
-            }
+            this->securityGroupsDialog->updateData(securityGroups);
         }
     }
 
@@ -246,7 +206,6 @@ void AWSWidget::showInstanceContextMenu(QPoint pos)
 
 void AWSWidget::showSecurityGroups()
 {
-    QString title;
     QModelIndexList indexes = this->instanceTable->selectionModel()->selectedIndexes();
 
     if (indexes.isEmpty()) {
@@ -259,21 +218,5 @@ void AWSWidget::showSecurityGroups()
         return;
     }
 
-    if (instance->name.isEmpty()) {
-        title = QString("Security Groups of instance %1").arg(instance->id);
-    } else {
-        title = QString("Security Groups of instance '%1' (%2)").arg(instance->name).arg(instance->id);
-    }
-
-    this->securityGroupsDialog->setWindowTitle(title);
-
-    this->securityGroupsDialog->list->clear();
-
-    QList<QString> groupIds;
-    for (AWSSecurityGroup sg : instance->securityGroups) {
-        groupIds.append(sg.id);
-    }
-    this->awsConnector->describeSecurityGroups(groupIds);
-
-    this->securityGroupsDialog->exec();
+    this->securityGroupsDialog->showDialog(this->awsConnector, instance);
 }

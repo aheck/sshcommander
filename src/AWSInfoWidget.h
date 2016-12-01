@@ -1,27 +1,41 @@
 #ifndef AWSINFOWIDGET_H
 #define AWSINFOWIDGET_H
 
+#include <memory>
+
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
+#include <QMessageBox>
 #include <QScrollArea>
 #include <QStackedWidget>
 #include <QWidget>
 
 #include "AWSConnector.h"
+#include "AWSResponseParsers.h"
+#include "Preferences.h"
+#include "SecurityGroupsDialog.h"
 
 class AWSInfoWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    AWSInfoWidget();
+    AWSInfoWidget(Preferences *preferences);
     ~AWSInfoWidget();
 
-    void update(const AWSInstance &instance);
+    void update(std::shared_ptr<AWSInstance> instance);
     void setAWSEnabled(bool enabled);
 
+public slots:
+    void handleAWSResult(AWSResult *result);
+    void showSecurityGroups();
+
 private:
+    Preferences *preferences;
+    std::shared_ptr<AWSInstance> instance;
+    AWSConnector *awsConnector;
+    SecurityGroupsDialog *securityGroupsDialog;
     bool enabled;
     QScrollArea *scrollArea;
     QStackedWidget *widgetStack;
@@ -42,6 +56,7 @@ private:
     QLabel *labelPrivateIP;
     QLabel *labelSubnetId;
     QLabel *labelVpcId;
+    QLabel *labelSecurityGroups;
     QLabel *labelVirtualizationType;
     QLabel *labelArchitecture;
     QLabel *labelHypervisor;
@@ -58,6 +73,7 @@ private:
     QLabel *valuePrivateIP;
     QLabel *valueSubnetId;
     QLabel *valueVpcId;
+    QLabel *valueSecurityGroups;
     QLabel *valueVirtualizationType;
     QLabel *valueArchitecture;
     QLabel *valueHypervisor;

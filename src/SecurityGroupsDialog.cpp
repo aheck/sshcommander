@@ -25,19 +25,23 @@ void SecurityGroupsDialog::showDialog(AWSConnector *connector, std::shared_ptr<A
 
     this->setWindowTitle(title);
 
-    QList<QString> groupIds;
-    for (AWSSecurityGroup sg : instance->securityGroups) {
-        groupIds.append(sg.id);
+    this->list->clear();
+
+    if (instance->securityGroups.count() > 0) {
+        QList<QString> groupIds;
+        for (AWSSecurityGroup sg : instance->securityGroups) {
+            groupIds.append(sg.id);
+        }
+        connector->describeSecurityGroups(groupIds);
+    } else {
+        this->list->addItem("No Security Groups");
     }
-    connector->describeSecurityGroups(groupIds);
 
     this->exec();
 }
 
 void SecurityGroupsDialog::updateData(QVector<std::shared_ptr<AWSSecurityGroup>> securityGroups)
 {
-    this->list->clear();
-
     for (std::shared_ptr<AWSSecurityGroup> sg : securityGroups) {
         QListWidgetItem *item = new QListWidgetItem(QString("SG: %1 (%2)").arg(sg->name).arg(sg->id),
                 this->list, QListWidgetItem::Type);

@@ -29,7 +29,8 @@ AWSWidget::AWSWidget(Preferences *preferences)
     this->mainWidget->setLayout(new QVBoxLayout(this->mainWidget));
     this->toolBar = new QToolBar("toolBar", this->mainWidget);
     this->toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_BrowserReload), "Refresh", this, SLOT(loadInstances()));
-    this->connectButton = this->toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_CommandLink), "Connect to Instance", this, SLOT(connectToInstance()));
+    this->connectButton = this->toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_CommandLink),
+            "Connect to Instance", this, SLOT(connectToInstance()));
     this->connectButton->setEnabled(false);
     this->toolBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     this->regionComboBox = new QComboBox();
@@ -45,7 +46,8 @@ AWSWidget::AWSWidget(Preferences *preferences)
     for (int i = 0; i < this->instanceTable->horizontalHeader()->count(); i++) {
         this->instanceTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Interactive);
     }
-    QObject::connect(this->instanceTable->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(selectionChanged(QItemSelection, QItemSelection)));
+    QObject::connect(this->instanceTable->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
+            this, SLOT(selectionChanged(QItemSelection, QItemSelection)));
     this->instanceTable->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this->instanceTable, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showInstanceContextMenu(QPoint)));
 
@@ -199,6 +201,9 @@ void AWSWidget::showInstanceContextMenu(QPoint pos)
     if (this->instanceTable->indexAt(pos).isValid()) {
         QMenu menu;
         menu.addAction(tr("View Security Groups"), this, SLOT(showSecurityGroups()));
+        menu.addSeparator();
+        QAction *connectToInstance = menu.addAction(tr("Connect to Instance"), this, SLOT(connectToInstance()));
+        connectToInstance->setEnabled(this->connectButton->isEnabled());
 
         menu.exec(globalPos);
     }

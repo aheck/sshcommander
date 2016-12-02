@@ -17,7 +17,7 @@ PreferencesDialog::PreferencesDialog()
 
     this->colorSchemeComboBox = new QComboBox();
     this->colorSchemeComboBox->addItems(QTermWidget::availableColorSchemes());
-    terminalLayout->addRow(tr("Color Scheme"), this->colorSchemeComboBox);
+    terminalLayout->addRow(tr("Color Scheme:"), this->colorSchemeComboBox);
 
     terminalPage->setLayout(terminalLayout);
     this->tabs->addTab(terminalPage, tr("Terminal"));

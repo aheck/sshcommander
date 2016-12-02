@@ -60,6 +60,8 @@ QVector<std::shared_ptr<AWSInstance>> parseDescribeInstancesResponse(AWSResult *
                     instance->type = xml.readElementText();
                 } else if (name == "keyName") {
                     instance->keyname = xml.readElementText();
+                } else if (name == "availabilityZone") {
+                    instance->availabilityZone = xml.readElementText();
                 } else if (name == "imageId") {
                     instance->imageId = xml.readElementText();
                 } else if (name == "ipAddress") {

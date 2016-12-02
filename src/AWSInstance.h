@@ -20,6 +20,7 @@ public:
     QString id;
     QString name;
     QString region;
+    QString availabilityZone;
     QString status;
     QString keyname;
     QString type;

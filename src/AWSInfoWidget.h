@@ -47,6 +47,7 @@ private:
     QLabel *labelInstanceId;
     QLabel *labelName;
     QLabel *labelRegion;
+    QLabel *labelAvailabilityZone;
     QLabel *labelStatus;
     QLabel *labelKeyname;
     QLabel *labelType;
@@ -65,6 +66,7 @@ private:
     QLabel *valueInstanceId;
     QLabel *valueName;
     QLabel *valueRegion;
+    QLabel *valueAvailabilityZone;
     QLabel *valueStatus;
     QLabel *valueKeyname;
     QLabel *valueType;

@@ -10,6 +10,7 @@ void AWSInstance::read(const QJsonObject &json)
     this->id = json["id"].toString();
     this->name = json["name"].toString();
     this->region = json["region"].toString();
+    this->availabilityZone = json["availabilityZone"].toString();
     this->status = json["status"].toString();
     this->keyname = json["keyname"].toString();
     this->type = json["type"].toString();
@@ -41,6 +42,7 @@ void AWSInstance::write(QJsonObject &json) const
     json["id"] = this->id;
     json["name"] = this->name;
     json["region"] = this->region;
+    json["availabilityZone"] = this->availabilityZone;
     json["status"] = this->status;
     json["keyname"] = this->keyname;
     json["type"] = this->type;

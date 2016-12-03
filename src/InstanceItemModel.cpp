@@ -54,11 +54,25 @@ QVariant InstanceItemModel::headerData(int section, Qt::Orientation orientation,
 
 QVariant InstanceItemModel::data(const QModelIndex &index, int role) const
 {
-    if (role != Qt::DisplayRole) {
+    if (role != Qt::DisplayRole && role != Qt::DecorationRole) {
         return QVariant();
     }
 
     std::shared_ptr<AWSInstance> instance = this->instances.at(index.row());
+
+    if (role== Qt::DecorationRole) {
+        if (index.column() == 2) {
+            if (instance->status == "running") {
+                return QColor(Qt::green);
+            } else if (instance->status == "terminated") {
+                return QColor(Qt::red);
+            }
+
+            return QColor(Qt::yellow);
+        }
+
+        return QVariant();
+    }
 
     switch (index.column()) {
         case 0:
@@ -86,15 +100,7 @@ void InstanceItemModel::setInstances(QVector<std::shared_ptr<AWSInstance>> insta
 {
     this->beginResetModel();
 
-    // free the memory of the old instance objects before we lose access to
-    // their pointers
-    /*
-    for (int i = 0; i < this->instances.size(); i++) {
-        this->instances.at(i).reset();
-    }
-    */
     this->instances.clear();
-
     this->instances = instances;
 
     this->endResetModel();

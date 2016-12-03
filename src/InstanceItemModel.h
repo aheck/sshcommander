@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <QAbstractItemModel>
+#include <QColor>
 #include <QModelIndex>
 #include <QVector>
 

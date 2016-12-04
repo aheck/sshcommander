@@ -39,6 +39,7 @@ add_executable(sshcommander
     SecurityGroupsDialog.cpp
     SSHConnectionEntry.cpp
     SSHConnectionItemModel.cpp
+    TagsDialog.cpp
 )
 
 target_link_libraries(sshcommander Qt5::Widgets Qt5::Network Qt5::Xml ${QTERMWIDGET_LIBRARIES})

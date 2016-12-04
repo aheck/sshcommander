@@ -11,6 +11,7 @@ AWSWidget::AWSWidget(Preferences *preferences)
     QObject::connect(this->awsConnector, SIGNAL(awsReplyReceived(AWSResult*)), this, SLOT(handleAWSResult(AWSResult*)));
 
     this->securityGroupsDialog = new SecurityGroupsDialog();
+    this->tagsDialog = new TagsDialog();
 
     // build the loginWidget
     this->loginWidget = new QWidget();
@@ -206,6 +207,7 @@ void AWSWidget::showInstanceContextMenu(QPoint pos)
     if (this->instanceTable->indexAt(pos).isValid()) {
         QMenu menu;
         menu.addAction(tr("View Security Groups"), this, SLOT(showSecurityGroups()));
+        menu.addAction(tr("View Tags"), this, SLOT(showTags()));
         menu.addSeparator();
         QAction *connectToInstance = menu.addAction(tr("Connect to Instance"), this, SLOT(connectToInstance()));
         connectToInstance->setEnabled(this->connectButton->isEnabled());
@@ -214,21 +216,37 @@ void AWSWidget::showInstanceContextMenu(QPoint pos)
     }
 }
 
-void AWSWidget::showSecurityGroups()
+std::shared_ptr<AWSInstance> AWSWidget::getSelectedInstance()
 {
     QModelIndexList indexes = this->instanceTable->selectionModel()->selectedIndexes();
 
     if (indexes.isEmpty()) {
-        return;
+        return nullptr;
     }
 
-    std::shared_ptr<AWSInstance> instance = this->instanceModel->getInstance(indexes.first());
+    return this->instanceModel->getInstance(indexes.first());
+}
+
+void AWSWidget::showSecurityGroups()
+{
+    std::shared_ptr<AWSInstance> instance = this->getSelectedInstance();
 
     if (instance == nullptr) {
         return;
     }
 
     this->securityGroupsDialog->showDialog(this->awsConnector, instance);
+}
+
+void AWSWidget::showTags()
+{
+    std::shared_ptr<AWSInstance> instance = this->getSelectedInstance();
+
+    if (instance == nullptr) {
+        return;
+    }
+
+    this->tagsDialog->showDialog(instance);
 }
 
 void AWSWidget::searchForText(const QString &text)

@@ -23,6 +23,7 @@
 #include "InstanceItemModel.h"
 #include "Preferences.h"
 #include "SecurityGroupsDialog.h"
+#include "TagsDialog.h"
 
 class AWSWidget : public QWidget
 {
@@ -48,10 +49,12 @@ private slots:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void showInstanceContextMenu(QPoint pos);
     void showSecurityGroups();
+    void showTags();
     void searchForText(const QString &text);
 
 private:
     void updateNumberOfInstances();
+    std::shared_ptr<AWSInstance> getSelectedInstance();
 
     Preferences *preferences;
 
@@ -78,6 +81,7 @@ private:
     QAction *connectButton;
     QLabel *instanceNumLabel;
     SecurityGroupsDialog *securityGroupsDialog;
+    TagsDialog *tagsDialog;
 };
 
 #endif

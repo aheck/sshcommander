@@ -24,8 +24,15 @@ public:
 
     void setInstances(QVector<std::shared_ptr<AWSInstance>> instances);
     std::shared_ptr<AWSInstance> getInstance(const QModelIndex &index);
+    void setSearchText(const QString searchText);
 
 private:
+    // The list of all the AWSInstance objects that can potentially be shown
+    // in the current table.
+    QVector<std::shared_ptr<AWSInstance>> allInstances;
+
+    // The list of AWSInstance objects that are actually visible in the current
+    // table. This list can be sorted as well as filtered for a search term.
     QVector<std::shared_ptr<AWSInstance>> instances;
 };
 

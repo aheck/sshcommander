@@ -48,6 +48,7 @@ private slots:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void showInstanceContextMenu(QPoint pos);
     void showSecurityGroups();
+    void searchForText(const QString &text);
 
 private:
     void updateNumberOfInstances();
@@ -69,6 +70,7 @@ private:
     QTableView *instanceTable;
     InstanceItemModel *instanceModel;
     QToolBar *toolBar;
+    QLineEdit *searchLineEdit;
     QComboBox *regionComboBox;
     QString region;
     bool requestRunning;

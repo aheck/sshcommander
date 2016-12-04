@@ -32,7 +32,11 @@ AWSWidget::AWSWidget(Preferences *preferences)
     this->connectButton = this->toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_CommandLink),
             "Connect to Instance", this, SLOT(connectToInstance()));
     this->connectButton->setEnabled(false);
-    this->toolBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    this->toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+    this->searchLineEdit = new QLineEdit();
+    this->searchLineEdit->setPlaceholderText(tr("Search"));
+    QObject::connect(this->searchLineEdit, SIGNAL(textEdited(QString)),
+            this, SLOT(searchForText(QString)));
     this->regionComboBox = new QComboBox();
     this->regionComboBox->addItems(AWSConnector::Regions);
     this->regionComboBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
@@ -53,6 +57,7 @@ AWSWidget::AWSWidget(Preferences *preferences)
 
     QHBoxLayout *toolBarLayout = new QHBoxLayout();
     toolBarLayout->addWidget(this->toolBar);
+    toolBarLayout->addWidget(this->searchLineEdit);
     toolBarLayout->addWidget(this->regionComboBox);
     ((QVBoxLayout*) this->mainWidget->layout())->addLayout(toolBarLayout);
     this->mainWidget->layout()->addWidget(this->instanceTable);
@@ -224,4 +229,9 @@ void AWSWidget::showSecurityGroups()
     }
 
     this->securityGroupsDialog->showDialog(this->awsConnector, instance);
+}
+
+void AWSWidget::searchForText(const QString &text)
+{
+    this->instanceModel->setSearchText(text);
 }

@@ -1,5 +1,7 @@
 #include "InstanceItemModel.h"
 
+enum Column {ID = 0, NAME, STATUS, TYPE, KEYNAME, PUBLICIP, PRIVATEIP, LAUNCHTIME};
+
 QModelIndex InstanceItemModel::index(int row, int column, const QModelIndex &parent = QModelIndex()) const
 {
     return this->createIndex(row, column);
@@ -31,21 +33,21 @@ QVariant InstanceItemModel::headerData(int section, Qt::Orientation orientation,
     }
 
     switch (section) {
-        case 0:
+        case Column::ID:
             return QVariant("ID");
-        case 1:
+        case Column::NAME:
             return QVariant("Name");
-        case 2:
+        case Column::STATUS:
             return QVariant("Status");
-        case 3:
+        case Column::TYPE:
             return QVariant("Type");
-        case 4:
+        case Column::KEYNAME:
             return QVariant("SSH Key");
-        case 5:
+        case Column::PUBLICIP:
             return QVariant("Public IP");
-        case 6:
+        case Column::PRIVATEIP:
             return QVariant("Private IP");
-        case 7:
+        case Column::LAUNCHTIME:
             return QVariant("Launch Time");
     }
 
@@ -75,21 +77,21 @@ QVariant InstanceItemModel::data(const QModelIndex &index, int role) const
     }
 
     switch (index.column()) {
-        case 0:
+        case Column::ID:
             return QVariant(instance->id);
-        case 1:
+        case Column::NAME:
             return QVariant(instance->name);
-        case 2:
+        case Column::STATUS:
             return QVariant(instance->status);
-        case 3:
+        case Column::TYPE:
             return QVariant(instance->type);
-        case 4:
+        case Column::KEYNAME:
             return QVariant(instance->keyname);
-        case 5:
+        case Column::PUBLICIP:
             return QVariant(instance->publicIP);
-        case 6:
+        case Column::PRIVATEIP:
             return QVariant(instance->privateIP);
-        case 7:
+        case Column::LAUNCHTIME:
             return QVariant(instance->launchTime);
     }
 
@@ -101,7 +103,38 @@ void InstanceItemModel::setInstances(QVector<std::shared_ptr<AWSInstance>> insta
     this->beginResetModel();
 
     this->instances.clear();
-    this->instances = instances;
+    this->allInstances = instances;
+    this->instances = this->allInstances;
+
+    this->endResetModel();
+}
+
+void InstanceItemModel::setSearchText(const QString searchText)
+{
+    this->beginResetModel();
+
+    if (searchText.isEmpty()) {
+        this->instances = this->allInstances;
+    } else {
+        this->instances.clear();
+
+        for (std::shared_ptr<AWSInstance> instance : this->allInstances) {
+            // check the instance name for a match
+            if (instance->name.startsWith(searchText, Qt::CaseInsensitive)) {
+                this->instances.append(instance);
+                continue;
+            }
+
+            // check the instance tags for a match
+            for (AWSTag tag : instance->tags) {
+                if (tag.key.startsWith(searchText, Qt::CaseInsensitive) ||
+                        tag.value.startsWith(searchText, Qt::CaseInsensitive)) {
+                    this->instances.append(instance);
+                    break;
+                }
+            }
+        }
+    }
 
     this->endResetModel();
 }
@@ -123,28 +156,28 @@ struct Comparator {
         bool result = false;
 
         switch (this->column) {
-            case 0:
+            case Column::ID:
                 result = a->id.compare(b->id) < 0;
                 break;
-            case 1:
+            case Column::NAME:
                 result = a->name.compare(b->name) < 0;
                 break;
-            case 2:
+            case Column::STATUS:
                 result = a->status.compare(b->status) < 0;
                 break;
-            case 3:
+            case Column::TYPE:
                 result = a->type.compare(b->type) < 0;
                 break;
-            case 4:
+            case Column::KEYNAME:
                 result = a->keyname.compare(b->keyname) < 0;
                 break;
-            case 5:
+            case Column::PUBLICIP:
                 result = a->publicIP.compare(b->publicIP) < 0;
                 break;
-            case 6:
+            case Column::PRIVATEIP:
                 result = a->privateIP.compare(b->privateIP) < 0;
                 break;
-            case 7:
+            case Column::LAUNCHTIME:
                 result = a->launchTime.compare(b->launchTime) < 0;
                 break;
         }

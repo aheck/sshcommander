@@ -171,6 +171,13 @@ void AWSInfoWidget::updateData(std::shared_ptr<AWSInstance> instance)
     this->valueAvailabilityZone->setText(instance->availabilityZone);
 
     this->valueStatus->setText(instance->status);
+    if (instance->status == "running") {
+        this->valueStatus->setStyleSheet("QLabel { background-color : green; color: white; }");
+    } else if (instance->status == "terminated") {
+        this->valueStatus->setStyleSheet("QLabel { background-color : red; color: white; }");
+    } else {
+        this->valueStatus->setStyleSheet("QLabel { background-color : yellow; color: white; }");
+    }
     this->valueKeyname->setText(instance->keyname);
     this->valueType->setText(instance->type);
     this->valueImageId->setText(instance->imageId);

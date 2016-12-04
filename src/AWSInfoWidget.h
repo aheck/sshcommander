@@ -3,12 +3,14 @@
 
 #include <memory>
 
+#include <QApplication>
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
 #include <QMessageBox>
 #include <QScrollArea>
 #include <QStackedWidget>
+#include <QToolBar>
 #include <QWidget>
 
 #include "AWSConnector.h"
@@ -24,12 +26,13 @@ public:
     AWSInfoWidget(Preferences *preferences);
     ~AWSInfoWidget();
 
-    void update(std::shared_ptr<AWSInstance> instance);
+    void updateData(std::shared_ptr<AWSInstance> instance);
     void setAWSEnabled(bool enabled);
 
 public slots:
     void handleAWSResult(AWSResult *result);
     void showSecurityGroups();
+    void reloadInstanceData();
 
 private:
     Preferences *preferences;
@@ -40,9 +43,11 @@ private:
     QScrollArea *scrollArea;
     QStackedWidget *widgetStack;
     QWidget *awsPage;
+    QWidget *awsContent;
     QWidget *noAWSPage;
     QGridLayout *gridLayout;
     QVBoxLayout *mainLayout;
+    QToolBar *toolBar;
 
     QLabel *labelInstanceId;
     QLabel *labelName;

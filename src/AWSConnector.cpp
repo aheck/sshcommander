@@ -89,17 +89,24 @@ void AWSConnector::sendRequest(const QString action, QList<QString> &extraParams
     QString canonicalHeaders = QString("host:%1\nx-amz-date:%2\n").arg(host).arg(paramAmzDate);
     QString payloadHash = QCryptographicHash::hash(QByteArray("", 0), QCryptographicHash::Sha256).toHex();
 
-    QString canonicalRequest = method + "\n" + canonicalUri + "\n" + canonicalQueryString + "\n" + canonicalHeaders + "\n" + paramAmzSignedHeaders + "\n" + payloadHash;
+    QString canonicalRequest = method + "\n" + canonicalUri + "\n" +
+        canonicalQueryString + "\n" + canonicalHeaders + "\n" +
+        paramAmzSignedHeaders + "\n" + payloadHash;
 
     QString dateStamp = now.toString("yyyyMMdd");
     QString credentialScope = dateStamp + "/" + this->region + "/ec2/aws4_request";
-    QString stringToSign = paramAmzAlgorithm + '\n' +  paramAmzDate + '\n' +  credentialScope + '\n' + QCryptographicHash::hash(canonicalRequest.toUtf8(), QCryptographicHash::Sha256).toHex();
+    QString stringToSign = paramAmzAlgorithm + '\n' +  paramAmzDate + '\n' +
+        credentialScope + '\n' +
+        QCryptographicHash::hash(canonicalRequest.toUtf8(), QCryptographicHash::Sha256).toHex();
 
     QByteArray signingKey = this->getSignatureKey(this->secretKey.toUtf8(), dateStamp.toUtf8());
-    QString signature = QMessageAuthenticationCode::hash(stringToSign.toUtf8(), signingKey, QCryptographicHash::Sha256).toHex();
+    QString signature = QMessageAuthenticationCode::hash(stringToSign.toUtf8(), signingKey,
+            QCryptographicHash::Sha256).toHex();
 
     // build HTTP request
-    QString authorizationHeader = paramAmzAlgorithm + " Credential=" + this->accessKey + '/' + credentialScope + ", " +  "SignedHeaders=" + paramAmzSignedHeaders + ", " + "Signature=" + signature;
+    QString authorizationHeader = paramAmzAlgorithm + " Credential=" +
+        this->accessKey + '/' + credentialScope + ", " +  "SignedHeaders=" +
+        paramAmzSignedHeaders + ", " + "Signature=" + signature;
 
     QString urlStr = "http://" + host + "/?" + canonicalQueryString;
 
@@ -111,10 +118,22 @@ void AWSConnector::sendRequest(const QString action, QList<QString> &extraParams
 
 void AWSConnector::describeInstances()
 {
-    this->sendRequest("DescribeInstances");
+    QList<QString> extraParams;
+    this->sendRequest("DescribeInstances", extraParams);
 }
 
-void AWSConnector::describeSecurityGroups(QList<QString> groupIds)
+void AWSConnector::describeInstances(QList<QString> &instanceIds)
+{
+    QList<QString> extraParams;
+    for (int i = 0; i < instanceIds.count(); i++) {
+        QString instanceIdParam = "InstanceId." + QString::number(i + 1) + "=" + instanceIds.at(i);
+        extraParams.append(instanceIdParam);
+    }
+
+    this->sendRequest("DescribeInstances", extraParams);
+}
+
+void AWSConnector::describeSecurityGroups(QList<QString> &groupIds)
 {
     QList<QString> extraParams;
     for (int i = 0; i < groupIds.count(); i++) {

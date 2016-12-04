@@ -65,7 +65,8 @@ public:
     // because the API is asynchronous. To receive replies the caller has to
     // connect to the awsReplyReceived signal.
     void describeInstances();
-    void describeSecurityGroups(QList<QString> groupIds);
+    void describeInstances(QList<QString> &instanceIds);
+    void describeSecurityGroups(QList<QString> &groupIds);
 
 private slots:
     void replyFinished(QNetworkReply *reply);

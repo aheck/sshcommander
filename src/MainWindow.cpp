@@ -568,7 +568,7 @@ void MainWindow::updateConnectionTabs()
 
     if (connEntry->isAwsInstance) {
         this->awsInfo->setAWSEnabled(true);
-        this->awsInfo->update(connEntry->awsInstance);
+        this->awsInfo->updateData(connEntry->awsInstance);
     } else {
         this->awsInfo->setAWSEnabled(false);
     }

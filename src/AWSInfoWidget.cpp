@@ -12,6 +12,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     QObject::connect(this->awsConnector, SIGNAL(awsReplyReceived(AWSResult*)), this, SLOT(handleAWSResult(AWSResult*)));
 
     this->awsPage = new QWidget();
+    this->awsContent = new QWidget();
     this->noAWSPage = new QWidget();
     QVBoxLayout *noAWSLayout = new QVBoxLayout();
     noAWSLayout->setAlignment(Qt::AlignCenter);
@@ -24,13 +25,19 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     noAWSLayout->addWidget(noAWSLabel);
     this->noAWSPage->setLayout(noAWSLayout);
 
+    this->toolBar = new QToolBar();
+    toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_BrowserReload), "Reload", this, SLOT(reloadInstanceData()));
+    this->awsPage->setLayout(new QVBoxLayout());
+    this->awsPage->layout()->addWidget(this->toolBar);
+
     this->scrollArea = new QScrollArea();
     this->scrollArea->setWidgetResizable(true);
-    this->scrollArea->setWidget(this->awsPage);
+    this->scrollArea->setWidget(this->awsContent);
+    this->awsPage->layout()->addWidget(this->scrollArea);
 
     this->widgetStack = new QStackedWidget();
     this->widgetStack->addWidget(this->noAWSPage);
-    this->widgetStack->addWidget(this->scrollArea);
+    this->widgetStack->addWidget(this->awsPage);
 
     this->labelInstanceId = new QLabel("Instance ID:");
     this->labelName = new QLabel("Name:");
@@ -141,7 +148,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->gridLayout->setRowStretch(18, 1);
     this->gridLayout->setColumnStretch(2, 1);
 
-    this->awsPage->setLayout(this->gridLayout);
+    this->awsContent->setLayout(this->gridLayout);
 
     this->mainLayout = new QVBoxLayout();
     this->mainLayout->addWidget(this->widgetStack);
@@ -154,7 +161,7 @@ AWSInfoWidget::~AWSInfoWidget()
     delete this->awsConnector;
 }
 
-void AWSInfoWidget::update(std::shared_ptr<AWSInstance> instance)
+void AWSInfoWidget::updateData(std::shared_ptr<AWSInstance> instance)
 {
     this->instance = instance;
 
@@ -219,6 +226,16 @@ void AWSInfoWidget::handleAWSResult(AWSResult *result)
             QVector<std::shared_ptr<AWSSecurityGroup>> securityGroups = parseDescribeSecurityGroupsResponse(result, this->instance->region);
 
             this->securityGroupsDialog->updateData(securityGroups);
+        } else if (result->responseType == "DescribeInstancesResponse") {
+            std::cout << "Describe Instances" << std::endl;
+
+            QVector<std::shared_ptr<AWSInstance>> instances = parseDescribeInstancesResponse(result, this->instance->region);
+
+            if (instances.count() == 1) {
+                std::shared_ptr<AWSInstance> newInstance = instances.at(0);
+                *(this->instance) = *newInstance;
+                this->updateData(instance);
+            }
         }
     }
 
@@ -233,4 +250,16 @@ void AWSInfoWidget::showSecurityGroups()
     this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
     this->awsConnector->setRegion(this->instance->region);
     this->securityGroupsDialog->showDialog(this->awsConnector, instance);
+}
+
+void AWSInfoWidget::reloadInstanceData()
+{
+    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
+    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    this->awsConnector->setRegion(this->instance->region);
+
+    QList<QString> instanceIds;
+    instanceIds.append(instance->id);
+
+    this->awsConnector->describeInstances(instanceIds);
 }

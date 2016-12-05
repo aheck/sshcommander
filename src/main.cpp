@@ -1,10 +1,12 @@
 #include <QApplication>
+
 #include "MainWindow.h"
+#include "globals.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    app.setApplicationDisplayName("SSH Commander");
+    app.setApplicationDisplayName(PROGRAM_NAME);
 
     // style sheets
     app.setStyleSheet(

@@ -549,6 +549,7 @@ void MainWindow::removeConnection()
         this->machineInfo->setMachineEnabled(false);
         this->awsInfo->setAWSEnabled(false);
         this->sshSessionsStack->setCurrentIndex(0);
+        this->setWindowTitle(PROGRAM_NAME);
     }
 
     delete entry;
@@ -561,6 +562,8 @@ void MainWindow::updateConnectionTabs()
     if (connEntry == nullptr) {
         return;
     }
+
+    this->setWindowTitle(connEntry->name + " - " + PROGRAM_NAME);
 
     this->machineInfo->setMachineEnabled(true);
     this->machineInfo->setHostname(connEntry->hostname);

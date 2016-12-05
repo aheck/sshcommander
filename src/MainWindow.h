@@ -38,6 +38,8 @@
 #include "SSHConnectionEntry.h"
 #include "SSHConnectionItemModel.h"
 
+#include "globals.h"
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

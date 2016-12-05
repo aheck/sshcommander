@@ -361,7 +361,7 @@ void MainWindow::readSettings()
     this->move(settings.value("pos", QPoint(200, 200)).toPoint());
     this->splitter->restoreState(settings.value("splitterSizes").toByteArray());
     this->sessionInfoSplitter->restoreState(settings.value("sessionInfoSplitterSizes").toByteArray());
-    this->awsWidget->setRegion(settings.value("selectedAwsRegion", "").toString());
+    this->awsWidget->setRegion(settings.value("selectedAwsRegion", AWSConnector::LOCATION_US_EAST_1).toString());
     settings.endGroup();
 
     QString filename = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("connections.json");

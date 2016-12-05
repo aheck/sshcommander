@@ -92,11 +92,19 @@ QVector<std::shared_ptr<AWSInstance>> parseDescribeInstancesResponse(AWSResult *
                     instance->tags.last().key = xml.readElementText();
                     if (instance->tags.last().key == "Name") {
                         instance->name = instance->tags.last().value;
+                    } else if (instance->tags.last().key == "aws:cloudformation:stack-id") {
+                        instance->cfStackId = instance->tags.last().value;
+                    } else if (instance->tags.last().key == "aws:cloudformation:stack-name") {
+                        instance->cfStackName = instance->tags.last().value;
                     }
                 } else if (name == "value") {
                     instance->tags.last().value = xml.readElementText();
                     if (instance->tags.last().key == "Name") {
                         instance->name = instance->tags.last().value;
+                    } else if (instance->tags.last().key == "aws:cloudformation:stack-id") {
+                        instance->cfStackId = instance->tags.last().value;
+                    } else if (instance->tags.last().key == "aws:cloudformation:stack-name") {
+                        instance->cfStackName = instance->tags.last().value;
                     }
                 }
             }

@@ -23,6 +23,8 @@ void AWSInstance::read(const QJsonObject &json)
     this->virtualizationType = json["virtualizationType"].toString();
     this->architecture = json["architecture"].toString();
     this->hypervisor = json["hypervisor"].toString();
+    this->cfStackId = json["cfStackId"].toString();
+    this->cfStackName = json["cfStackName"].toString();
 
     for (QJsonValueRef ref: json["securityGroups"].toArray()) {
         AWSSecurityGroup securityGroup;
@@ -55,6 +57,8 @@ void AWSInstance::write(QJsonObject &json) const
     json["virtualizationType"] = this->virtualizationType;
     json["architecture"] = this->architecture;
     json["hypervisor"] = this->hypervisor;
+    json["cfStackId"] = this->cfStackId;
+    json["cfStackName"] = this->cfStackName;
 
     QJsonArray securityGroups;
     for (AWSSecurityGroup securityGroup: this->securityGroups) {

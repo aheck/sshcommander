@@ -62,6 +62,7 @@ private:
     QLabel *labelPrivateIP;
     QLabel *labelSubnetId;
     QLabel *labelVpcId;
+    QLabel *labelCfStackName;
     QLabel *labelTags;
     QLabel *labelSecurityGroups;
     QLabel *labelVirtualizationType;
@@ -80,6 +81,7 @@ private:
     QLabel *valuePublicIP;
     QLabel *valuePrivateIP;
     QLabel *valueSubnetId;
+    QLabel *valueCfStackName;
     QLabel *valueVpcId;
     QLabel *valueTags;
     QLabel *valueSecurityGroups;

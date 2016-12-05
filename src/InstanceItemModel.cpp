@@ -1,6 +1,6 @@
 #include "InstanceItemModel.h"
 
-enum Column {ID = 0, NAME, STATUS, TYPE, KEYNAME, PUBLICIP, PRIVATEIP, LAUNCHTIME};
+enum Column {ID = 0, NAME, STATUS, TYPE, KEYNAME, PUBLICIP, PRIVATEIP, CFSTACK, LAUNCHTIME, NUM_COLUMNS};
 
 QModelIndex InstanceItemModel::index(int row, int column, const QModelIndex &parent = QModelIndex()) const
 {
@@ -19,7 +19,7 @@ int InstanceItemModel::rowCount(const QModelIndex &parent = QModelIndex()) const
 
 int InstanceItemModel::columnCount(const QModelIndex &parent = QModelIndex()) const
 {
-    return 8;
+    return Column::NUM_COLUMNS;
 }
 
 QVariant InstanceItemModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -34,7 +34,7 @@ QVariant InstanceItemModel::headerData(int section, Qt::Orientation orientation,
 
     switch (section) {
         case Column::ID:
-            return QVariant("ID");
+            return QVariant("Instance ID");
         case Column::NAME:
             return QVariant("Name");
         case Column::STATUS:
@@ -47,6 +47,8 @@ QVariant InstanceItemModel::headerData(int section, Qt::Orientation orientation,
             return QVariant("Public IP");
         case Column::PRIVATEIP:
             return QVariant("Private IP");
+        case Column::CFSTACK:
+            return QVariant("CloudFormation Stack");
         case Column::LAUNCHTIME:
             return QVariant("Launch Time");
     }
@@ -91,6 +93,8 @@ QVariant InstanceItemModel::data(const QModelIndex &index, int role) const
             return QVariant(instance->publicIP);
         case Column::PRIVATEIP:
             return QVariant(instance->privateIP);
+        case Column::CFSTACK:
+            return QVariant(instance->cfStackName);
         case Column::LAUNCHTIME:
             return QVariant(instance->launchTime);
     }
@@ -176,6 +180,9 @@ struct Comparator {
                 break;
             case Column::PRIVATEIP:
                 result = a->privateIP.compare(b->privateIP) < 0;
+                break;
+            case Column::CFSTACK:
+                result = a->cfStackName.compare(b->cfStackName) < 0;
                 break;
             case Column::LAUNCHTIME:
                 result = a->launchTime.compare(b->launchTime) < 0;

@@ -33,6 +33,8 @@ public:
     QString virtualizationType;
     QString architecture;
     QString hypervisor;
+    QString cfStackId;
+    QString cfStackName;
     QList<AWSSecurityGroup> securityGroups;
     QList<AWSTag> tags;
 };

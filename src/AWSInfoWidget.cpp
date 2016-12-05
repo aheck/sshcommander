@@ -52,6 +52,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->labelPrivateIP = new QLabel("Private IP:");
     this->labelSubnetId = new QLabel("Subnet ID:");
     this->labelVpcId = new QLabel("VPC ID:");
+    this->labelCfStackName = new QLabel("CloudFormation Stack:");
     this->labelTags = new QLabel("Tags:");
     this->labelTags->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     this->labelSecurityGroups = new QLabel("Security Groups:");
@@ -85,6 +86,8 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->valueSubnetId->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueVpcId = new QLabel("");
     this->valueVpcId->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    this->valueCfStackName = new QLabel("");
+    this->valueCfStackName->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueTags = new QLabel("");
     this->valueTags->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueSecurityGroups = new QLabel();
@@ -132,20 +135,22 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
 
     this->gridLayout->addWidget(this->labelVpcId, 12, 0, Qt::AlignLeft);
     this->gridLayout->addWidget(this->valueVpcId, 12, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelTags, 13, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueTags, 13, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelCfStackName, 13, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueCfStackName, 13, 1, Qt::AlignLeft);
 
-    this->gridLayout->addWidget(this->labelSecurityGroups, 14, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueSecurityGroups, 14, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelVirtualizationType, 15, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueVirtualizationType, 15, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelTags, 14, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueTags, 14, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelSecurityGroups, 15, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueSecurityGroups, 15, 1, Qt::AlignLeft);
 
-    this->gridLayout->addWidget(this->labelArchitecture, 16, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueArchitecture, 16, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelHypervisor, 17, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueHypervisor, 17, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelVirtualizationType, 16, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueVirtualizationType, 16, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelArchitecture, 17, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueArchitecture, 17, 1, Qt::AlignLeft);
 
-    this->gridLayout->setRowStretch(18, 1);
+    this->gridLayout->addWidget(this->labelHypervisor, 18, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueHypervisor, 18, 1, Qt::AlignLeft);
+    this->gridLayout->setRowStretch(19, 1);
     this->gridLayout->setColumnStretch(2, 1);
 
     this->awsContent->setLayout(this->gridLayout);
@@ -188,6 +193,7 @@ void AWSInfoWidget::updateData(std::shared_ptr<AWSInstance> instance)
     this->valueSubnetId->setText(instance->subnetId);
 
     this->valueVpcId->setText(instance->vpcId);
+    this->valueCfStackName->setText(instance->cfStackName);
     this->valueVirtualizationType->setText(instance->virtualizationType);
     this->valueArchitecture->setText(instance->architecture);
     this->valueHypervisor->setText(instance->hypervisor);

@@ -47,10 +47,12 @@ AWSWidget::AWSWidget(Preferences *preferences)
     this->instanceTable->setModel(this->instanceModel);
     this->instanceTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     this->instanceTable->setSortingEnabled(true);
-    this->instanceTable->horizontalHeader()->setStretchLastSection(true);
     for (int i = 0; i < this->instanceTable->horizontalHeader()->count(); i++) {
+        //this->instanceTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
         this->instanceTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Interactive);
     }
+    this->instanceTable->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
+    this->instanceTable->horizontalHeader()->setStretchLastSection(true);
     QObject::connect(this->instanceTable->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
             this, SLOT(selectionChanged(QItemSelection, QItemSelection)));
     this->instanceTable->setContextMenuPolicy(Qt::CustomContextMenu);

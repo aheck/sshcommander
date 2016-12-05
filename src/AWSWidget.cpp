@@ -35,7 +35,8 @@ AWSWidget::AWSWidget(Preferences *preferences)
     this->connectButton->setEnabled(false);
     this->toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     this->searchLineEdit = new QLineEdit();
-    this->searchLineEdit->setPlaceholderText(tr("Search"));
+    this->searchLineEdit->setPlaceholderText(tr("Filter by name and tags"));
+    this->searchLineEdit->setClearButtonEnabled(true);
     QObject::connect(this->searchLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(searchForText(QString)));
     this->regionComboBox = new QComboBox();

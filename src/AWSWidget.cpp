@@ -40,7 +40,12 @@ AWSWidget::AWSWidget(Preferences *preferences)
     QObject::connect(this->searchLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(searchForText(QString)));
     this->regionComboBox = new QComboBox();
-    this->regionComboBox->addItems(AWSConnector::Regions);
+
+    for (int i = 0; i < AWSConnector::Regions.count(); i++) {
+        this->regionComboBox->addItem(AWSConnector::Regions.at(i) + ": " + AWSConnector::RegionNames.at(i),
+                AWSConnector::Regions.at(i));
+    }
+
     this->regionComboBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     QObject::connect(this->regionComboBox, SIGNAL(currentTextChanged(QString)), this, SLOT(changeRegion(QString)));
     this->instanceTable = new QTableView(this->mainWidget);
@@ -49,7 +54,6 @@ AWSWidget::AWSWidget(Preferences *preferences)
     this->instanceTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     this->instanceTable->setSortingEnabled(true);
     for (int i = 0; i < this->instanceTable->horizontalHeader()->count(); i++) {
-        //this->instanceTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::ResizeToContents);
         this->instanceTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Interactive);
     }
     this->instanceTable->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
@@ -171,9 +175,9 @@ void AWSWidget::handleAWSResult(AWSResult *result)
     delete result;
 }
 
-void AWSWidget::changeRegion(QString region)
+void AWSWidget::changeRegion(QString regionText)
 {
-    this->region = region;
+    this->region = this->regionComboBox->itemData(this->regionComboBox->findText(regionText)).toString();
     this->loadInstances();
 }
 
@@ -200,7 +204,7 @@ QString AWSWidget::getRegion() const
 void AWSWidget::setRegion(const QString region)
 {
     this->region = region;
-    this->regionComboBox->setCurrentIndex(this->regionComboBox->findText(region));
+    this->regionComboBox->setCurrentIndex(this->regionComboBox->findData(region));
 }
 
 void AWSWidget::showInstanceContextMenu(QPoint pos)

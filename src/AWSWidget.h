@@ -45,7 +45,7 @@ signals:
 
 private slots:
     void connectToInstance();
-    void changeRegion(QString region);
+    void changeRegion(QString regionText);
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void showInstanceContextMenu(QPoint pos);
     void showSecurityGroups();

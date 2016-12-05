@@ -42,6 +42,7 @@ signals:
 
 public:
     static const QStringList Regions;
+    static const QStringList RegionNames;
 
     static const QString LOCATION_US_EAST_1;
     static const QString LOCATION_US_EAST_2;

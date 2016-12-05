@@ -5,6 +5,11 @@ const QStringList AWSConnector::Regions = QStringList()
     << "eu-central-1" << "ap-northeast-1" << "ap-northeast-2"
     << "ap-southeast-1" << "ap-southeast-2" << "ap-south-1" << "sa-east-1";
 
+const QStringList AWSConnector::RegionNames = QStringList()
+    << "US East (N. Virginia)" << "US East (Ohio)" << "US West (N. California)" << "US West (Oregon)" << "EU (Ireland)"
+    << "EU (Frankfurt)" << "Asia Pacific (Tokyo)" << "Asia Pacific (Seoul)"
+    << "Asia Pacific (Singapore)" << "Asia Pacific (Sydney)" << "Asia Pacific (Mumbai)" << "South America (São Paulo)";
+
 const QString AWSConnector::LOCATION_US_EAST_1 = "us-east-1";
 const QString AWSConnector::LOCATION_US_EAST_2 = "us-east-2";
 

@@ -7,3 +7,6 @@ CMakeCache.txt
 sshcommander
 cmake_install.cmake
 git_commit_id.h
+tests/tests
+Testing
+CTestTestfile*

@@ -236,15 +236,15 @@ void AWSInfoWidget::handleAWSResult(AWSResult *result)
         msgBox.exec();
     } else {
         if (result->responseType == "DescribeSecurityGroupsResponse") {
-            QVector<std::shared_ptr<AWSSecurityGroup>> securityGroups = parseDescribeSecurityGroupsResponse(result, this->instance->region);
+            std::vector<std::shared_ptr<AWSSecurityGroup>> securityGroups = parseDescribeSecurityGroupsResponse(result, this->instance->region);
 
             this->securityGroupsDialog->updateData(securityGroups);
         } else if (result->responseType == "DescribeInstancesResponse") {
             std::cout << "Describe Instances" << std::endl;
 
-            QVector<std::shared_ptr<AWSInstance>> instances = parseDescribeInstancesResponse(result, this->instance->region);
+            std::vector<std::shared_ptr<AWSInstance>> instances = parseDescribeInstancesResponse(result, this->instance->region);
 
-            if (instances.count() == 1) {
+            if (instances.size() == 1) {
                 std::shared_ptr<AWSInstance> newInstance = instances.at(0);
                 *(this->instance) = *newInstance;
                 this->updateData(instance);

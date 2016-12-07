@@ -7,7 +7,6 @@
 #include <QListWidget>
 #include <QPushButton>
 #include <QVBoxLayout>
-#include <QVector>
 
 #include "AWSConnector.h"
 #include "AWSInstance.h"
@@ -21,7 +20,7 @@ public:
     SecurityGroupsDialog();
 
     void showDialog(AWSConnector *connector, std::shared_ptr<AWSInstance> instance);
-    void updateData(QVector<std::shared_ptr<AWSSecurityGroup>> securityGroups);
+    void updateData(std::vector<std::shared_ptr<AWSSecurityGroup>> securityGroups);
 
 private:
     QListWidget *list;

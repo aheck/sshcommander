@@ -40,7 +40,7 @@ void SecurityGroupsDialog::showDialog(AWSConnector *connector, std::shared_ptr<A
     this->exec();
 }
 
-void SecurityGroupsDialog::updateData(QVector<std::shared_ptr<AWSSecurityGroup>> securityGroups)
+void SecurityGroupsDialog::updateData(std::vector<std::shared_ptr<AWSSecurityGroup>> securityGroups)
 {
     for (std::shared_ptr<AWSSecurityGroup> sg : securityGroups) {
         QListWidgetItem *item = new QListWidgetItem(QString("SG: %1 (%2)").arg(sg->name).arg(sg->id),

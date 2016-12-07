@@ -160,12 +160,12 @@ void AWSWidget::handleAWSResult(AWSResult *result)
         }
 
         if (result->responseType == "DescribeInstancesResponse") {
-            QVector<std::shared_ptr<AWSInstance>> vector = ::parseDescribeInstancesResponse(result, this->region);
+            std::vector<std::shared_ptr<AWSInstance>> vector = ::parseDescribeInstancesResponse(result, this->region);
             this->instanceModel->setInstances(vector);
             this->connectButton->setEnabled(false);
             this->updateNumberOfInstances();
         } else if (result->responseType == "DescribeSecurityGroupsResponse") {
-            QVector<std::shared_ptr<AWSSecurityGroup>> securityGroups = parseDescribeSecurityGroupsResponse(result, this->region);
+            std::vector<std::shared_ptr<AWSSecurityGroup>> securityGroups = parseDescribeSecurityGroupsResponse(result, this->region);
 
             this->securityGroupsDialog->updateData(securityGroups);
         }

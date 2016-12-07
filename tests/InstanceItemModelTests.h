@@ -1,5 +1,4 @@
 #include <QObject>
-#include <QVector>
 
 #include <QtTest/QtTest>
 
@@ -13,4 +12,6 @@ class InstanceItemModelTests : public QObject
     Q_OBJECT
 private slots:
     void testAddInstances();
+    void testSortingManyInstances();
+    void testComparatorOrdering();
 };

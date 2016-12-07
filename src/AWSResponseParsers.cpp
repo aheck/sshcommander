@@ -3,9 +3,9 @@
 static void parseAWSIngressPermissions(QXmlStreamReader &xml, std::shared_ptr<AWSSecurityGroup> securityGroup);
 static void parseAWSEgressPermissions(QXmlStreamReader &xml, std::shared_ptr<AWSSecurityGroup> securityGroup);
 
-QVector<std::shared_ptr<AWSInstance>> parseDescribeInstancesResponse(AWSResult *result, QString region)
+std::vector<std::shared_ptr<AWSInstance>> parseDescribeInstancesResponse(AWSResult *result, QString region)
 {
-    QVector<std::shared_ptr<AWSInstance>> vector;
+    std::vector<std::shared_ptr<AWSInstance>> vector;
     std::shared_ptr<AWSInstance> instance;
 
     if (result->httpBody.isEmpty()) {
@@ -37,7 +37,7 @@ QVector<std::shared_ptr<AWSInstance>> parseDescribeInstancesResponse(AWSResult *
                 if (instancesSet && itemLevel == 2) {
                     instance = std::make_shared<AWSInstance>();
                     instance->region = region;
-                    vector << instance;
+                    vector.push_back(instance);
                 } else if (groupSet && itemLevel == 3) {
                     AWSSecurityGroup securityGroup;
                     instance->securityGroups.append(securityGroup);
@@ -135,9 +135,9 @@ QVector<std::shared_ptr<AWSInstance>> parseDescribeInstancesResponse(AWSResult *
     return vector;
 }
 
-QVector<std::shared_ptr<AWSSecurityGroup>> parseDescribeSecurityGroupsResponse(AWSResult *result, QString region)
+std::vector<std::shared_ptr<AWSSecurityGroup>> parseDescribeSecurityGroupsResponse(AWSResult *result, QString region)
 {
-    QVector<std::shared_ptr<AWSSecurityGroup>> vector;
+    std::vector<std::shared_ptr<AWSSecurityGroup>> vector;
     std::shared_ptr<AWSSecurityGroup> securityGroup;
 
     if (result->httpBody.isEmpty()) {
@@ -166,7 +166,7 @@ QVector<std::shared_ptr<AWSSecurityGroup>> parseDescribeSecurityGroupsResponse(A
                 // new security group item?
                 if (itemLevel == 1) {
                     securityGroup = std::make_shared<AWSSecurityGroup>();
-                    vector.append(securityGroup);
+                    vector.push_back(securityGroup);
                 }
             } else if (securityGroupInfo) {
                 if (name == "groupId") {

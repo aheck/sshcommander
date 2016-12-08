@@ -26,8 +26,11 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->noAWSPage->setLayout(noAWSLayout);
 
     this->toolBar = new QToolBar();
-    toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_BrowserReload), "Reload", this, SLOT(reloadInstanceData()));
-    this->awsPage->setLayout(new QVBoxLayout());
+    this->toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_BrowserReload),
+            "Reload", this, SLOT(reloadInstanceData()));
+    this->toolBar->setOrientation(Qt::Vertical);
+    this->awsPage->setLayout(new QHBoxLayout());
+    this->awsPage->layout()->setContentsMargins(0, 0, 0, 0);
     this->awsPage->layout()->addWidget(this->toolBar);
 
     this->scrollArea = new QScrollArea();

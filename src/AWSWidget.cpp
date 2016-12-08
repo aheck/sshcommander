@@ -105,6 +105,8 @@ void AWSWidget::loadInstances()
 
     this->requestRunning = true;
 
+    this->instanceModel->clear();
+
     std::cout << "Trying to connect to AWS..." << std::endl;
 
     this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());

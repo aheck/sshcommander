@@ -26,6 +26,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
+    void clear();
 
     void setInstances(std::vector<std::shared_ptr<AWSInstance>> instances);
     std::shared_ptr<AWSInstance> getInstance(const QModelIndex &index);

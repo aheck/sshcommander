@@ -123,13 +123,8 @@ void InstanceItemModel::setSearchText(const QString searchText)
         this->instances.clear();
 
         for (std::shared_ptr<AWSInstance> instance : this->allInstances) {
-            // check the instance name for a match
-            if (instance->name.startsWith(searchText, Qt::CaseInsensitive)) {
-                this->instances.push_back(instance);
-                continue;
-            }
-
-            // check the instance tags for a match
+            // check the instance tags for a match (Name is also a tag so no
+            // need to check it separately)
             for (AWSTag tag : instance->tags) {
                 if (tag.key.startsWith(searchText, Qt::CaseInsensitive) ||
                         tag.value.startsWith(searchText, Qt::CaseInsensitive)) {
@@ -205,6 +200,16 @@ void InstanceItemModel::sort(int column, Qt::SortOrder order)
     } else {
         std::stable_sort(this->instances.begin(), this->instances.end(), cmp);
     }
+
+    emit layoutChanged();
+}
+
+void InstanceItemModel::clear()
+{
+    emit layoutAboutToBeChanged();
+
+    this->instances.clear();
+    this->allInstances.clear();
 
     emit layoutChanged();
 }

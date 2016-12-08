@@ -20,6 +20,7 @@ void SSHConnectionEntry::read(const QJsonObject &json)
     this->hostname = json["hostname"].toString();
     this->username = json["username"].toString();
     this->nextSessionNumber = json["nextSessionNumber"].toInt();
+    this->notes = json["notes"].toString();
     this->args = new QStringList();
     for (QVariant cur: json["args"].toArray().toVariantList()) {
         this->args->append(cur.toString());
@@ -44,6 +45,7 @@ void SSHConnectionEntry::write(QJsonObject &json) const
     json["hostname"] = this->hostname;
     json["username"] = this->username;
     json["nextSessionNumber"] = (int) this->nextSessionNumber;
+    json["notes"] = this->notes;
     json["args"] = QJsonArray::fromStringList(*this->args);
     json["tabNames"] = QJsonArray::fromStringList(*this->tabNames);
     json["isAwsInstance"] = this->isAwsInstance;

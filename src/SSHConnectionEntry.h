@@ -23,6 +23,7 @@ public:
     QString hostname;
     QString username;
     unsigned int nextSessionNumber;
+    QString notes;
     QStringList *args;
     CustomTabWidget *tabs;
     QStringList *tabNames;

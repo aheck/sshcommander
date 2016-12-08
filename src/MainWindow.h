@@ -20,6 +20,7 @@
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QStyle>
+#include <QTextEdit>
 #include <QToolBar>
 #include <QUrl>
 #include <QtDebug>
@@ -65,6 +66,9 @@ public slots:
     void openWebsite();
     void showPreferencesDialog();
 
+private slots:
+    void notesChanged();
+
 private:
     const QString getCurrentUsernameAndHost();
     SSHConnectionEntry *getCurrentConnectionEntry();
@@ -96,6 +100,7 @@ private:
     AWSInfoWidget *awsInfo;
     QTabWidget *sshSessionsInfo;
     Preferences preferences;
+    QTextEdit *notesEditor;
 };
 
 #endif

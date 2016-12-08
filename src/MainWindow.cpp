@@ -92,8 +92,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->sessionInfoSplitter->addWidget(this->sshSessionsStack);
 
+    this->notesEditor = new QTextEdit();
+    QObject::connect(this->notesEditor, SIGNAL(textChanged()), this, SLOT(notesChanged()));
+
     this->sshSessionsInfo = new QTabWidget();
     this->sshSessionsInfo->addTab(this->machineInfo, "Machine");
+    this->sshSessionsInfo->addTab(this->notesEditor, "Notes");
     this->sshSessionsInfo->addTab(this->awsInfo, "AWS");
 
     this->sessionInfoSplitter->addWidget(this->sshSessionsInfo);
@@ -569,6 +573,8 @@ void MainWindow::updateConnectionTabs()
     this->machineInfo->setHostname(connEntry->hostname);
     this->machineInfo->setUsername(connEntry->username);
 
+    this->notesEditor->setHtml(connEntry->notes);
+
     if (connEntry->isAwsInstance) {
         this->awsInfo->setAWSEnabled(true);
         this->awsInfo->updateData(connEntry->awsInstance);
@@ -660,4 +666,15 @@ void MainWindow::updateConsoleSettings(const QFont &font, const QString colorSch
             }
         }
     }
+}
+
+void MainWindow::notesChanged()
+{
+    SSHConnectionEntry *connEntry = this->getCurrentConnectionEntry();
+
+    if (connEntry == nullptr) {
+        return;
+    }
+
+    connEntry->notes = this->notesEditor->toHtml();
 }

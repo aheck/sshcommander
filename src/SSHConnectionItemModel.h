@@ -1,6 +1,8 @@
 #ifndef SSHCONNECTIONITEMMODEL_H
 #define SSHCONNECTIONITEMMODEL_H
 
+#include <memory>
+
 #include <QAbstractItemModel>
 #include <QModelIndex>
 #include <QList>
@@ -17,15 +19,15 @@ public:
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
-    void appendConnectionEntry(SSHConnectionEntry *entry);
-    void removeConnectionEntry(SSHConnectionEntry *entry);
-    SSHConnectionEntry* getConnEntry(int index);
-    SSHConnectionEntry* getConnEntryByName(const QString name);
-    QModelIndex getIndexForSSHConnectionEntry(const SSHConnectionEntry *entry) const;
+    void appendConnectionEntry(std::shared_ptr<SSHConnectionEntry> entry);
+    void removeConnectionEntry(std::shared_ptr<SSHConnectionEntry> entry);
+    std::shared_ptr<SSHConnectionEntry> getConnEntry(int index);
+    std::shared_ptr<SSHConnectionEntry> getConnEntryByName(const QString name);
+    QModelIndex getIndexForSSHConnectionEntry(const std::shared_ptr<SSHConnectionEntry> entry) const;
 
 private:
-    QList<SSHConnectionEntry*> entries;
-    QHash<QString, SSHConnectionEntry*> sshConnByHost;
+    QList<std::shared_ptr<SSHConnectionEntry>> entries;
+    QHash<QString, std::shared_ptr<SSHConnectionEntry>> sshConnByHost;
 };
 
 #endif

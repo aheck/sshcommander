@@ -71,12 +71,12 @@ private slots:
 
 private:
     const QString getCurrentUsernameAndHost();
-    SSHConnectionEntry *getCurrentConnectionEntry();
+    std::shared_ptr<SSHConnectionEntry> getCurrentConnectionEntry();
     CustomTabWidget* getCurrentTabWidget();
     QString findSSHKey(const QString keyname);
     void updateConnectionTabs();
     void selectFirstConnection();
-    void selectConnection(SSHConnectionEntry *connEntry);
+    void selectConnection(std::shared_ptr<SSHConnectionEntry> connEntry);
     void updateConsoleSettings(const QFont &font, const QString colorScheme);
 
     bool viewEnlarged;

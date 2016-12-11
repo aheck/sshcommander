@@ -10,6 +10,8 @@
 #include "AWSConnector.h"
 #include "CustomTabWidget.h"
 
+#include "globals.h"
+
 struct SSHConnectionEntry
 {
 public:
@@ -18,13 +20,15 @@ public:
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
+    QStringList generateCliArgs();
 
     QString name;
     QString hostname;
     QString username;
+    QString sshkey;
+    int port;
     unsigned int nextSessionNumber;
     QString notes;
-    QStringList *args;
     CustomTabWidget *tabs;
     QStringList *tabNames;
     bool isAwsInstance;

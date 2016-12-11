@@ -3,7 +3,6 @@
 SSHConnectionEntry::SSHConnectionEntry()
 {
     this->nextSessionNumber = 1;
-    this->args = new QStringList();
     this->tabs = nullptr;
     this->tabNames = new QStringList();
     this->isAwsInstance = false;
@@ -19,12 +18,10 @@ void SSHConnectionEntry::read(const QJsonObject &json)
     this->name = json["name"].toString();
     this->hostname = json["hostname"].toString();
     this->username = json["username"].toString();
+    this->sshkey = json["sshkey"].toString();
+    this->port = json["port"].toInt();
     this->nextSessionNumber = json["nextSessionNumber"].toInt();
     this->notes = json["notes"].toString();
-    this->args = new QStringList();
-    for (QVariant cur: json["args"].toArray().toVariantList()) {
-        this->args->append(cur.toString());
-    }
 
     for (QVariant cur: json["tabNames"].toArray().toVariantList()) {
         this->tabNames->append(cur.toString());
@@ -46,11 +43,32 @@ void SSHConnectionEntry::write(QJsonObject &json) const
     json["username"] = this->username;
     json["nextSessionNumber"] = (int) this->nextSessionNumber;
     json["notes"] = this->notes;
-    json["args"] = QJsonArray::fromStringList(*this->args);
+    json["sshkey"] = this->sshkey;
+    json["port"] = (int) this->port;
     json["tabNames"] = QJsonArray::fromStringList(*this->tabNames);
     json["isAwsInstance"] = this->isAwsInstance;
     if (this->isAwsInstance) {
         this->awsInstance->write(awsInstanceJson);
         json["awsInstance"] = awsInstanceJson;
     }
+}
+
+// build the argument list for ssh
+QStringList SSHConnectionEntry::generateCliArgs()
+{
+    QStringList args;
+
+    if (!this->sshkey.isEmpty()) {
+        args.append("-i");
+        args.append(sshkey);
+    }
+
+    if (this->port != QString(DEFAULT_SSH_PORT).toInt(nullptr, 10)) {
+        args.append("-p");
+        args.append(QString(port));
+    }
+
+    args.append(QString("%1@%2").arg(this->username).arg(this->hostname));
+
+    return args;
 }

@@ -169,10 +169,8 @@ void MainWindow::createNewConnection()
     QString hostname = this->newDialog->hostnameLineEdit->text();
     QString username = this->newDialog->usernameLineEdit->text();
     //QString password = this->newDialog->passwordLineEdit->text();
-    QString sshkey = this->newDialog->sshkeyLineEdit->text();
-    int port = this->newDialog->getPortNumber();
     QString userAtHost = QString("%1@%2").arg(username).arg(hostname);
-    SSHConnectionEntry *connEntry;
+    std::shared_ptr<SSHConnectionEntry> connEntry;
 
     // Check if a connection for username@hostname already exists.
     // If this is the case we create no new connection but bring the existing
@@ -184,8 +182,10 @@ void MainWindow::createNewConnection()
         return;
     }
 
-    connEntry = new SSHConnectionEntry();
+    connEntry = std::make_shared<SSHConnectionEntry>();
     connEntry->name = userAtHost;
+    connEntry->sshkey = this->newDialog->sshkeyLineEdit->text();
+    connEntry->port = this->newDialog->getPortNumber();
     connEntry->hostname = hostname;
     connEntry->username = username;
 
@@ -194,21 +194,8 @@ void MainWindow::createNewConnection()
         connEntry->awsInstance = this->newDialog->awsInstance;
     }
 
-    // build the argument list for ssh
-    connEntry->args->clear();
-    if (!sshkey.isEmpty()) {
-        connEntry->args->append("-i");
-        connEntry->args->append(sshkey);
-    }
-
-    if (port != QString(DEFAULT_SSH_PORT).toInt(nullptr, 10)) {
-        connEntry->args->append("-p");
-        connEntry->args->append(QString(port));
-    }
-
-    connEntry->args->append(userAtHost);
-
-    QTermWidget *console = createNewTermWidget(connEntry->args);
+    QStringList args = connEntry->generateCliArgs();
+    QTermWidget *console = createNewTermWidget(&args);
 
     // info output
     qDebug() << "* INFO *************************";
@@ -240,14 +227,15 @@ void MainWindow::createNewConnection()
 
 void MainWindow::createNewSession()
 {
-    SSHConnectionEntry *connEntry = this->getCurrentConnectionEntry();
+    std::shared_ptr<SSHConnectionEntry> connEntry = this->getCurrentConnectionEntry();
     if (connEntry == nullptr) {
         return;
     }
 
     CustomTabWidget *tabs = connEntry->tabs;
 
-    QTermWidget *console = createNewTermWidget(connEntry->args);
+    QStringList args = connEntry->generateCliArgs();
+    QTermWidget *console = createNewTermWidget(&args);
     tabs->addTab(console, QString::asprintf("Session %d", connEntry->nextSessionNumber++));
     tabs->setCurrentWidget(console);
 
@@ -260,7 +248,7 @@ void MainWindow::createNewSession()
 void MainWindow::restartSession()
 {
     QWidget *oldWidget = nullptr;
-    SSHConnectionEntry *connEntry = this->getCurrentConnectionEntry();
+    std::shared_ptr<SSHConnectionEntry> connEntry = this->getCurrentConnectionEntry();
     if (connEntry == nullptr) {
         return;
     }
@@ -289,7 +277,8 @@ void MainWindow::restartSession()
         oldWidget = tabs->currentWidget();
     }
 
-    QTermWidget *console = createNewTermWidget(connEntry->args);
+    QStringList args = connEntry->generateCliArgs();
+    QTermWidget *console = createNewTermWidget(&args);
     tabs->setUpdatesEnabled(false);
     tabs->removeTab(tabIndex);
     tabs->insertTab(tabIndex, console, tabText);
@@ -316,7 +305,7 @@ const QString MainWindow::getCurrentUsernameAndHost()
     return this->connectionModel->data(indexes.first()).toString();
 }
 
-SSHConnectionEntry* MainWindow::getCurrentConnectionEntry()
+std::shared_ptr<SSHConnectionEntry> MainWindow::getCurrentConnectionEntry()
 {
     const QString usernameAndHost = this->getCurrentUsernameAndHost();
 
@@ -325,7 +314,7 @@ SSHConnectionEntry* MainWindow::getCurrentConnectionEntry()
 
 CustomTabWidget* MainWindow::getCurrentTabWidget()
 {
-    SSHConnectionEntry *connEntry = this->getCurrentConnectionEntry();
+    std::shared_ptr<SSHConnectionEntry> connEntry = this->getCurrentConnectionEntry();
     return connEntry->tabs;
 }
 
@@ -381,7 +370,7 @@ void MainWindow::readSettings()
     QJsonObject jsonObj = jsonDoc.object();
     QJsonArray connArray(jsonObj["connections"].toArray());
     for (QJsonValue curValue : connArray) {
-        SSHConnectionEntry *entry = new SSHConnectionEntry();
+        std::shared_ptr<SSHConnectionEntry> entry = std::make_shared<SSHConnectionEntry>();
         entry->read(curValue.toObject());
 
         CustomTabWidget *tabs = new CustomTabWidget();
@@ -433,7 +422,7 @@ void MainWindow::saveSettings()
 
     for (int i = 0; i < this->connectionModel->rowCount(QModelIndex()); i++) {
         QJsonObject curObj;
-        SSHConnectionEntry *entry = this->connectionModel->getConnEntry(i);
+        std::shared_ptr<SSHConnectionEntry> entry = this->connectionModel->getConnEntry(i);
 
         entry->tabNames->clear();
         for (int j = 0; j < entry->tabs->count(); j++) {
@@ -523,7 +512,7 @@ void MainWindow::showTabListContextMenu(QPoint pos)
 
 void MainWindow::removeConnection()
 {
-    SSHConnectionEntry *entry = this->getCurrentConnectionEntry();
+    std::shared_ptr<SSHConnectionEntry> entry = this->getCurrentConnectionEntry();
 
     if (entry == nullptr) {
         return;
@@ -556,12 +545,12 @@ void MainWindow::removeConnection()
         this->setWindowTitle(PROGRAM_NAME);
     }
 
-    delete entry;
+    entry.reset();
 }
 
 void MainWindow::updateConnectionTabs()
 {
-    SSHConnectionEntry *connEntry = this->getCurrentConnectionEntry();
+    std::shared_ptr<SSHConnectionEntry> connEntry = this->getCurrentConnectionEntry();
 
     if (connEntry == nullptr) {
         return;
@@ -615,11 +604,11 @@ void MainWindow::selectFirstConnection()
         return;
     }
 
-    SSHConnectionEntry *entry = this->connectionModel->getConnEntry(0);
+    std::shared_ptr<SSHConnectionEntry> entry = this->connectionModel->getConnEntry(0);
     this->selectConnection(entry);
 }
 
-void MainWindow::selectConnection(SSHConnectionEntry *connEntry)
+void MainWindow::selectConnection(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
     QModelIndex index = this->connectionModel->getIndexForSSHConnectionEntry(connEntry);
     this->tabList->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
@@ -655,7 +644,7 @@ void MainWindow::updateConsoleSettings(const QFont &font, const QString colorSch
 {
     // update all running QTermWidget instances
     for (int i = 0; i < this->connectionModel->rowCount(QModelIndex()); i++) {
-        SSHConnectionEntry *entry = this->connectionModel->getConnEntry(i);
+        std::shared_ptr<SSHConnectionEntry> entry = this->connectionModel->getConnEntry(i);
         for (int j = 0; j < entry->tabs->count(); j++) {
             QWidget *widget = entry->tabs->widget(j);
             if (widget->metaObject()->className() == QString("QTermWidget")) {
@@ -670,7 +659,7 @@ void MainWindow::updateConsoleSettings(const QFont &font, const QString colorSch
 
 void MainWindow::notesChanged()
 {
-    SSHConnectionEntry *connEntry = this->getCurrentConnectionEntry();
+    std::shared_ptr<SSHConnectionEntry> connEntry = this->getCurrentConnectionEntry();
 
     if (connEntry == nullptr) {
         return;

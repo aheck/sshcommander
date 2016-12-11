@@ -26,12 +26,12 @@ QVariant SSHConnectionItemModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-    SSHConnectionEntry *entry = this->entries.at(index.row());
+    std::shared_ptr<SSHConnectionEntry> entry = this->entries.at(index.row());
 
     return QVariant(entry->name);
 }
 
-void SSHConnectionItemModel::appendConnectionEntry(SSHConnectionEntry *entry)
+void SSHConnectionItemModel::appendConnectionEntry(std::shared_ptr<SSHConnectionEntry> entry)
 {
     int pos = this->rowCount();
     this->beginInsertRows(QModelIndex(), pos, pos);
@@ -40,7 +40,7 @@ void SSHConnectionItemModel::appendConnectionEntry(SSHConnectionEntry *entry)
     this->endInsertRows();
 }
 
-void SSHConnectionItemModel::removeConnectionEntry(SSHConnectionEntry *entry)
+void SSHConnectionItemModel::removeConnectionEntry(std::shared_ptr<SSHConnectionEntry> entry)
 {
     QModelIndex index = this->getIndexForSSHConnectionEntry(entry);
 
@@ -50,7 +50,7 @@ void SSHConnectionItemModel::removeConnectionEntry(SSHConnectionEntry *entry)
     endRemoveRows();
 }
 
-SSHConnectionEntry* SSHConnectionItemModel::getConnEntry(int index)
+std::shared_ptr<SSHConnectionEntry> SSHConnectionItemModel::getConnEntry(int index)
 {
     if (index < 0) {
         return nullptr;
@@ -63,12 +63,12 @@ SSHConnectionEntry* SSHConnectionItemModel::getConnEntry(int index)
     return this->entries.at(index);
 }
 
-SSHConnectionEntry* SSHConnectionItemModel::getConnEntryByName(const QString name)
+std::shared_ptr<SSHConnectionEntry> SSHConnectionItemModel::getConnEntryByName(const QString name)
 {
     return this->sshConnByHost[name];
 }
 
-QModelIndex SSHConnectionItemModel::getIndexForSSHConnectionEntry(const SSHConnectionEntry *entry) const
+QModelIndex SSHConnectionItemModel::getIndexForSSHConnectionEntry(const std::shared_ptr<SSHConnectionEntry> entry) const
 {
     if (entry == nullptr) {
         return QModelIndex();

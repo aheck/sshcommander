@@ -12,7 +12,7 @@ InactiveSessionWidget::InactiveSessionWidget()
     label->setStyleSheet("QLabel { color : grey; }");
     layout->addWidget(label);
 
-    QPushButton *connectButton = new QPushButton(tr("Connect"));
+    QPushButton *connectButton = new QPushButton(tr("&Connect"));
     QObject::connect(connectButton, SIGNAL(clicked()), this, SLOT(createSessionSlot()));
     layout->addWidget(connectButton);
 

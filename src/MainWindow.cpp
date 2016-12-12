@@ -125,6 +125,19 @@ MainWindow::MainWindow(QWidget *parent) :
     this->widgetStack->addWidget(this->hiddenPage);
     this->widgetStack->setCurrentIndex(0);
 
+    // assign shortcuts
+    QShortcut *toggleEnlargedShortcut = new QShortcut(QKeySequence(Qt::Key_F10), this);
+    toggleEnlargedShortcut->setContext(Qt::ApplicationShortcut);
+    QObject::connect(toggleEnlargedShortcut, SIGNAL(activated()), this, SLOT(toggleSessionEnlarged()));
+
+    QShortcut *nextTabShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_PageDown), this);
+    nextTabShortcut->setContext(Qt::ApplicationShortcut);
+    QObject::connect(nextTabShortcut, SIGNAL(activated()), this, SLOT(nextTab()));
+
+    QShortcut *prevTabShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_PageUp), this);
+    prevTabShortcut->setContext(Qt::ApplicationShortcut);
+    QObject::connect(prevTabShortcut, SIGNAL(activated()), this, SLOT(prevTab()));
+
     setCentralWidget(this->widgetStack);
 
     this->readSettings();
@@ -666,4 +679,34 @@ void MainWindow::notesChanged()
     }
 
     connEntry->notes = this->notesEditor->toHtml();
+}
+
+void MainWindow::nextTab()
+{
+    std::shared_ptr<SSHConnectionEntry> connEntry = this->getCurrentConnectionEntry();
+
+    if (connEntry->tabs->currentIndex() < 0) {
+        return;
+    }
+
+    if (connEntry->tabs->currentIndex() < (connEntry->tabs->count() - 1)) {
+        connEntry->tabs->setCurrentIndex(connEntry->tabs->currentIndex() + 1);
+    } else {
+        connEntry->tabs->setCurrentIndex(0);
+    }
+}
+
+void MainWindow::prevTab()
+{
+    std::shared_ptr<SSHConnectionEntry> connEntry = this->getCurrentConnectionEntry();
+
+    if (connEntry->tabs->currentIndex() < 0) {
+        return;
+    }
+
+    if (connEntry->tabs->currentIndex() > 0) {
+        connEntry->tabs->setCurrentIndex(connEntry->tabs->currentIndex() - 1);
+    } else {
+        connEntry->tabs->setCurrentIndex(connEntry->tabs->count() - 1);
+    }
 }

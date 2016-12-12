@@ -17,6 +17,7 @@
 #include <QListView>
 #include <QPoint>
 #include <QSettings>
+#include <QShortcut>
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QStyle>
@@ -68,6 +69,8 @@ public slots:
 
 private slots:
     void notesChanged();
+    void nextTab();
+    void prevTab();
 
 private:
     const QString getCurrentUsernameAndHost();

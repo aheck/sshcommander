@@ -250,7 +250,18 @@ void AWSInfoWidget::handleAWSResult(AWSResult *result)
             if (instances.size() == 1) {
                 std::shared_ptr<AWSInstance> newInstance = instances.at(0);
                 *(this->instance) = *newInstance;
-                this->updateData(instance);
+                this->updateData(this->instance);
+            } else if (instances.size() == 0) {
+                // The instance was terminted some time ago and AWS already
+                // deleted its data
+                this->instance->status = "terminated";
+                this->updateData(this->instance);
+            } else {
+                // AWS returns more than one instance. This should never happen!
+                QMessageBox msgBox;
+                msgBox.setText(tr("Failed to update Instance: AWS returned more than one instance!"));
+                msgBox.setIcon(QMessageBox::Warning);
+                msgBox.exec();
             }
         }
     }

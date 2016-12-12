@@ -8,6 +8,7 @@
 #include <QStringList>
 
 #include "AWSConnector.h"
+#include "AWSInstance.h"
 #include "CustomTabWidget.h"
 
 #include "globals.h"
@@ -21,6 +22,8 @@ public:
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
     QStringList generateCliArgs();
+    QString generateSSHCommand();
+    QString generateSCPCommand(QString src, QString dest, bool dir = false);
 
     QString name;
     QString hostname;

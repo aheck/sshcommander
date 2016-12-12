@@ -572,8 +572,7 @@ void MainWindow::updateConnectionTabs()
     this->setWindowTitle(connEntry->name + " - " + PROGRAM_NAME);
 
     this->machineInfo->setMachineEnabled(true);
-    this->machineInfo->setHostname(connEntry->hostname);
-    this->machineInfo->setUsername(connEntry->username);
+    this->machineInfo->updateData(connEntry);
 
     this->notesEditor->setHtml(connEntry->notes);
 

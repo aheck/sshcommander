@@ -72,3 +72,36 @@ QStringList SSHConnectionEntry::generateCliArgs()
 
     return args;
 }
+
+QString SSHConnectionEntry::generateSSHCommand()
+{
+    QString cmd = "ssh ";
+
+    cmd += this->generateCliArgs().join(" ");
+
+    return cmd;
+}
+
+QString SSHConnectionEntry::generateSCPCommand(QString src, QString dest, bool dir)
+{
+    QString cmd = "scp";
+
+    if (dir) {
+        cmd += " -r";
+    }
+
+    QStringList cliArgs = this->generateCliArgs();
+    for (int i = 0; i < cliArgs.size(); i++) {
+        QString cur = cliArgs.at(i);
+
+        // host is always the last argument
+        if (i == cliArgs.size() - 1) {
+            cmd += " " + src + " " + cur + ":" + dest;
+            continue;
+        }
+
+        cmd += " " + cur;
+    }
+
+    return cmd;
+}

@@ -1,6 +1,8 @@
 #ifndef MACHINEINFOWIDGET_H
 #define MACHINEINFOWIDGET_H
 
+#include <memory>
+
 #include <QGridLayout>
 #include <QLabel>
 #include <QScrollArea>
@@ -8,17 +10,17 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "SSHConnectionEntry.h"
+
 class MachineInfoWidget : public QWidget
 {
     Q_OBJECT
 
 public:
     MachineInfoWidget();
-    ~MachineInfoWidget();
 
-    void setHostname(const QString hostname);
-    void setUsername(const QString username);
     void setMachineEnabled(bool enabled);
+    void updateData(std::shared_ptr<SSHConnectionEntry> connEntry);
 
 private:
     bool enabled;
@@ -30,6 +32,12 @@ private:
     QLabel *valueHostname;
     QLabel *labelUsername;
     QLabel *valueUsername;
+    QLabel *labelSSHCommand;
+    QLabel *valueSSHCommand;
+    QLabel *labelSCPCommand;
+    QLabel *valueSCPCommand;
+    QLabel *labelSCPDirCommand;
+    QLabel *valueSCPDirCommand;
 };
 
 #endif

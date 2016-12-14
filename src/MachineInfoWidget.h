@@ -10,6 +10,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "DisabledWidget.h"
 #include "SSHConnectionEntry.h"
 
 class MachineInfoWidget : public QWidget
@@ -25,7 +26,7 @@ public:
 private:
     bool enabled;
     QWidget *page;
-    QWidget *disabledPage;
+    DisabledWidget *disabledWidget;
     QStackedWidget *widgetStack;
     QGridLayout *gridLayout;
     QLabel *labelHostname;

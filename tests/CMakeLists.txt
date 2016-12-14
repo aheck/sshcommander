@@ -15,11 +15,13 @@ add_executable(tests main.cpp
     ../src/AWSWidget.cpp
     ../src/CustomTabBar.cpp
     ../src/CustomTabWidget.cpp
+    ../src/DisabledWidget.cpp
     ../src/InactiveSessionWidget.cpp
     ../src/InstanceItemModel.cpp
     ../src/MachineInfoWidget.cpp
     ../src/MainWindow.cpp
     ../src/NewDialog.cpp
+    ../src/NotesEditor.cpp
     ../src/Preferences.cpp
     ../src/PreferencesDialog.cpp
     ../src/SecurityGroupsDialog.cpp

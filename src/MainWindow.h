@@ -21,7 +21,6 @@
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QStyle>
-#include <QTextEdit>
 #include <QToolBar>
 #include <QUrl>
 #include <QtDebug>
@@ -32,8 +31,10 @@
 #include "AWSInfoWidget.h"
 #include "AWSWidget.h"
 #include "CustomTabWidget.h"
+#include "DisabledWidget.h"
 #include "InactiveSessionWidget.h"
 #include "MachineInfoWidget.h"
+#include "NotesEditor.h"
 #include "NewDialog.h"
 #include "Preferences.h"
 #include "PreferencesDialog.h"
@@ -103,7 +104,7 @@ private:
     AWSInfoWidget *awsInfo;
     QTabWidget *sshSessionsInfo;
     Preferences preferences;
-    QTextEdit *notesEditor;
+    NotesEditor *notesEditor;
 };
 
 #endif

@@ -15,6 +15,7 @@
 
 #include "AWSConnector.h"
 #include "AWSResponseParsers.h"
+#include "DisabledWidget.h"
 #include "Preferences.h"
 #include "SecurityGroupsDialog.h"
 
@@ -42,9 +43,9 @@ private:
     bool enabled;
     QScrollArea *scrollArea;
     QStackedWidget *widgetStack;
+    DisabledWidget * disabledWidget;
     QWidget *awsPage;
     QWidget *awsContent;
-    QWidget *noAWSPage;
     QGridLayout *gridLayout;
     QVBoxLayout *mainLayout;
     QToolBar *toolBar;

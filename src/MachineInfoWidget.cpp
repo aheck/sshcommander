@@ -6,17 +6,7 @@ MachineInfoWidget::MachineInfoWidget()
     this->widgetStack = new QStackedWidget();
     this->page = new QWidget();
 
-    this->disabledPage = new QWidget();
-    QVBoxLayout *disabledLayout = new QVBoxLayout();
-    disabledLayout->setAlignment(Qt::AlignCenter);
-    QLabel *disabledLabel = new QLabel("No Machine Data");
-    QFont font = disabledLabel->font();
-    font.setPointSize(24);
-    font.setBold(true);
-    disabledLabel->setFont(font);
-    disabledLabel->setStyleSheet("QLabel { color : grey; }");
-    disabledLayout->addWidget(disabledLabel);
-    this->disabledPage->setLayout(disabledLayout);
+    this->disabledWidget = new DisabledWidget("No SSH Connection");
 
     this->labelHostname = new QLabel(tr("Hostname:"));
     this->labelUsername = new QLabel(tr("Username:"));
@@ -59,7 +49,7 @@ MachineInfoWidget::MachineInfoWidget()
     scrollArea->setWidgetResizable(true);
     scrollArea->setWidget(this->page);
 
-    this->widgetStack->addWidget(this->disabledPage);
+    this->widgetStack->addWidget(this->disabledWidget);
     this->widgetStack->addWidget(scrollArea);
 
     QVBoxLayout *layout = new QVBoxLayout();

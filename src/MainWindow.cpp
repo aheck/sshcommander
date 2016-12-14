@@ -54,17 +54,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // build sshSessionsWidget (the widget which contains the ssh sessions and
     // the ssh session tabs)
     this->sshSessionsStack = new QStackedWidget();
-    QWidget *sshSessionsDisabledPage = new QWidget();
-    sshSessionsDisabledPage->setLayout(new QVBoxLayout);
-    QLabel *sshDisabledLabel = new QLabel("No SSH Connection");
-    QFont font = sshDisabledLabel->font();
-    font.setPointSize(24);
-    font.setBold(true);
-    sshDisabledLabel->setFont(font);
-    sshDisabledLabel->setStyleSheet("QLabel { color : grey; }");
-    sshSessionsDisabledPage->layout()->setAlignment(Qt::AlignCenter);
-    sshSessionsDisabledPage->layout()->addWidget(sshDisabledLabel);
-    this->sshSessionsStack->addWidget(sshSessionsDisabledPage);
+
+    DisabledWidget *disabledWidget = new DisabledWidget("No SSH Connection");
+    this->sshSessionsStack->addWidget(disabledWidget);
+
     toolBar = new QToolBar("toolBar", 0);
     toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "New Session", this, SLOT(createNewSession()));
     toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_BrowserReload), "Restart Session", this, SLOT(restartSession()));
@@ -92,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->sessionInfoSplitter->addWidget(this->sshSessionsStack);
 
-    this->notesEditor = new QTextEdit();
+    this->notesEditor = new NotesEditor();
     QObject::connect(this->notesEditor, SIGNAL(textChanged()), this, SLOT(notesChanged()));
 
     this->sshSessionsInfo = new QTabWidget();
@@ -553,6 +546,7 @@ void MainWindow::removeConnection()
 
     if (this->connectionModel->rowCount(QModelIndex()) == 0) {
         this->machineInfo->setMachineEnabled(false);
+        this->notesEditor->setEnabled(false);
         this->awsInfo->setAWSEnabled(false);
         this->sshSessionsStack->setCurrentIndex(0);
         this->setWindowTitle(PROGRAM_NAME);
@@ -574,6 +568,7 @@ void MainWindow::updateConnectionTabs()
     this->machineInfo->setMachineEnabled(true);
     this->machineInfo->updateData(connEntry);
 
+    this->notesEditor->setEnabled(true);
     this->notesEditor->setHtml(connEntry->notes);
 
     if (connEntry->isAwsInstance) {

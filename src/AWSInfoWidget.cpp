@@ -13,17 +13,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
 
     this->awsPage = new QWidget();
     this->awsContent = new QWidget();
-    this->noAWSPage = new QWidget();
-    QVBoxLayout *noAWSLayout = new QVBoxLayout();
-    noAWSLayout->setAlignment(Qt::AlignCenter);
-    QLabel *noAWSLabel = new QLabel("No AWS Data");
-    QFont font = noAWSLabel->font();
-    font.setPointSize(24);
-    font.setBold(true);
-    noAWSLabel->setFont(font);
-    noAWSLabel->setStyleSheet("QLabel { color : grey; }");
-    noAWSLayout->addWidget(noAWSLabel);
-    this->noAWSPage->setLayout(noAWSLayout);
+    this->disabledWidget = new DisabledWidget("No AWS Data");
 
     this->toolBar = new QToolBar();
     this->toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_BrowserReload),
@@ -39,7 +29,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->awsPage->layout()->addWidget(this->scrollArea);
 
     this->widgetStack = new QStackedWidget();
-    this->widgetStack->addWidget(this->noAWSPage);
+    this->widgetStack->addWidget(this->disabledWidget);
     this->widgetStack->addWidget(this->awsPage);
 
     this->labelInstanceId = new QLabel("Instance ID:");

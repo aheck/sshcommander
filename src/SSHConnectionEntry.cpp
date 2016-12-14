@@ -16,6 +16,7 @@ SSHConnectionEntry::~SSHConnectionEntry()
 void SSHConnectionEntry::read(const QJsonObject &json)
 {
     this->name = json["name"].toString();
+    this->shortDescription = json["shortDescription"].toString();
     this->hostname = json["hostname"].toString();
     this->username = json["username"].toString();
     this->sshkey = json["sshkey"].toString();
@@ -39,6 +40,7 @@ void SSHConnectionEntry::write(QJsonObject &json) const
     QJsonObject awsInstanceJson;
 
     json["name"] = this->name;
+    json["shortDescription"] = this->shortDescription;
     json["hostname"] = this->hostname;
     json["username"] = this->username;
     json["nextSessionNumber"] = (int) this->nextSessionNumber;

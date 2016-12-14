@@ -194,6 +194,7 @@ void MainWindow::createNewConnection()
     connEntry->port = this->newDialog->getPortNumber();
     connEntry->hostname = hostname;
     connEntry->username = username;
+    connEntry->shortDescription = this->newDialog->shortDescriptionLineEdit->text();
 
     if (this->newDialog->isAwsInstance) {
         connEntry->isAwsInstance = true;
@@ -303,19 +304,25 @@ void MainWindow::restartSession()
 
 const QString MainWindow::getCurrentUsernameAndHost()
 {
-    QModelIndexList indexes = this->tabList->selectionModel()->selectedIndexes();
-    if (indexes.isEmpty()) {
+    std::shared_ptr<SSHConnectionEntry> connEntry = this->getCurrentConnectionEntry();
+
+    if (connEntry == nullptr) {
         return QString("");
     }
 
-    return this->connectionModel->data(indexes.first()).toString();
+    return connEntry->name;
 }
 
 std::shared_ptr<SSHConnectionEntry> MainWindow::getCurrentConnectionEntry()
 {
-    const QString usernameAndHost = this->getCurrentUsernameAndHost();
+    QModelIndexList indexes = this->tabList->selectionModel()->selectedIndexes();
+    if (indexes.isEmpty()) {
+        return nullptr;
+    }
 
-    return this->connectionModel->getConnEntryByName(usernameAndHost);
+    std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionModel->getConnEntry(indexes.first().row());
+
+    return connEntry;
 }
 
 CustomTabWidget* MainWindow::getCurrentTabWidget()

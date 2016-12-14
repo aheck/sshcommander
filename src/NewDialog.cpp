@@ -7,6 +7,7 @@ NewDialog::NewDialog()
 
     hostnameLineEdit = new QLineEdit();
     usernameLineEdit = new QLineEdit();
+    shortDescriptionLineEdit = new QLineEdit();
     sshkeyLineEdit = new QLineEdit();
     portLineEdit = new QLineEdit(DEFAULT_SSH_PORT);
     portLineEdit->setEnabled(false);
@@ -24,6 +25,7 @@ NewDialog::NewDialog()
     QFormLayout *formLayout = new QFormLayout;
     formLayout->addRow(tr("Hostname:"), hostnameLineEdit);
     formLayout->addRow(tr("Username:"), usernameLineEdit);
+    formLayout->addRow(tr("Short Description:"), shortDescriptionLineEdit);
     formLayout->addRow(tr("SSH Key:"), fileLayout);
     formLayout->addRow(tr("Custom SSH Port:"), portCheckBox);
     formLayout->addRow(tr("SSH Port:"), portLineEdit);

@@ -27,6 +27,7 @@ public:
     QLineEdit *hostnameLineEdit;
     QLineEdit *usernameLineEdit;
     QLineEdit *passwordLineEdit;
+    QLineEdit *shortDescriptionLineEdit;
     QLineEdit *sshkeyLineEdit;
     QLineEdit *portLineEdit;
 

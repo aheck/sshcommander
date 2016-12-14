@@ -155,7 +155,6 @@ QPixmap NotesEditor::generateCharIcon(char character, QFont font)
     icon.fill(Qt::transparent);
     QPainter painter(&icon);
 
-    //painter.fillRect(0, 0, 256, 256, Qt::white);
     painter.setPen(Qt::black);
     font.setPointSize(156);
     painter.setFont(font);

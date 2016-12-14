@@ -28,6 +28,10 @@ QVariant SSHConnectionItemModel::data(const QModelIndex &index, int role) const
 
     std::shared_ptr<SSHConnectionEntry> entry = this->entries.at(index.row());
 
+    if (!entry->shortDescription.isEmpty()) {
+        return QVariant(entry->name + " (" + entry->shortDescription + ")");
+    }
+
     return QVariant(entry->name);
 }
 

@@ -26,6 +26,7 @@ public:
     QString generateSCPCommand(QString src, QString dest, bool dir = false);
 
     QString name;
+    QString shortDescription;
     QString hostname;
     QString username;
     QString sshkey;

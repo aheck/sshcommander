@@ -72,6 +72,7 @@ private slots:
     void notesChanged();
     void nextTab();
     void prevTab();
+    void editConnection();
 
 private:
     const QString getCurrentUsernameAndHost();
@@ -89,6 +90,7 @@ private:
     QWidget *hiddenPage;
     QMenuBar *menuBar;
     NewDialog *newDialog;
+    NewDialog *editDialog;
     PreferencesDialog *preferencesDialog;
     QSplitter *splitter;
     QSplitter *sessionInfoSplitter;

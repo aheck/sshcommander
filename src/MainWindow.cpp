@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // dialogs
     this->aboutDialog = new AboutDialog();
     this->newDialog = new NewDialog();
+    this->editDialog = new NewDialog(true);
     this->preferencesDialog = new PreferencesDialog();
     QObject::connect(newDialog, SIGNAL (accepted()), this, SLOT (createNewConnection()));
 
@@ -44,7 +45,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->tabList = new QListView();
     this->tabList->setSelectionMode(QAbstractItemView::SingleSelection);
     this->tabList->setModel(this->connectionModel);
-    QObject::connect(this->tabList->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)), this, SLOT(changeConnection(QItemSelection, QItemSelection)));
+    QObject::connect(this->tabList->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
+            this, SLOT(changeConnection(QItemSelection, QItemSelection)));
     this->tabList->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this->tabList, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showTabListContextMenu(QPoint)));
 
@@ -73,7 +75,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QToolBar *connectionsToolbar = new QToolBar();
     connectionsToolbar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "New Connection", this->newDialog, SLOT(exec()));
-    connectionsToolbar->addAction(qApp->style()->standardIcon(QStyle::SP_TrashIcon), "Delete Connection", this, SLOT(removeConnection()));
+    connectionsToolbar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogDetailedView), "Edit Connection",
+            this, SLOT(editConnection()));
+    connectionsToolbar->addAction(qApp->style()->standardIcon(QStyle::SP_TrashIcon), "Delete Connection",
+            this, SLOT(removeConnection()));
     QWidget *tabListWidget = new QWidget(this);
     QVBoxLayout *tabListLayout = new QVBoxLayout(tabListWidget);
     tabListLayout->addWidget(connectionsToolbar);
@@ -102,7 +107,8 @@ MainWindow::MainWindow(QWidget *parent) :
     rightWidget->addTab(this->sessionInfoSplitter, "SSH");
 
     this->awsWidget = new AWSWidget(&this->preferences);
-    QObject::connect(this->awsWidget, SIGNAL(newConnection(std::shared_ptr<AWSInstance>)), this, SLOT(createSSHConnectionToAWS(std::shared_ptr<AWSInstance>)));
+    QObject::connect(this->awsWidget, SIGNAL(newConnection(std::shared_ptr<AWSInstance>)), this,
+            SLOT(createSSHConnectionToAWS(std::shared_ptr<AWSInstance>)));
     rightWidget->addTab(this->awsWidget, "AWS");
 
     this->splitter->addWidget(rightWidget);
@@ -172,8 +178,8 @@ QTermWidget* MainWindow::createNewTermWidget(const QStringList *args)
 
 void MainWindow::createNewConnection()
 {
-    QString hostname = this->newDialog->hostnameLineEdit->text();
-    QString username = this->newDialog->usernameLineEdit->text();
+    QString hostname = this->newDialog->getHostname();
+    QString username = this->newDialog->getUsername();
     //QString password = this->newDialog->passwordLineEdit->text();
     QString userAtHost = QString("%1@%2").arg(username).arg(hostname);
     std::shared_ptr<SSHConnectionEntry> connEntry;
@@ -190,11 +196,11 @@ void MainWindow::createNewConnection()
 
     connEntry = std::make_shared<SSHConnectionEntry>();
     connEntry->name = userAtHost;
-    connEntry->sshkey = this->newDialog->sshkeyLineEdit->text();
+    connEntry->sshkey = this->newDialog->getSSHKey();
     connEntry->port = this->newDialog->getPortNumber();
     connEntry->hostname = hostname;
     connEntry->username = username;
-    connEntry->shortDescription = this->newDialog->shortDescriptionLineEdit->text();
+    connEntry->shortDescription = this->newDialog->getShortDescription();
 
     if (this->newDialog->isAwsInstance) {
         connEntry->isAwsInstance = true;
@@ -485,9 +491,9 @@ void MainWindow::saveSettings()
 
 void MainWindow::createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance)
 {
-    this->newDialog->hostnameLineEdit->setText(instance->publicIP);
-    this->newDialog->sshkeyLineEdit->setText(this->findSSHKey(instance->keyname));
-    this->newDialog->usernameLineEdit->setFocus();
+    this->newDialog->setHostname(instance->publicIP);
+    this->newDialog->setSSHKey(this->findSSHKey(instance->keyname));
+    this->newDialog->setFocusOnUsername();
 
     this->newDialog->isAwsInstance = true;
     this->newDialog->awsInstance = instance;
@@ -517,7 +523,8 @@ void MainWindow::showTabListContextMenu(QPoint pos)
 
     if (this->tabList->indexAt(pos).isValid()) {
         QMenu menu;
-        menu.addAction("Delete", this, SLOT(removeConnection()));
+        menu.addAction(tr("Edit"), this, SLOT(editConnection()));
+        menu.addAction(tr("Delete"), this, SLOT(removeConnection()));
 
         menu.exec(globalPos);
     }
@@ -710,4 +717,24 @@ void MainWindow::prevTab()
     } else {
         connEntry->tabs->setCurrentIndex(connEntry->tabs->count() - 1);
     }
+}
+
+void MainWindow::editConnection()
+{
+    auto connEntry = this->getCurrentConnectionEntry();
+
+    this->editDialog->setWindowTitle("Edit " + connEntry->name);
+    this->editDialog->setHostname(connEntry->hostname);
+    this->editDialog->setUsername(connEntry->username);
+    this->editDialog->setShortDescription(connEntry->shortDescription);
+    this->editDialog->setSSHKey(connEntry->sshkey);
+    this->editDialog->setPortNumber(connEntry->port);
+
+    if (this->editDialog->exec() == QDialog::Rejected) {
+        return;
+    }
+
+    connEntry->shortDescription = this->editDialog->getShortDescription();
+    connEntry->sshkey = this->editDialog->getSSHKey();
+    connEntry->port = this->editDialog->getPortNumber();
 }

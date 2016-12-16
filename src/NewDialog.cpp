@@ -1,6 +1,6 @@
 #include "NewDialog.h"
 
-NewDialog::NewDialog()
+NewDialog::NewDialog(bool editDialog)
 {
     this->setWindowTitle(tr("New SSH Connection..."));
     this->isAwsInstance = false;
@@ -19,7 +19,7 @@ NewDialog::NewDialog()
     QObject::connect(fileButton, SIGNAL (clicked()), this, SLOT (selectKeyFile()));
     fileLayout->addWidget(fileButton);
 
-    QCheckBox *portCheckBox = new QCheckBox();
+    this->portCheckBox = new QCheckBox();
     QObject::connect(portCheckBox, SIGNAL (clicked(bool)), this, SLOT (portCheckBoxStateChanged(bool)));
 
     QFormLayout *formLayout = new QFormLayout;
@@ -46,10 +46,12 @@ NewDialog::NewDialog()
     mainLayout->addLayout(formLayout);
     mainLayout->addLayout(buttonsLayout);
     setLayout(mainLayout);
-}
 
-NewDialog::~NewDialog()
-{
+    if (editDialog) {
+        this->hostnameLineEdit->setEnabled(false);
+        this->usernameLineEdit->setEnabled(false);
+        connectButton->setText("OK");
+    }
 }
 
 void NewDialog::selectKeyFile()
@@ -98,11 +100,6 @@ void NewDialog::acceptDialog()
     this->accept();
 }
 
-int NewDialog::getPortNumber()
-{
-    return this->portLineEdit->text().toInt(nullptr, 10);
-}
-
 void NewDialog::portCheckBoxStateChanged(bool checked)
 {
     if (!checked) {
@@ -110,4 +107,60 @@ void NewDialog::portCheckBoxStateChanged(bool checked)
     }
 
     this->portLineEdit->setEnabled(checked);
+}
+
+const QString NewDialog::getHostname()
+{
+    return this->hostnameLineEdit->text();
+}
+
+void NewDialog::setHostname(const QString hostname)
+{
+    this->hostnameLineEdit->setText(hostname);
+}
+
+const QString NewDialog::getUsername()
+{
+    return this->usernameLineEdit->text();
+}
+
+void NewDialog::setUsername(const QString username)
+{
+    this->usernameLineEdit->setText(username);
+}
+
+const QString NewDialog::getShortDescription()
+{
+    return this->shortDescriptionLineEdit->text();
+}
+
+void NewDialog::setShortDescription(const QString shortDescription)
+{
+    this->shortDescriptionLineEdit->setText(shortDescription);
+}
+
+const QString NewDialog::getSSHKey()
+{
+    return this->sshkeyLineEdit->text();
+}
+
+void NewDialog::setSSHKey(const QString sshkey)
+{
+    this->sshkeyLineEdit->setText(sshkey);
+}
+
+int NewDialog::getPortNumber()
+{
+    return this->portLineEdit->text().toInt(nullptr, 10);
+}
+
+void NewDialog::setPortNumber(int port)
+{
+    this->portCheckBox->setEnabled(port == DEFAULT_SSH_PORT_NUMBER);
+    this->portLineEdit->setText(QString::number(port));
+}
+
+void NewDialog::setFocusOnUsername()
+{
+    this->usernameLineEdit->setFocus();
 }

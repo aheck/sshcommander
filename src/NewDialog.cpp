@@ -5,17 +5,18 @@ NewDialog::NewDialog(bool editDialog)
     this->setWindowTitle(tr("New SSH Connection..."));
     this->isAwsInstance = false;
 
-    hostnameLineEdit = new QLineEdit();
-    usernameLineEdit = new QLineEdit();
-    shortDescriptionLineEdit = new QLineEdit();
-    sshkeyLineEdit = new QLineEdit();
-    portLineEdit = new QLineEdit(DEFAULT_SSH_PORT);
-    portLineEdit->setEnabled(false);
+    this->hostnameLineEdit = new QLineEdit();
+    this->usernameLineEdit = new QLineEdit();
+    this->shortDescriptionLineEdit = new QLineEdit();
+    this->sshkeyComboBox = new QComboBox();
+    this->sshkeyComboBox->setEditable(true);
+    this->portLineEdit = new QLineEdit(DEFAULT_SSH_PORT);
+    this->portLineEdit->setEnabled(false);
 
     QHBoxLayout *fileLayout = new QHBoxLayout();
-    fileLayout->addWidget(sshkeyLineEdit);
-    QPushButton *fileButton = new QPushButton("...");
-    fileButton->setDefault(false);
+    fileLayout->addWidget(this->sshkeyComboBox);
+    QToolButton *fileButton = new QToolButton();
+    fileButton->setText("...");
     QObject::connect(fileButton, SIGNAL (clicked()), this, SLOT (selectKeyFile()));
     fileLayout->addWidget(fileButton);
 
@@ -23,12 +24,12 @@ NewDialog::NewDialog(bool editDialog)
     QObject::connect(portCheckBox, SIGNAL (clicked(bool)), this, SLOT (portCheckBoxStateChanged(bool)));
 
     QFormLayout *formLayout = new QFormLayout;
-    formLayout->addRow(tr("Hostname:"), hostnameLineEdit);
-    formLayout->addRow(tr("Username:"), usernameLineEdit);
-    formLayout->addRow(tr("Short Description:"), shortDescriptionLineEdit);
+    formLayout->addRow(tr("Hostname:"), this->hostnameLineEdit);
+    formLayout->addRow(tr("Username:"), this->usernameLineEdit);
+    formLayout->addRow(tr("Short Description:"), this->shortDescriptionLineEdit);
     formLayout->addRow(tr("SSH Key:"), fileLayout);
-    formLayout->addRow(tr("Custom SSH Port:"), portCheckBox);
-    formLayout->addRow(tr("SSH Port:"), portLineEdit);
+    formLayout->addRow(tr("Custom SSH Port:"), this->portCheckBox);
+    formLayout->addRow(tr("SSH Port:"), this->portLineEdit);
 
     QPushButton *connectButton = new QPushButton(tr("Connect"));
     QObject::connect(connectButton, SIGNAL (clicked()), this, SLOT (acceptDialog()));
@@ -61,7 +62,7 @@ void NewDialog::selectKeyFile()
             tr("All Files (*)"));
 
     if (!filename.isEmpty()) {
-        sshkeyLineEdit->setText(filename);
+        sshkeyComboBox->setCurrentText(filename);
     }
 }
 
@@ -141,12 +142,12 @@ void NewDialog::setShortDescription(const QString shortDescription)
 
 const QString NewDialog::getSSHKey()
 {
-    return this->sshkeyLineEdit->text();
+    return this->sshkeyComboBox->currentText();
 }
 
 void NewDialog::setSSHKey(const QString sshkey)
 {
-    this->sshkeyLineEdit->setText(sshkey);
+    this->sshkeyComboBox->setCurrentText(sshkey);
 }
 
 int NewDialog::getPortNumber()
@@ -163,4 +164,26 @@ void NewDialog::setPortNumber(int port)
 void NewDialog::setFocusOnUsername()
 {
     this->usernameLineEdit->setFocus();
+}
+
+int NewDialog::exec()
+{
+    QStringList sshkeys;
+
+    QDirIterator it(QDir::homePath() + "/.ssh");
+    while (it.hasNext()) {
+        QString dir = it.next();
+        if (dir.endsWith("/.") || dir.endsWith("/..") ||
+                dir.endsWith(".pub") || dir.endsWith("/config") ||
+                dir.endsWith("/known_hosts")) {
+            continue;
+        }
+
+        sshkeys.append(dir);
+    }
+
+    this->sshkeyComboBox->clear();
+    this->sshkeyComboBox->addItems(sshkeys);
+
+    return QDialog::exec();
 }

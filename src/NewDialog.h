@@ -4,12 +4,15 @@
 #include <memory>
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QDialog>
+#include <QDirIterator>
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QToolButton>
 
 #include "AWSConnector.h"
 #include "globals.h"
@@ -34,6 +37,8 @@ public:
 
     void setFocusOnUsername();
 
+    int exec() override;
+
     bool isAwsInstance;
     std::shared_ptr<AWSInstance> awsInstance;
 
@@ -47,7 +52,7 @@ private:
     QLineEdit *usernameLineEdit;
     //QLineEdit *passwordLineEdit;
     QLineEdit *shortDescriptionLineEdit;
-    QLineEdit *sshkeyLineEdit;
+    QComboBox *sshkeyComboBox;
     QLineEdit *portLineEdit;
     QCheckBox *portCheckBox = new QCheckBox();
 };

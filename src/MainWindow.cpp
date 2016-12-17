@@ -61,9 +61,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->sshSessionsStack->addWidget(disabledWidget);
 
     toolBar = new QToolBar("toolBar", 0);
-    toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "New Session", this, SLOT(createNewSession()));
-    toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_BrowserReload), "Restart Session", this, SLOT(restartSession()));
-    toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_ArrowUp), "Toggle Enlarged View", this, SLOT(toggleSessionEnlarged()));
+    toolBar->addAction(QIcon(":/images/utilities-terminal"), "New Session", this, SLOT(createNewSession()));
+    toolBar->addAction(QIcon(":/images/view-refresh.svg"), "Restart Session", this, SLOT(restartSession()));
+    toolBar->addAction(QIcon(":/images/view-fullscreen.svg"), "Toggle Enlarged View", this, SLOT(toggleSessionEnlarged()));
     this->tabStack = new QStackedWidget();
     QVBoxLayout *boxLayout = new QVBoxLayout();
     boxLayout->setContentsMargins(0, 0, 0, 0);
@@ -74,10 +74,10 @@ MainWindow::MainWindow(QWidget *parent) :
     this->sshSessionsStack->addWidget(this->sshSessionsWidget);
 
     QToolBar *connectionsToolbar = new QToolBar();
-    connectionsToolbar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogNewFolder), "New Connection", this->newDialog, SLOT(exec()));
-    connectionsToolbar->addAction(qApp->style()->standardIcon(QStyle::SP_FileDialogDetailedView), "Edit Connection",
+    connectionsToolbar->addAction(QIcon(":/images/applications-internet.svg"), "New Connection", this->newDialog, SLOT(exec()));
+    connectionsToolbar->addAction(QIcon(":/images/preferences-system.svg"), "Edit Connection",
             this, SLOT(editConnection()));
-    connectionsToolbar->addAction(qApp->style()->standardIcon(QStyle::SP_TrashIcon), "Delete Connection",
+    connectionsToolbar->addAction(QIcon(":/images/process-stop.svg"), "Delete Connection",
             this, SLOT(removeConnection()));
     QWidget *tabListWidget = new QWidget(this);
     QVBoxLayout *tabListLayout = new QVBoxLayout(tabListWidget);
@@ -523,8 +523,11 @@ void MainWindow::showTabListContextMenu(QPoint pos)
 
     if (this->tabList->indexAt(pos).isValid()) {
         QMenu menu;
-        menu.addAction(tr("Edit"), this, SLOT(editConnection()));
-        menu.addAction(tr("Delete"), this, SLOT(removeConnection()));
+        QAction *editAction = menu.addAction(tr("Edit"), this, SLOT(editConnection()));
+        editAction->setIcon(QIcon(":/images/preferences-system.svg"));
+        menu.addSeparator();
+        QAction *deleteAction = menu.addAction(tr("Delete"), this, SLOT(removeConnection()));
+        deleteAction->setIcon(QIcon(":/images/process-stop.svg"));
 
         menu.exec(globalPos);
     }

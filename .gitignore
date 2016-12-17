@@ -10,3 +10,5 @@ git_commit_id.h
 tests/tests
 Testing
 CTestTestfile*
+src/qrc_sshcommander.cpp
+src/sshcommander.qrc.depends

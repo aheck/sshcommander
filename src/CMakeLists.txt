@@ -5,6 +5,10 @@ add_custom_target(
     COMMAND ../update_git_commit_id.sh
 )
 
+QT5_ADD_RESOURCES (ProgramResources
+    sshcommander.qrc
+)
+
 add_executable(sshcommander
     main.cpp
     AboutDialog.cpp
@@ -30,6 +34,7 @@ add_executable(sshcommander
     SSHConnectionEntry.cpp
     SSHConnectionItemModel.cpp
     TagsDialog.cpp
+    ${ProgramResources}
 )
 
 target_link_libraries(sshcommander Qt5::Widgets Qt5::Network ${QTERMWIDGET_LIBRARIES})

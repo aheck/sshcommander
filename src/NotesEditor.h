@@ -43,7 +43,6 @@ signals:
 
 private:
     void applyFormat(const QTextCharFormat &format);
-    QPixmap generateCharIcon(char character, QFont font);
 
     DisabledWidget *disabledWidget;
     QStackedWidget *widgetStack;

@@ -1,0 +1,13 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>images/view-refresh.svg</file>
+    <file>images/view-fullscreen.svg</file>
+    <file>images/utilities-terminal.svg</file>
+    <file>images/preferences-system.svg</file>
+    <file>images/applications-internet.svg</file>
+    <file>images/format-text-bold.svg</file>
+    <file>images/format-text-italic.svg</file>
+    <file>images/format-text-underline.svg</file>
+    <file>images/process-stop.svg</file>
+</qresource>
+</RCC>

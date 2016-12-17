@@ -27,8 +27,12 @@ void TagsDialog::showDialog(std::shared_ptr<AWSInstance> instance)
 
     this->list->clear();
 
-    for (AWSTag tag : instance->tags) {
-        this->list->addItem(tag.key + " = " + tag.value);
+    if (instance->tags.count() > 0) {
+        for (AWSTag tag : instance->tags) {
+            this->list->addItem(tag.key + " = " + tag.value);
+        }
+    } else {
+        this->list->addItem("No Tags");
     }
 
     this->exec();

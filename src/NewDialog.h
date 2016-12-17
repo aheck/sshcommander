@@ -54,7 +54,7 @@ private:
     QLineEdit *shortDescriptionLineEdit;
     QComboBox *sshkeyComboBox;
     QLineEdit *portLineEdit;
-    QCheckBox *portCheckBox = new QCheckBox();
+    QCheckBox *portCheckBox;
 };
 
 #endif

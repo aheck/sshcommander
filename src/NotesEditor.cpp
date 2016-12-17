@@ -10,28 +10,19 @@ NotesEditor::NotesEditor()
 
     QToolBar *toolBar = new QToolBar();
     this->actionTextBold = toolBar->addAction("", this, SLOT(formatTextBold()));
+    this->actionTextBold->setIcon(QIcon(":/images/format-text-bold.svg"));
     this->actionTextBold->setCheckable(true);
     this->actionTextBold->setToolTip(tr("Bold"));
-    QFont fontBold = QFont("Arial");
-    fontBold.setBold(true);
-    QPixmap boldIcon = this->generateCharIcon('B', fontBold);
-    this->actionTextBold->setIcon(boldIcon);
 
     this->actionTextItalic = toolBar->addAction("", this, SLOT(formatTextItalic()));
+    this->actionTextItalic->setIcon(QIcon(":/images/format-text-italic.svg"));
     this->actionTextItalic->setCheckable(true);
     this->actionTextItalic->setToolTip(tr("Italic"));
-    QFont fontItalic = QFont("Arial");
-    fontItalic.setItalic(true);
-    QPixmap italicIcon = this->generateCharIcon('I', fontItalic);
-    this->actionTextItalic->setIcon(italicIcon);
 
     this->actionTextUnderline = toolBar->addAction("", this, SLOT(formatTextUnderline()));
+    this->actionTextUnderline->setIcon(QIcon(":/images/format-text-underline.svg"));
     this->actionTextUnderline->setCheckable(true);
     this->actionTextUnderline->setToolTip(tr("Underline"));
-    QFont fontUnderline = QFont("Arial");
-    fontUnderline.setUnderline(true);
-    QPixmap underlineIcon = this->generateCharIcon('U', fontUnderline);
-    this->actionTextUnderline->setIcon(underlineIcon);
 
     QPixmap pic(16, 16);
     pic.fill(Qt::black);
@@ -147,18 +138,4 @@ void NotesEditor::fontChanged(const QFont &font)
     this->actionTextBold->setChecked(font.bold());
     this->actionTextItalic->setChecked(font.italic());
     this->actionTextUnderline->setChecked(font.underline());
-}
-
-QPixmap NotesEditor::generateCharIcon(char character, QFont font)
-{
-    QPixmap icon(256, 256);
-    icon.fill(Qt::transparent);
-    QPainter painter(&icon);
-
-    painter.setPen(Qt::black);
-    font.setPointSize(156);
-    painter.setFont(font);
-    painter.drawText(QPoint(64, 180), QString(character));
-
-    return icon;
 }

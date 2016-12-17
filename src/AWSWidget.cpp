@@ -29,8 +29,8 @@ AWSWidget::AWSWidget(Preferences *preferences)
     this->mainWidget = new QWidget();
     this->mainWidget->setLayout(new QVBoxLayout(this->mainWidget));
     this->toolBar = new QToolBar("toolBar", this->mainWidget);
-    this->toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_BrowserReload), "Refresh", this, SLOT(loadInstances()));
-    this->connectButton = this->toolBar->addAction(qApp->style()->standardIcon(QStyle::SP_CommandLink),
+    this->toolBar->addAction(QIcon(":/images/view-refresh.svg"), "Refresh", this, SLOT(loadInstances()));
+    this->connectButton = this->toolBar->addAction(QIcon(":/images/applications-internet.svg"),
             "Connect to Instance", this, SLOT(connectToInstance()));
     this->connectButton->setEnabled(false);
     this->toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
@@ -219,6 +219,7 @@ void AWSWidget::showInstanceContextMenu(QPoint pos)
         menu.addAction(tr("View Tags"), this, SLOT(showTags()));
         menu.addSeparator();
         QAction *connectToInstance = menu.addAction(tr("Connect to Instance"), this, SLOT(connectToInstance()));
+        connectToInstance->setIcon(QIcon(":/images/applications-internet.svg"));
         connectToInstance->setEnabled(this->connectButton->isEnabled());
 
         menu.exec(globalPos);

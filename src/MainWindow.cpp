@@ -619,6 +619,7 @@ void MainWindow::toggleSessionEnlarged()
     }
 
     this->toggleEnlarged->setChecked(this->viewEnlarged);
+    this->focusCurrentTerminal();
 }
 
 void MainWindow::openWebsite()
@@ -744,4 +745,21 @@ void MainWindow::editConnection()
     connEntry->shortDescription = this->editDialog->getShortDescription();
     connEntry->sshkey = this->editDialog->getSSHKey();
     connEntry->port = this->editDialog->getPortNumber();
+}
+
+void MainWindow::focusCurrentTerminal()
+{
+    auto connEntry = getCurrentConnectionEntry();
+    if (connEntry == nullptr) {
+        return;
+    }
+
+    if (connEntry->tabs == nullptr) {
+        return;
+    }
+
+    QWidget *widget = connEntry->tabs->currentWidget();
+    if (QString("QTermWidget") == widget->metaObject()->className()) {
+        widget->setFocus();
+    }
 }

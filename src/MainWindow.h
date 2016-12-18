@@ -84,6 +84,7 @@ private:
     void selectFirstConnection();
     void selectConnection(std::shared_ptr<SSHConnectionEntry> connEntry);
     void updateConsoleSettings(const QFont &font, const QString colorScheme);
+    void focusCurrentTerminal();
 
     bool viewEnlarged;
     QAction *toggleEnlarged;

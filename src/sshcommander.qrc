@@ -9,5 +9,7 @@
     <file>images/format-text-italic.svg</file>
     <file>images/format-text-underline.svg</file>
     <file>images/process-stop.svg</file>
+    <file>images/edit-undo.svg</file>
+    <file>images/edit-redo.svg</file>
 </qresource>
 </RCC>

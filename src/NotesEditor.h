@@ -1,11 +1,14 @@
 #ifndef NOTESEDITOR_H
 #define NOTESEDITOR_H
 
+#include <iostream>
 #include <memory>
 
 #include <QAction>
+#include <QApplication>
 #include <QColor>
 #include <QColorDialog>
+#include <QFontComboBox>
 #include <QPaintEngine>
 #include <QPainter>
 #include <QPushButton>
@@ -30,11 +33,15 @@ public:
 
 private slots:
     void textWasChanged();
+    void changeFont(const QFont &font);
+    void changeFontSize(const QString fontSize);
     void formatTextBold();
     void formatTextItalic();
     void formatTextUnderline();
     void selectTextColor();
+    void selectBackgroundColor();
     void colorChanged(const QColor &color);
+    void backgroundColorChanged(const QColor &color);
     void currentCharFormatChanged(const QTextCharFormat &format);
     void fontChanged(const QFont &font);
 
@@ -47,10 +54,15 @@ private:
     DisabledWidget *disabledWidget;
     QStackedWidget *widgetStack;
     QTextEdit *editor;
+    QFontComboBox *comboFont;
+    QComboBox *comboSize;
+    QAction *actionUndo;
+    QAction *actionRedo;
     QAction *actionTextBold;
     QAction *actionTextItalic;
     QAction *actionTextUnderline;
     QAction *actionTextColor;
+    QAction *actionTextBackgroundColor;
 };
 
 #endif

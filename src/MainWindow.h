@@ -85,6 +85,7 @@ private:
     void updateConsoleSettings(const QFont &font, const QString colorScheme);
 
     bool viewEnlarged;
+    QAction *toggleEnlarged;
     AboutDialog *aboutDialog;
     QWidget *sshSessionsWidget;
     QWidget *hiddenPage;

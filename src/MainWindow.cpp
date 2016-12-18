@@ -63,7 +63,9 @@ MainWindow::MainWindow(QWidget *parent) :
     toolBar = new QToolBar("toolBar", 0);
     toolBar->addAction(QIcon(":/images/utilities-terminal"), "New Session", this, SLOT(createNewSession()));
     toolBar->addAction(QIcon(":/images/view-refresh.svg"), "Restart Session", this, SLOT(restartSession()));
-    toolBar->addAction(QIcon(":/images/view-fullscreen.svg"), "Toggle Enlarged View", this, SLOT(toggleSessionEnlarged()));
+    this->toggleEnlarged = toolBar->addAction(QIcon(":/images/view-fullscreen.svg"),
+            "Toggle Enlarged View (F10)", this, SLOT(toggleSessionEnlarged()));
+    this->toggleEnlarged->setCheckable(true);
     this->tabStack = new QStackedWidget();
     QVBoxLayout *boxLayout = new QVBoxLayout();
     boxLayout->setContentsMargins(0, 0, 0, 0);
@@ -615,6 +617,8 @@ void MainWindow::toggleSessionEnlarged()
         this->menuBar->hide();
         this->viewEnlarged = true;
     }
+
+    this->toggleEnlarged->setChecked(this->viewEnlarged);
 }
 
 void MainWindow::openWebsite()

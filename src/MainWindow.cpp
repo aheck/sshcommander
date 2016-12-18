@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->widgetStack = new QStackedWidget();
 
     this->connectionModel = new SSHConnectionItemModel();
-    this->tabList = new QListView();
+    this->tabList = new CustomListView();
     this->tabList->setSelectionMode(QAbstractItemView::SingleSelection);
     this->tabList->setModel(this->connectionModel);
     QObject::connect(this->tabList->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),

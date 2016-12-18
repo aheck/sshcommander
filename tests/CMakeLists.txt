@@ -13,6 +13,7 @@ add_executable(tests main.cpp
     ../src/AWSResponseParsers.cpp
     ../src/AWSSecurityGroup.cpp
     ../src/AWSWidget.cpp
+    ../src/CustomListView.cpp
     ../src/CustomTabBar.cpp
     ../src/CustomTabWidget.cpp
     ../src/DisabledWidget.cpp

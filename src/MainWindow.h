@@ -30,6 +30,7 @@
 #include "AboutDialog.h"
 #include "AWSInfoWidget.h"
 #include "AWSWidget.h"
+#include "CustomListView.h"
 #include "CustomTabWidget.h"
 #include "DisabledWidget.h"
 #include "InactiveSessionWidget.h"
@@ -95,7 +96,7 @@ private:
     PreferencesDialog *preferencesDialog;
     QSplitter *splitter;
     QSplitter *sessionInfoSplitter;
-    QListView *tabList;
+    CustomListView *tabList;
     QStackedWidget *widgetStack;
     QStackedWidget *tabStack;
     QStackedWidget *sshSessionsStack;

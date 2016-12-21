@@ -213,3 +213,16 @@ void InstanceItemModel::clear()
 
     emit layoutChanged();
 }
+
+std::vector<std::shared_ptr<AWSInstance>> InstanceItemModel::getInstancesByVpcId(QString vpcId)
+{
+    std::vector<std::shared_ptr<AWSInstance>> result;
+
+    for (auto instance : this->allInstances) {
+        if (instance->vpcId == vpcId) {
+            result.push_back(instance);
+        }
+    }
+
+    return result;
+}

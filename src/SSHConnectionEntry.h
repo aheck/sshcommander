@@ -35,6 +35,7 @@ public:
     QString notes;
     CustomTabWidget *tabs;
     QStringList *tabNames;
+    QStringList hopHosts;
     bool isAwsInstance;
     std::shared_ptr<AWSInstance> awsInstance;
 };

@@ -62,7 +62,8 @@ public slots:
     void restartSession();
     void closeSSHTab(int tabIndex);
     void aboutToQuit();
-    void createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance);
+    void createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance,
+            std::vector<std::shared_ptr<AWSInstance>> vpcNeighbours, bool toPrivateIP);
     void showTabListContextMenu(QPoint pos);
     void removeConnection();
     void toggleSessionEnlarged();
@@ -70,6 +71,7 @@ public slots:
     void showPreferencesDialog();
 
 private slots:
+    void showNewDialog();
     void notesChanged();
     void nextTab();
     void prevTab();
@@ -84,7 +86,7 @@ private:
     void selectFirstConnection();
     void selectConnection(std::shared_ptr<SSHConnectionEntry> connEntry);
     void updateConsoleSettings(const QFont &font, const QString colorScheme);
-    void focusCurrentTerminal();
+    void setFocusOnCurrentTerminal();
 
     bool viewEnlarged;
     QAction *toggleEnlarged;

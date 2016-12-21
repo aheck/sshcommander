@@ -28,6 +28,10 @@ void SSHConnectionEntry::read(const QJsonObject &json)
         this->tabNames->append(cur.toString());
     }
 
+    for (QVariant cur: json["hopHosts"].toArray().toVariantList()) {
+        this->hopHosts.append(cur.toString());
+    }
+
     this->isAwsInstance = json["isAwsInstance"].toBool();
     if (this->isAwsInstance) {
         this->awsInstance = std::make_shared<AWSInstance>();
@@ -48,6 +52,7 @@ void SSHConnectionEntry::write(QJsonObject &json) const
     json["sshkey"] = this->sshkey;
     json["port"] = (int) this->port;
     json["tabNames"] = QJsonArray::fromStringList(*this->tabNames);
+    json["hopHosts"] = QJsonArray::fromStringList(this->hopHosts);
     json["isAwsInstance"] = this->isAwsInstance;
     if (this->isAwsInstance) {
         this->awsInstance->write(awsInstanceJson);
@@ -68,6 +73,25 @@ QStringList SSHConnectionEntry::generateCliArgs()
     if (this->port != QString(DEFAULT_SSH_PORT).toInt(nullptr, 10)) {
         args.append("-p");
         args.append(QString(port));
+    }
+
+    // is this an indirect connection over one or more hops?
+    if (!this->hopHosts.isEmpty()) {
+        int i = 0;
+        for (QString hopHost : this->hopHosts) {
+            if (i > 0) {
+                args.append("ssh");
+            }
+            args.append("-A");
+            args.append("-t");
+            args.append(QString("%1@%2").arg(this->username).arg(hopHost));
+
+            i++;
+        }
+
+        args.append("ssh");
+        args.append("-A");
+        args.append("-t");
     }
 
     args.append(QString("%1@%2").arg(this->username).arg(this->hostname));

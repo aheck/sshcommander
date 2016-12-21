@@ -31,6 +31,7 @@ public:
     void setInstances(std::vector<std::shared_ptr<AWSInstance>> instances);
     std::shared_ptr<AWSInstance> getInstance(const QModelIndex &index);
     void setSearchText(const QString searchText);
+    std::vector<std::shared_ptr<AWSInstance>> getInstancesByVpcId(QString vpcId);
 
 private:
     // The list of all the AWSInstance objects that can potentially be shown

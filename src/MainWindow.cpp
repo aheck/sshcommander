@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QMenu *connMenu = new QMenu(tr("Connection"), menuBar);
     menuBar->addMenu(connMenu);
-    connMenu->addAction(tr("&New"), this->newDialog, SLOT(exec()));
+    connMenu->addAction(tr("&New"), this, SLOT(showNewDialog()));
     connMenu->addSeparator();
     connMenu->addAction(tr("&Quit"), qApp, SLOT(quit()));
 
@@ -76,7 +76,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->sshSessionsStack->addWidget(this->sshSessionsWidget);
 
     QToolBar *connectionsToolbar = new QToolBar();
-    connectionsToolbar->addAction(QIcon(":/images/applications-internet.svg"), "New Connection", this->newDialog, SLOT(exec()));
+    connectionsToolbar->addAction(QIcon(":/images/applications-internet.svg"), "New Connection",
+            this, SLOT(showNewDialog()));
     connectionsToolbar->addAction(QIcon(":/images/preferences-system.svg"), "Edit Connection",
             this, SLOT(editConnection()));
     connectionsToolbar->addAction(QIcon(":/images/process-stop.svg"), "Delete Connection",
@@ -109,8 +110,10 @@ MainWindow::MainWindow(QWidget *parent) :
     rightWidget->addTab(this->sessionInfoSplitter, "SSH");
 
     this->awsWidget = new AWSWidget(&this->preferences);
-    QObject::connect(this->awsWidget, SIGNAL(newConnection(std::shared_ptr<AWSInstance>)), this,
-            SLOT(createSSHConnectionToAWS(std::shared_ptr<AWSInstance>)));
+    QObject::connect(this->awsWidget, SIGNAL(newConnection(std::shared_ptr<AWSInstance>,
+            std::vector<std::shared_ptr<AWSInstance>>, bool)), this,
+            SLOT(createSSHConnectionToAWS(std::shared_ptr<AWSInstance>,
+            std::vector<std::shared_ptr<AWSInstance>>, bool)));
     rightWidget->addTab(this->awsWidget, "AWS");
 
     this->splitter->addWidget(rightWidget);
@@ -150,6 +153,13 @@ MainWindow::~MainWindow()
 {
 }
 
+void MainWindow::showNewDialog()
+{
+    this->newDialog->clear();
+    this->newDialog->updateSSHKeys();
+    this->newDialog->exec();
+}
+
 void MainWindow::changeConnection(const QItemSelection &selected, const QItemSelection &deselected)
 {
     QModelIndexList indexes = selected.indexes();
@@ -161,6 +171,8 @@ void MainWindow::changeConnection(const QItemSelection &selected, const QItemSel
     QModelIndex index = indexes.at(0);
     tabStack->setCurrentIndex(index.row());
     this->updateConnectionTabs();
+
+    this->setFocusOnCurrentTerminal();
 }
 
 QTermWidget* MainWindow::createNewTermWidget(const QStringList *args)
@@ -203,6 +215,7 @@ void MainWindow::createNewConnection()
     connEntry->hostname = hostname;
     connEntry->username = username;
     connEntry->shortDescription = this->newDialog->getShortDescription();
+    connEntry->hopHosts = this->newDialog->getHopHosts();
 
     if (this->newDialog->isAwsInstance) {
         connEntry->isAwsInstance = true;
@@ -491,9 +504,33 @@ void MainWindow::saveSettings()
     file.close();
 }
 
-void MainWindow::createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance)
+void MainWindow::createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance,
+        std::vector<std::shared_ptr<AWSInstance>> vpcNeighbours, bool toPrivateIP)
 {
-    this->newDialog->setHostname(instance->publicIP);
+    this->newDialog->clear();
+
+    if (toPrivateIP) {
+        this->newDialog->setHostname(instance->privateIP);
+        this->newDialog->setHopChecked(true);
+    } else {
+        this->newDialog->setHostname(instance->publicIP);
+    }
+
+    this->newDialog->addHopHost("", "");
+
+    for (auto neighbour: vpcNeighbours) {
+        QString label = "";
+        if (!instance->name.isEmpty()) {
+            label = neighbour->name + " (" + neighbour->publicIP + ")";
+        } else {
+            label = neighbour->id + " (" + neighbour->publicIP + ")";
+        }
+
+        this->newDialog->addHopHost(label, neighbour->publicIP);
+    }
+
+    this->newDialog->updateSSHKeys();
+
     this->newDialog->setSSHKey(this->findSSHKey(instance->keyname));
     this->newDialog->setFocusOnUsername();
 
@@ -619,7 +656,7 @@ void MainWindow::toggleSessionEnlarged()
     }
 
     this->toggleEnlarged->setChecked(this->viewEnlarged);
-    this->focusCurrentTerminal();
+    this->setFocusOnCurrentTerminal();
 }
 
 void MainWindow::openWebsite()
@@ -710,6 +747,8 @@ void MainWindow::nextTab()
     } else {
         connEntry->tabs->setCurrentIndex(0);
     }
+
+    this->setFocusOnCurrentTerminal();
 }
 
 void MainWindow::prevTab()
@@ -725,6 +764,8 @@ void MainWindow::prevTab()
     } else {
         connEntry->tabs->setCurrentIndex(connEntry->tabs->count() - 1);
     }
+
+    this->setFocusOnCurrentTerminal();
 }
 
 void MainWindow::editConnection()
@@ -747,7 +788,7 @@ void MainWindow::editConnection()
     connEntry->port = this->editDialog->getPortNumber();
 }
 
-void MainWindow::focusCurrentTerminal()
+void MainWindow::setFocusOnCurrentTerminal()
 {
     auto connEntry = getCurrentConnectionEntry();
     if (connEntry == nullptr) {

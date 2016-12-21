@@ -31,7 +31,7 @@ AWSWidget::AWSWidget(Preferences *preferences)
     this->toolBar = new QToolBar("toolBar", this->mainWidget);
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"), "Refresh", this, SLOT(loadInstances()));
     this->connectButton = this->toolBar->addAction(QIcon(":/images/applications-internet.svg"),
-            "Connect to Instance", this, SLOT(connectToInstance()));
+            "Connect to Instance", this, SLOT(connectToPublicIP()));
     this->connectButton->setEnabled(false);
     this->toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     this->searchLineEdit = new QLineEdit();
@@ -73,6 +73,7 @@ AWSWidget::AWSWidget(Preferences *preferences)
     this->mainWidget->layout()->addWidget(this->instanceNumLabel);
 
     this->setLayout(new QVBoxLayout(this));
+    this->layout()->setContentsMargins(0, 0, 0, 0);
     this->layout()->addWidget(this->loginWidget);
     this->layout()->addWidget(this->mainWidget);
 
@@ -118,7 +119,17 @@ void AWSWidget::loadInstances()
     this->awsConnector->describeInstances();
 }
 
-void AWSWidget::connectToInstance()
+void AWSWidget::connectToPublicIP()
+{
+    this->connectToInstance(false);
+}
+
+void AWSWidget::connectToPrivateIP()
+{
+    this->connectToInstance(true);
+}
+
+void AWSWidget::connectToInstance(bool toPrivateIP)
 {
     std::shared_ptr<AWSInstance> instance;
 
@@ -128,7 +139,14 @@ void AWSWidget::connectToInstance()
     }
 
     instance = this->instanceModel->getInstance(indexes.first());
-    emit newConnection(instance);
+
+    InstanceItemModel *model = static_cast<InstanceItemModel *>(this->instanceTable->model());
+    auto vpcNeighbours = model->getInstancesByVpcId(instance->vpcId);
+    auto newEnd = std::remove_if(vpcNeighbours.begin(), vpcNeighbours.end(),
+            [instance](const std::shared_ptr<AWSInstance> cur) {return cur->id == instance->id;});
+    vpcNeighbours.erase(newEnd, vpcNeighbours.end());
+
+    emit newConnection(instance, vpcNeighbours, toPrivateIP);
 }
 
 void AWSWidget::updateNumberOfInstances()
@@ -217,8 +235,11 @@ void AWSWidget::showInstanceContextMenu(QPoint pos)
         QMenu menu;
         menu.addAction(tr("View Security Groups"), this, SLOT(showSecurityGroups()));
         menu.addAction(tr("View Tags"), this, SLOT(showTags()));
+
         menu.addSeparator();
-        QAction *connectToInstance = menu.addAction(tr("Connect to Instance"), this, SLOT(connectToInstance()));
+
+        menu.addAction(tr("Connect to Private IP"), this, SLOT(connectToPrivateIP()));
+        QAction *connectToInstance = menu.addAction(tr("Connect to Instance"), this, SLOT(connectToPublicIP()));
         connectToInstance->setIcon(QIcon(":/images/applications-internet.svg"));
         connectToInstance->setEnabled(this->connectButton->isEnabled());
 

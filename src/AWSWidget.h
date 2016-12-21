@@ -41,10 +41,13 @@ public:
     void setRegion(const QString region);
 
 signals:
-    void newConnection(std::shared_ptr<AWSInstance> instance);
+    void newConnection(std::shared_ptr<AWSInstance> instance,
+            std::vector<std::shared_ptr<AWSInstance>> vpcNeighbours,
+            bool toPrivateIP);
 
 private slots:
-    void connectToInstance();
+    void connectToPublicIP();
+    void connectToPrivateIP();
     void changeRegion(QString regionText);
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void showInstanceContextMenu(QPoint pos);
@@ -55,6 +58,7 @@ private slots:
 private:
     void updateNumberOfInstances();
     std::shared_ptr<AWSInstance> getSelectedInstance();
+    void connectToInstance(bool toPrivateIP);
 
     Preferences *preferences;
 

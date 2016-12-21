@@ -10,8 +10,11 @@ NewDialog::NewDialog(bool editDialog)
     this->shortDescriptionLineEdit = new QLineEdit();
     this->sshkeyComboBox = new QComboBox();
     this->sshkeyComboBox->setEditable(true);
+    this->portCheckBox = new QCheckBox();
     this->portLineEdit = new QLineEdit(DEFAULT_SSH_PORT);
-    this->portLineEdit->setEnabled(false);
+    this->hopCheckBox = new QCheckBox();
+    this->hopComboBox = new QComboBox();
+    this->hopComboBox->setEditable(true);
 
     QHBoxLayout *fileLayout = new QHBoxLayout();
     fileLayout->addWidget(this->sshkeyComboBox);
@@ -20,16 +23,21 @@ NewDialog::NewDialog(bool editDialog)
     QObject::connect(fileButton, SIGNAL (clicked()), this, SLOT (selectKeyFile()));
     fileLayout->addWidget(fileButton);
 
-    this->portCheckBox = new QCheckBox();
-    QObject::connect(portCheckBox, SIGNAL (clicked(bool)), this, SLOT (portCheckBoxStateChanged(bool)));
+    QObject::connect(this->portCheckBox, SIGNAL (clicked(bool)), this, SLOT (portCheckBoxStateChanged(bool)));
+    QObject::connect(this->hopCheckBox, SIGNAL (clicked(bool)), this, SLOT (hopCheckBoxStateChanged(bool)));
 
-    QFormLayout *formLayout = new QFormLayout;
-    formLayout->addRow(tr("Hostname:"), this->hostnameLineEdit);
-    formLayout->addRow(tr("Username:"), this->usernameLineEdit);
-    formLayout->addRow(tr("Short Description:"), this->shortDescriptionLineEdit);
-    formLayout->addRow(tr("SSH Key:"), fileLayout);
-    formLayout->addRow(tr("Custom SSH Port:"), this->portCheckBox);
-    formLayout->addRow(tr("SSH Port:"), this->portLineEdit);
+    this->formLayout = new QFormLayout;
+    this->formLayout->addRow(tr("Hostname:"), this->hostnameLineEdit);
+    this->formLayout->addRow(tr("Username:"), this->usernameLineEdit);
+    this->formLayout->addRow(tr("Short Description:"), this->shortDescriptionLineEdit);
+    this->formLayout->addRow(tr("SSH Key:"), fileLayout);
+    this->formLayout->addRow(tr("Custom SSH Port:"), this->portCheckBox);
+    this->formLayout->addRow(tr("SSH Port:"), this->portLineEdit);
+    this->formLayout->addRow(tr("Hop over other SSH host:"), this->hopCheckBox);
+    this->formLayout->addRow(tr("Hop host:"), this->hopComboBox);
+
+    portCheckBoxStateChanged(this->portCheckBox->isChecked());
+    hopCheckBoxStateChanged(this->hopCheckBox->isChecked());
 
     QPushButton *connectButton = new QPushButton(tr("Connect"));
     QObject::connect(connectButton, SIGNAL (clicked()), this, SLOT (acceptDialog()));
@@ -44,7 +52,7 @@ NewDialog::NewDialog(bool editDialog)
     buttonsLayout->addWidget(cancelButton);
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
-    mainLayout->addLayout(formLayout);
+    mainLayout->addLayout(this->formLayout);
     mainLayout->addLayout(buttonsLayout);
     setLayout(mainLayout);
 
@@ -53,6 +61,8 @@ NewDialog::NewDialog(bool editDialog)
         this->usernameLineEdit->setEnabled(false);
         connectButton->setText("OK");
     }
+
+    this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 }
 
 void NewDialog::selectKeyFile()
@@ -107,7 +117,14 @@ void NewDialog::portCheckBoxStateChanged(bool checked)
         this->portLineEdit->setText(DEFAULT_SSH_PORT);
     }
 
-    this->portLineEdit->setEnabled(checked);
+    this->formLayout->labelForField(this->portLineEdit)->setVisible(checked);
+    this->portLineEdit->setVisible(checked);
+}
+
+void NewDialog::hopCheckBoxStateChanged(bool checked)
+{
+    this->formLayout->labelForField(this->hopComboBox)->setVisible(checked);
+    this->hopComboBox->setVisible(checked);
 }
 
 const QString NewDialog::getHostname()
@@ -147,7 +164,8 @@ const QString NewDialog::getSSHKey()
 
 void NewDialog::setSSHKey(const QString sshkey)
 {
-    this->sshkeyComboBox->setCurrentText(sshkey);
+    int index = this->sshkeyComboBox->findText(sshkey);
+    this->sshkeyComboBox->setCurrentIndex(index);
 }
 
 int NewDialog::getPortNumber()
@@ -166,9 +184,11 @@ void NewDialog::setFocusOnUsername()
     this->usernameLineEdit->setFocus();
 }
 
-int NewDialog::exec()
+void NewDialog::updateSSHKeys()
 {
     QStringList sshkeys;
+
+    sshkeys.append("");
 
     QDirIterator it(QDir::homePath() + "/.ssh");
     while (it.hasNext()) {
@@ -184,6 +204,47 @@ int NewDialog::exec()
 
     this->sshkeyComboBox->clear();
     this->sshkeyComboBox->addItems(sshkeys);
+}
 
-    return QDialog::exec();
+QStringList NewDialog::getHopHosts()
+{
+    QStringList hosts;
+
+    if (this->hopCheckBox->isChecked()) {
+        int index = this->hopComboBox->currentIndex();
+
+        if (this->hopComboBox->itemData(index).toString().isEmpty()) {
+            hosts.append(this->hopComboBox->currentText());
+        } else {
+            hosts.append(this->hopComboBox->itemData(index).toString());
+        }
+    }
+
+    return hosts;
+}
+
+void NewDialog::setHopChecked(bool checked)
+{
+    this->hopCheckBox->setChecked(checked);
+    this->hopCheckBoxStateChanged(checked);
+}
+
+void NewDialog::addHopHost(QString name, QString ip)
+{
+    this->hopComboBox->addItem(name, QVariant(ip));
+}
+
+void NewDialog::clear()
+{
+    this->hostnameLineEdit->clear();
+    this->usernameLineEdit->clear();
+    this->shortDescriptionLineEdit->clear();
+    this->sshkeyComboBox->clear();
+    this->sshkeyComboBox->clear();
+    this->portCheckBox->setChecked(false);
+    this->portCheckBoxStateChanged(false);
+    this->portLineEdit->setText(DEFAULT_SSH_PORT);
+    this->hopCheckBox->setChecked(false);
+    this->hopCheckBoxStateChanged(false);
+    this->hopComboBox->clear();
 }

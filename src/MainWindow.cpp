@@ -180,6 +180,7 @@ QTermWidget* MainWindow::createNewTermWidget(const QStringList *args)
     const QString *program = new QString("/usr/bin/ssh");
 
     QTermWidget *console = new QTermWidget(0);
+    console->setAutoClose(false);
     console->setShellProgram(*program);
     console->setArgs(*args);
     console->setTerminalFont(this->preferences.getTerminalFont());

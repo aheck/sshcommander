@@ -27,6 +27,22 @@ bool CustomListView::event(QEvent *event)
             if (!connEntry->sshkey.isEmpty()) {
                 text += "<tr><td>SSH Key: </td><td>" + connEntry->sshkey + "</td></tr>";
             }
+
+            if (!connEntry->hopHosts.isEmpty()) {
+                text += "<tr><td>Hop Hosts: </td><td>";
+
+                for (int i = 0; i < connEntry->hopHosts.count(); i++) {
+                    const QString hop = connEntry->hopHosts.at(i);
+                    text += hop;
+
+                    // all lines but the last one end with a line break
+                    if (i < connEntry->hopHosts.count() - 1) {
+                        text += "<br>";
+                    }
+                }
+
+                text += "</td></tr>";
+            }
             text += "</table>";
 
             if (connEntry->isAwsInstance) {

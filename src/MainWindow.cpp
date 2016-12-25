@@ -773,6 +773,10 @@ void MainWindow::editConnection()
 {
     auto connEntry = this->getCurrentConnectionEntry();
 
+    if (connEntry == nullptr) {
+        return;
+    }
+
     this->editDialog->setWindowTitle("Edit " + connEntry->name);
     this->editDialog->setHostname(connEntry->hostname);
     this->editDialog->setUsername(connEntry->username);

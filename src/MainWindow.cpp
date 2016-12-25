@@ -16,25 +16,31 @@ MainWindow::MainWindow(QWidget *parent) :
     this->viewEnlarged = false;
 
     // build the menu bar
-    this->menuBar = new QMenuBar(this);
+    QMenuBar *menuBar = new QMenuBar(0);
 
-    QMenu *connMenu = new QMenu(tr("Connection"), menuBar);
-    menuBar->addMenu(connMenu);
-    connMenu->addAction(tr("&New"), this, SLOT(showNewDialog()));
+    QMenu *connMenu = new QMenu(tr("Connection"));
+    QAction *newRole = connMenu->addAction(tr("&New"), this, SLOT(showNewDialog()));
+    newRole->setMenuRole(QAction::NoRole);
     connMenu->addSeparator();
-    connMenu->addAction(tr("&Quit"), qApp, SLOT(quit()));
+    QAction *quitRole = connMenu->addAction(tr("&Quit"), qApp, SLOT(quit()));
+    quitRole->setMenuRole(QAction::QuitRole);
 
     QMenu *editMenu = new QMenu(tr("Edit"));
-    menuBar->addMenu(editMenu);
-    editMenu->addAction(tr("Preferences"), this, SLOT(showPreferencesDialog()));
+    QAction *preferencesAction = editMenu->addAction(tr("Preferences"), this, SLOT(showPreferencesDialog()));
+    preferencesAction->setMenuRole(QAction::PreferencesRole);
 
-    QMenu *helpMenu = new QMenu(tr("Help"), menuBar);
-    menuBar->addMenu(helpMenu);
-    helpMenu->addAction(tr("Website"), this, SLOT(openWebsite()));
+    QMenu *helpMenu = new QMenu(tr("Help"));
+    QAction *websiteAction = helpMenu->addAction(tr("Website"), this, SLOT(openWebsite()));
+    websiteAction->setMenuRole(QAction::NoRole);
     helpMenu->addSeparator();
-    helpMenu->addAction(tr("About"), this->aboutDialog, SLOT(exec()));
+    QAction *aboutAction = helpMenu->addAction(tr("About"), this->aboutDialog, SLOT(exec()));
+    aboutAction->setMenuRole(QAction::ApplicationSpecificRole);
 
-    setMenuBar(menuBar);
+    menuBar->addMenu(connMenu);
+    menuBar->addMenu(editMenu);
+    menuBar->addMenu(helpMenu);
+
+    this->setMenuBar(menuBar);
 
     this->machineInfo = new MachineInfoWidget();
     this->awsInfo = new AWSInfoWidget(&this->preferences);
@@ -646,13 +652,13 @@ void MainWindow::toggleSessionEnlarged()
         this->hiddenPage->layout()->removeWidget(this->sshSessionsStack);
         this->sessionInfoSplitter->insertWidget(0, this->sshSessionsStack);
         this->widgetStack->setCurrentIndex(0);
-        this->menuBar->show();
+        this->menuBar()->show();
         this->viewEnlarged = false;
     } else {
         this->sshSessionsStack->setParent(this->hiddenPage);
         this->hiddenPage->layout()->addWidget(this->sshSessionsStack);
         this->widgetStack->setCurrentIndex(1);
-        this->menuBar->hide();
+        this->menuBar()->hide();
         this->viewEnlarged = true;
     }
 

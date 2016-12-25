@@ -93,7 +93,6 @@ private:
     AboutDialog *aboutDialog;
     QWidget *sshSessionsWidget;
     QWidget *hiddenPage;
-    QMenuBar *menuBar;
     NewDialog *newDialog;
     NewDialog *editDialog;
     PreferencesDialog *preferencesDialog;

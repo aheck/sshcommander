@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     // application-wide settings for QSettings
     QCoreApplication::setOrganizationName("aheck");
     QCoreApplication::setOrganizationDomain("github.com/aheck");
-    QCoreApplication::setApplicationName("sshcommander");
+    QCoreApplication::setApplicationName("SSH Commander");
 
     MainWindow mainWindow;
     QObject::connect(&app, SIGNAL(aboutToQuit()), &mainWindow, SLOT(aboutToQuit()));

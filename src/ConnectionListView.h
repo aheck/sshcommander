@@ -1,5 +1,5 @@
-#ifndef CUSTOMLISTVIEW_H
-#define CUSTOMLISTVIEW_H
+#ifndef CONNECTIONLISTVIEW_H
+#define CONNECTIONLISTVIEW_H
 
 #include <memory>
 
@@ -10,12 +10,12 @@
 #include "SSHConnectionEntry.h"
 #include "SSHConnectionItemModel.h"
 
-class CustomListView : public QListView
+class ConnectionListView : public QListView
 {
     Q_OBJECT
 
 public:
-    CustomListView();
+    ConnectionListView();
 
     bool event(QEvent *event) override;
 };

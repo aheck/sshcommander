@@ -1,6 +1,6 @@
-#include "CustomListView.h"
+#include "ConnectionListView.h"
 
-CustomListView::CustomListView()
+ConnectionListView::ConnectionListView()
 {
     this->setStyleSheet(
             "QListView::item { border-bottom: 1px solid #999; padding: 1em; }\n"
@@ -10,7 +10,7 @@ CustomListView::CustomListView()
             "qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #548bc6, stop: 1 #c8daec); }\n");
 }
 
-bool CustomListView::event(QEvent *event)
+bool ConnectionListView::event(QEvent *event)
 {
     if (event->type() == QEvent::ToolTip) {
         QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);

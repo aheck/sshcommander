@@ -48,13 +48,13 @@ MainWindow::MainWindow(QWidget *parent) :
     this->widgetStack = new QStackedWidget();
 
     this->connectionModel = new SSHConnectionItemModel();
-    this->tabList = new CustomListView();
-    this->tabList->setSelectionMode(QAbstractItemView::SingleSelection);
-    this->tabList->setModel(this->connectionModel);
-    QObject::connect(this->tabList->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
+    this->connectionListView = new ConnectionListView();
+    this->connectionListView->setSelectionMode(QAbstractItemView::SingleSelection);
+    this->connectionListView->setModel(this->connectionModel);
+    QObject::connect(this->connectionListView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
             this, SLOT(changeConnection(QItemSelection, QItemSelection)));
-    this->tabList->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this->tabList, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showTabListContextMenu(QPoint)));
+    this->connectionListView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this->connectionListView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showTabListContextMenu(QPoint)));
 
     this->splitter = new QSplitter(Qt::Horizontal);
     this->splitter->setContentsMargins(0, 0, 0, 0);
@@ -91,7 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QWidget *tabListWidget = new QWidget(this);
     QVBoxLayout *tabListLayout = new QVBoxLayout(tabListWidget);
     tabListLayout->addWidget(connectionsToolbar);
-    tabListLayout->addWidget(this->tabList);
+    tabListLayout->addWidget(this->connectionListView);
     tabListWidget->setLayout(tabListLayout);
     this->splitter->addWidget(tabListWidget);
 
@@ -257,7 +257,7 @@ void MainWindow::createNewConnection()
 
     this->connectionModel->appendConnectionEntry(connEntry);
     QModelIndex index = this->connectionModel->index(this->connectionModel->rowCount(QModelIndex()) - 1, 0, QModelIndex());
-    this->tabList->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+    this->connectionListView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
     tabs->setCurrentWidget(console);
     tabs->setFocus();
     this->sshSessionsStack->setCurrentIndex(1);
@@ -353,7 +353,7 @@ const QString MainWindow::getCurrentUsernameAndHost()
 
 std::shared_ptr<SSHConnectionEntry> MainWindow::getCurrentConnectionEntry()
 {
-    QModelIndexList indexes = this->tabList->selectionModel()->selectedIndexes();
+    QModelIndexList indexes = this->connectionListView->selectionModel()->selectedIndexes();
     if (indexes.isEmpty()) {
         return nullptr;
     }
@@ -589,9 +589,9 @@ QString MainWindow::findSSHKey(const QString keyname)
 
 void MainWindow::showTabListContextMenu(QPoint pos)
 {
-    QPoint globalPos = this->tabList->mapToGlobal(pos);
+    QPoint globalPos = this->connectionListView->mapToGlobal(pos);
 
-    if (this->tabList->indexAt(pos).isValid()) {
+    if (this->connectionListView->indexAt(pos).isValid()) {
         QMenu menu;
         QAction *editAction = menu.addAction(tr("Edit"), this, SLOT(editConnection()));
         editAction->setIcon(QIcon(":/images/preferences-system.svg"));
@@ -708,7 +708,7 @@ void MainWindow::selectFirstConnection()
 void MainWindow::selectConnection(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
     QModelIndex index = this->connectionModel->getIndexForSSHConnectionEntry(connEntry);
-    this->tabList->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+    this->connectionListView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
 }
 
 void MainWindow::showPreferencesDialog()

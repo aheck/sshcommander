@@ -30,6 +30,8 @@ public:
     void setUsername(const QString username);
     const QString getShortDescription();
     void setShortDescription(const QString shortDescription);
+    const QString getPassword();
+    void setPassword(const QString &password);
     const QString getSSHKey();
     void setSSHKey(const QString sshkey);
     int getPortNumber();
@@ -57,7 +59,7 @@ private:
     QFormLayout *formLayout;
     QLineEdit *hostnameLineEdit;
     QLineEdit *usernameLineEdit;
-    //QLineEdit *passwordLineEdit;
+    QLineEdit *passwordLineEdit;
     QLineEdit *shortDescriptionLineEdit;
     QComboBox *sshkeyComboBox;
     QLineEdit *portLineEdit;

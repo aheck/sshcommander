@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include <QByteArray>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QStringList>
@@ -24,11 +25,15 @@ public:
     QStringList generateCliArgs();
     QString generateSSHCommand();
     QString generateSCPCommand(QString src, QString dest, bool dir = false);
+    const QString encodePassword(const QString &password) const;
+    const QString decodePassword(const QString &cipherText) const;
 
     QString name;
     QString shortDescription;
     QString hostname;
     QString username;
+    QString password;
+
     QString sshkey;
     int port;
     unsigned int nextSessionNumber;

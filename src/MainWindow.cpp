@@ -181,11 +181,16 @@ void MainWindow::changeConnection(const QItemSelection &selected, const QItemSel
     this->setFocusOnCurrentTerminal();
 }
 
-QTermWidget* MainWindow::createNewTermWidget(const QStringList *args)
+QTermWidget* MainWindow::createNewTermWidget(const QStringList *args, bool connectReceivedData)
 {
     const QString *program = new QString("/usr/bin/ssh");
 
     QTermWidget *console = new QTermWidget(0);
+
+    if (connectReceivedData) {
+        QObject::connect(console, SIGNAL(receivedData(QString)), this, SLOT(dataReceived(QString)));
+    }
+
     console->setAutoClose(false);
     console->setShellProgram(*program);
     console->setArgs(*args);
@@ -201,7 +206,7 @@ void MainWindow::createNewConnection()
 {
     QString hostname = this->newDialog->getHostname();
     QString username = this->newDialog->getUsername();
-    //QString password = this->newDialog->passwordLineEdit->text();
+    QString password = this->newDialog->getPassword();
     QString userAtHost = QString("%1@%2").arg(username).arg(hostname);
     std::shared_ptr<SSHConnectionEntry> connEntry;
 
@@ -221,6 +226,7 @@ void MainWindow::createNewConnection()
     connEntry->port = this->newDialog->getPortNumber();
     connEntry->hostname = hostname;
     connEntry->username = username;
+    connEntry->password = password;
     connEntry->shortDescription = this->newDialog->getShortDescription();
     connEntry->hopHosts = this->newDialog->getHopHosts();
 
@@ -230,7 +236,8 @@ void MainWindow::createNewConnection()
     }
 
     QStringList args = connEntry->generateCliArgs();
-    QTermWidget *console = createNewTermWidget(&args);
+    QTermWidget *console = createNewTermWidget(&args, !connEntry->password.isEmpty());
+    this->termToConn[console] = connEntry;
 
     // info output
     qDebug() << "* INFO *************************";
@@ -270,7 +277,8 @@ void MainWindow::createNewSession()
     CustomTabWidget *tabs = connEntry->tabs;
 
     QStringList args = connEntry->generateCliArgs();
-    QTermWidget *console = createNewTermWidget(&args);
+    QTermWidget *console = createNewTermWidget(&args, !connEntry->password.isEmpty());
+    this->termToConn[console] = connEntry;
     tabs->addTab(console, QString::asprintf("Session %d", connEntry->nextSessionNumber++));
     tabs->setCurrentWidget(console);
 
@@ -313,7 +321,8 @@ void MainWindow::restartSession()
     }
 
     QStringList args = connEntry->generateCliArgs();
-    QTermWidget *console = createNewTermWidget(&args);
+    QTermWidget *console = createNewTermWidget(&args, !connEntry->password.isEmpty());
+    this->termToConn[console] = connEntry;
     tabs->setUpdatesEnabled(false);
     tabs->removeTab(tabIndex);
     tabs->insertTab(tabIndex, console, tabText);
@@ -326,6 +335,7 @@ void MainWindow::restartSession()
     console->setFocus();
 
     if (oldWidget) {
+        this->removeTermWidgetMapping(oldWidget);
         delete oldWidget;
     }
 }
@@ -353,6 +363,19 @@ std::shared_ptr<SSHConnectionEntry> MainWindow::getCurrentConnectionEntry()
     return connEntry;
 }
 
+std::shared_ptr<SSHConnectionEntry> MainWindow::getConnectionEntryByTermWidget(QTermWidget *console)
+{
+    return this->termToConn.at(console);
+}
+
+void MainWindow::removeTermWidgetMapping(QWidget *widget)
+{
+    if (widget->metaObject()->className() == QString("QTermWidget")) {
+        QTermWidget *console = static_cast<QTermWidget *>(widget);
+        this->termToConn.erase(console);
+    }
+}
+
 CustomTabWidget* MainWindow::getCurrentTabWidget()
 {
     std::shared_ptr<SSHConnectionEntry> connEntry = this->getCurrentConnectionEntry();
@@ -377,6 +400,7 @@ void MainWindow::closeSSHTab(int tabIndex)
         }
 
         tabWidget->removeTab(tabIndex);
+        this->removeTermWidgetMapping(termWidget);
         delete termWidget;
     }
 }
@@ -787,6 +811,7 @@ void MainWindow::editConnection()
     this->editDialog->setHostname(connEntry->hostname);
     this->editDialog->setUsername(connEntry->username);
     this->editDialog->setShortDescription(connEntry->shortDescription);
+    this->editDialog->setPassword(connEntry->password);
     this->editDialog->setSSHKey(connEntry->sshkey);
     this->editDialog->setPortNumber(connEntry->port);
 
@@ -796,6 +821,7 @@ void MainWindow::editConnection()
 
     connEntry->shortDescription = this->editDialog->getShortDescription();
     connEntry->sshkey = this->editDialog->getSSHKey();
+    connEntry->password = this->editDialog->getPassword();
     connEntry->port = this->editDialog->getPortNumber();
 }
 
@@ -813,5 +839,29 @@ void MainWindow::setFocusOnCurrentTerminal()
     QWidget *widget = connEntry->tabs->currentWidget();
     if (QString("QTermWidget") == widget->metaObject()->className()) {
         widget->setFocus();
+    }
+}
+
+void MainWindow::dataReceived(const QString &text)
+{
+    QObject *sender = QObject::sender();
+    if (sender->metaObject()->className() != QString("QTermWidget")) {
+        return;
+    }
+
+    QTermWidget *console = static_cast<QTermWidget *>(sender);
+    auto connEntry = this->getConnectionEntryByTermWidget(console);
+    if (connEntry == nullptr) {
+        return;
+    }
+
+    if (connEntry->password.isEmpty()) {
+        return;
+    }
+
+    if (text.endsWith(" password: ")) {
+        console->sendText(connEntry->password + "\n");
+        QObject::disconnect(console, SIGNAL(receivedData(QString)),
+                this, SLOT(dataReceived(QString)));
     }
 }

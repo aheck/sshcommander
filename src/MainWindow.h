@@ -51,7 +51,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    QTermWidget* createNewTermWidget(const QStringList *args);
+    QTermWidget* createNewTermWidget(const QStringList *args, bool connectReceivedData);
     void readSettings();
     void saveSettings();
 
@@ -76,10 +76,13 @@ private slots:
     void nextTab();
     void prevTab();
     void editConnection();
+    void dataReceived(const QString &text);
 
 private:
     const QString getCurrentUsernameAndHost();
     std::shared_ptr<SSHConnectionEntry> getCurrentConnectionEntry();
+    std::shared_ptr<SSHConnectionEntry> getConnectionEntryByTermWidget(QTermWidget *console);
+    void removeTermWidgetMapping(QWidget *widget);
     CustomTabWidget* getCurrentTabWidget();
     QString findSSHKey(const QString keyname);
     void updateConnectionTabs();
@@ -111,6 +114,7 @@ private:
     QTabWidget *sshSessionsInfo;
     Preferences preferences;
     NotesEditor *notesEditor;
+    std::map<QTermWidget *, std::shared_ptr<SSHConnectionEntry>> termToConn;
 };
 
 #endif

@@ -19,6 +19,7 @@ void SSHConnectionEntry::read(const QJsonObject &json)
     this->shortDescription = json["shortDescription"].toString();
     this->hostname = json["hostname"].toString();
     this->username = json["username"].toString();
+    this->password = this->decodePassword(json["password"].toString());
     this->sshkey = json["sshkey"].toString();
     this->port = json["port"].toInt();
     this->nextSessionNumber = json["nextSessionNumber"].toInt();
@@ -49,6 +50,7 @@ void SSHConnectionEntry::write(QJsonObject &json) const
     json["username"] = this->username;
     json["nextSessionNumber"] = (int) this->nextSessionNumber;
     json["notes"] = this->notes;
+    json["password"] = this->encodePassword(this->password);
     json["sshkey"] = this->sshkey;
     json["port"] = (int) this->port;
     json["tabNames"] = QJsonArray::fromStringList(*this->tabNames);
@@ -130,4 +132,16 @@ QString SSHConnectionEntry::generateSCPCommand(QString src, QString dest, bool d
     }
 
     return cmd;
+}
+
+const QString SSHConnectionEntry::encodePassword(const QString &password) const
+{
+    QByteArray base64 = password.toUtf8().toBase64();
+    return QString::fromLatin1(base64);
+}
+
+const QString SSHConnectionEntry::decodePassword(const QString &cipherText) const
+{
+    QByteArray password = QByteArray::fromBase64(cipherText.toLatin1());
+    return QString::fromUtf8(password);
 }

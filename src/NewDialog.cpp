@@ -8,6 +8,8 @@ NewDialog::NewDialog(bool editDialog)
     this->hostnameLineEdit = new QLineEdit();
     this->usernameLineEdit = new QLineEdit();
     this->shortDescriptionLineEdit = new QLineEdit();
+    this->passwordLineEdit = new QLineEdit();
+    this->passwordLineEdit->setEchoMode(QLineEdit::Password);
     this->sshkeyComboBox = new QComboBox();
     this->sshkeyComboBox->setEditable(true);
     this->portCheckBox = new QCheckBox();
@@ -30,6 +32,7 @@ NewDialog::NewDialog(bool editDialog)
     this->formLayout->addRow(tr("Hostname:"), this->hostnameLineEdit);
     this->formLayout->addRow(tr("Username:"), this->usernameLineEdit);
     this->formLayout->addRow(tr("Short Description:"), this->shortDescriptionLineEdit);
+    this->formLayout->addRow(tr("Password:"), this->passwordLineEdit);
     this->formLayout->addRow(tr("SSH Key:"), fileLayout);
     this->formLayout->addRow(tr("Custom SSH Port:"), this->portCheckBox);
     this->formLayout->addRow(tr("SSH Port:"), this->portLineEdit);
@@ -157,6 +160,16 @@ void NewDialog::setShortDescription(const QString shortDescription)
     this->shortDescriptionLineEdit->setText(shortDescription);
 }
 
+const QString NewDialog::getPassword()
+{
+    return this->passwordLineEdit->text();
+}
+
+void NewDialog::setPassword(const QString &password)
+{
+    this->passwordLineEdit->setText(password);
+}
+
 const QString NewDialog::getSSHKey()
 {
     return this->sshkeyComboBox->currentText();
@@ -239,6 +252,7 @@ void NewDialog::clear()
     this->hostnameLineEdit->clear();
     this->usernameLineEdit->clear();
     this->shortDescriptionLineEdit->clear();
+    this->passwordLineEdit->clear();
     this->sshkeyComboBox->clear();
     this->sshkeyComboBox->clear();
     this->portCheckBox->setChecked(false);

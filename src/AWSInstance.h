@@ -16,6 +16,8 @@ public:
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
+    const QString formattedVPC();
+    const QString formattedSubnet();
 
     QString id;
     QString name;
@@ -29,12 +31,15 @@ public:
     QString publicIP;
     QString privateIP;
     QString subnetId;
+    QString subnetName;
     QString vpcId;
+    QString vpcName;
     QString virtualizationType;
     QString architecture;
     QString hypervisor;
     QString cfStackId;
     QString cfStackName;
+    QString sourceDestCheck;
     QList<AWSSecurityGroup> securityGroups;
     QList<AWSTag> tags;
 };

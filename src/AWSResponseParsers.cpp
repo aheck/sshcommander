@@ -66,6 +66,8 @@ std::vector<std::shared_ptr<AWSInstance>> parseDescribeInstancesResponse(AWSResu
                     instance->imageId = xml.readElementText();
                 } else if (name == "ipAddress") {
                     instance->publicIP = xml.readElementText();
+                } else if (name == "sourceDestCheck") {
+                    instance->sourceDestCheck = xml.readElementText();
                 } else if (name == "privateIpAddress") {
                     instance->privateIP = xml.readElementText();
                 } else if (name == "launchTime") {

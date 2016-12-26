@@ -40,6 +40,7 @@ AWSWidget::AWSWidget(Preferences *preferences)
     QObject::connect(this->searchLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(searchForText(QString)));
     this->regionComboBox = new QComboBox();
+    this->regionComboBox->setToolTip(tr("Region"));
 
     for (int i = 0; i < AWSConnector::Regions.count(); i++) {
         this->regionComboBox->addItem(AWSConnector::Regions.at(i) + ": " + AWSConnector::RegionNames.at(i),

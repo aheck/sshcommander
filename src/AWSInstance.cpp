@@ -19,12 +19,15 @@ void AWSInstance::read(const QJsonObject &json)
     this->publicIP = json["publicIP"].toString();
     this->privateIP = json["privateIP"].toString();
     this->subnetId = json["subnetId"].toString();
+    this->subnetName = json["subnetName"].toString();
     this->vpcId = json["vpcId"].toString();
+    this->vpcName = json["vpcName"].toString();
     this->virtualizationType = json["virtualizationType"].toString();
     this->architecture = json["architecture"].toString();
     this->hypervisor = json["hypervisor"].toString();
     this->cfStackId = json["cfStackId"].toString();
     this->cfStackName = json["cfStackName"].toString();
+    this->sourceDestCheck = json["sourceDestCheck"].toString();
 
     for (QJsonValueRef ref: json["securityGroups"].toArray()) {
         AWSSecurityGroup securityGroup;
@@ -53,12 +56,15 @@ void AWSInstance::write(QJsonObject &json) const
     json["publicIP"] = this->publicIP;
     json["privateIP"] = this->privateIP;
     json["subnetId"] = this->subnetId;
+    json["subnetName"] = this->subnetName;
     json["vpcId"] = this->vpcId;
+    json["vpcName"] = this->vpcName;
     json["virtualizationType"] = this->virtualizationType;
     json["architecture"] = this->architecture;
     json["hypervisor"] = this->hypervisor;
     json["cfStackId"] = this->cfStackId;
     json["cfStackName"] = this->cfStackName;
+    json["sourceDestCheck"] = this->sourceDestCheck;
 
     QJsonArray securityGroups;
     for (AWSSecurityGroup securityGroup: this->securityGroups) {
@@ -75,4 +81,22 @@ void AWSInstance::write(QJsonObject &json) const
         tags.append(obj);
     }
     json["tags"] = tags;
+}
+
+const QString AWSInstance::formattedVPC()
+{
+    if (!this->vpcName.isEmpty()) {
+        return this->vpcName + " (" + this->vpcId + ")";
+    }
+
+    return this->vpcId;
+}
+
+const QString AWSInstance::formattedSubnet()
+{
+    if (!this->subnetName.isEmpty()) {
+        return this->subnetName + " (" + this->subnetId + ")";
+    }
+
+    return this->subnetId;
 }

@@ -113,9 +113,12 @@ void AWSConnector::sendRequest(const QString action, QList<QString> &extraParams
         this->accessKey + '/' + credentialScope + ", " +  "SignedHeaders=" +
         paramAmzSignedHeaders + ", " + "Signature=" + signature;
 
-    QString urlStr = "http://" + host + "/?" + canonicalQueryString;
+    QString urlStr = "https://" + host + "/?" + canonicalQueryString;
 
     QNetworkRequest req = QNetworkRequest(QUrl(urlStr));
+    QSslConfiguration sslConfiguration(QSslConfiguration::defaultConfiguration());
+    sslConfiguration.setProtocol(QSsl::TlsV1_2);
+    req.setSslConfiguration(sslConfiguration);
     req.setRawHeader(QByteArray("Authorization"), authorizationHeader.toUtf8());
     req.setRawHeader(QByteArray("x-amz-date"), paramAmzDate.toUtf8());
     networkManager.get(req);

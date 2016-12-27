@@ -14,6 +14,7 @@ add_executable(tests main.cpp
     ../src/AWSSecurityGroup.cpp
     ../src/AWSWidget.cpp
     ../src/ConnectionListView.cpp
+    ../src/ConnectionListWidget.cpp
     ../src/CustomTabBar.cpp
     ../src/CustomTabWidget.cpp
     ../src/DisabledWidget.cpp

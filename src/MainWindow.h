@@ -30,7 +30,7 @@
 #include "AboutDialog.h"
 #include "AWSInfoWidget.h"
 #include "AWSWidget.h"
-#include "ConnectionListView.h"
+#include "ConnectionListWidget.h"
 #include "CustomTabWidget.h"
 #include "DisabledWidget.h"
 #include "InactiveSessionWidget.h"
@@ -64,18 +64,18 @@ public slots:
     void aboutToQuit();
     void createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance,
             std::vector<std::shared_ptr<AWSInstance>> vpcNeighbours, bool toPrivateIP);
-    void showTabListContextMenu(QPoint pos);
-    void removeConnection();
     void toggleSessionEnlarged();
     void openWebsite();
     void showPreferencesDialog();
 
-private slots:
     void showNewDialog();
+    void editConnection();
+    void removeConnection();
+
+private slots:
     void notesChanged();
     void nextTab();
     void prevTab();
-    void editConnection();
     void dataReceived(const QString &text);
 
 private:
@@ -101,7 +101,7 @@ private:
     PreferencesDialog *preferencesDialog;
     QSplitter *splitter;
     QSplitter *sessionInfoSplitter;
-    ConnectionListView *connectionListView;
+    ConnectionListWidget *connectionList;
     QStackedWidget *widgetStack;
     QStackedWidget *tabStack;
     QStackedWidget *sshSessionsStack;
@@ -109,12 +109,14 @@ private:
     AWSWidget *awsWidget;
     SSHConnectionItemModel *connectionModel;
     QTabWidget *rightWidget;
-    MachineInfoWidget *machineInfo;
-    AWSInfoWidget *awsInfo;
     QTabWidget *sshSessionsInfo;
     Preferences preferences;
-    NotesEditor *notesEditor;
     std::map<QTermWidget *, std::shared_ptr<SSHConnectionEntry>> termToConn;
+
+    // Applets
+    MachineInfoWidget *machineInfo;
+    NotesEditor *notesEditor;
+    AWSInfoWidget *awsInfo;
 };
 
 #endif

@@ -20,6 +20,7 @@ add_executable(sshcommander
     AWSSecurityGroup.cpp
     AWSWidget.cpp
     ConnectionListView.cpp
+    ConnectionListWidget.cpp
     CustomTabBar.cpp
     CustomTabWidget.cpp
     DisabledWidget.cpp

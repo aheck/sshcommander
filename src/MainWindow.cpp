@@ -42,19 +42,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->setMenuBar(menuBar);
 
+    // create the connection applets
     this->machineInfo = new MachineInfoWidget();
     this->awsInfo = new AWSInfoWidget(&this->preferences);
 
     this->widgetStack = new QStackedWidget();
-
-    this->connectionModel = new SSHConnectionItemModel();
-    this->connectionListView = new ConnectionListView();
-    this->connectionListView->setSelectionMode(QAbstractItemView::SingleSelection);
-    this->connectionListView->setModel(this->connectionModel);
-    QObject::connect(this->connectionListView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
-            this, SLOT(changeConnection(QItemSelection, QItemSelection)));
-    this->connectionListView->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this->connectionListView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showTabListContextMenu(QPoint)));
 
     this->splitter = new QSplitter(Qt::Horizontal);
     this->splitter->setContentsMargins(0, 0, 0, 0);
@@ -81,19 +73,17 @@ MainWindow::MainWindow(QWidget *parent) :
     this->sshSessionsWidget->setLayout(boxLayout);
     this->sshSessionsStack->addWidget(this->sshSessionsWidget);
 
-    QToolBar *connectionsToolbar = new QToolBar();
-    connectionsToolbar->addAction(QIcon(":/images/applications-internet.svg"), "New Connection",
-            this, SLOT(showNewDialog()));
-    connectionsToolbar->addAction(QIcon(":/images/preferences-system.svg"), "Edit Connection",
-            this, SLOT(editConnection()));
-    connectionsToolbar->addAction(QIcon(":/images/process-stop.svg"), "Delete Connection",
-            this, SLOT(removeConnection()));
-    QWidget *tabListWidget = new QWidget(this);
-    QVBoxLayout *tabListLayout = new QVBoxLayout(tabListWidget);
-    tabListLayout->addWidget(connectionsToolbar);
-    tabListLayout->addWidget(this->connectionListView);
-    tabListWidget->setLayout(tabListLayout);
-    this->splitter->addWidget(tabListWidget);
+    // create the connection list and its model
+    this->connectionModel = new SSHConnectionItemModel();
+    this->connectionList = new ConnectionListWidget(this->connectionModel);
+
+    connect(this->connectionList, SIGNAL(showNewDialog()), this, SLOT(showNewDialog()));
+    connect(this->connectionList, SIGNAL(editConnection()), this, SLOT(editConnection()));
+    connect(this->connectionList, SIGNAL(removeConnection()), this, SLOT(removeConnection()));
+    connect(this->connectionList, SIGNAL(changeConnection(QItemSelection, QItemSelection)),
+            this, SLOT(changeConnection(QItemSelection, QItemSelection)));
+
+    this->splitter->addWidget(this->connectionList);
 
     this->sessionInfoSplitter = new QSplitter(Qt::Vertical);
 
@@ -216,7 +206,7 @@ void MainWindow::createNewConnection()
     connEntry = this->connectionModel->getConnEntryByName(userAtHost);
     if (connEntry != nullptr) {
         this->rightWidget->setCurrentIndex(0);
-        this->selectConnection(connEntry);
+        this->connectionList->selectConnection(connEntry);
         return;
     }
 
@@ -256,8 +246,7 @@ void MainWindow::createNewConnection()
     connEntry->tabs = tabs;
 
     this->connectionModel->appendConnectionEntry(connEntry);
-    QModelIndex index = this->connectionModel->index(this->connectionModel->rowCount(QModelIndex()) - 1, 0, QModelIndex());
-    this->connectionListView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+    this->connectionList->selectLast();
     tabs->setCurrentWidget(console);
     tabs->setFocus();
     this->sshSessionsStack->setCurrentIndex(1);
@@ -353,7 +342,7 @@ const QString MainWindow::getCurrentUsernameAndHost()
 
 std::shared_ptr<SSHConnectionEntry> MainWindow::getCurrentConnectionEntry()
 {
-    QModelIndexList indexes = this->connectionListView->selectionModel()->selectedIndexes();
+    QModelIndexList indexes = this->connectionList->getSelection();
     if (indexes.isEmpty()) {
         return nullptr;
     }
@@ -587,22 +576,6 @@ QString MainWindow::findSSHKey(const QString keyname)
     return result;
 }
 
-void MainWindow::showTabListContextMenu(QPoint pos)
-{
-    QPoint globalPos = this->connectionListView->mapToGlobal(pos);
-
-    if (this->connectionListView->indexAt(pos).isValid()) {
-        QMenu menu;
-        QAction *editAction = menu.addAction(tr("Edit"), this, SLOT(editConnection()));
-        editAction->setIcon(QIcon(":/images/preferences-system.svg"));
-        menu.addSeparator();
-        QAction *deleteAction = menu.addAction(tr("Delete"), this, SLOT(removeConnection()));
-        deleteAction->setIcon(QIcon(":/images/process-stop.svg"));
-
-        menu.exec(globalPos);
-    }
-}
-
 void MainWindow::removeConnection()
 {
     std::shared_ptr<SSHConnectionEntry> entry = this->getCurrentConnectionEntry();
@@ -702,13 +675,7 @@ void MainWindow::selectFirstConnection()
     }
 
     std::shared_ptr<SSHConnectionEntry> entry = this->connectionModel->getConnEntry(0);
-    this->selectConnection(entry);
-}
-
-void MainWindow::selectConnection(std::shared_ptr<SSHConnectionEntry> connEntry)
-{
-    QModelIndex index = this->connectionModel->getIndexForSSHConnectionEntry(connEntry);
-    this->connectionListView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+    this->connectionList->selectConnection(entry);
 }
 
 void MainWindow::showPreferencesDialog()

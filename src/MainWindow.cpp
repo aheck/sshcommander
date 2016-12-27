@@ -9,7 +9,6 @@ MainWindow::MainWindow(QWidget *parent) :
     // dialogs
     this->aboutDialog = new AboutDialog();
     this->newDialog = new NewDialog();
-    this->editDialog = new NewDialog(true);
     this->preferencesDialog = new PreferencesDialog();
     QObject::connect(newDialog, SIGNAL (accepted()), this, SLOT (createNewConnection()));
 
@@ -77,11 +76,11 @@ MainWindow::MainWindow(QWidget *parent) :
     this->connectionModel = new SSHConnectionItemModel();
     this->connectionList = new ConnectionListWidget(this->connectionModel);
 
-    connect(this->connectionList, SIGNAL(showNewDialog()), this, SLOT(showNewDialog()));
-    connect(this->connectionList, SIGNAL(editConnection()), this, SLOT(editConnection()));
-    connect(this->connectionList, SIGNAL(removeConnection()), this, SLOT(removeConnection()));
-    connect(this->connectionList, SIGNAL(changeConnection(QItemSelection, QItemSelection)),
-            this, SLOT(changeConnection(QItemSelection, QItemSelection)));
+    connect(this->connectionList, SIGNAL(newDialogRequested()), this, SLOT(showNewDialog()));
+    connect(this->connectionList, SIGNAL(connectionRemoved(std::shared_ptr<SSHConnectionEntry>)),
+            this, SLOT(connectionRemoved(std::shared_ptr<SSHConnectionEntry>)));
+    connect(this->connectionList, SIGNAL(connectionChanged(int)),
+            this, SLOT(changeConnection(int)));
 
     this->splitter->addWidget(this->connectionList);
 
@@ -156,16 +155,9 @@ void MainWindow::showNewDialog()
     this->newDialog->exec();
 }
 
-void MainWindow::changeConnection(const QItemSelection &selected, const QItemSelection &deselected)
+void MainWindow::changeConnection(int row)
 {
-    QModelIndexList indexes = selected.indexes();
-
-    if (indexes.size() == 0) {
-        return;
-    }
-
-    QModelIndex index = indexes.at(0);
-    tabStack->setCurrentIndex(index.row());
+    tabStack->setCurrentIndex(row);
     this->updateConnectionTabs();
 
     this->setFocusOnCurrentTerminal();
@@ -258,7 +250,7 @@ void MainWindow::createNewConnection()
 
 void MainWindow::createNewSession()
 {
-    std::shared_ptr<SSHConnectionEntry> connEntry = this->getCurrentConnectionEntry();
+    std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionList->getSelectedConnectionEntry();
     if (connEntry == nullptr) {
         return;
     }
@@ -280,7 +272,7 @@ void MainWindow::createNewSession()
 void MainWindow::restartSession()
 {
     QWidget *oldWidget = nullptr;
-    std::shared_ptr<SSHConnectionEntry> connEntry = this->getCurrentConnectionEntry();
+    std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionList->getSelectedConnectionEntry();
     if (connEntry == nullptr) {
         return;
     }
@@ -329,29 +321,6 @@ void MainWindow::restartSession()
     }
 }
 
-const QString MainWindow::getCurrentUsernameAndHost()
-{
-    std::shared_ptr<SSHConnectionEntry> connEntry = this->getCurrentConnectionEntry();
-
-    if (connEntry == nullptr) {
-        return QString("");
-    }
-
-    return connEntry->name;
-}
-
-std::shared_ptr<SSHConnectionEntry> MainWindow::getCurrentConnectionEntry()
-{
-    QModelIndexList indexes = this->connectionList->getSelection();
-    if (indexes.isEmpty()) {
-        return nullptr;
-    }
-
-    std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionModel->getConnEntry(indexes.first().row());
-
-    return connEntry;
-}
-
 std::shared_ptr<SSHConnectionEntry> MainWindow::getConnectionEntryByTermWidget(QTermWidget *console)
 {
     return this->termToConn.at(console);
@@ -367,19 +336,18 @@ void MainWindow::removeTermWidgetMapping(QWidget *widget)
 
 CustomTabWidget* MainWindow::getCurrentTabWidget()
 {
-    std::shared_ptr<SSHConnectionEntry> connEntry = this->getCurrentConnectionEntry();
+    std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionList->getSelectedConnectionEntry();
     return connEntry->tabs;
 }
 
 void MainWindow::closeSSHTab(int tabIndex)
 {
-    printf("tabIndex: %d\n", tabIndex);
     CustomTabWidget *tabWidget = this->getCurrentTabWidget();
     QTermWidget *termWidget = (QTermWidget*) tabWidget->widget(tabIndex);
 
     if (termWidget != nullptr) {
         QMessageBox::StandardButton reply;
-        const QString usernameAndHost = this->getCurrentUsernameAndHost();
+        const QString usernameAndHost = this->connectionList->getSelectedUsernameAndHost();
         reply = QMessageBox::question(this, "Closing Session",
                 QString("Do you really want to close SSH session '%1' with '%2'?").arg(tabWidget->tabText(tabIndex)).arg(usernameAndHost),
                 QMessageBox::Yes|QMessageBox::No);
@@ -446,7 +414,7 @@ void MainWindow::readSettings()
 
         this->sshSessionsStack->setCurrentIndex(1);
         this->rightWidget->setCurrentIndex(0);
-        this->selectFirstConnection();
+        this->connectionList->selectFirstConnection();
     }
 
     file.close();
@@ -551,7 +519,7 @@ void MainWindow::createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance,
 
     this->newDialog->updateSSHKeys();
 
-    this->newDialog->setSSHKey(this->findSSHKey(instance->keyname));
+    this->newDialog->setSSHKey(NewDialog::findSSHKey(instance->keyname));
     this->newDialog->setFocusOnUsername();
 
     this->newDialog->isAwsInstance = true;
@@ -560,48 +528,15 @@ void MainWindow::createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance,
     this->newDialog->isAwsInstance = false;
 }
 
-QString MainWindow::findSSHKey(const QString keyname)
+void MainWindow::connectionRemoved(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
-    QString result;
-
-    QString keynameInDotSSH = QDir::homePath() + "/.ssh/" + keyname;
-    if (QFileInfo::exists(keynameInDotSSH)) {
-        QFileInfo info(keynameInDotSSH);
-
-        if (info.isFile()) {
-            result = keynameInDotSSH;
-        }
-    }
-
-    return result;
-}
-
-void MainWindow::removeConnection()
-{
-    std::shared_ptr<SSHConnectionEntry> entry = this->getCurrentConnectionEntry();
-
-    if (entry == nullptr) {
-        return;
-    }
-
-    QMessageBox::StandardButton reply;
-    const QString usernameAndHost = this->getCurrentUsernameAndHost();
-    reply = QMessageBox::question(this, "Removing Connection",
-            QString("Do you really want to remove the SSH connection '%1'?").arg(usernameAndHost),
-            QMessageBox::Yes|QMessageBox::No);
-
-    if (reply == QMessageBox::No) {
-        return;
-    }
-
-    CustomTabWidget *tabWidget = entry->tabs;
-    for(int i = tabWidget->count(); i >= 0; --i) {
+    CustomTabWidget *tabWidget = connEntry->tabs;
+    for (int i = tabWidget->count(); i >= 0; --i) {
         QTermWidget *termWidget = (QTermWidget*) tabWidget->widget(i);
         tabWidget->removeTab(i);
         delete termWidget;
     }
 
-    this->connectionModel->removeConnectionEntry(entry);
     this->tabStack->removeWidget(tabWidget);
 
     if (this->connectionModel->rowCount(QModelIndex()) == 0) {
@@ -611,13 +546,11 @@ void MainWindow::removeConnection()
         this->sshSessionsStack->setCurrentIndex(0);
         this->setWindowTitle(PROGRAM_NAME);
     }
-
-    entry.reset();
 }
 
 void MainWindow::updateConnectionTabs()
 {
-    std::shared_ptr<SSHConnectionEntry> connEntry = this->getCurrentConnectionEntry();
+    std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionList->getSelectedConnectionEntry();
 
     if (connEntry == nullptr) {
         return;
@@ -641,7 +574,7 @@ void MainWindow::updateConnectionTabs()
 
 void MainWindow::toggleSessionEnlarged()
 {
-    if (this->getCurrentConnectionEntry() == nullptr) {
+    if (this->connectionList->getSelectedConnectionEntry() == nullptr) {
         return;
     }
 
@@ -666,16 +599,6 @@ void MainWindow::toggleSessionEnlarged()
 void MainWindow::openWebsite()
 {
     QDesktopServices::openUrl(QUrl("https://github.com/aheck/sshcommander"));
-}
-
-void MainWindow::selectFirstConnection()
-{
-    if (this->connectionModel->rowCount(QModelIndex()) < 1) {
-        return;
-    }
-
-    std::shared_ptr<SSHConnectionEntry> entry = this->connectionModel->getConnEntry(0);
-    this->connectionList->selectConnection(entry);
 }
 
 void MainWindow::showPreferencesDialog()
@@ -723,7 +646,7 @@ void MainWindow::updateConsoleSettings(const QFont &font, const QString colorSch
 
 void MainWindow::notesChanged()
 {
-    std::shared_ptr<SSHConnectionEntry> connEntry = this->getCurrentConnectionEntry();
+    std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionList->getSelectedConnectionEntry();
 
     if (connEntry == nullptr) {
         return;
@@ -734,7 +657,7 @@ void MainWindow::notesChanged()
 
 void MainWindow::nextTab()
 {
-    std::shared_ptr<SSHConnectionEntry> connEntry = this->getCurrentConnectionEntry();
+    std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionList->getSelectedConnectionEntry();
 
     if (connEntry->tabs->currentIndex() < 0) {
         return;
@@ -751,7 +674,7 @@ void MainWindow::nextTab()
 
 void MainWindow::prevTab()
 {
-    std::shared_ptr<SSHConnectionEntry> connEntry = this->getCurrentConnectionEntry();
+    std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionList->getSelectedConnectionEntry();
 
     if (connEntry->tabs->currentIndex() < 0) {
         return;
@@ -766,35 +689,9 @@ void MainWindow::prevTab()
     this->setFocusOnCurrentTerminal();
 }
 
-void MainWindow::editConnection()
-{
-    auto connEntry = this->getCurrentConnectionEntry();
-
-    if (connEntry == nullptr) {
-        return;
-    }
-
-    this->editDialog->setWindowTitle("Edit " + connEntry->name);
-    this->editDialog->setHostname(connEntry->hostname);
-    this->editDialog->setUsername(connEntry->username);
-    this->editDialog->setShortDescription(connEntry->shortDescription);
-    this->editDialog->setPassword(connEntry->password);
-    this->editDialog->setSSHKey(connEntry->sshkey);
-    this->editDialog->setPortNumber(connEntry->port);
-
-    if (this->editDialog->exec() == QDialog::Rejected) {
-        return;
-    }
-
-    connEntry->shortDescription = this->editDialog->getShortDescription();
-    connEntry->sshkey = this->editDialog->getSSHKey();
-    connEntry->password = this->editDialog->getPassword();
-    connEntry->port = this->editDialog->getPortNumber();
-}
-
 void MainWindow::setFocusOnCurrentTerminal()
 {
-    auto connEntry = getCurrentConnectionEntry();
+    auto connEntry = this->connectionList->getSelectedConnectionEntry();
     if (connEntry == nullptr) {
         return;
     }

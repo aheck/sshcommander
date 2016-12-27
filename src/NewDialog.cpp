@@ -262,3 +262,19 @@ void NewDialog::clear()
     this->hopCheckBoxStateChanged(false);
     this->hopComboBox->clear();
 }
+
+const QString NewDialog::findSSHKey(const QString keyname)
+{
+    QString result;
+
+    QString keynameInDotSSH = QDir::homePath() + "/.ssh/" + keyname;
+    if (QFileInfo::exists(keynameInDotSSH)) {
+        QFileInfo info(keynameInDotSSH);
+
+        if (info.isFile()) {
+            result = keynameInDotSSH;
+        }
+    }
+
+    return result;
+}

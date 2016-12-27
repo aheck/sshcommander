@@ -56,7 +56,7 @@ public:
     void saveSettings();
 
 public slots:
-    void changeConnection(const QItemSelection &selected, const QItemSelection &deselected);
+    void changeConnection(int row);
     void createNewConnection();
     void createNewSession();
     void restartSession();
@@ -69,8 +69,7 @@ public slots:
     void showPreferencesDialog();
 
     void showNewDialog();
-    void editConnection();
-    void removeConnection();
+    void connectionRemoved(std::shared_ptr<SSHConnectionEntry> connEntry);
 
 private slots:
     void notesChanged();
@@ -79,14 +78,11 @@ private slots:
     void dataReceived(const QString &text);
 
 private:
-    const QString getCurrentUsernameAndHost();
-    std::shared_ptr<SSHConnectionEntry> getCurrentConnectionEntry();
     std::shared_ptr<SSHConnectionEntry> getConnectionEntryByTermWidget(QTermWidget *console);
     void removeTermWidgetMapping(QWidget *widget);
     CustomTabWidget* getCurrentTabWidget();
     QString findSSHKey(const QString keyname);
     void updateConnectionTabs();
-    void selectFirstConnection();
     void selectConnection(std::shared_ptr<SSHConnectionEntry> connEntry);
     void updateConsoleSettings(const QFont &font, const QString colorScheme);
     void setFocusOnCurrentTerminal();
@@ -97,7 +93,6 @@ private:
     QWidget *sshSessionsWidget;
     QWidget *hiddenPage;
     NewDialog *newDialog;
-    NewDialog *editDialog;
     PreferencesDialog *preferencesDialog;
     QSplitter *splitter;
     QSplitter *sessionInfoSplitter;

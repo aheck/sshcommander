@@ -44,6 +44,8 @@ public:
 
     void setFocusOnUsername();
 
+    static const QString findSSHKey(const QString keyname);
+
     bool isAwsInstance;
     std::shared_ptr<AWSInstance> awsInstance;
 

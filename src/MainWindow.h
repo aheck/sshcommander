@@ -31,9 +31,7 @@
 #include "AWSInfoWidget.h"
 #include "AWSWidget.h"
 #include "ConnectionListWidget.h"
-#include "CustomTabWidget.h"
 #include "DisabledWidget.h"
-#include "InactiveSessionWidget.h"
 #include "MachineInfoWidget.h"
 #include "NotesEditor.h"
 #include "NewDialog.h"
@@ -41,6 +39,7 @@
 #include "PreferencesDialog.h"
 #include "SSHConnectionEntry.h"
 #include "SSHConnectionItemModel.h"
+#include "TabbedTerminalWidget.h"
 
 #include "globals.h"
 
@@ -51,7 +50,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    QTermWidget* createNewTermWidget(const QStringList *args, bool connectReceivedData);
     void readSettings();
     void saveSettings();
 
@@ -60,7 +58,6 @@ public slots:
     void createNewConnection();
     void createNewSession();
     void restartSession();
-    void closeSSHTab(int tabIndex);
     void aboutToQuit();
     void createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance,
             std::vector<std::shared_ptr<AWSInstance>> vpcNeighbours, bool toPrivateIP);
@@ -75,12 +72,11 @@ private slots:
     void notesChanged();
     void nextTab();
     void prevTab();
-    void dataReceived(const QString &text);
 
 private:
     std::shared_ptr<SSHConnectionEntry> getConnectionEntryByTermWidget(QTermWidget *console);
     void removeTermWidgetMapping(QWidget *widget);
-    CustomTabWidget* getCurrentTabWidget();
+    TabbedTerminalWidget* getCurrentTabWidget();
     QString findSSHKey(const QString keyname);
     void updateConnectionTabs();
     void selectConnection(std::shared_ptr<SSHConnectionEntry> connEntry);
@@ -104,9 +100,8 @@ private:
     AWSWidget *awsWidget;
     SSHConnectionItemModel *connectionModel;
     QTabWidget *rightWidget;
-    QTabWidget *sshSessionsInfo;
+    QTabWidget *appletTab;
     Preferences preferences;
-    std::map<QTermWidget *, std::shared_ptr<SSHConnectionEntry>> termToConn;
 
     // Applets
     MachineInfoWidget *machineInfo;

@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->aboutDialog = new AboutDialog();
     this->newDialog = new NewDialog();
     this->preferencesDialog = new PreferencesDialog();
-    QObject::connect(newDialog, SIGNAL (accepted()), this, SLOT (createNewConnection()));
+    connect(newDialog, SIGNAL (accepted()), this, SLOT (createNewConnection()));
 
     this->viewEnlarged = false;
 
@@ -89,14 +89,15 @@ MainWindow::MainWindow(QWidget *parent) :
     this->sessionInfoSplitter->addWidget(this->sshSessionsStack);
 
     this->notesEditor = new NotesEditor();
-    QObject::connect(this->notesEditor, SIGNAL(textChanged()), this, SLOT(notesChanged()));
+    connect(this->notesEditor, SIGNAL(textChanged()), this, SLOT(notesChanged()));
 
-    this->sshSessionsInfo = new QTabWidget();
-    this->sshSessionsInfo->addTab(this->machineInfo, "Machine");
-    this->sshSessionsInfo->addTab(this->notesEditor, "Notes");
-    this->sshSessionsInfo->addTab(this->awsInfo, "AWS");
+    // create the tab where the applets reside
+    this->appletTab = new QTabWidget();
+    this->appletTab->addTab(this->machineInfo, "Machine");
+    this->appletTab->addTab(this->notesEditor, "Notes");
+    this->appletTab->addTab(this->awsInfo, "AWS");
 
-    this->sessionInfoSplitter->addWidget(this->sshSessionsInfo);
+    this->sessionInfoSplitter->addWidget(this->appletTab);
     this->sessionInfoSplitter->setStretchFactor(0, 10);
     this->sessionInfoSplitter->setStretchFactor(1, 5);
     this->sessionInfoSplitter->setCollapsible(0, false);
@@ -105,7 +106,7 @@ MainWindow::MainWindow(QWidget *parent) :
     rightWidget->addTab(this->sessionInfoSplitter, "SSH");
 
     this->awsWidget = new AWSWidget(&this->preferences);
-    QObject::connect(this->awsWidget, SIGNAL(newConnection(std::shared_ptr<AWSInstance>,
+    connect(this->awsWidget, SIGNAL(newConnection(std::shared_ptr<AWSInstance>,
             std::vector<std::shared_ptr<AWSInstance>>, bool)), this,
             SLOT(createSSHConnectionToAWS(std::shared_ptr<AWSInstance>,
             std::vector<std::shared_ptr<AWSInstance>>, bool)));
@@ -127,15 +128,15 @@ MainWindow::MainWindow(QWidget *parent) :
     // assign shortcuts
     QShortcut *toggleEnlargedShortcut = new QShortcut(QKeySequence(Qt::Key_F10), this);
     toggleEnlargedShortcut->setContext(Qt::ApplicationShortcut);
-    QObject::connect(toggleEnlargedShortcut, SIGNAL(activated()), this, SLOT(toggleSessionEnlarged()));
+    connect(toggleEnlargedShortcut, SIGNAL(activated()), this, SLOT(toggleSessionEnlarged()));
 
     QShortcut *nextTabShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_PageDown), this);
     nextTabShortcut->setContext(Qt::ApplicationShortcut);
-    QObject::connect(nextTabShortcut, SIGNAL(activated()), this, SLOT(nextTab()));
+    connect(nextTabShortcut, SIGNAL(activated()), this, SLOT(nextTab()));
 
     QShortcut *prevTabShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_PageUp), this);
     prevTabShortcut->setContext(Qt::ApplicationShortcut);
-    QObject::connect(prevTabShortcut, SIGNAL(activated()), this, SLOT(prevTab()));
+    connect(prevTabShortcut, SIGNAL(activated()), this, SLOT(prevTab()));
 
     setCentralWidget(this->widgetStack);
 
@@ -161,27 +162,6 @@ void MainWindow::changeConnection(int row)
     this->updateConnectionTabs();
 
     this->setFocusOnCurrentTerminal();
-}
-
-QTermWidget* MainWindow::createNewTermWidget(const QStringList *args, bool connectReceivedData)
-{
-    const QString *program = new QString("/usr/bin/ssh");
-
-    QTermWidget *console = new QTermWidget(0);
-
-    if (connectReceivedData) {
-        QObject::connect(console, SIGNAL(receivedData(QString)), this, SLOT(dataReceived(QString)));
-    }
-
-    console->setAutoClose(false);
-    console->setShellProgram(*program);
-    console->setArgs(*args);
-    console->setTerminalFont(this->preferences.getTerminalFont());
-
-    console->setColorScheme(this->preferences.getColorScheme());
-    console->setScrollBarPosition(QTermWidget::ScrollBarRight);
-
-    return console;
 }
 
 void MainWindow::createNewConnection()
@@ -217,35 +197,16 @@ void MainWindow::createNewConnection()
         connEntry->awsInstance = this->newDialog->awsInstance;
     }
 
-    QStringList args = connEntry->generateCliArgs();
-    QTermWidget *console = createNewTermWidget(&args, !connEntry->password.isEmpty());
-    this->termToConn[console] = connEntry;
-
-    // info output
-    qDebug() << "* INFO *************************";
-    qDebug() << " availableKeyBindings:" << console->availableKeyBindings();
-    qDebug() << " keyBindings:" << console->keyBindings();
-    qDebug() << " availableColorSchemes:" << console->availableColorSchemes();
-    qDebug() << "* INFO END *********************";
-
-    CustomTabWidget *tabs = new CustomTabWidget();
-    tabs->setTabsClosable(true);
-    tabs->setTabPosition(CustomTabWidget::North);
-    tabs->addTab(console, QString::asprintf("Session %d", connEntry->nextSessionNumber++));
-    QObject::connect(tabs, SIGNAL (tabCloseRequested(int)), this, SLOT(closeSSHTab(int)));
-    tabStack->addWidget(tabs);
-
-    connEntry->tabs = tabs;
-
     this->connectionModel->appendConnectionEntry(connEntry);
     this->connectionList->selectLast();
-    tabs->setCurrentWidget(console);
-    tabs->setFocus();
+
+    TabbedTerminalWidget *tabs = new TabbedTerminalWidget(&this->preferences, connEntry);
+    connEntry->tabs = tabs;
+    tabs->addTerminalSession();
+    tabStack->addWidget(tabs);
+
     this->sshSessionsStack->setCurrentIndex(1);
     this->rightWidget->setCurrentIndex(0);
-    console->setFocus();
-
-    console->startShellProgram();
 }
 
 void MainWindow::createNewSession()
@@ -255,111 +216,24 @@ void MainWindow::createNewSession()
         return;
     }
 
-    CustomTabWidget *tabs = connEntry->tabs;
-
-    QStringList args = connEntry->generateCliArgs();
-    QTermWidget *console = createNewTermWidget(&args, !connEntry->password.isEmpty());
-    this->termToConn[console] = connEntry;
-    tabs->addTab(console, QString::asprintf("Session %d", connEntry->nextSessionNumber++));
-    tabs->setCurrentWidget(console);
-
-    console->startShellProgram();
-
-    tabs->setFocus();
-    console->setFocus();
+    TabbedTerminalWidget *tabs = connEntry->tabs;
+    tabs->addTerminalSession();
 }
 
 void MainWindow::restartSession()
 {
-    QWidget *oldWidget = nullptr;
     std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionList->getSelectedConnectionEntry();
     if (connEntry == nullptr) {
         return;
     }
 
-    CustomTabWidget *tabs = connEntry->tabs;
-
-    if (tabs->count() == 0) {
-        return;
-    }
-
-    int tabIndex = tabs->currentIndex();
-    const QString tabText = tabs->tabText(tabIndex);
-
-    if (tabs->currentWidget() != nullptr) {
-        if (QString("QTermWidget") == tabs->currentWidget()->metaObject()->className()) {
-            QMessageBox::StandardButton reply;
-            reply = QMessageBox::question(this, "Restart Session?",
-                    QString("Do you really want to restart SSH session '%1' with '%2'?").arg(tabText).arg(connEntry->name),
-                    QMessageBox::Yes|QMessageBox::No);
-
-            if (reply == QMessageBox::No) {
-                return;
-            }
-        }
-
-        oldWidget = tabs->currentWidget();
-    }
-
-    QStringList args = connEntry->generateCliArgs();
-    QTermWidget *console = createNewTermWidget(&args, !connEntry->password.isEmpty());
-    this->termToConn[console] = connEntry;
-    tabs->setUpdatesEnabled(false);
-    tabs->removeTab(tabIndex);
-    tabs->insertTab(tabIndex, console, tabText);
-    tabs->setCurrentIndex(tabIndex);
-    tabs->setUpdatesEnabled(true);
-
-    console->startShellProgram();
-
-    tabs->setFocus();
-    console->setFocus();
-
-    if (oldWidget) {
-        this->removeTermWidgetMapping(oldWidget);
-        delete oldWidget;
-    }
+    connEntry->tabs->restartSession();
 }
 
-std::shared_ptr<SSHConnectionEntry> MainWindow::getConnectionEntryByTermWidget(QTermWidget *console)
-{
-    return this->termToConn.at(console);
-}
-
-void MainWindow::removeTermWidgetMapping(QWidget *widget)
-{
-    if (widget->metaObject()->className() == QString("QTermWidget")) {
-        QTermWidget *console = static_cast<QTermWidget *>(widget);
-        this->termToConn.erase(console);
-    }
-}
-
-CustomTabWidget* MainWindow::getCurrentTabWidget()
+TabbedTerminalWidget* MainWindow::getCurrentTabWidget()
 {
     std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionList->getSelectedConnectionEntry();
     return connEntry->tabs;
-}
-
-void MainWindow::closeSSHTab(int tabIndex)
-{
-    CustomTabWidget *tabWidget = this->getCurrentTabWidget();
-    QTermWidget *termWidget = (QTermWidget*) tabWidget->widget(tabIndex);
-
-    if (termWidget != nullptr) {
-        QMessageBox::StandardButton reply;
-        const QString usernameAndHost = this->connectionList->getSelectedUsernameAndHost();
-        reply = QMessageBox::question(this, "Closing Session",
-                QString("Do you really want to close SSH session '%1' with '%2'?").arg(tabWidget->tabText(tabIndex)).arg(usernameAndHost),
-                QMessageBox::Yes|QMessageBox::No);
-
-        if (reply == QMessageBox::No) {
-            return;
-        }
-
-        tabWidget->removeTab(tabIndex);
-        this->removeTermWidgetMapping(termWidget);
-        delete termWidget;
-    }
 }
 
 void MainWindow::aboutToQuit()
@@ -395,17 +269,12 @@ void MainWindow::readSettings()
         std::shared_ptr<SSHConnectionEntry> entry = std::make_shared<SSHConnectionEntry>();
         entry->read(curValue.toObject());
 
-        CustomTabWidget *tabs = new CustomTabWidget();
-        tabs->setTabsClosable(true);
-        tabs->setTabPosition(CustomTabWidget::North);
+        TabbedTerminalWidget *tabs = new TabbedTerminalWidget(&this->preferences, entry);
 
         for (int i = 0; i < entry->tabNames->size(); i++) {
-            InactiveSessionWidget *inactiveSessionWidget = new InactiveSessionWidget();
-            QObject::connect(inactiveSessionWidget, SIGNAL(createSession()), this, SLOT(restartSession()));
-            tabs->addTab(inactiveSessionWidget, entry->tabNames->at(i));
+            tabs->addInactiveSession(entry->tabNames->at(i));
         }
 
-        QObject::connect(tabs, SIGNAL (tabCloseRequested(int)), this, SLOT(closeSSHTab(int)));
         tabStack->addWidget(tabs);
 
         entry->tabs = tabs;
@@ -530,7 +399,7 @@ void MainWindow::createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance,
 
 void MainWindow::connectionRemoved(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
-    CustomTabWidget *tabWidget = connEntry->tabs;
+    TabbedTerminalWidget *tabWidget = connEntry->tabs;
     for (int i = tabWidget->count(); i >= 0; --i) {
         QTermWidget *termWidget = (QTermWidget*) tabWidget->widget(i);
         tabWidget->removeTab(i);
@@ -703,29 +572,5 @@ void MainWindow::setFocusOnCurrentTerminal()
     QWidget *widget = connEntry->tabs->currentWidget();
     if (QString("QTermWidget") == widget->metaObject()->className()) {
         widget->setFocus();
-    }
-}
-
-void MainWindow::dataReceived(const QString &text)
-{
-    QObject *sender = QObject::sender();
-    if (sender->metaObject()->className() != QString("QTermWidget")) {
-        return;
-    }
-
-    QTermWidget *console = static_cast<QTermWidget *>(sender);
-    auto connEntry = this->getConnectionEntryByTermWidget(console);
-    if (connEntry == nullptr) {
-        return;
-    }
-
-    if (connEntry->password.isEmpty()) {
-        return;
-    }
-
-    if (text.endsWith(" password: ")) {
-        console->sendText(connEntry->password + "\n");
-        QObject::disconnect(console, SIGNAL(receivedData(QString)),
-                this, SLOT(dataReceived(QString)));
     }
 }

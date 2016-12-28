@@ -10,9 +10,11 @@
 
 #include "AWSConnector.h"
 #include "AWSInstance.h"
-#include "CustomTabWidget.h"
+#include "TabbedTerminalWidget.h"
 
 #include "globals.h"
+
+class TabbedTerminalWidget;
 
 struct SSHConnectionEntry
 {
@@ -38,7 +40,7 @@ public:
     int port;
     unsigned int nextSessionNumber;
     QString notes;
-    CustomTabWidget *tabs;
+    TabbedTerminalWidget *tabs;
     QStringList *tabNames;
     QStringList hopHosts;
     bool isAwsInstance;

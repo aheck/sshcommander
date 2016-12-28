@@ -22,7 +22,6 @@ add_executable(sshcommander
     ConnectionListView.cpp
     ConnectionListWidget.cpp
     CustomTabBar.cpp
-    CustomTabWidget.cpp
     DisabledWidget.cpp
     InactiveSessionWidget.cpp
     InstanceItemModel.cpp
@@ -35,6 +34,7 @@ add_executable(sshcommander
     SecurityGroupsDialog.cpp
     SSHConnectionEntry.cpp
     SSHConnectionItemModel.cpp
+    TabbedTerminalWidget.cpp
     TagsDialog.cpp
     ${ProgramResources}
 )

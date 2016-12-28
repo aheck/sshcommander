@@ -16,7 +16,6 @@ add_executable(tests main.cpp
     ../src/ConnectionListView.cpp
     ../src/ConnectionListWidget.cpp
     ../src/CustomTabBar.cpp
-    ../src/CustomTabWidget.cpp
     ../src/DisabledWidget.cpp
     ../src/InactiveSessionWidget.cpp
     ../src/InstanceItemModel.cpp
@@ -29,6 +28,7 @@ add_executable(tests main.cpp
     ../src/SecurityGroupsDialog.cpp
     ../src/SSHConnectionEntry.cpp
     ../src/SSHConnectionItemModel.cpp
+    ../src/TabbedTerminalWidget.cpp
     ../src/TagsDialog.cpp
 )
 

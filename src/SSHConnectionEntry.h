@@ -1,3 +1,12 @@
+/*****************************************************************************
+ *
+ * SSHConnectionEntry represents a SSH connection and all its settings.
+ *
+ * In case of connections to AWS instances it also holds a shared pointer
+ * to the corresponding AWSInstance object.
+ *
+ ****************************************************************************/
+
 #ifndef SSHCONNECTIONENTRY_H
 #define SSHCONNECTIONENTRY_H
 

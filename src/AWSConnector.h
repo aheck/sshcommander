@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * AWSConnector implements a simple and VERY minimal interface to talk to
+ * the parts of Amazon's AWS API needed by this program.
+ *
+ ****************************************************************************/
+
 #ifndef AWSCONNECTOR_H
 #define AWSCONNECTOR_H
 

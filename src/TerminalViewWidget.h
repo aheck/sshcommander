@@ -1,3 +1,18 @@
+/*****************************************************************************
+ *
+ * TerminalViewWidget is the widget on the right-hand side of the main
+ * window where the user can view and use the terminals of the current SSH
+ * connection.
+ *
+ * It mainly consists of a toolbar for things like creating new SSH sessions
+ * and a QStackedWidget which contains a TabbedTerminalWidget object for every
+ * SSH connection created by the user. The TabbedTerminalWidget holds all
+ * the SSH sessions of a connection. There is a second QStackedWidget
+ * (widgetStack) which shows a DisabledWidget if there are no SSH connections
+ * configured at the time.
+ *
+ ****************************************************************************/
+
 #ifndef TERMINALVIEWWIDGET_H
 #define TERMINALVIEWWIDGET_H
 

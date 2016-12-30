@@ -1,3 +1,11 @@
+/*****************************************************************************
+ *
+ * Preferences is the model behind the PreferencesDialog.
+ *
+ * It manages all user editable preferences.
+ *
+ ****************************************************************************/
+
 #ifndef PREFERENCES_H
 #define PREFERENCES_H
 

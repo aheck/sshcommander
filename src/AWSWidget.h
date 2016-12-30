@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * AWSWidget implements the UI the user can use to explore his instances
+ * running in Amazon's EC2 service.
+ *
+ ****************************************************************************/
+
 #ifndef AWSWIDGET_H
 #define AWSWIDGET_H
 

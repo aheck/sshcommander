@@ -1,3 +1,13 @@
+/*****************************************************************************
+ *
+ * SSHConnectionItemModel is the model behind the list of connections the
+ * user sees on the left-hand side of the main window (ConnectionListView).
+ *
+ * It stores a list of shared pointers to the SSHConnectionEntry objects of
+ * every SSH connection configured by the user.
+ *
+ ****************************************************************************/
+
 #ifndef SSHCONNECTIONITEMMODEL_H
 #define SSHCONNECTIONITEMMODEL_H
 

@@ -1,3 +1,13 @@
+/*****************************************************************************
+ *
+ * InstanceItemModel is the model behind the table showing AWS instances in
+ * the AWSWidget.
+ *
+ * It is supplied with vectors of AWSInstance objects and is responsible for
+ * things like sorting and searching of instances.
+ *
+ ****************************************************************************/
+
 #ifndef INSTANCEITEMMODEL_H
 #define INSTANCEITEMMODEL_H
 

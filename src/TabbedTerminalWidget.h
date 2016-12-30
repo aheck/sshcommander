@@ -1,3 +1,13 @@
+/*****************************************************************************
+ *
+ * TabbedTerminalWidget is the widget that organizes multiple QTermWidget
+ * objects in tabs.
+ *
+ * It also handles expect-like automatization of SSH sessions like entering a
+ * password in case the user has chosen password-based authentication.
+ *
+ ****************************************************************************/
+
 #ifndef TABBEDTERMINALWIDGET_H
 #define TABBEDTERMINALWIDGET_H
 

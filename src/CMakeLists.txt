@@ -12,6 +12,7 @@ QT5_ADD_RESOURCES (ProgramResources
 add_executable(sshcommander
     main.cpp
     AboutDialog.cpp
+    AWSCache.cpp
     AWSConnector.cpp
     AWSInfoWidget.cpp
     AWSInstance.cpp

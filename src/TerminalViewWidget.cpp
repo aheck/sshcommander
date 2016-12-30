@@ -156,3 +156,21 @@ void TerminalViewWidget::toggleEnlarge()
     this->toggleEnlarged->setChecked(this->enlarged);
     this->setFocusOnCurrentTerminal();
 }
+
+void TerminalViewWidget::updateConsoleSettings(const QFont &font, const QString colorScheme)
+{
+    // update all running QTermWidget instances
+    for (int i = 0; i < this->connectionStack->count(); i++) {
+        TabbedTerminalWidget *tabs = static_cast<TabbedTerminalWidget *>(this->connectionStack->widget(i));
+
+        for (int j = 0; j < tabs->count(); j++) {
+            QWidget *widget = tabs->widget(j);
+            if (widget->metaObject()->className() == QString("QTermWidget")) {
+                QTermWidget *console = (QTermWidget*) widget;
+                console->setTerminalFont(font);
+                console->setColorScheme(colorScheme);
+                console->update();
+            }
+        }
+    }
+}

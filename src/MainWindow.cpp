@@ -403,7 +403,7 @@ void MainWindow::showPreferencesDialog()
                 this->preferencesDialog->getColorScheme() != this->preferences.getColorScheme()) {
             this->preferences.setTerminalFont(this->preferencesDialog->getFont());
             this->preferences.setColorScheme(this->preferencesDialog->getColorScheme());
-            this->updateConsoleSettings(this->preferences.getTerminalFont(),
+            this->terminalView->updateConsoleSettings(this->preferences.getTerminalFont(),
                     this->preferences.getColorScheme());
         }
 
@@ -425,23 +425,6 @@ void MainWindow::notesChanged()
     }
 
     connEntry->notes = this->notesEditor->toHtml();
-}
-
-void MainWindow::updateConsoleSettings(const QFont &font, const QString colorScheme)
-{
-    // update all running QTermWidget instances
-    for (int i = 0; i < this->connectionModel->rowCount(QModelIndex()); i++) {
-        std::shared_ptr<SSHConnectionEntry> entry = this->connectionModel->getConnEntry(i);
-        for (int j = 0; j < entry->tabs->count(); j++) {
-            QWidget *widget = entry->tabs->widget(j);
-            if (widget->metaObject()->className() == QString("QTermWidget")) {
-                QTermWidget *console = (QTermWidget*) widget;
-                console->setTerminalFont(font);
-                console->setColorScheme(colorScheme);
-                console->update();
-            }
-        }
-    }
 }
 
 void MainWindow::toggleEnlargeWidget()

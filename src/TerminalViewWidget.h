@@ -27,6 +27,7 @@ public:
     void setLastConnection();
     void setDisabledPageEnabled(bool enabled);
     void setFocusOnCurrentTerminal();
+    void updateConsoleSettings(const QFont &font, const QString colorScheme);
 
 signals:
     void requestToggleEnlarge();

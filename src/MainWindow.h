@@ -76,7 +76,6 @@ private:
     QString findSSHKey(const QString keyname);
     void updateConnectionTabs();
     void selectConnection(std::shared_ptr<SSHConnectionEntry> connEntry);
-    void updateConsoleSettings(const QFont &font, const QString colorScheme);
 
     bool viewEnlarged;
     QWidget *enlargedWidget;

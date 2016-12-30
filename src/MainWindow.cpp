@@ -333,6 +333,7 @@ void MainWindow::createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance,
     this->newDialog->updateSSHKeys();
 
     this->newDialog->setSSHKey(NewDialog::findSSHKey(instance->keyname));
+    this->newDialog->setShortDescription(instance->name);
     this->newDialog->setFocusOnUsername();
 
     this->newDialog->isAwsInstance = true;

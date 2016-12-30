@@ -35,6 +35,7 @@ add_executable(sshcommander
     SSHConnectionEntry.cpp
     SSHConnectionItemModel.cpp
     TabbedTerminalWidget.cpp
+    TerminalViewWidget.cpp
     TagsDialog.cpp
     ${ProgramResources}
 )

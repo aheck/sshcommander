@@ -32,12 +32,12 @@ void TabbedTerminalWidget::addTerminalSession()
 void TabbedTerminalWidget::addInactiveSession(const QString title)
 {
     InactiveSessionWidget *inactiveSessionWidget = new InactiveSessionWidget();
-    connect(inactiveSessionWidget, SIGNAL(createSession()), this, SLOT(restartSession()));
+    connect(inactiveSessionWidget, SIGNAL(createSession()), this, SLOT(restartCurrentSession()));
 
     this->addTab(inactiveSessionWidget, title);
 }
 
-void TabbedTerminalWidget::restartSession()
+void TabbedTerminalWidget::restartCurrentSession()
 {
     QWidget *oldWidget = nullptr;
     auto connEntry = this->connEntryWeak.lock();

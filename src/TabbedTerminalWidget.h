@@ -24,7 +24,7 @@ public:
     void addInactiveSession(const QString title);
 
 public slots:
-    void restartSession();
+    void restartCurrentSession();
 
 private slots:
     void dataReceived(const QString &text);

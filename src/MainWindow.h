@@ -40,6 +40,7 @@
 #include "SSHConnectionEntry.h"
 #include "SSHConnectionItemModel.h"
 #include "TabbedTerminalWidget.h"
+#include "TerminalViewWidget.h"
 
 #include "globals.h"
 
@@ -56,57 +57,58 @@ public:
 public slots:
     void changeConnection(int row);
     void createNewConnection();
-    void createNewSession();
-    void restartSession();
     void aboutToQuit();
     void createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance,
             std::vector<std::shared_ptr<AWSInstance>> vpcNeighbours, bool toPrivateIP);
-    void toggleSessionEnlarged();
     void openWebsite();
     void showPreferencesDialog();
 
     void showNewDialog();
     void connectionRemoved(std::shared_ptr<SSHConnectionEntry> connEntry);
+    void toggleEnlargeWidget();
 
 private slots:
     void notesChanged();
-    void nextTab();
-    void prevTab();
 
 private:
     std::shared_ptr<SSHConnectionEntry> getConnectionEntryByTermWidget(QTermWidget *console);
     void removeTermWidgetMapping(QWidget *widget);
-    TabbedTerminalWidget* getCurrentTabWidget();
     QString findSSHKey(const QString keyname);
     void updateConnectionTabs();
     void selectConnection(std::shared_ptr<SSHConnectionEntry> connEntry);
     void updateConsoleSettings(const QFont &font, const QString colorScheme);
-    void setFocusOnCurrentTerminal();
 
     bool viewEnlarged;
-    QAction *toggleEnlarged;
-    AboutDialog *aboutDialog;
-    QWidget *sshSessionsWidget;
+    QWidget *enlargedWidget;
+
     QWidget *hiddenPage;
-    NewDialog *newDialog;
-    PreferencesDialog *preferencesDialog;
+    QStackedWidget *widgetStack;
+    QToolBar *toolBar;
+
     QSplitter *splitter;
     QSplitter *sessionInfoSplitter;
-    ConnectionListWidget *connectionList;
-    QStackedWidget *widgetStack;
-    QStackedWidget *tabStack;
-    QStackedWidget *sshSessionsStack;
-    QToolBar *toolBar;
-    AWSWidget *awsWidget;
-    SSHConnectionItemModel *connectionModel;
+
     QTabWidget *rightWidget;
     QTabWidget *appletTab;
+
+    // Models
     Preferences preferences;
+    SSHConnectionItemModel *connectionModel;
+
+    // Dialogs
+    AboutDialog *aboutDialog;
+    NewDialog *newDialog;
+    PreferencesDialog *preferencesDialog;
 
     // Applets
     MachineInfoWidget *machineInfo;
     NotesEditor *notesEditor;
     AWSInfoWidget *awsInfo;
+
+    // Main widgets
+    AWSWidget *awsWidget;
+    ConnectionListWidget *connectionList;
+    TerminalViewWidget *terminalView;
 };
 
 #endif

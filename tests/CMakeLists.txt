@@ -29,6 +29,7 @@ add_executable(tests main.cpp
     ../src/SSHConnectionEntry.cpp
     ../src/SSHConnectionItemModel.cpp
     ../src/TabbedTerminalWidget.cpp
+    ../src/TerminalViewWidget.cpp
     ../src/TagsDialog.cpp
 )
 

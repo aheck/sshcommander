@@ -3,6 +3,9 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
+    this->viewEnlarged = false;
+    this->enlargedWidget = nullptr;
+
     // read in the user preferences from QSettings
     this->preferences.read();
 
@@ -11,8 +14,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->newDialog = new NewDialog();
     this->preferencesDialog = new PreferencesDialog();
     connect(newDialog, SIGNAL (accepted()), this, SLOT (createNewConnection()));
-
-    this->viewEnlarged = false;
 
     // build the menu bar
     QMenuBar *menuBar = new QMenuBar(0);
@@ -50,28 +51,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->splitter = new QSplitter(Qt::Horizontal);
     this->splitter->setContentsMargins(0, 0, 0, 0);
 
-    // build sshSessionsWidget (the widget which contains the ssh sessions and
-    // the ssh session tabs)
-    this->sshSessionsStack = new QStackedWidget();
-
-    DisabledWidget *disabledWidget = new DisabledWidget("No SSH Connection");
-    this->sshSessionsStack->addWidget(disabledWidget);
-
-    toolBar = new QToolBar("toolBar", 0);
-    toolBar->addAction(QIcon(":/images/utilities-terminal"), "New Session", this, SLOT(createNewSession()));
-    toolBar->addAction(QIcon(":/images/view-refresh.svg"), "Restart Session", this, SLOT(restartSession()));
-    this->toggleEnlarged = toolBar->addAction(QIcon(":/images/view-fullscreen.svg"),
-            "Toggle Enlarged View (F10)", this, SLOT(toggleSessionEnlarged()));
-    this->toggleEnlarged->setCheckable(true);
-    this->tabStack = new QStackedWidget();
-    QVBoxLayout *boxLayout = new QVBoxLayout();
-    boxLayout->setContentsMargins(0, 0, 0, 0);
-    boxLayout->addWidget(toolBar);
-    boxLayout->addWidget(this->tabStack);
-    this->sshSessionsWidget = new QWidget();
-    this->sshSessionsWidget->setLayout(boxLayout);
-    this->sshSessionsStack->addWidget(this->sshSessionsWidget);
-
     // create the connection list and its model
     this->connectionModel = new SSHConnectionItemModel();
     this->connectionList = new ConnectionListWidget(this->connectionModel);
@@ -86,7 +65,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->sessionInfoSplitter = new QSplitter(Qt::Vertical);
 
-    this->sessionInfoSplitter->addWidget(this->sshSessionsStack);
+    this->terminalView = new TerminalViewWidget();
+    this->sessionInfoSplitter->addWidget(this->terminalView);
+    connect(this->terminalView, SIGNAL(requestToggleEnlarge()), this, SLOT(toggleEnlargeWidget()));
 
     this->notesEditor = new NotesEditor();
     connect(this->notesEditor, SIGNAL(textChanged()), this, SLOT(notesChanged()));
@@ -125,19 +106,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->widgetStack->addWidget(this->hiddenPage);
     this->widgetStack->setCurrentIndex(0);
 
-    // assign shortcuts
-    QShortcut *toggleEnlargedShortcut = new QShortcut(QKeySequence(Qt::Key_F10), this);
-    toggleEnlargedShortcut->setContext(Qt::ApplicationShortcut);
-    connect(toggleEnlargedShortcut, SIGNAL(activated()), this, SLOT(toggleSessionEnlarged()));
-
-    QShortcut *nextTabShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_PageDown), this);
-    nextTabShortcut->setContext(Qt::ApplicationShortcut);
-    connect(nextTabShortcut, SIGNAL(activated()), this, SLOT(nextTab()));
-
-    QShortcut *prevTabShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_PageUp), this);
-    prevTabShortcut->setContext(Qt::ApplicationShortcut);
-    connect(prevTabShortcut, SIGNAL(activated()), this, SLOT(prevTab()));
-
     setCentralWidget(this->widgetStack);
 
     this->readSettings();
@@ -158,10 +126,10 @@ void MainWindow::showNewDialog()
 
 void MainWindow::changeConnection(int row)
 {
-    tabStack->setCurrentIndex(row);
+    this->terminalView->setCurrentConnection(row);
     this->updateConnectionTabs();
 
-    this->setFocusOnCurrentTerminal();
+    this->terminalView->setFocusOnCurrentTerminal();
 }
 
 void MainWindow::createNewConnection()
@@ -203,37 +171,13 @@ void MainWindow::createNewConnection()
     TabbedTerminalWidget *tabs = new TabbedTerminalWidget(&this->preferences, connEntry);
     connEntry->tabs = tabs;
     tabs->addTerminalSession();
-    tabStack->addWidget(tabs);
+    this->terminalView->addConnection(tabs);
+    this->terminalView->setLastConnection();
 
-    this->sshSessionsStack->setCurrentIndex(1);
+    this->terminalView->setDisabledPageEnabled(false);
     this->rightWidget->setCurrentIndex(0);
-}
 
-void MainWindow::createNewSession()
-{
-    std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionList->getSelectedConnectionEntry();
-    if (connEntry == nullptr) {
-        return;
-    }
-
-    TabbedTerminalWidget *tabs = connEntry->tabs;
-    tabs->addTerminalSession();
-}
-
-void MainWindow::restartSession()
-{
-    std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionList->getSelectedConnectionEntry();
-    if (connEntry == nullptr) {
-        return;
-    }
-
-    connEntry->tabs->restartSession();
-}
-
-TabbedTerminalWidget* MainWindow::getCurrentTabWidget()
-{
-    std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionList->getSelectedConnectionEntry();
-    return connEntry->tabs;
+    this->terminalView->setFocusOnCurrentTerminal();
 }
 
 void MainWindow::aboutToQuit()
@@ -275,13 +219,13 @@ void MainWindow::readSettings()
             tabs->addInactiveSession(entry->tabNames->at(i));
         }
 
-        tabStack->addWidget(tabs);
+        this->terminalView->addConnection(tabs);
 
         entry->tabs = tabs;
 
         this->connectionModel->appendConnectionEntry(entry);
 
-        this->sshSessionsStack->setCurrentIndex(1);
+        this->terminalView->setDisabledPageEnabled(false);
         this->rightWidget->setCurrentIndex(0);
         this->connectionList->selectFirstConnection();
     }
@@ -406,13 +350,13 @@ void MainWindow::connectionRemoved(std::shared_ptr<SSHConnectionEntry> connEntry
         delete termWidget;
     }
 
-    this->tabStack->removeWidget(tabWidget);
+    this->terminalView->removeConnection(tabWidget);
 
     if (this->connectionModel->rowCount(QModelIndex()) == 0) {
         this->machineInfo->setMachineEnabled(false);
         this->notesEditor->setEnabled(false);
         this->awsInfo->setAWSEnabled(false);
-        this->sshSessionsStack->setCurrentIndex(0);
+        this->terminalView->setDisabledPageEnabled(true);
         this->setWindowTitle(PROGRAM_NAME);
     }
 }
@@ -439,30 +383,6 @@ void MainWindow::updateConnectionTabs()
     } else {
         this->awsInfo->setAWSEnabled(false);
     }
-}
-
-void MainWindow::toggleSessionEnlarged()
-{
-    if (this->connectionList->getSelectedConnectionEntry() == nullptr) {
-        return;
-    }
-
-    if (this->viewEnlarged) {
-        this->hiddenPage->layout()->removeWidget(this->sshSessionsStack);
-        this->sessionInfoSplitter->insertWidget(0, this->sshSessionsStack);
-        this->widgetStack->setCurrentIndex(0);
-        this->menuBar()->show();
-        this->viewEnlarged = false;
-    } else {
-        this->sshSessionsStack->setParent(this->hiddenPage);
-        this->hiddenPage->layout()->addWidget(this->sshSessionsStack);
-        this->widgetStack->setCurrentIndex(1);
-        this->menuBar()->hide();
-        this->viewEnlarged = true;
-    }
-
-    this->toggleEnlarged->setChecked(this->viewEnlarged);
-    this->setFocusOnCurrentTerminal();
 }
 
 void MainWindow::openWebsite()
@@ -496,6 +416,17 @@ void MainWindow::showPreferencesDialog()
     }
 }
 
+void MainWindow::notesChanged()
+{
+    std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionList->getSelectedConnectionEntry();
+
+    if (connEntry == nullptr) {
+        return;
+    }
+
+    connEntry->notes = this->notesEditor->toHtml();
+}
+
 void MainWindow::updateConsoleSettings(const QFont &font, const QString colorScheme)
 {
     // update all running QTermWidget instances
@@ -513,64 +444,32 @@ void MainWindow::updateConsoleSettings(const QFont &font, const QString colorSch
     }
 }
 
-void MainWindow::notesChanged()
+void MainWindow::toggleEnlargeWidget()
 {
-    std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionList->getSelectedConnectionEntry();
-
-    if (connEntry == nullptr) {
+    if (this->connectionList->getSelectedConnectionEntry() == nullptr) {
         return;
     }
 
-    connEntry->notes = this->notesEditor->toHtml();
-}
+    QObject *obj = QObject::sender();
+    QWidget *widget = qobject_cast<QWidget *>(obj);
 
-void MainWindow::nextTab()
-{
-    std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionList->getSelectedConnectionEntry();
-
-    if (connEntry->tabs->currentIndex() < 0) {
+    if (widget == nullptr) {
         return;
     }
 
-    if (connEntry->tabs->currentIndex() < (connEntry->tabs->count() - 1)) {
-        connEntry->tabs->setCurrentIndex(connEntry->tabs->currentIndex() + 1);
+    if (this->viewEnlarged) {
+        this->hiddenPage->layout()->removeWidget(widget);
+        this->sessionInfoSplitter->insertWidget(0, widget);
+        this->widgetStack->setCurrentIndex(0);
+        this->menuBar()->show();
+
+        this->viewEnlarged = false;
     } else {
-        connEntry->tabs->setCurrentIndex(0);
-    }
+        widget->setParent(this->hiddenPage);
+        this->hiddenPage->layout()->addWidget(widget);
+        this->widgetStack->setCurrentIndex(1);
+        this->menuBar()->hide();
 
-    this->setFocusOnCurrentTerminal();
-}
-
-void MainWindow::prevTab()
-{
-    std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionList->getSelectedConnectionEntry();
-
-    if (connEntry->tabs->currentIndex() < 0) {
-        return;
-    }
-
-    if (connEntry->tabs->currentIndex() > 0) {
-        connEntry->tabs->setCurrentIndex(connEntry->tabs->currentIndex() - 1);
-    } else {
-        connEntry->tabs->setCurrentIndex(connEntry->tabs->count() - 1);
-    }
-
-    this->setFocusOnCurrentTerminal();
-}
-
-void MainWindow::setFocusOnCurrentTerminal()
-{
-    auto connEntry = this->connectionList->getSelectedConnectionEntry();
-    if (connEntry == nullptr) {
-        return;
-    }
-
-    if (connEntry->tabs == nullptr) {
-        return;
-    }
-
-    QWidget *widget = connEntry->tabs->currentWidget();
-    if (QString("QTermWidget") == widget->metaObject()->className()) {
-        widget->setFocus();
+        this->viewEnlarged = true;
     }
 }

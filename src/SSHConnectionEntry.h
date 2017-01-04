@@ -11,6 +11,7 @@
 #define SSHCONNECTIONENTRY_H
 
 #include <memory>
+#include <mutex>
 
 #include <QByteArray>
 #include <QJsonArray>
@@ -19,6 +20,7 @@
 
 #include "AWSConnector.h"
 #include "AWSInstance.h"
+#include "SSHConnection.h"
 #include "TabbedTerminalWidget.h"
 
 #include "globals.h"
@@ -54,6 +56,11 @@ public:
     QStringList hopHosts;
     bool isAwsInstance;
     std::shared_ptr<AWSInstance> awsInstance;
+
+    // A libssh2 connection to the instance. All access is managed by
+    // SSHConnectionManager.
+    std::mutex connectionMutex;
+    std::shared_ptr<SSHConnection> connection;
 };
 
 #endif

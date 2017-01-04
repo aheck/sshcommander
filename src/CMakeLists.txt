@@ -33,13 +33,16 @@ add_executable(sshcommander
     Preferences.cpp
     PreferencesDialog.cpp
     SecurityGroupsDialog.cpp
+    SSHConnection.cpp
     SSHConnectionEntry.cpp
     SSHConnectionItemModel.cpp
+    SSHConnectionManager.cpp
     TabbedTerminalWidget.cpp
     TerminalViewWidget.cpp
     TagsDialog.cpp
     ${ProgramResources}
 )
 
-target_link_libraries(sshcommander Qt5::Widgets Qt5::Network ${QTERMWIDGET_LIBRARIES})
+target_link_libraries(sshcommander Qt5::Widgets Qt5::Network
+    ${QTERMWIDGET_LIBRARIES} ${LIBSSH2_LDFLAGS})
 add_dependencies(sshcommander update_git_commit_id)

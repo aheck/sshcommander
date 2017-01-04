@@ -6,6 +6,7 @@ SSHConnectionEntry::SSHConnectionEntry()
     this->tabs = nullptr;
     this->tabNames = new QStringList();
     this->isAwsInstance = false;
+    this->connection = nullptr;
 }
 
 SSHConnectionEntry::~SSHConnectionEntry()

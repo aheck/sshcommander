@@ -27,11 +27,14 @@ add_executable(tests main.cpp
     ../src/Preferences.cpp
     ../src/PreferencesDialog.cpp
     ../src/SecurityGroupsDialog.cpp
+    ../src/SSHConnection.cpp
     ../src/SSHConnectionEntry.cpp
     ../src/SSHConnectionItemModel.cpp
+    ../src/SSHConnectionManager.cpp
     ../src/TabbedTerminalWidget.cpp
     ../src/TerminalViewWidget.cpp
     ../src/TagsDialog.cpp
 )
 
-target_link_libraries(tests Qt5::Widgets Qt5::Network Qt5Test ${QTERMWIDGET_LIBRARIES})
+target_link_libraries(tests Qt5::Widgets Qt5::Network Qt5Test
+    ${QTERMWIDGET_LIBRARIES} ${LIBSSH2_LDFLAGS})

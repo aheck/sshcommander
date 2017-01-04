@@ -30,6 +30,9 @@ class AWSCache
 public:
     static AWSCache& getInstance();
 
+    AWSCache(AWSCache const &other) = delete;
+    void operator=(AWSCache const &) = delete;
+
     void updateInstances(const QString region, std::vector<std::shared_ptr<AWSInstance>> instances);
     void updateSecurityGroups(const QString region, std::vector<std::shared_ptr<AWSSecurityGroup>> securityGroups);
 

@@ -77,6 +77,9 @@ void ConnectionListWidget::editConnection()
         return;
     }
 
+    this->editDialog->clear();
+    this->editDialog->updateSSHKeys();
+
     this->editDialog->setWindowTitle("Edit " + connEntry->name);
     this->editDialog->setHostname(connEntry->hostname);
     this->editDialog->setUsername(connEntry->username);

@@ -3,6 +3,7 @@
 PreferencesDialog::PreferencesDialog()
 {
     this->setWindowTitle(tr("Preferences"));
+    this->setWindowIcon(QIcon(":/images/preferences-system.svg"));
     QVBoxLayout *layout = new QVBoxLayout();
 
     this->tabs = new QTabWidget();

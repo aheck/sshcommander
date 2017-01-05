@@ -11,7 +11,7 @@ TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
     this->widgetStack->addWidget(disabledPage);
 
     toolBar = new QToolBar(this);
-    toolBar->addAction(QIcon(":/images/utilities-terminal"), "New Session", this, SLOT(createNewSession()));
+    toolBar->addAction(QIcon(":/images/utilities-terminal.svg"), "New Session", this, SLOT(createNewSession()));
     toolBar->addAction(QIcon(":/images/view-refresh.svg"), "Restart Session", this, SLOT(restartCurrentSession()));
     this->toggleEnlarged = toolBar->addAction(QIcon(":/images/view-fullscreen.svg"),
             "Toggle Enlarged View (F10)", this, SLOT(toggleEnlarge()));

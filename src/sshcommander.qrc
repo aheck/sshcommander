@@ -11,5 +11,8 @@
     <file>images/process-stop.svg</file>
     <file>images/edit-undo.svg</file>
     <file>images/edit-redo.svg</file>
+    <file>images/go-home.svg</file>
+    <file>images/system-log-out.svg</file>
+    <file>images/help-browser.svg</file>
 </qresource>
 </RCC>

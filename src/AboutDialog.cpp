@@ -3,6 +3,7 @@
 AboutDialog::AboutDialog()
 {
     this->setWindowTitle("About SSH Commander");
+    this->setWindowIcon(QIcon(":/images/help-browser.svg"));
 
     QVBoxLayout *layout = new QVBoxLayout();
 

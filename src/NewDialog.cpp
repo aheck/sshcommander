@@ -3,6 +3,7 @@
 NewDialog::NewDialog(bool editDialog)
 {
     this->setWindowTitle(tr("New SSH Connection..."));
+    this->setWindowIcon(QIcon(":/images/applications-internet.svg"));
     this->isAwsInstance = false;
 
     this->hostnameLineEdit = new QLineEdit();

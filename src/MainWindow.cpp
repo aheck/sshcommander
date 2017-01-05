@@ -3,6 +3,8 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
+    this->setWindowIcon(QIcon(":/images/utilities-terminal.svg"));
+
     this->viewEnlarged = false;
     this->enlargedWidget = nullptr;
 
@@ -19,21 +21,24 @@ MainWindow::MainWindow(QWidget *parent) :
     QMenuBar *menuBar = new QMenuBar(0);
 
     QMenu *connMenu = new QMenu(tr("Connection"));
-    QAction *newRole = connMenu->addAction(tr("&New"), this, SLOT(showNewDialog()));
+    QAction *newRole = connMenu->addAction(QIcon(":/images/applications-internet.svg"), tr("&New"), this, SLOT(showNewDialog()));
     newRole->setMenuRole(QAction::NoRole);
     connMenu->addSeparator();
-    QAction *quitRole = connMenu->addAction(tr("&Quit"), qApp, SLOT(quit()));
+    QAction *quitRole = connMenu->addAction(QIcon(":/images/system-log-out.svg"), tr("&Quit"), qApp, SLOT(quit()));
     quitRole->setMenuRole(QAction::QuitRole);
 
     QMenu *editMenu = new QMenu(tr("Edit"));
-    QAction *preferencesAction = editMenu->addAction(tr("Preferences"), this, SLOT(showPreferencesDialog()));
+    QAction *preferencesAction = editMenu->addAction(QIcon(":/images/preferences-system.svg"),
+                tr("Preferences"), this, SLOT(showPreferencesDialog()));
     preferencesAction->setMenuRole(QAction::PreferencesRole);
 
     QMenu *helpMenu = new QMenu(tr("Help"));
-    QAction *websiteAction = helpMenu->addAction(tr("Website"), this, SLOT(openWebsite()));
+    QAction *websiteAction = helpMenu->addAction(QIcon(":/images/go-home.svg"),
+            tr("Website"), this, SLOT(openWebsite()));
     websiteAction->setMenuRole(QAction::NoRole);
     helpMenu->addSeparator();
-    QAction *aboutAction = helpMenu->addAction(tr("About"), this->aboutDialog, SLOT(exec()));
+    QAction *aboutAction = helpMenu->addAction(QIcon(":/images/help-browser.svg"),
+            tr("About"), this->aboutDialog, SLOT(exec()));
     aboutAction->setMenuRole(QAction::ApplicationSpecificRole);
 
     menuBar->addMenu(connMenu);

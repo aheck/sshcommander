@@ -67,12 +67,12 @@ QVariant InstanceItemModel::data(const QModelIndex &index, int role) const
     if (role== Qt::DecorationRole) {
         if (index.column() == 2) {
             if (instance->status == "running") {
-                return QColor(Qt::green);
+                return QIcon(":/images/green-light.svg");
             } else if (instance->status == "terminated") {
-                return QColor(Qt::red);
+                return QIcon(":/images/red-light.svg");
             }
 
-            return QColor(Qt::yellow);
+            return QIcon(":/images/yellow-light.svg");
         }
 
         return QVariant();

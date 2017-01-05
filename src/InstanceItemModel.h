@@ -14,7 +14,7 @@
 #include <memory>
 
 #include <QAbstractItemModel>
-#include <QColor>
+#include <QIcon>
 #include <QModelIndex>
 
 #include "AWSConnector.h"
@@ -51,6 +51,10 @@ private:
     // The list of AWSInstance objects that are actually visible in the current
     // table. This list can be sorted as well as filtered for a search term.
     std::vector<std::shared_ptr<AWSInstance>> instances;
+
+    QIcon greenLight;
+    QIcon yellowLight;
+    QIcon redLight;
 };
 
 #endif

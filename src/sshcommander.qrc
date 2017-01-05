@@ -14,5 +14,8 @@
     <file>images/go-home.svg</file>
     <file>images/system-log-out.svg</file>
     <file>images/help-browser.svg</file>
+    <file>images/green-light.svg</file>
+    <file>images/red-light.svg</file>
+    <file>images/yellow-light.svg</file>
 </qresource>
 </RCC>

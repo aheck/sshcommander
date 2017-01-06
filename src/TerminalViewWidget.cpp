@@ -19,6 +19,8 @@ TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
 
     this->connectionStack = new QStackedWidget();
     QVBoxLayout *boxLayout = new QVBoxLayout();
+    boxLayout->setSpacing(0);
+    boxLayout->setMargin(0);
     boxLayout->setContentsMargins(0, 0, 0, 0);
     boxLayout->addWidget(toolBar);
     boxLayout->addWidget(this->connectionStack);

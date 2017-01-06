@@ -75,6 +75,9 @@ MachineInfoWidget::MachineInfoWidget()
     this->widgetStack->addWidget(scrollArea);
 
     QVBoxLayout *layout = new QVBoxLayout();
+    layout->setSpacing(0);
+    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(this->widgetStack);
     this->setLayout(layout);
 }

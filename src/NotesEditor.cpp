@@ -63,6 +63,8 @@ NotesEditor::NotesEditor()
     layout->addWidget(toolBar);
 
     layout->addWidget(this->editor);
+    layout->setSpacing(0);
+    layout->setMargin(0);
     layout->setContentsMargins(0, 0, 0, 0);
 
     QObject::connect(this->editor, SIGNAL(textChanged()),
@@ -79,6 +81,10 @@ NotesEditor::NotesEditor()
     this->widgetStack->setCurrentIndex(0);
 
     this->setLayout(new QVBoxLayout());
+    this->layout()->setSpacing(0);
+    this->layout()->setMargin(0);
+    this->layout()->setContentsMargins(0, 0, 0, 0);
+
     this->layout()->addWidget(widgetStack);
 }
 

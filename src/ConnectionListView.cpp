@@ -8,6 +8,7 @@ ConnectionListView::ConnectionListView()
             "qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #eee, stop: 1 #f9f9f9); }\n"
             "QListView::item:selected { color: #ffffff; background: "
             "qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #548bc6, stop: 1 #c8daec); }\n");
+    this->setFocusPolicy(Qt::NoFocus);
 }
 
 bool ConnectionListView::event(QEvent *event)

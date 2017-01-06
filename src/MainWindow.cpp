@@ -47,10 +47,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->setMenuBar(menuBar);
 
-    // create the connection applets
-    this->machineInfo = new MachineInfoWidget();
-    this->awsInfo = new AWSInfoWidget(&this->preferences);
-
     this->widgetStack = new QStackedWidget();
 
     this->splitter = new QSplitter(Qt::Horizontal);
@@ -77,6 +73,10 @@ MainWindow::MainWindow(QWidget *parent) :
     this->notesEditor = new NotesEditor();
     connect(this->notesEditor, SIGNAL(textChanged()), this, SLOT(notesChanged()));
 
+    // create the connection applets
+    this->machineInfo = new MachineInfoWidget();
+    this->awsInfo = new AWSInfoWidget(&this->preferences);
+
     // create the tab where the applets reside
     this->appletTab = new QTabWidget();
     this->appletTab->addTab(this->machineInfo, "Machine");
@@ -88,6 +88,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->sessionInfoSplitter->setStretchFactor(1, 5);
     this->sessionInfoSplitter->setCollapsible(0, false);
 
+    // create the tab that allows to switch between SSH and AWS
     this->rightWidget = new QTabWidget();
     rightWidget->addTab(this->sessionInfoSplitter, "SSH");
 

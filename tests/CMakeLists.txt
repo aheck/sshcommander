@@ -36,5 +36,5 @@ add_executable(tests main.cpp
     ../src/TagsDialog.cpp
 )
 
-target_link_libraries(tests Qt5::Widgets Qt5::Network Qt5Test
-    ${QTERMWIDGET_LIBRARIES} ${LIBSSH2_LDFLAGS})
+target_link_libraries(tests ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES} ${Qt5Test_LIBRARIES}
+    ${QTERMWIDGET_LIBRARIES} ${LIBSSH2_LIBRARIES})

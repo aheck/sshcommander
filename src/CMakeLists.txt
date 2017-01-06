@@ -43,6 +43,6 @@ add_executable(sshcommander
     ${ProgramResources}
 )
 
-target_link_libraries(sshcommander Qt5::Widgets Qt5::Network
-    ${QTERMWIDGET_LIBRARIES} ${LIBSSH2_LDFLAGS})
+target_link_libraries(sshcommander ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES}
+    ${QTERMWIDGET_LIBRARIES} ${LIBSSH2_LIBRARIES})
 add_dependencies(sshcommander update_git_commit_id)

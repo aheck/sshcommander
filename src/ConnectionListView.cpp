@@ -2,6 +2,7 @@
 
 ConnectionListView::ConnectionListView()
 {
+    this->setUniformItemSizes(true);
     this->setStyleSheet(
             "QListView::item { border: 0; padding: 0.75em; }\n"
             "QListView::item:selected { color: #ffffff; background: "

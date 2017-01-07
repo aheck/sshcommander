@@ -17,5 +17,7 @@
     <file>images/green-light.svg</file>
     <file>images/red-light.svg</file>
     <file>images/yellow-light.svg</file>
+    <file>images/connection-type-standard.svg</file>
+    <file>images/connection-type-aws.svg</file>
 </qresource>
 </RCC>

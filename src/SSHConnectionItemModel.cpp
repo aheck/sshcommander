@@ -22,17 +22,37 @@ int SSHConnectionItemModel::columnCount(const QModelIndex &parent = QModelIndex(
 
 QVariant SSHConnectionItemModel::data(const QModelIndex &index, int role) const
 {
+    if (role == Qt::FontRole) {
+        QFont font;
+        font.setFamily("Verdana");
+        font.setPointSize(9);
+
+        return QVariant::fromValue<QFont>(font);
+    } else if (role == Qt::DecorationRole) {
+        std::shared_ptr<SSHConnectionEntry> entry = this->entries.at(index.row());
+
+        if (entry->isAwsInstance) {
+            return QIcon(":/images/connection-type-aws.svg");
+        } else {
+            return QIcon(":/images/connection-type-standard.svg");
+        }
+    }
+
     if (role != Qt::DisplayRole) {
         return QVariant();
     }
 
     std::shared_ptr<SSHConnectionEntry> entry = this->entries.at(index.row());
 
+    QString result = entry->name + "\n";
+
     if (!entry->shortDescription.isEmpty()) {
-        return QVariant(entry->name + " (" + entry->shortDescription + ")");
+        result += entry->shortDescription;
+    } else {
+        result += "-";
     }
 
-    return QVariant(entry->name);
+    return QVariant(result);
 }
 
 void SSHConnectionItemModel::appendConnectionEntry(std::shared_ptr<SSHConnectionEntry> entry)

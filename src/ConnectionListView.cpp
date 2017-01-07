@@ -3,11 +3,13 @@
 ConnectionListView::ConnectionListView()
 {
     this->setStyleSheet(
-            "QListView::item { border-bottom: 1px solid #999; padding: 1em; }\n"
-            "QListView::item:!selected { color: #000000; background: "
-            "qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #eee, stop: 1 #f9f9f9); }\n"
+            "QListView::item { border: 0; padding: 0.75em; }\n"
             "QListView::item:selected { color: #ffffff; background: "
-            "qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #548bc6, stop: 1 #c8daec); }\n");
+            "qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #307ece, stop: 1 #73b6fa); }\n"
+            "QListView::item:selected:hover { color: #ffffff; background: "
+            "qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #307ece, stop: 1 #73b6fa); }\n"
+            "QListView::item:hover { color: #000000; background: "
+            "qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #9fccfa, stop: 1 #c1e0ff); }\n");
     this->setFocusPolicy(Qt::NoFocus);
 }
 

@@ -129,8 +129,29 @@ void InstanceItemModel::setSearchText(const QString searchText)
                 if (tag.key.startsWith(searchText, Qt::CaseInsensitive) ||
                         tag.value.startsWith(searchText, Qt::CaseInsensitive)) {
                     this->instances.push_back(instance);
-                    break;
+                    continue;
                 }
+            }
+
+            // check other important fields for a match
+            if (instance->id.startsWith(searchText, Qt::CaseInsensitive)) {
+                this->instances.push_back(instance);
+                continue;
+            }
+
+            if (instance->keyname.startsWith(searchText, Qt::CaseInsensitive)) {
+                this->instances.push_back(instance);
+                continue;
+            }
+
+            if (instance->publicIP.startsWith(searchText, Qt::CaseInsensitive)) {
+                this->instances.push_back(instance);
+                continue;
+            }
+
+            if (instance->privateIP.startsWith(searchText, Qt::CaseInsensitive)) {
+                this->instances.push_back(instance);
+                continue;
             }
         }
     }

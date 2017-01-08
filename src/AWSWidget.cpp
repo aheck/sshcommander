@@ -63,6 +63,7 @@ AWSWidget::AWSWidget(Preferences *preferences)
             this, SLOT(selectionChanged(QItemSelection, QItemSelection)));
     this->instanceTable->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this->instanceTable, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showInstanceContextMenu(QPoint)));
+    connect(this->instanceTable, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClicked(QModelIndex)));
 
     QHBoxLayout *toolBarLayout = new QHBoxLayout();
     toolBarLayout->addWidget(this->toolBar);
@@ -86,6 +87,15 @@ AWSWidget::AWSWidget(Preferences *preferences)
     } else {
         this->mainWidget->setVisible(false);
         this->curWidget = this->loginWidget;
+    }
+}
+
+void AWSWidget::doubleClicked(const QModelIndex &index)
+{
+    if (this->connectButton->isEnabled()) {
+        this->connectToPublicIP();
+    } else {
+        this->connectToPrivateIP();
     }
 }
 

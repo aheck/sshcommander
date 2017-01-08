@@ -53,6 +53,7 @@ signals:
             bool toPrivateIP);
 
 private slots:
+    void doubleClicked(const QModelIndex &index);
     void connectToPublicIP();
     void connectToPrivateIP();
     void changeRegion(QString regionText);

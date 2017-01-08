@@ -43,6 +43,12 @@ add_executable(sshcommander
     ${ProgramResources}
 )
 
-target_link_libraries(sshcommander ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES}
-    ${QTERMWIDGET_LIBRARIES} ${LIBSSH2_LIBRARIES})
+if(STATIC_BUILD)
+    target_link_libraries(sshcommander ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES}
+        -ldl libqtermwidget5.a libssh2.a libz.a libcrypt.a libcrypto.a libssl.a)
+else()
+    target_link_libraries(sshcommander ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES}
+        ${QTERMWIDGET_LIBRARIES} ${LIBSSH2_LIBRARIES})
+endif()
+
 add_dependencies(sshcommander update_git_commit_id)

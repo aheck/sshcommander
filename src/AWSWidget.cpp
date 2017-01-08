@@ -151,6 +151,10 @@ void AWSWidget::connectToInstance(bool toPrivateIP)
 
     instance = this->instanceModel->getInstance(indexes.first());
 
+    if (instance->status != "running") {
+        return;
+    }
+
     InstanceItemModel *model = static_cast<InstanceItemModel *>(this->instanceTable->model());
     auto vpcNeighbours = model->getInstancesByVpcId(instance->vpcId);
     auto newEnd = std::remove_if(vpcNeighbours.begin(), vpcNeighbours.end(),

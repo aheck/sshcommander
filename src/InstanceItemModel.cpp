@@ -110,11 +110,15 @@ void InstanceItemModel::setInstances(std::vector<std::shared_ptr<AWSInstance>> i
     this->allInstances = instances;
     this->instances = this->allInstances;
 
+    this->setSearchText(this->currentSearchText);
+
     this->endResetModel();
 }
 
 void InstanceItemModel::setSearchText(const QString searchText)
 {
+    this->currentSearchText = searchText;
+
     this->beginResetModel();
 
     if (searchText.isEmpty()) {

@@ -52,9 +52,7 @@ private:
     // table. This list can be sorted as well as filtered for a search term.
     std::vector<std::shared_ptr<AWSInstance>> instances;
 
-    QIcon greenLight;
-    QIcon yellowLight;
-    QIcon redLight;
+    QString currentSearchText;
 };
 
 #endif

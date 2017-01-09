@@ -1,7 +1,5 @@
 #include "InstanceItemModel.h"
 
-enum Column {ID = 0, NAME, STATUS, TYPE, KEYNAME, PUBLICIP, PRIVATEIP, CFSTACK, LAUNCHTIME, NUM_COLUMNS};
-
 QModelIndex InstanceItemModel::index(int row, int column, const QModelIndex &parent = QModelIndex()) const
 {
     return this->createIndex(row, column);

@@ -10,8 +10,10 @@
 
 #include <QAction>
 #include <QApplication>
+#include <QClipboard>
 #include <QComboBox>
 #include <QFormLayout>
+#include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QMenu>
@@ -62,6 +64,7 @@ private slots:
     void showSecurityGroups();
     void showTags();
     void searchForText(const QString &text);
+    void copyItemToClipboard();
 
 private:
     void updateNumberOfInstances();
@@ -94,6 +97,11 @@ private:
     QLabel *instanceNumLabel;
     SecurityGroupsDialog *securityGroupsDialog;
     TagsDialog *tagsDialog;
+
+    // Value under the mouse cursor when the user right clicks. This value
+    // might be copied to the clipboard if the user selects the corresponding
+    // context menu action.
+    QString clipboardCandidate;
 };
 
 #endif

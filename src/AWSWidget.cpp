@@ -246,9 +246,17 @@ void AWSWidget::setRegion(const QString region)
 void AWSWidget::showInstanceContextMenu(QPoint pos)
 {
     QPoint globalPos = this->instanceTable->mapToGlobal(pos);
+    QModelIndex index = this->instanceTable->indexAt(pos);
 
-    if (this->instanceTable->indexAt(pos).isValid()) {
+    if (index.isValid()) {
         QMenu menu;
+
+        this->clipboardCandidate = this->instanceModel->data(index, Qt::DisplayRole).toString();
+        if (!this->clipboardCandidate.isEmpty()) {
+            menu.addAction("Copy '" + this->clipboardCandidate + "' to Clipboard", this, SLOT(copyItemToClipboard()));
+            menu.addSeparator();
+        }
+
         menu.addAction(tr("View Security Groups"), this, SLOT(showSecurityGroups()));
         menu.addAction(tr("View Tags"), this, SLOT(showTags()));
 
@@ -299,4 +307,9 @@ void AWSWidget::showTags()
 void AWSWidget::searchForText(const QString &text)
 {
     this->instanceModel->setSearchText(text);
+}
+
+void AWSWidget::copyItemToClipboard()
+{
+    QGuiApplication::clipboard()->setText(this->clipboardCandidate);
 }

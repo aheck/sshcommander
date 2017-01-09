@@ -53,6 +53,7 @@ AWSWidget::AWSWidget(Preferences *preferences)
     this->instanceModel = new InstanceItemModel();
     this->instanceTable->setModel(this->instanceModel);
     this->instanceTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    this->instanceTable->setSelectionMode(QAbstractItemView::SingleSelection);
     this->instanceTable->setSortingEnabled(true);
     for (int i = 0; i < this->instanceTable->horizontalHeader()->count(); i++) {
         this->instanceTable->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Interactive);

@@ -250,7 +250,7 @@ std::vector<std::shared_ptr<AWSInstance>> InstanceItemModel::getInstancesByVpcId
     std::vector<std::shared_ptr<AWSInstance>> result;
 
     for (auto instance : this->allInstances) {
-        if (instance->vpcId == vpcId) {
+        if (instance->vpcId == vpcId && instance->status == "running") {
             result.push_back(instance);
         }
     }

@@ -125,12 +125,20 @@ void InstanceItemModel::setSearchText(const QString searchText)
         for (std::shared_ptr<AWSInstance> instance : this->allInstances) {
             // check the instance tags for a match (Name is also a tag so no
             // need to check it separately)
+            bool found = false;
             for (AWSTag tag : instance->tags) {
                 if (tag.key.startsWith(searchText, Qt::CaseInsensitive) ||
                         tag.value.startsWith(searchText, Qt::CaseInsensitive)) {
                     this->instances.push_back(instance);
-                    continue;
+                    found = true;
+                    break;
                 }
+            }
+
+            // if we have found a match in the tags for-loop we continue with
+            // the next instance
+            if (found) {
+                continue;
             }
 
             // check other important fields for a match

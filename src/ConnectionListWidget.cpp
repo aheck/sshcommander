@@ -91,6 +91,7 @@ void ConnectionListWidget::editConnection()
     this->editDialog->setPassword(connEntry->password);
     this->editDialog->setSSHKey(connEntry->sshkey);
     this->editDialog->setPortNumber(connEntry->port);
+    this->editDialog->setHopChecked(connEntry->hopHosts.count() > 0);
 
     if (this->editDialog->exec() == QDialog::Rejected) {
         return;

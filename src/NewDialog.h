@@ -37,6 +37,8 @@ public:
     int getPortNumber();
     void setPortNumber(int port);
     QStringList getHopHosts();
+    QStringList getHopUsernames();
+    QStringList getHopSSHKeys();
     void setHopChecked(bool checked);
     void addHopHost(QString name, QString ip);
     void updateSSHKeys();
@@ -50,7 +52,9 @@ public:
     std::shared_ptr<AWSInstance> awsInstance;
 
 public slots:
-    void selectKeyFile();
+    void selectKeyFileDefault();
+    void selectKeyFileHop();
+    void selectKeyFile(QComboBox *targetComboBox);
     void acceptDialog();
 
 private slots:
@@ -67,7 +71,11 @@ private:
     QLineEdit *portLineEdit;
     QCheckBox *portCheckBox;
     QCheckBox *hopCheckBox;
-    QComboBox *hopComboBox;
+    QComboBox *hopHostBox;
+    QLineEdit *hopUsernameLineEdit;
+    QComboBox *hopSSHKeyComboBox;
+    QToolButton *hopFileButton;
+    QHBoxLayout *hopFileLayout;
 };
 
 #endif

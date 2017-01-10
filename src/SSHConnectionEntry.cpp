@@ -80,16 +80,24 @@ QStringList SSHConnectionEntry::generateCliArgs()
 
     // is this an indirect connection over one or more hops?
     if (!this->hopHosts.isEmpty()) {
-        int i = 0;
-        for (QString hopHost : this->hopHosts) {
+        for (int i = 0; i < this->hopHosts.count(); i++) {
+            QString hopHost = this->hopHosts.at(i);
+            QString hopUsername = this->hopUsernames.at(i);
+            QString hopSSHKey = this->hopSSHKeys.at(i);
+
             if (i > 0) {
                 args.append("ssh");
             }
+
             args.append("-A");
             args.append("-t");
-            args.append(QString("%1@%2").arg(this->username).arg(hopHost));
 
-            i++;
+            if (!hopSSHKey.isEmpty()) {
+                args.append("-i");
+                args.append(hopSSHKey);
+            }
+
+            args.append(QString("%1@%2").arg(hopUsername).arg(hopHost));
         }
 
         args.append("ssh");

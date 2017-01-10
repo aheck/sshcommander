@@ -165,6 +165,8 @@ void MainWindow::createNewConnection()
     connEntry->password = password;
     connEntry->shortDescription = this->newDialog->getShortDescription();
     connEntry->hopHosts = this->newDialog->getHopHosts();
+    connEntry->hopUsernames = this->newDialog->getHopUsernames();
+    connEntry->hopSSHKeys = this->newDialog->getHopSSHKeys();
 
     if (this->newDialog->isAwsInstance) {
         connEntry->isAwsInstance = true;

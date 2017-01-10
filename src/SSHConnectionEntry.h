@@ -54,6 +54,8 @@ public:
     TabbedTerminalWidget *tabs;
     QStringList *tabNames;
     QStringList hopHosts;
+    QStringList hopUsernames;
+    QStringList hopSSHKeys;
     bool isAwsInstance;
     std::shared_ptr<AWSInstance> awsInstance;
 

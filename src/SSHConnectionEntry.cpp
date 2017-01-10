@@ -34,6 +34,14 @@ void SSHConnectionEntry::read(const QJsonObject &json)
         this->hopHosts.append(cur.toString());
     }
 
+    for (QVariant cur: json["hopUsernames"].toArray().toVariantList()) {
+        this->hopUsernames.append(cur.toString());
+    }
+
+    for (QVariant cur: json["hopSSHKeys"].toArray().toVariantList()) {
+        this->hopSSHKeys.append(cur.toString());
+    }
+
     this->isAwsInstance = json["isAwsInstance"].toBool();
     if (this->isAwsInstance) {
         this->awsInstance = std::make_shared<AWSInstance>();
@@ -56,6 +64,8 @@ void SSHConnectionEntry::write(QJsonObject &json) const
     json["port"] = (int) this->port;
     json["tabNames"] = QJsonArray::fromStringList(*this->tabNames);
     json["hopHosts"] = QJsonArray::fromStringList(this->hopHosts);
+    json["hopUsernames"] = QJsonArray::fromStringList(this->hopUsernames);
+    json["hopSSHKeys"] = QJsonArray::fromStringList(this->hopSSHKeys);
     json["isAwsInstance"] = this->isAwsInstance;
     if (this->isAwsInstance) {
         this->awsInstance->write(awsInstanceJson);
@@ -82,8 +92,15 @@ QStringList SSHConnectionEntry::generateCliArgs()
     if (!this->hopHosts.isEmpty()) {
         for (int i = 0; i < this->hopHosts.count(); i++) {
             QString hopHost = this->hopHosts.at(i);
-            QString hopUsername = this->hopUsernames.at(i);
-            QString hopSSHKey = this->hopSSHKeys.at(i);
+            QString hopUsername;
+            if (this->hopUsernames.count() >= i + 1) {
+                hopUsername = this->hopUsernames.at(i);
+            }
+
+            QString hopSSHKey;
+            if (this->hopSSHKeys.count() >= i + 1) {
+                hopSSHKey = this->hopSSHKeys.at(i);
+            }
 
             if (i > 0) {
                 args.append("ssh");

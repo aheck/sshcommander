@@ -18,6 +18,7 @@
 #include "DisabledWidget.h"
 #include "Preferences.h"
 #include "SecurityGroupsDialog.h"
+#include "SubnetDialog.h"
 
 class AWSInfoWidget : public QWidget
 {
@@ -33,6 +34,7 @@ public:
 public slots:
     void handleAWSResult(AWSResult *result);
     void showSecurityGroups();
+    void showSubnet();
     void reloadInstanceData();
 
 private:
@@ -40,6 +42,7 @@ private:
     std::shared_ptr<AWSInstance> instance;
     AWSConnector *awsConnector;
     SecurityGroupsDialog *securityGroupsDialog;
+    SubnetDialog *subnetDialog;
     bool enabled;
     QScrollArea *scrollArea;
     QStackedWidget *widgetStack;

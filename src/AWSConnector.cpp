@@ -152,6 +152,28 @@ void AWSConnector::describeSecurityGroups(QList<QString> &groupIds)
     this->sendRequest("DescribeSecurityGroups", extraParams);
 }
 
+void AWSConnector::describeSubnets(QList<QString> &subnetIds)
+{
+    QList<QString> extraParams;
+    for (int i = 0; i < subnetIds.count(); i++) {
+        QString subnetIdParam = "SubnetId." + QString::number(i + 1) + "=" + subnetIds.at(i);
+        extraParams.append(subnetIdParam);
+    }
+
+    this->sendRequest("DescribeSubnets", extraParams);
+}
+
+void AWSConnector::describeVpcs(QList<QString> &vpcIds)
+{
+    QList<QString> extraParams;
+    for (int i = 0; i < vpcIds.count(); i++) {
+        QString vpcIdParam = "VpcId." + QString::number(i + 1) + "=" + vpcIds.at(i);
+        extraParams.append(vpcIdParam);
+    }
+
+    this->sendRequest("DescribeVpcs", extraParams);
+}
+
 void AWSConnector::replyFinished(QNetworkReply *reply)
 {
     AWSResult *result = new AWSResult();

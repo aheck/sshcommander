@@ -3,6 +3,10 @@
  * AWSConnector implements a simple and VERY minimal interface to talk to
  * the parts of Amazon's AWS API needed by this program.
  *
+ * The API reference with descriptions of the requests can be found here:
+ *
+ * http://docs.aws.amazon.com/AWSEC2/latest/APIReference/Welcome.html
+ *
  ****************************************************************************/
 
 #ifndef AWSCONNECTOR_H
@@ -24,6 +28,8 @@
 #include <QUrl>
 
 #include "AWSInstance.h"
+#include "AWSSubnet.h"
+#include "AWSVpc.h"
 
 struct AWSResult
 {
@@ -75,6 +81,8 @@ public:
     void describeInstances();
     void describeInstances(QList<QString> &instanceIds);
     void describeSecurityGroups(QList<QString> &groupIds);
+    void describeSubnets(QList<QString> &subnetIds);
+    void describeVpcs(QList<QString> &vpcIds);
 
 private slots:
     void replyFinished(QNetworkReply *reply);

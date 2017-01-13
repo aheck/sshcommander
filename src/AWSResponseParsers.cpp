@@ -2,6 +2,7 @@
 
 static void parseAWSIngressPermissions(QXmlStreamReader &xml, std::shared_ptr<AWSSecurityGroup> securityGroup);
 static void parseAWSEgressPermissions(QXmlStreamReader &xml, std::shared_ptr<AWSSecurityGroup> securityGroup);
+static void parseAWSTags(QXmlStreamReader &xml, QList<AWSTag> &tags);
 
 std::vector<std::shared_ptr<AWSInstance>> parseDescribeInstancesResponse(AWSResult *result, QString region)
 {
@@ -21,7 +22,6 @@ std::vector<std::shared_ptr<AWSInstance>> parseDescribeInstancesResponse(AWSResu
     bool instancesSet = false;
     bool instanceState = false;
     bool groupSet = false;
-    bool tagSet = false;
     int itemLevel = 0;
 
     while (!xml.isEndDocument()) {
@@ -41,16 +41,23 @@ std::vector<std::shared_ptr<AWSInstance>> parseDescribeInstancesResponse(AWSResu
                 } else if (groupSet && itemLevel == 3) {
                     AWSSecurityGroup securityGroup;
                     instance->securityGroups.append(securityGroup);
-                } else if (tagSet && itemLevel == 3) {
-                    AWSTag tag;
-                    instance->tags.append(tag);
                 }
             } else if (name == "instanceState") {
                 instanceState = true;
-            } else if (name == "groupSet"){
+            } else if (name == "groupSet") {
                 groupSet = true;
-            } else if (name == "tagSet"){
-                tagSet = true;
+            } else if (name == "tagSet") {
+                parseAWSTags(xml, instance->tags);
+
+                for (AWSTag tag : instance->tags) {
+                    if (tag.key == "Name") {
+                        instance->name = tag.value;
+                    } else if (tag.key == "aws:cloudformation:stack-id") {
+                        instance->cfStackId = tag.value;
+                    } else if (tag.key == "aws:cloudformation:stack-name") {
+                        instance->cfStackName = tag.value;
+                    }
+                }
             } else if (instancesSet && itemLevel == 2) {
                 if (name == "instanceId") {
                     instance->id = xml.readElementText();
@@ -89,26 +96,6 @@ std::vector<std::shared_ptr<AWSInstance>> parseDescribeInstancesResponse(AWSResu
                 } else if (name == "groupName") {
                     instance->securityGroups.last().name = xml.readElementText();
                 }
-            } else if (tagSet && itemLevel == 3) {
-                if (name == "key") {
-                    instance->tags.last().key = xml.readElementText();
-                    if (instance->tags.last().key == "Name") {
-                        instance->name = instance->tags.last().value;
-                    } else if (instance->tags.last().key == "aws:cloudformation:stack-id") {
-                        instance->cfStackId = instance->tags.last().value;
-                    } else if (instance->tags.last().key == "aws:cloudformation:stack-name") {
-                        instance->cfStackName = instance->tags.last().value;
-                    }
-                } else if (name == "value") {
-                    instance->tags.last().value = xml.readElementText();
-                    if (instance->tags.last().key == "Name") {
-                        instance->name = instance->tags.last().value;
-                    } else if (instance->tags.last().key == "aws:cloudformation:stack-id") {
-                        instance->cfStackId = instance->tags.last().value;
-                    } else if (instance->tags.last().key == "aws:cloudformation:stack-name") {
-                        instance->cfStackName = instance->tags.last().value;
-                    }
-                }
             }
         } else if (xml.isEndElement()) {
             QString name = xml.name().toString();
@@ -116,8 +103,6 @@ std::vector<std::shared_ptr<AWSInstance>> parseDescribeInstancesResponse(AWSResu
                 instancesSet = false;
             } else if (name == "groupSet") {
                 groupSet = false;
-            } else if (name == "tagSet") {
-                tagSet = false;
             } else if (name == "item") {
                 itemLevel--;
             } else if (name == "instanceState") {
@@ -292,4 +277,122 @@ static void parseAWSEgressPermissions(QXmlStreamReader &xml, std::shared_ptr<AWS
             }
         }
     }
+}
+
+static void parseAWSTags(QXmlStreamReader &xml, QList<AWSTag> &tags)
+{
+    int itemLevel = 0;
+
+    while (!xml.isEndDocument()) {
+        xml.readNext();
+
+        if (xml.isStartElement()) {
+            QString name = xml.name().toString();
+
+            if (name == "item") {
+                itemLevel++;
+
+                if (itemLevel == 1) {
+                    AWSTag tag;
+                    tags.append(tag);
+                }
+                continue;
+            }
+
+            if (itemLevel == 1) {
+                if (name == "key") {
+                    tags.last().key = xml.readElementText();
+                } else if (name == "value") {
+                    tags.last().value = xml.readElementText();
+                }
+            }
+        } else if (xml.isEndElement()) {
+            QString name = xml.name().toString();
+            if (name == "tagSet") {
+                break;
+            } else if (name == "item") {
+                itemLevel--;
+            }
+        }
+    }
+}
+
+std::vector<std::shared_ptr<AWSSubnet>> parseDescribeSubnetsResponse(AWSResult *result, QString region)
+{
+    std::vector<std::shared_ptr<AWSSubnet>> vector;
+    std::shared_ptr<AWSSubnet> subnet;
+
+    if (result->httpBody.isEmpty()) {
+        return vector;
+    }
+
+    QBuffer buffer;
+    buffer.setData(result->httpBody.toUtf8());
+    buffer.open(QIODevice::ReadOnly);
+    QXmlStreamReader xml;
+    xml.setDevice(&buffer);
+
+    bool subnetSet = false;
+    int itemLevel = 0;
+
+    while (!xml.isEndDocument()) {
+        xml.readNext();
+
+        if (xml.isStartElement()) {
+            QString name = xml.name().toString();
+            if (name == "subnetSet") {
+                subnetSet = true;
+            } else if (name == "item") {
+                itemLevel++;
+
+                // new subnet item?
+                if (itemLevel == 1) {
+                    subnet = std::make_shared<AWSSubnet>();
+                    vector.push_back(subnet);
+                }
+            } else if (subnetSet && itemLevel == 1) {
+                if (name == "subnetId") {
+                    subnet->id = xml.readElementText();
+                } else if (name == "state") {
+                    subnet->state = xml.readElementText();
+                } else if (name == "vpcId") {
+                    subnet->vpcId = xml.readElementText();
+                } else if (name == "cidrBlock") {
+                    subnet->cidrBlock = xml.readElementText();
+                } else if (name == "availableIpAddressCount") {
+                    subnet->availableIpAddressCount = xml.readElementText();
+                } else if (name == "availabilityZone") {
+                    subnet->availabilityZone = xml.readElementText();
+                } else if (name == "defaultForAz") {
+                    subnet->defaultForAz = xml.readElementText() == "true";
+                } else if (name == "mapPublicIpOnLaunch") {
+                    subnet->mapPublicIpOnLaunch = xml.readElementText() == "true";
+                } else if (name == "tagSet") {
+                    parseAWSTags(xml, subnet->tags);
+
+                    for (AWSTag tag : subnet->tags) {
+                        if (tag.key == "Name") {
+                            subnet->name = tag.value;
+                        }
+                    }
+                }
+            }
+        } else if (xml.isEndElement()) {
+            QString name = xml.name().toString();
+            if (name == "subnetSet") {
+                subnetSet = false;
+            } else if (name == "item") {
+                itemLevel--;
+            }
+        }
+    }
+
+    return vector;
+}
+
+std::vector<std::shared_ptr<AWSVpc>> parseDescribeVpcsResponse(AWSResult *result, QString region)
+{
+    std::vector<std::shared_ptr<AWSVpc>> vector;
+
+    return vector;
 }

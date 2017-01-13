@@ -13,6 +13,8 @@ add_executable(tests main.cpp
     ../src/AWSTag.cpp
     ../src/AWSResponseParsers.cpp
     ../src/AWSSecurityGroup.cpp
+    ../src/AWSSubnet.cpp
+    ../src/AWSVpc.cpp
     ../src/AWSWidget.cpp
     ../src/ConnectionListView.cpp
     ../src/ConnectionListWidget.cpp
@@ -31,6 +33,7 @@ add_executable(tests main.cpp
     ../src/SSHConnectionEntry.cpp
     ../src/SSHConnectionItemModel.cpp
     ../src/SSHConnectionManager.cpp
+    ../src/SubnetDialog.cpp
     ../src/TabbedTerminalWidget.cpp
     ../src/TerminalViewWidget.cpp
     ../src/TagsDialog.cpp

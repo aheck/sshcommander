@@ -7,6 +7,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->enabled = false;
 
     this->securityGroupsDialog = new SecurityGroupsDialog();
+    this->subnetDialog = new SubnetDialog();
 
     this->awsConnector = new AWSConnector();
     QObject::connect(this->awsConnector, SIGNAL(awsReplyReceived(AWSResult*)), this, SLOT(handleAWSResult(AWSResult*)));
@@ -79,7 +80,9 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->valueVpcId = new QLabel("");
     this->valueVpcId->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueSubnetId = new QLabel("");
-    this->valueSubnetId->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    this->valueSubnetId->setTextFormat(Qt::RichText);
+    this->valueSubnetId->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    QObject::connect(this->valueSubnetId, SIGNAL(linkActivated(QString)), this, SLOT(showSubnet()));
     this->valueSourceDestCheck = new QLabel("");
     this->valueSourceDestCheck->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueCfStackName = new QLabel("");
@@ -191,7 +194,7 @@ void AWSInfoWidget::updateData(std::shared_ptr<AWSInstance> instance)
     this->valuePrivateIP->setText(instance->privateIP);
     this->valueVpcId->setText(instance->formattedVPC());
 
-    this->valueSubnetId->setText(instance->formattedSubnet());
+    this->valueSubnetId->setText(QString("%1 (<a href=\"http://localhost/\">View Subnet</a>)").arg(instance->formattedSubnet()));
     this->valueSourceDestCheck->setText(instance->sourceDestCheck);
     this->valueCfStackName->setText(instance->cfStackName);
     this->valueVirtualizationType->setText(instance->virtualizationType);
@@ -260,6 +263,10 @@ void AWSInfoWidget::handleAWSResult(AWSResult *result)
                 msgBox.setIcon(QMessageBox::Warning);
                 msgBox.exec();
             }
+        } else if (result->responseType == "DescribeSubnetsResponse") {
+            std::vector<std::shared_ptr<AWSSubnet>> subnets = parseDescribeSubnetsResponse(result, this->instance->region);
+
+            this->subnetDialog->updateData(subnets);
         }
     }
 
@@ -268,12 +275,18 @@ void AWSInfoWidget::handleAWSResult(AWSResult *result)
 
 void AWSInfoWidget::showSecurityGroups()
 {
-    std::cout << "Show security groups..." << std::endl;
-
     this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
     this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
     this->awsConnector->setRegion(this->instance->region);
     this->securityGroupsDialog->showDialog(this->awsConnector, instance);
+}
+
+void AWSInfoWidget::showSubnet()
+{
+    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
+    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    this->awsConnector->setRegion(this->instance->region);
+    this->subnetDialog->showDialog(this->awsConnector, instance);
 }
 
 void AWSInfoWidget::reloadInstanceData()

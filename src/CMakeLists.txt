@@ -19,6 +19,8 @@ add_executable(sshcommander
     AWSTag.cpp
     AWSResponseParsers.cpp
     AWSSecurityGroup.cpp
+    AWSSubnet.cpp
+    AWSVpc.cpp
     AWSWidget.cpp
     ConnectionListView.cpp
     ConnectionListWidget.cpp
@@ -37,6 +39,7 @@ add_executable(sshcommander
     SSHConnectionEntry.cpp
     SSHConnectionItemModel.cpp
     SSHConnectionManager.cpp
+    SubnetDialog.cpp
     TabbedTerminalWidget.cpp
     TerminalViewWidget.cpp
     TagsDialog.cpp

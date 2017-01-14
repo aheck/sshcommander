@@ -57,7 +57,7 @@ bool ConnectionListView::event(QEvent *event)
                 }
                 text += "<tr><td>Region: </td><td>" + connEntry->awsInstance->region + "</td></tr>";
                 text += "<tr><td>Availability Zone: </td><td>" + connEntry->awsInstance->availabilityZone + "</td></tr>";
-                text += "<tr><td>VPC: </td><td>" + connEntry->awsInstance->formattedVPC() + "</td></tr>";
+                text += "<tr><td>VPC: </td><td>" + connEntry->awsInstance->formattedVpc() + "</td></tr>";
                 text += "<tr><td>Subnet: </td><td>" + connEntry->awsInstance->formattedSubnet() + "</td></tr>";
                 text += "<tr><td>Keyname: </td><td>" + connEntry->awsInstance->keyname + "</td></tr>";
                 text += "<tr><td>Instance Type: </td><td>" + connEntry->awsInstance->type + "</td></tr>";

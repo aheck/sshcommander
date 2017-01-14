@@ -1,6 +1,7 @@
 Makefile
 CMakeFiles
 moc_*
+*.log
 *.swp
 *_automoc.cpp
 CMakeCache.txt
@@ -12,3 +13,7 @@ Testing
 CTestTestfile*
 src/qrc_sshcommander.cpp
 src/sshcommander.qrc.depends
+compile_commands.json
+debian/files
+debian/sshcommander.substvars
+debian/debhelper-build-stamp

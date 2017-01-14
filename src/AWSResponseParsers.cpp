@@ -393,6 +393,68 @@ std::vector<std::shared_ptr<AWSSubnet>> parseDescribeSubnetsResponse(AWSResult *
 std::vector<std::shared_ptr<AWSVpc>> parseDescribeVpcsResponse(AWSResult *result, QString region)
 {
     std::vector<std::shared_ptr<AWSVpc>> vector;
+    std::shared_ptr<AWSVpc> vpc;
+
+    if (result->httpBody.isEmpty()) {
+        return vector;
+    }
+
+    QBuffer buffer;
+    buffer.setData(result->httpBody.toUtf8());
+    buffer.open(QIODevice::ReadOnly);
+    QXmlStreamReader xml;
+    xml.setDevice(&buffer);
+
+    bool vpcSet = false;
+    int itemLevel = 0;
+
+    while (!xml.isEndDocument()) {
+        xml.readNext();
+
+        if (xml.isStartElement()) {
+            QString name = xml.name().toString();
+            if (name == "vpcSet") {
+                vpcSet = true;
+            } else if (name == "item") {
+                itemLevel++;
+
+                // new vpc item?
+                if (itemLevel == 1) {
+                    vpc = std::make_shared<AWSVpc>();
+                    vector.push_back(vpc);
+                }
+            } else if (vpcSet && itemLevel == 1) {
+                if (name == "vpcId") {
+                    vpc->id = xml.readElementText();
+                } else if (name == "state") {
+                    vpc->state = xml.readElementText();
+                } else if (name == "cidrBlock") {
+                    vpc->cidrBlock = xml.readElementText();
+                } else if (name == "dhcpOptionsId") {
+                    vpc->dhcpOptionsId = xml.readElementText();
+                } else if (name == "instanceTenancy") {
+                    vpc->instanceTenancy = xml.readElementText();
+                } else if (name == "isDefault") {
+                    vpc->isDefault = xml.readElementText() == "true";
+                } else if (name == "tagSet") {
+                    parseAWSTags(xml, vpc->tags);
+
+                    for (AWSTag tag : vpc->tags) {
+                        if (tag.key == "Name") {
+                            vpc->name = tag.value;
+                        }
+                    }
+                }
+            }
+        } else if (xml.isEndElement()) {
+            QString name = xml.name().toString();
+            if (name == "vpcSet") {
+                vpcSet = false;
+            } else if (name == "item") {
+                itemLevel--;
+            }
+        }
+    }
 
     return vector;
 }

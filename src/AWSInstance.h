@@ -16,7 +16,7 @@ public:
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
-    const QString formattedVPC();
+    const QString formattedVpc();
     const QString formattedSubnet();
 
     QString id;

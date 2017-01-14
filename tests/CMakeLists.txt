@@ -37,6 +37,7 @@ add_executable(tests main.cpp
     ../src/TabbedTerminalWidget.cpp
     ../src/TerminalViewWidget.cpp
     ../src/TagsDialog.cpp
+    ../src/VpcDialog.cpp
 )
 
 target_link_libraries(tests ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES} ${Qt5Test_LIBRARIES}

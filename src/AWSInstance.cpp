@@ -83,7 +83,7 @@ void AWSInstance::write(QJsonObject &json) const
     json["tags"] = tags;
 }
 
-const QString AWSInstance::formattedVPC()
+const QString AWSInstance::formattedVpc()
 {
     if (!this->vpcName.isEmpty()) {
         return this->vpcName + " (" + this->vpcId + ")";

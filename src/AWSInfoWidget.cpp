@@ -8,6 +8,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
 
     this->securityGroupsDialog = new SecurityGroupsDialog();
     this->subnetDialog = new SubnetDialog();
+    this->vpcDialog = new VpcDialog();
 
     this->awsConnector = new AWSConnector();
     QObject::connect(this->awsConnector, SIGNAL(awsReplyReceived(AWSResult*)), this, SLOT(handleAWSResult(AWSResult*)));
@@ -30,8 +31,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->awsPage->layout()->addWidget(this->scrollArea);
 
     this->widgetStack = new QStackedWidget();
-    this->widgetStack->addWidget(this->disabledWidget);
-    this->widgetStack->addWidget(this->awsPage);
+    this->widgetStack->addWidget(this->disabledWidget); this->widgetStack->addWidget(this->awsPage);
 
     this->labelInstanceId = new QLabel("Instance ID:");
     this->labelName = new QLabel("Name:");
@@ -44,8 +44,8 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->labelLaunchTime = new QLabel("Launch Time:");
     this->labelPublicIP = new QLabel("Public IP:");
     this->labelPrivateIP = new QLabel("Private IP:");
-    this->labelVpcId = new QLabel("VPC ID:");
-    this->labelSubnetId = new QLabel("Subnet ID:");
+    this->labelVpc = new QLabel("VPC ID:");
+    this->labelSubnet = new QLabel("Subnet:");
     this->labelSourceDestCheck = new QLabel("Source Dest Check:");
     this->labelCfStackName = new QLabel("CloudFormation Stack:");
     this->labelTags = new QLabel("Tags:");
@@ -77,12 +77,14 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->valuePublicIP->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valuePrivateIP = new QLabel("");
     this->valuePrivateIP->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    this->valueVpcId = new QLabel("");
-    this->valueVpcId->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    this->valueSubnetId = new QLabel("");
-    this->valueSubnetId->setTextFormat(Qt::RichText);
-    this->valueSubnetId->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    QObject::connect(this->valueSubnetId, SIGNAL(linkActivated(QString)), this, SLOT(showSubnet()));
+    this->valueVpc = new QLabel("");
+    this->valueVpc->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    this->valueVpc->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    QObject::connect(this->valueVpc, SIGNAL(linkActivated(QString)), this, SLOT(showVpc()));
+    this->valueSubnet = new QLabel("");
+    this->valueSubnet->setTextFormat(Qt::RichText);
+    this->valueSubnet->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    QObject::connect(this->valueSubnet, SIGNAL(linkActivated(QString)), this, SLOT(showSubnet()));
     this->valueSourceDestCheck = new QLabel("");
     this->valueSourceDestCheck->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueCfStackName = new QLabel("");
@@ -129,11 +131,11 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
 
     this->gridLayout->addWidget(this->labelPrivateIP, 10, 0, Qt::AlignLeft);
     this->gridLayout->addWidget(this->valuePrivateIP, 10, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelVpcId, 11, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueVpcId, 11, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelVpc, 11, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueVpc, 11, 1, Qt::AlignLeft);
 
-    this->gridLayout->addWidget(this->labelSubnetId, 12, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueSubnetId, 12, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelSubnet, 12, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueSubnet, 12, 1, Qt::AlignLeft);
     this->gridLayout->addWidget(this->labelSourceDestCheck, 13, 0, Qt::AlignLeft);
     this->gridLayout->addWidget(this->valueSourceDestCheck, 13, 1, Qt::AlignLeft);
 
@@ -192,9 +194,9 @@ void AWSInfoWidget::updateData(std::shared_ptr<AWSInstance> instance)
     this->valueLaunchTime->setText(instance->launchTime);
     this->valuePublicIP->setText(instance->publicIP);
     this->valuePrivateIP->setText(instance->privateIP);
-    this->valueVpcId->setText(instance->formattedVPC());
+    this->valueVpc->setText(QString("%1 (<a href=\"http://localhost/\">View VPC</a>)").arg(instance->formattedVpc()));
 
-    this->valueSubnetId->setText(QString("%1 (<a href=\"http://localhost/\">View Subnet</a>)").arg(instance->formattedSubnet()));
+    this->valueSubnet->setText(QString("%1 (<a href=\"http://localhost/\">View Subnet</a>)").arg(instance->formattedSubnet()));
     this->valueSourceDestCheck->setText(instance->sourceDestCheck);
     this->valueCfStackName->setText(instance->cfStackName);
     this->valueVirtualizationType->setText(instance->virtualizationType);
@@ -267,6 +269,10 @@ void AWSInfoWidget::handleAWSResult(AWSResult *result)
             std::vector<std::shared_ptr<AWSSubnet>> subnets = parseDescribeSubnetsResponse(result, this->instance->region);
 
             this->subnetDialog->updateData(subnets);
+        } else if (result->responseType == "DescribeVpcsResponse") {
+            std::vector<std::shared_ptr<AWSVpc>> vpcs = parseDescribeVpcsResponse(result, this->instance->region);
+
+            this->vpcDialog->updateData(vpcs);
         }
     }
 
@@ -279,6 +285,14 @@ void AWSInfoWidget::showSecurityGroups()
     this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
     this->awsConnector->setRegion(this->instance->region);
     this->securityGroupsDialog->showDialog(this->awsConnector, instance);
+}
+
+void AWSInfoWidget::showVpc()
+{
+    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
+    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    this->awsConnector->setRegion(this->instance->region);
+    this->vpcDialog->showDialog(this->awsConnector, instance);
 }
 
 void AWSInfoWidget::showSubnet()

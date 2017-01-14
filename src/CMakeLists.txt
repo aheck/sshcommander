@@ -43,6 +43,7 @@ add_executable(sshcommander
     TabbedTerminalWidget.cpp
     TerminalViewWidget.cpp
     TagsDialog.cpp
+    VpcDialog.cpp
     ${ProgramResources}
 )
 

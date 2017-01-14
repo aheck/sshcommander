@@ -19,6 +19,7 @@
 #include "Preferences.h"
 #include "SecurityGroupsDialog.h"
 #include "SubnetDialog.h"
+#include "VpcDialog.h"
 
 class AWSInfoWidget : public QWidget
 {
@@ -34,6 +35,7 @@ public:
 public slots:
     void handleAWSResult(AWSResult *result);
     void showSecurityGroups();
+    void showVpc();
     void showSubnet();
     void reloadInstanceData();
 
@@ -43,6 +45,7 @@ private:
     AWSConnector *awsConnector;
     SecurityGroupsDialog *securityGroupsDialog;
     SubnetDialog *subnetDialog;
+    VpcDialog *vpcDialog;
     bool enabled;
     QScrollArea *scrollArea;
     QStackedWidget *widgetStack;
@@ -64,8 +67,8 @@ private:
     QLabel *labelLaunchTime;
     QLabel *labelPublicIP;
     QLabel *labelPrivateIP;
-    QLabel *labelVpcId;
-    QLabel *labelSubnetId;
+    QLabel *labelVpc;
+    QLabel *labelSubnet;
     QLabel *labelSourceDestCheck;
     QLabel *labelCfStackName;
     QLabel *labelTags;
@@ -86,8 +89,8 @@ private:
     QLabel *valuePublicIP;
     QLabel *valuePrivateIP;
     QLabel *valueCfStackName;
-    QLabel *valueVpcId;
-    QLabel *valueSubnetId;
+    QLabel *valueVpc;
+    QLabel *valueSubnet;
     QLabel *valueSourceDestCheck;
     QLabel *valueTags;
     QLabel *valueSecurityGroups;

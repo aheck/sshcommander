@@ -14,6 +14,7 @@ add_executable(sshcommander
     AboutDialog.cpp
     AWSCache.cpp
     AWSConnector.cpp
+    AWSImage.cpp
     AWSInfoWidget.cpp
     AWSInstance.cpp
     AWSTag.cpp
@@ -26,6 +27,7 @@ add_executable(sshcommander
     ConnectionListWidget.cpp
     CustomTabBar.cpp
     DisabledWidget.cpp
+    ImageDialog.cpp
     InactiveSessionWidget.cpp
     InstanceItemModel.cpp
     MachineInfoWidget.cpp

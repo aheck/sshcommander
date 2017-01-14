@@ -174,6 +174,17 @@ void AWSConnector::describeVpcs(QList<QString> &vpcIds)
     this->sendRequest("DescribeVpcs", extraParams);
 }
 
+void AWSConnector::describeImages(QList<QString> &imageIds)
+{
+    QList<QString> extraParams;
+    for (int i = 0; i < imageIds.count(); i++) {
+        QString imageIdParam = "ImageId." + QString::number(i + 1) + "=" + imageIds.at(i);
+        extraParams.append(imageIdParam);
+    }
+
+    this->sendRequest("DescribeImages", extraParams);
+}
+
 void AWSConnector::replyFinished(QNetworkReply *reply)
 {
     AWSResult *result = new AWSResult();

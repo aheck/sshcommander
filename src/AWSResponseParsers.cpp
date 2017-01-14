@@ -458,3 +458,88 @@ std::vector<std::shared_ptr<AWSVpc>> parseDescribeVpcsResponse(AWSResult *result
 
     return vector;
 }
+
+std::vector<std::shared_ptr<AWSImage>> parseDescribeImagesResponse(AWSResult *result, QString region)
+{
+    std::vector<std::shared_ptr<AWSImage>> vector;
+    std::shared_ptr<AWSImage> image;
+
+    if (result->httpBody.isEmpty()) {
+        return vector;
+    }
+
+    QBuffer buffer;
+    buffer.setData(result->httpBody.toUtf8());
+    buffer.open(QIODevice::ReadOnly);
+    QXmlStreamReader xml;
+    xml.setDevice(&buffer);
+
+    bool imagesSet = false;
+    int itemLevel = 0;
+
+    while (!xml.isEndDocument()) {
+        xml.readNext();
+
+        if (xml.isStartElement()) {
+            QString name = xml.name().toString();
+            if (name == "imagesSet") {
+                imagesSet = true;
+            } else if (name == "item") {
+                itemLevel++;
+
+                // new image item?
+                if (itemLevel == 1) {
+                    image = std::make_shared<AWSImage>();
+                    vector.push_back(image);
+                }
+            } else if (imagesSet && itemLevel == 1) {
+                if (name == "imageId") {
+                    image->id = xml.readElementText();
+                } else if (name == "imageLocation") {
+                    image->location = xml.readElementText();
+                } else if (name == "imageState") {
+                    image->state = xml.readElementText();
+                } else if (name == "imageOwnerId") {
+                    image->ownerId = xml.readElementText();
+                } else if (name == "isPublic") {
+                    image->isPublic = xml.readElementText() == "true";
+                } else if (name == "architecture") {
+                    image->architecture = xml.readElementText();
+                } else if (name == "imageType") {
+                    image->type = xml.readElementText();
+                } else if (name == "kernelId") {
+                    image->kernelId = xml.readElementText();
+                } else if (name == "ramdiskId") {
+                    image->ramdiskId = xml.readElementText();
+                } else if (name == "imageOwnerAlias") {
+                    image->ownerAlias = xml.readElementText();
+                } else if (name == "name") {
+                    image->name = xml.readElementText();
+                } else if (name == "description") {
+                    image->description = xml.readElementText();
+                } else if (name == "rootDeviceType") {
+                    image->rootDeviceType = xml.readElementText();
+                } else if (name == "rootDeviceName") {
+                    image->rootDeviceName = xml.readElementText();
+                } else if (name == "virtualizationType") {
+                    image->virtualizationType = xml.readElementText();
+                } else if (name == "hypervisor") {
+                    image->hypervisor = xml.readElementText();
+                } else if (name == "creationDate") {
+                    image->creationDate = xml.readElementText();
+                } else if (name == "tagSet") {
+                    parseAWSTags(xml, image->tags);
+                }
+            }
+        } else if (xml.isEndElement()) {
+            QString name = xml.name().toString();
+            if (name == "imagesSet") {
+                imagesSet = false;
+            } else if (name == "item") {
+                itemLevel--;
+            }
+        }
+    }
+
+    return vector;
+}

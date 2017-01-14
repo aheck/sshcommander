@@ -16,6 +16,7 @@ public:
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
+    const QString formattedImage();
     const QString formattedVpc();
     const QString formattedSubnet();
 
@@ -27,6 +28,7 @@ public:
     QString keyname;
     QString type;
     QString imageId;
+    QString imageName;
     QString launchTime;
     QString publicIP;
     QString privateIP;

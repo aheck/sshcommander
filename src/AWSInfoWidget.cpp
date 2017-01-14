@@ -7,6 +7,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->enabled = false;
 
     this->securityGroupsDialog = new SecurityGroupsDialog();
+    this->imageDialog = new ImageDialog();
     this->subnetDialog = new SubnetDialog();
     this->vpcDialog = new VpcDialog();
 
@@ -40,7 +41,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->labelStatus = new QLabel("Status:");
     this->labelKeyname = new QLabel("Keyname:");
     this->labelType = new QLabel("Type:");
-    this->labelImageId = new QLabel("Image ID:");
+    this->labelImage = new QLabel("Image (AMI):");
     this->labelLaunchTime = new QLabel("Launch Time:");
     this->labelPublicIP = new QLabel("Public IP:");
     this->labelPrivateIP = new QLabel("Private IP:");
@@ -69,8 +70,9 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->valueKeyname->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueType = new QLabel("");
     this->valueType->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    this->valueImageId = new QLabel("");
-    this->valueImageId->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    this->valueImage = new QLabel("");
+    this->valueImage->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextBrowserInteraction);
+    QObject::connect(this->valueImage, SIGNAL(linkActivated(QString)), this, SLOT(showImage()));
     this->valueLaunchTime = new QLabel("");
     this->valueLaunchTime->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valuePublicIP = new QLabel("");
@@ -78,8 +80,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->valuePrivateIP = new QLabel("");
     this->valuePrivateIP->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueVpc = new QLabel("");
-    this->valueVpc->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    this->valueVpc->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    this->valueVpc->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextBrowserInteraction);
     QObject::connect(this->valueVpc, SIGNAL(linkActivated(QString)), this, SLOT(showVpc()));
     this->valueSubnet = new QLabel("");
     this->valueSubnet->setTextFormat(Qt::RichText);
@@ -121,8 +122,8 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
 
     this->gridLayout->addWidget(this->labelType, 6, 0, Qt::AlignLeft);
     this->gridLayout->addWidget(this->valueType, 6, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelImageId, 7, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueImageId, 7, 1, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->labelImage, 7, 0, Qt::AlignLeft);
+    this->gridLayout->addWidget(this->valueImage, 7, 1, Qt::AlignLeft);
 
     this->gridLayout->addWidget(this->labelLaunchTime, 8, 0, Qt::AlignLeft);
     this->gridLayout->addWidget(this->valueLaunchTime, 8, 1, Qt::AlignLeft);
@@ -189,7 +190,7 @@ void AWSInfoWidget::updateData(std::shared_ptr<AWSInstance> instance)
     }
     this->valueKeyname->setText(instance->keyname);
     this->valueType->setText(instance->type);
-    this->valueImageId->setText(instance->imageId);
+    this->valueImage->setText(QString("%1 (<a href=\"http://localhost/\">View Image</a>)").arg(instance->formattedImage()));
 
     this->valueLaunchTime->setText(instance->launchTime);
     this->valuePublicIP->setText(instance->publicIP);
@@ -273,6 +274,10 @@ void AWSInfoWidget::handleAWSResult(AWSResult *result)
             std::vector<std::shared_ptr<AWSVpc>> vpcs = parseDescribeVpcsResponse(result, this->instance->region);
 
             this->vpcDialog->updateData(vpcs);
+        } else if (result->responseType == "DescribeImagesResponse") {
+            std::vector<std::shared_ptr<AWSImage>> images = parseDescribeImagesResponse(result, this->instance->region);
+
+            this->imageDialog->updateData(images);
         }
     }
 
@@ -285,6 +290,14 @@ void AWSInfoWidget::showSecurityGroups()
     this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
     this->awsConnector->setRegion(this->instance->region);
     this->securityGroupsDialog->showDialog(this->awsConnector, instance);
+}
+
+void AWSInfoWidget::showImage()
+{
+    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
+    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    this->awsConnector->setRegion(this->instance->region);
+    this->imageDialog->showDialog(this->awsConnector, instance);
 }
 
 void AWSInfoWidget::showVpc()

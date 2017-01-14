@@ -15,6 +15,7 @@ void AWSInstance::read(const QJsonObject &json)
     this->keyname = json["keyname"].toString();
     this->type = json["type"].toString();
     this->imageId = json["imageId"].toString();
+    this->imageName = json["imageName"].toString();
     this->launchTime = json["launchTime"].toString();
     this->publicIP = json["publicIP"].toString();
     this->privateIP = json["privateIP"].toString();
@@ -52,6 +53,7 @@ void AWSInstance::write(QJsonObject &json) const
     json["keyname"] = this->keyname;
     json["type"] = this->type;
     json["imageId"] = this->imageId;
+    json["imageName"] = this->imageName;
     json["launchTime"] = this->launchTime;
     json["publicIP"] = this->publicIP;
     json["privateIP"] = this->privateIP;
@@ -81,6 +83,15 @@ void AWSInstance::write(QJsonObject &json) const
         tags.append(obj);
     }
     json["tags"] = tags;
+}
+
+const QString AWSInstance::formattedImage()
+{
+    if (!this->imageName.isEmpty()) {
+        return this->imageName + " (" + this->imageId + ")";
+    }
+
+    return this->imageId;
 }
 
 const QString AWSInstance::formattedVpc()

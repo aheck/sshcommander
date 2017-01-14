@@ -16,6 +16,7 @@
 #include "AWSConnector.h"
 #include "AWSResponseParsers.h"
 #include "DisabledWidget.h"
+#include "ImageDialog.h"
 #include "Preferences.h"
 #include "SecurityGroupsDialog.h"
 #include "SubnetDialog.h"
@@ -35,6 +36,7 @@ public:
 public slots:
     void handleAWSResult(AWSResult *result);
     void showSecurityGroups();
+    void showImage();
     void showVpc();
     void showSubnet();
     void reloadInstanceData();
@@ -44,6 +46,7 @@ private:
     std::shared_ptr<AWSInstance> instance;
     AWSConnector *awsConnector;
     SecurityGroupsDialog *securityGroupsDialog;
+    ImageDialog *imageDialog;
     SubnetDialog *subnetDialog;
     VpcDialog *vpcDialog;
     bool enabled;
@@ -63,7 +66,7 @@ private:
     QLabel *labelStatus;
     QLabel *labelKeyname;
     QLabel *labelType;
-    QLabel *labelImageId;
+    QLabel *labelImage;
     QLabel *labelLaunchTime;
     QLabel *labelPublicIP;
     QLabel *labelPrivateIP;
@@ -84,7 +87,7 @@ private:
     QLabel *valueStatus;
     QLabel *valueKeyname;
     QLabel *valueType;
-    QLabel *valueImageId;
+    QLabel *valueImage;
     QLabel *valueLaunchTime;
     QLabel *valuePublicIP;
     QLabel *valuePrivateIP;

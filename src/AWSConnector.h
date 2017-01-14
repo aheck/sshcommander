@@ -83,6 +83,7 @@ public:
     void describeSecurityGroups(QList<QString> &groupIds);
     void describeSubnets(QList<QString> &subnetIds);
     void describeVpcs(QList<QString> &vpcIds);
+    void describeImages(QList<QString> &imageIds);
 
 private slots:
     void replyFinished(QNetworkReply *reply);

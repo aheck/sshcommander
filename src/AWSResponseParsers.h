@@ -21,11 +21,15 @@
 #include <QXmlStreamReader>
 
 #include "AWSConnector.h"
+#include "AWSImage.h"
 #include "AWSSecurityGroup.h"
+#include "AWSSubnet.h"
+#include "AWSVpc.h"
 
 std::vector<std::shared_ptr<AWSInstance>> parseDescribeInstancesResponse(AWSResult *result, QString region);
 std::vector<std::shared_ptr<AWSSecurityGroup>> parseDescribeSecurityGroupsResponse(AWSResult *result, QString region);
 std::vector<std::shared_ptr<AWSSubnet>> parseDescribeSubnetsResponse(AWSResult *result, QString region);
 std::vector<std::shared_ptr<AWSVpc>> parseDescribeVpcsResponse(AWSResult *result, QString region);
+std::vector<std::shared_ptr<AWSImage>> parseDescribeImagesResponse(AWSResult *result, QString region);
 
 #endif

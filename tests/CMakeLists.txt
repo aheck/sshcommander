@@ -8,6 +8,7 @@ add_executable(tests main.cpp
     ../src/AboutDialog.cpp
     ../src/AWSCache.cpp
     ../src/AWSConnector.cpp
+    ../src/AWSImage.cpp
     ../src/AWSInfoWidget.cpp
     ../src/AWSInstance.cpp
     ../src/AWSTag.cpp
@@ -20,6 +21,7 @@ add_executable(tests main.cpp
     ../src/ConnectionListWidget.cpp
     ../src/CustomTabBar.cpp
     ../src/DisabledWidget.cpp
+    ../src/ImageDialog.cpp
     ../src/InactiveSessionWidget.cpp
     ../src/InstanceItemModel.cpp
     ../src/MachineInfoWidget.cpp

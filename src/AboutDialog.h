@@ -5,7 +5,10 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QTextEdit>
 #include <QVBoxLayout>
+
+#include <libssh2.h>
 
 #include "git_commit_id.h"
 #include "globals.h"

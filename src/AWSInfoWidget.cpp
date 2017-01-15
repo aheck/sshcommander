@@ -32,6 +32,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->awsPage->layout()->addWidget(this->scrollArea);
 
     this->widgetStack = new QStackedWidget();
+    this->widgetStack->layout()->setContentsMargins(0, 0, 0, 0);
     this->widgetStack->addWidget(this->disabledWidget); this->widgetStack->addWidget(this->awsPage);
 
     this->labelInstanceId = new QLabel("Instance ID:");
@@ -162,6 +163,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
 
     this->mainLayout = new QVBoxLayout();
     this->mainLayout->addWidget(this->widgetStack);
+    this->mainLayout->setContentsMargins(0, 0, 0, 0);
     this->setLayout(mainLayout);
 }
 

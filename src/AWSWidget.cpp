@@ -74,6 +74,7 @@ AWSWidget::AWSWidget(Preferences *preferences)
     this->mainWidget->layout()->addWidget(this->instanceTable);
     this->instanceNumLabel = new QLabel();
     this->mainWidget->layout()->addWidget(this->instanceNumLabel);
+    this->mainWidget->layout()->setContentsMargins(0, 0, 0, 0);
 
     this->setLayout(new QVBoxLayout(this));
     this->layout()->setContentsMargins(0, 0, 0, 0);

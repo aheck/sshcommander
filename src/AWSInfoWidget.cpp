@@ -289,6 +289,7 @@ void AWSInfoWidget::showSecurityGroups()
     this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
     this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
     this->awsConnector->setRegion(this->instance->region);
+
     this->securityGroupsDialog->showDialog(this->awsConnector, instance);
 }
 
@@ -297,6 +298,7 @@ void AWSInfoWidget::showImage()
     this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
     this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
     this->awsConnector->setRegion(this->instance->region);
+
     this->imageDialog->showDialog(this->awsConnector, instance);
 }
 
@@ -305,6 +307,7 @@ void AWSInfoWidget::showVpc()
     this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
     this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
     this->awsConnector->setRegion(this->instance->region);
+
     this->vpcDialog->showDialog(this->awsConnector, instance);
 }
 
@@ -313,6 +316,7 @@ void AWSInfoWidget::showSubnet()
     this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
     this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
     this->awsConnector->setRegion(this->instance->region);
+
     this->subnetDialog->showDialog(this->awsConnector, instance);
 }
 

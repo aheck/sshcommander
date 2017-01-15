@@ -23,6 +23,7 @@ public:
 
     void showDialog(AWSConnector *connector, std::shared_ptr<AWSInstance> instance);
     void updateData(std::vector<std::shared_ptr<AWSImage>> image);
+    void clear();
 
 private:
     QLabel *imageIdLabel;

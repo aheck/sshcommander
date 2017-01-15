@@ -2,6 +2,7 @@
 
 ImageDialog::ImageDialog()
 {
+    this->setMinimumWidth(500);
     QVBoxLayout *layout = new QVBoxLayout();
 
     QLabel *caption = new QLabel("Image (AMI) Details");
@@ -85,6 +86,7 @@ void ImageDialog::showDialog(AWSConnector *connector, std::shared_ptr<AWSInstanc
     }
 
     this->setWindowTitle(title);
+    this->clear();
 
     if (!instance->imageId.isEmpty()) {
         QList<QString> imageIds;
@@ -120,4 +122,25 @@ void ImageDialog::updateData(std::vector<std::shared_ptr<AWSImage>> images)
     this->virtualizationTypeLabel->setText(image->virtualizationType);
     this->hypervisorLabel->setText(image->hypervisor);
     this->creationDateLabel->setText(image->creationDate);
+}
+
+void ImageDialog::clear()
+{
+    this->imageIdLabel->setText("");
+    this->locationLabel->setText("");
+    this->stateLabel->setText("");
+    this->ownerIdLabel->setText("");
+    this->isPublicLabel->setText("");
+    this->architectureLabel->setText("");
+    this->typeLabel->setText("");
+    this->kernelIdLabel->setText("");
+    this->ramdiskIdLabel->setText("");
+    this->ownerAliasLabel->setText("");
+    this->nameLabel->setText("");
+    this->descriptionLabel->setText("");
+    this->rootDeviceTypeLabel->setText("");
+    this->rootDeviceNameLabel->setText("");
+    this->virtualizationTypeLabel->setText("");
+    this->hypervisorLabel->setText("");
+    this->creationDateLabel->setText("");
 }

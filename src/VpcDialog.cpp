@@ -2,6 +2,7 @@
 
 VpcDialog::VpcDialog()
 {
+    this->setMinimumWidth(300);
     QVBoxLayout *layout = new QVBoxLayout();
 
     QLabel *caption = new QLabel("VPC Details");
@@ -55,6 +56,7 @@ void VpcDialog::showDialog(AWSConnector *connector, std::shared_ptr<AWSInstance>
     }
 
     this->setWindowTitle(title);
+    this->clear();
 
     if (!instance->vpcId.isEmpty()) {
         QList<QString> vpcIds;
@@ -80,4 +82,15 @@ void VpcDialog::updateData(std::vector<std::shared_ptr<AWSVpc>> vpcs)
     this->dhcpOptionsLabel->setText(vpc->dhcpOptionsId);
     this->instanceTenancyLabel->setText(vpc->instanceTenancy);
     this->isDefaultLabel->setText(vpc->isDefault ? "true" : "false");
+}
+
+void VpcDialog::clear()
+{
+    this->vpcIdLabel->setText("");
+    this->nameLabel->setText("");
+    this->stateLabel->setText("");
+    this->cidrBlockLabel->setText("");
+    this->dhcpOptionsLabel->setText("");
+    this->instanceTenancyLabel->setText("");
+    this->isDefaultLabel->setText("");
 }

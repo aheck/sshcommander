@@ -2,6 +2,7 @@
 
 SubnetDialog::SubnetDialog()
 {
+    this->setMinimumWidth(300);
     QVBoxLayout *layout = new QVBoxLayout();
 
     QLabel *caption = new QLabel("Subnet Details");
@@ -61,6 +62,7 @@ void SubnetDialog::showDialog(AWSConnector *connector, std::shared_ptr<AWSInstan
     }
 
     this->setWindowTitle(title);
+    this->clear();
 
     if (!instance->subnetId.isEmpty()) {
         QList<QString> subnets;
@@ -88,4 +90,17 @@ void SubnetDialog::updateData(std::vector<std::shared_ptr<AWSSubnet>> subnets)
     this->availabilityZoneLabel->setText(subnet->availabilityZone);
     this->defaultForAzLabel->setText(subnet->defaultForAz ? "true" : "false");
     this->mapPublicIpOnLaunchLabel->setText(subnet->mapPublicIpOnLaunch ? "true" : "false");
+}
+
+void SubnetDialog::clear()
+{
+    this->subnetIdLabel->setText("");
+    this->nameLabel->setText("");
+    this->stateLabel->setText("");
+    this->vpcIdLabel->setText("");
+    this->cidrBlockLabel->setText("");
+    this->availableIpAddressCountLabel->setText("");
+    this->availabilityZoneLabel->setText("");
+    this->defaultForAzLabel->setText("");
+    this->mapPublicIpOnLaunchLabel->setText("");
 }

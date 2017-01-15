@@ -2,6 +2,7 @@
 
 TagsDialog::TagsDialog()
 {
+    this->setMinimumWidth(300);
     QVBoxLayout *layout = new QVBoxLayout();
 
     this->list = new QListWidget();

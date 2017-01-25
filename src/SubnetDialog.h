@@ -13,6 +13,7 @@
 #include "AWSConnector.h"
 #include "AWSInstance.h"
 #include "AWSSubnet.h"
+#include "TagsViewWidget.h"
 
 class SubnetDialog : public QDialog
 {
@@ -35,6 +36,8 @@ private:
     QLabel *availabilityZoneLabel;
     QLabel *defaultForAzLabel;
     QLabel *mapPublicIpOnLaunchLabel;
+
+    TagsViewWidget *tagsViewer;
 };
 
 #endif

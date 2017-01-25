@@ -82,6 +82,7 @@ public:
     void describeInstances(QList<QString> &instanceIds);
     void describeSecurityGroups(QList<QString> &groupIds);
     void describeSubnets(QList<QString> &subnetIds);
+    void describeVpcs();
     void describeVpcs(QList<QString> &vpcIds);
     void describeImages(QList<QString> &imageIds);
 

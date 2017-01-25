@@ -10,6 +10,7 @@
 #include <QVector>
 
 #include "AWSInstance.h"
+#include "TagsViewWidget.h"
 
 class TagsDialog : public QDialog
 {
@@ -21,7 +22,7 @@ public:
     void showDialog(std::shared_ptr<AWSInstance> instance);
 
 private:
-    QListWidget *list;
+    TagsViewWidget *tagsViewer;
 };
 
 #endif

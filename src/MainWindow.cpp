@@ -116,7 +116,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->readSettings();
 
-    this->awsWidget->loadInstances();
+    this->awsWidget->loadData();
 }
 
 MainWindow::~MainWindow()

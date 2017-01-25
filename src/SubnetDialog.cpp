@@ -45,9 +45,23 @@ SubnetDialog::SubnetDialog()
 
     layout->addLayout(formLayout);
 
+    QLabel *tagsCaption = new QLabel("Tags");
+    font = tagsCaption->font();
+    font.setPointSize(12);
+    font.setBold(true);
+    tagsCaption->setFont(font);
+    tagsCaption->setStyleSheet("QLabel { color : grey; }");
+    layout->addWidget(tagsCaption);
+
+    this->tagsViewer = new TagsViewWidget();
+    layout->addWidget(this->tagsViewer);
+
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *closeButton = new QPushButton(tr("Close"));
     QObject::connect(closeButton, SIGNAL(clicked()), this, SLOT(reject()));
-    layout->addWidget(closeButton);
+    buttonLayout->addStretch(1);
+    buttonLayout->addWidget(closeButton);
+    layout->addLayout(buttonLayout);
 
     this->setLayout(layout);
 }
@@ -90,6 +104,8 @@ void SubnetDialog::updateData(std::vector<std::shared_ptr<AWSSubnet>> subnets)
     this->availabilityZoneLabel->setText(subnet->availabilityZone);
     this->defaultForAzLabel->setText(subnet->defaultForAz ? "true" : "false");
     this->mapPublicIpOnLaunchLabel->setText(subnet->mapPublicIpOnLaunch ? "true" : "false");
+
+    this->tagsViewer->updateData(subnet->tags);
 }
 
 void SubnetDialog::clear()
@@ -103,4 +119,6 @@ void SubnetDialog::clear()
     this->availabilityZoneLabel->setText("");
     this->defaultForAzLabel->setText("");
     this->mapPublicIpOnLaunchLabel->setText("");
+
+    this->tagsViewer->clear();
 }

@@ -35,28 +35,6 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->widgetStack->layout()->setContentsMargins(0, 0, 0, 0);
     this->widgetStack->addWidget(this->disabledWidget); this->widgetStack->addWidget(this->awsPage);
 
-    this->labelInstanceId = new QLabel("Instance ID:");
-    this->labelName = new QLabel("Name:");
-    this->labelRegion = new QLabel("Region:");
-    this->labelAvailabilityZone = new QLabel("Availability Zone:");
-    this->labelStatus = new QLabel("Status:");
-    this->labelKeyname = new QLabel("Keyname:");
-    this->labelType = new QLabel("Type:");
-    this->labelImage = new QLabel("Image (AMI):");
-    this->labelLaunchTime = new QLabel("Launch Time:");
-    this->labelPublicIP = new QLabel("Public IP:");
-    this->labelPrivateIP = new QLabel("Private IP:");
-    this->labelVpc = new QLabel("VPC ID:");
-    this->labelSubnet = new QLabel("Subnet:");
-    this->labelSourceDestCheck = new QLabel("Source Dest Check:");
-    this->labelCfStackName = new QLabel("CloudFormation Stack:");
-    this->labelTags = new QLabel("Tags:");
-    this->labelTags->setAlignment(Qt::AlignTop | Qt::AlignLeft);
-    this->labelSecurityGroups = new QLabel("Security Groups:");
-    this->labelVirtualizationType = new QLabel("Virtualization Type:");
-    this->labelArchitecture = new QLabel("Architecture:");
-    this->labelHypervisor = new QLabel("Hypervisor:");
-
     this->valueInstanceId = new QLabel("");
     this->valueInstanceId->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueName = new QLabel("");
@@ -66,6 +44,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->valueAvailabilityZone = new QLabel("");
     this->valueAvailabilityZone->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueStatus = new QLabel("");
+    this->valueStatus->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     this->valueStatus->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueKeyname = new QLabel("");
     this->valueKeyname->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -91,8 +70,8 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->valueSourceDestCheck->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueCfStackName = new QLabel("");
     this->valueCfStackName->setTextInteractionFlags(Qt::TextSelectableByMouse);
-    this->valueTags = new QLabel("");
-    this->valueTags->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    this->tagsViewer = new TagsViewWidget();
+    this->tagsViewer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     this->valueSecurityGroups = new QLabel();
     this->valueSecurityGroups->setText("<a href=\"http://localhost/\">View Security Groups</a>");
     this->valueSecurityGroups->setTextFormat(Qt::RichText);
@@ -105,61 +84,50 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->valueHypervisor = new QLabel("");
     this->valueHypervisor->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
-    this->gridLayout = new QGridLayout();
-    this->gridLayout->addWidget(this->labelInstanceId, 0, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueInstanceId, 0, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelName, 1, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueName, 1, 1, Qt::AlignLeft);
+    QVBoxLayout *groupsLayout = new QVBoxLayout();
 
-    this->gridLayout->addWidget(this->labelRegion, 2, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueRegion, 2, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelAvailabilityZone, 3, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueAvailabilityZone, 3, 1, Qt::AlignLeft);
+    QGroupBox *generalGroup = new QGroupBox(tr("General"));
+    QFormLayout *generalLayout = new QFormLayout();
 
-    this->gridLayout->addWidget(this->labelStatus, 4, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueStatus, 4, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelKeyname, 5, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueKeyname, 5, 1, Qt::AlignLeft);
+    generalLayout->addRow(tr("Instance ID:"), this->valueInstanceId);
+    generalLayout->addRow(tr("Name:"), this->valueName);
+    generalLayout->addRow(tr("Region:"), this->valueRegion);
+    generalLayout->addRow(tr("Availability Zone:"), this->valueAvailabilityZone);
+    generalLayout->addRow(tr("Status:"), this->valueStatus);
+    generalLayout->addRow(tr("Keyname:"), this->valueKeyname);
+    generalLayout->addRow(tr("Type:"), this->valueType);
+    generalLayout->addRow(tr("Image (AMI):"), this->valueImage);
+    generalLayout->addRow(tr("Launch Time:"), this->valueLaunchTime);
+    generalLayout->addRow(tr("CloudFormation Stack:"), this->valueCfStackName);
+    generalLayout->addRow(tr("Tags:"), this->tagsViewer);
 
-    this->gridLayout->addWidget(this->labelType, 6, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueType, 6, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelImage, 7, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueImage, 7, 1, Qt::AlignLeft);
+    generalGroup->setLayout(generalLayout);
+    groupsLayout->addWidget(generalGroup);
 
-    this->gridLayout->addWidget(this->labelLaunchTime, 8, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueLaunchTime, 8, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelPublicIP, 9, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valuePublicIP, 9, 1, Qt::AlignLeft);
+    QGroupBox *networkGroup = new QGroupBox(tr("Network"));
+    QFormLayout *networkLayout = new QFormLayout();
 
-    this->gridLayout->addWidget(this->labelPrivateIP, 10, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valuePrivateIP, 10, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelVpc, 11, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueVpc, 11, 1, Qt::AlignLeft);
+    networkLayout->addRow(tr("Public IP:"), this->valuePublicIP);
+    networkLayout->addRow(tr("Private IP:"), this->valuePrivateIP);
+    networkLayout->addRow(tr("VPC:"), this->valueVpc);
+    networkLayout->addRow(tr("Subnet:"), this->valueSubnet);
+    networkLayout->addRow(tr("Source Dest Check"), this->valueSourceDestCheck);
+    networkLayout->addRow(tr("Security Groups:"), this->valueSecurityGroups);
 
-    this->gridLayout->addWidget(this->labelSubnet, 12, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueSubnet, 12, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelSourceDestCheck, 13, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueSourceDestCheck, 13, 1, Qt::AlignLeft);
+    networkGroup->setLayout(networkLayout);
+    groupsLayout->addWidget(networkGroup);
 
-    this->gridLayout->addWidget(this->labelCfStackName, 14, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueCfStackName, 14, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelTags, 15, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueTags, 15, 1, Qt::AlignLeft);
+    QGroupBox *miscGroup = new QGroupBox(tr("Misc"));
+    QFormLayout *miscLayout = new QFormLayout();
 
-    this->gridLayout->addWidget(this->labelSecurityGroups, 16, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueSecurityGroups, 16, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelVirtualizationType, 17, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueVirtualizationType, 17, 1, Qt::AlignLeft);
+    miscLayout->addRow(tr("Virtualization Type:"), this->valueVirtualizationType);
+    miscLayout->addRow(tr("Architecture:"), this->valueArchitecture);
+    miscLayout->addRow(tr("Hypervisor:"), this->valueHypervisor);
 
-    this->gridLayout->addWidget(this->labelArchitecture, 18, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueArchitecture, 18, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelHypervisor, 19, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueHypervisor, 19, 1, Qt::AlignLeft);
+    miscGroup->setLayout(miscLayout);
+    groupsLayout->addWidget(miscGroup);
 
-    this->gridLayout->setRowStretch(20, 1);
-    this->gridLayout->setColumnStretch(2, 1);
-
-    this->awsContent->setLayout(this->gridLayout);
+    this->awsContent->setLayout(groupsLayout);
 
     this->mainLayout = new QVBoxLayout();
     this->mainLayout->addWidget(this->widgetStack);
@@ -206,17 +174,7 @@ void AWSInfoWidget::updateData(std::shared_ptr<AWSInstance> instance)
     this->valueArchitecture->setText(instance->architecture);
     this->valueHypervisor->setText(instance->hypervisor);
 
-    QString tagsValue;
-    int i = 0;
-    for (AWSTag tag : instance->tags) {
-        if (i != 0) {
-            tagsValue += "\n";
-        }
-
-        tagsValue += tag.key + " = " + tag.value;
-        i++;
-    }
-    this->valueTags->setText(tagsValue);
+    this->tagsViewer->updateData(instance->tags);
 }
 
 void AWSInfoWidget::setAWSEnabled(bool enabled)

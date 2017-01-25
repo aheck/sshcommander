@@ -41,7 +41,7 @@ class AWSWidget : public QWidget
 public slots:
     void connectToAWS();
     void handleAWSResult(AWSResult *result);
-    void loadInstances();
+    void loadData();
 
 public:
     AWSWidget(Preferences *preferences);
@@ -59,6 +59,7 @@ private slots:
     void connectToPublicIP();
     void connectToPrivateIP();
     void changeRegion(QString regionText);
+    void changeVpc(int index);
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void showInstanceContextMenu(QPoint pos);
     void showSecurityGroups();
@@ -70,6 +71,7 @@ private:
     void updateNumberOfInstances();
     std::shared_ptr<AWSInstance> getSelectedInstance();
     void connectToInstance(bool toPrivateIP);
+    void updateVpcs(std::vector<std::shared_ptr<AWSVpc>> &vpcs);
 
     Preferences *preferences;
 
@@ -90,6 +92,8 @@ private:
     QToolBar *toolBar;
     QLineEdit *searchLineEdit;
     QComboBox *regionComboBox;
+    QString selectedVpcId;
+    QComboBox *vpcComboBox;
     QString region;
     bool requestRunning;
     bool firstTryToLogin;
@@ -97,6 +101,8 @@ private:
     QLabel *instanceNumLabel;
     SecurityGroupsDialog *securityGroupsDialog;
     TagsDialog *tagsDialog;
+
+    bool updatingVpcs;
 
     // Value under the mouse cursor when the user right clicks. This value
     // might be copied to the clipboard if the user selects the corresponding

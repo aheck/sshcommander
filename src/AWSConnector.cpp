@@ -163,6 +163,12 @@ void AWSConnector::describeSubnets(QList<QString> &subnetIds)
     this->sendRequest("DescribeSubnets", extraParams);
 }
 
+void AWSConnector::describeVpcs()
+{
+    QList<QString> vpcIds;
+    this->sendRequest("DescribeVpcs", vpcIds);
+}
+
 void AWSConnector::describeVpcs(QList<QString> &vpcIds)
 {
     QList<QString> extraParams;

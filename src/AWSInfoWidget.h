@@ -4,13 +4,15 @@
 #include <memory>
 
 #include <QApplication>
-#include <QVBoxLayout>
+#include <QFormLayout>
 #include <QGridLayout>
+#include <QGroupBox>
 #include <QLabel>
 #include <QMessageBox>
 #include <QScrollArea>
 #include <QStackedWidget>
 #include <QToolBar>
+#include <QVBoxLayout>
 #include <QWidget>
 
 #include "AWSConnector.h"
@@ -20,6 +22,7 @@
 #include "Preferences.h"
 #include "SecurityGroupsDialog.h"
 #include "SubnetDialog.h"
+#include "TagsViewWidget.h"
 #include "VpcDialog.h"
 
 class AWSInfoWidget : public QWidget
@@ -55,30 +58,9 @@ private:
     DisabledWidget * disabledWidget;
     QWidget *awsPage;
     QWidget *awsContent;
-    QGridLayout *gridLayout;
     QVBoxLayout *mainLayout;
     QToolBar *toolBar;
-
-    QLabel *labelInstanceId;
-    QLabel *labelName;
-    QLabel *labelRegion;
-    QLabel *labelAvailabilityZone;
-    QLabel *labelStatus;
-    QLabel *labelKeyname;
-    QLabel *labelType;
-    QLabel *labelImage;
-    QLabel *labelLaunchTime;
-    QLabel *labelPublicIP;
-    QLabel *labelPrivateIP;
-    QLabel *labelVpc;
-    QLabel *labelSubnet;
-    QLabel *labelSourceDestCheck;
-    QLabel *labelCfStackName;
-    QLabel *labelTags;
-    QLabel *labelSecurityGroups;
-    QLabel *labelVirtualizationType;
-    QLabel *labelArchitecture;
-    QLabel *labelHypervisor;
+    TagsViewWidget *tagsViewer;
 
     QLabel *valueInstanceId;
     QLabel *valueName;
@@ -95,7 +77,6 @@ private:
     QLabel *valueVpc;
     QLabel *valueSubnet;
     QLabel *valueSourceDestCheck;
-    QLabel *valueTags;
     QLabel *valueSecurityGroups;
     QLabel *valueVirtualizationType;
     QLabel *valueArchitecture;

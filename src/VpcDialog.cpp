@@ -39,9 +39,23 @@ VpcDialog::VpcDialog()
 
     layout->addLayout(formLayout);
 
+    QLabel *tagsCaption = new QLabel("Tags");
+    font = tagsCaption->font();
+    font.setPointSize(12);
+    font.setBold(true);
+    tagsCaption->setFont(font);
+    tagsCaption->setStyleSheet("QLabel { color : grey; }");
+    layout->addWidget(tagsCaption);
+
+    this->tagsViewer = new TagsViewWidget();
+    layout->addWidget(this->tagsViewer);
+
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *closeButton = new QPushButton(tr("Close"));
     QObject::connect(closeButton, SIGNAL(clicked()), this, SLOT(reject()));
-    layout->addWidget(closeButton);
+    buttonLayout->addStretch(1);
+    buttonLayout->addWidget(closeButton);
+    layout->addLayout(buttonLayout);
 
     this->setLayout(layout);
 }
@@ -82,6 +96,8 @@ void VpcDialog::updateData(std::vector<std::shared_ptr<AWSVpc>> vpcs)
     this->dhcpOptionsLabel->setText(vpc->dhcpOptionsId);
     this->instanceTenancyLabel->setText(vpc->instanceTenancy);
     this->isDefaultLabel->setText(vpc->isDefault ? "true" : "false");
+
+    this->tagsViewer->updateData(vpc->tags);
 }
 
 void VpcDialog::clear()
@@ -93,4 +109,6 @@ void VpcDialog::clear()
     this->dhcpOptionsLabel->setText("");
     this->instanceTenancyLabel->setText("");
     this->isDefaultLabel->setText("");
+
+    this->tagsViewer->clear();
 }

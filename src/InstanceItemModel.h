@@ -42,10 +42,13 @@ public:
 
     void setInstances(std::vector<std::shared_ptr<AWSInstance>> instances);
     std::shared_ptr<AWSInstance> getInstance(const QModelIndex &index);
-    void setSearchText(const QString searchText);
+    void setSearchTextFilter(const QString searchText);
+    void setVpcFilter(const QString vpcId);
     std::vector<std::shared_ptr<AWSInstance>> getInstancesByVpcId(QString vpcId);
 
 private:
+    void applyFilters();
+
     // The list of all the AWSInstance objects that can potentially be shown
     // in the current table.
     std::vector<std::shared_ptr<AWSInstance>> allInstances;
@@ -54,7 +57,8 @@ private:
     // table. This list can be sorted as well as filtered for a search term.
     std::vector<std::shared_ptr<AWSInstance>> instances;
 
-    QString currentSearchText;
+    QString searchTextFilter;
+    QString vpcIdFilter;
 };
 
 #endif

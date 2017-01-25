@@ -47,7 +47,7 @@ AboutDialog::AboutDialog()
     this->setWindowTitle("About SSH Commander");
     this->setWindowIcon(QIcon(":/images/help-browser.svg"));
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout();
 
     QLabel *captionLabel = new QLabel("SSH Commander", this);
     captionLabel->setMinimumWidth(500);
@@ -89,7 +89,7 @@ AboutDialog::AboutDialog()
     versionsLabel->setStyleSheet("QLabel { color : grey; }");
     layout->addWidget(versionsLabel);
 
-    QFormLayout *formLayout = new QFormLayout(this);
+    QFormLayout *formLayout = new QFormLayout();
     QLabel *qtCompileLabel = new QLabel(QT_VERSION_STR, this);
     qtCompileLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
     QLabel *qtRuntimeLabel = new QLabel(qVersion(), this);
@@ -116,9 +116,12 @@ AboutDialog::AboutDialog()
     textEdit->setText(thirdPartyText);
     layout->addWidget(textEdit);
 
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *okButton = new QPushButton("OK", this);
     QObject::connect(okButton, SIGNAL (clicked()), this, SLOT (accept()));
-    layout->addWidget(okButton);
+    buttonLayout->addStretch(1);
+    buttonLayout->addWidget(okButton);
+    layout->addLayout(buttonLayout);
 
     this->setLayout(layout);
     this->layout()->setSizeConstraint(QLayout::SetFixedSize);

@@ -3,7 +3,9 @@
 
 #include <memory>
 
+#include <QFormLayout>
 #include <QGridLayout>
+#include <QGroupBox>
 #include <QLabel>
 #include <QScrollArea>
 #include <QStackedWidget>
@@ -33,24 +35,14 @@ private:
     QWidget *page;
     DisabledWidget *disabledWidget;
     QStackedWidget *widgetStack;
-    QGridLayout *gridLayout;
-    QLabel *labelHostname;
     QLabel *valueHostname;
-    QLabel *labelOperatingSystem;
     QLabel *valueOperatingSystem;
-    QLabel *labelDistro;
     QLabel *valueDistro;
-    QLabel *labelCpu;
     QLabel *valueCpu;
-    QLabel *labelMemory;
     QLabel *valueMemory;
-    QLabel *labelUsername;
     QLabel *valueUsername;
-    QLabel *labelSSHCommand;
     QLabel *valueSSHCommand;
-    QLabel *labelSCPCommand;
     QLabel *valueSCPCommand;
-    QLabel *labelSCPDirCommand;
     QLabel *valueSCPDirCommand;
 };
 

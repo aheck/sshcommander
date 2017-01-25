@@ -13,6 +13,7 @@
 #include "AWSConnector.h"
 #include "AWSInstance.h"
 #include "AWSImage.h"
+#include "TagsViewWidget.h"
 
 class ImageDialog : public QDialog
 {
@@ -43,6 +44,8 @@ private:
     QLabel *virtualizationTypeLabel;
     QLabel *hypervisorLabel;
     QLabel *creationDateLabel;
+
+    TagsViewWidget *tagsViewer;
 };
 
 #endif

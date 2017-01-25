@@ -69,9 +69,23 @@ ImageDialog::ImageDialog()
 
     layout->addLayout(formLayout);
 
+    QLabel *tagsCaption = new QLabel("Tags");
+    font = tagsCaption->font();
+    font.setPointSize(12);
+    font.setBold(true);
+    tagsCaption->setFont(font);
+    tagsCaption->setStyleSheet("QLabel { color : grey; }");
+    layout->addWidget(tagsCaption);
+
+    this->tagsViewer = new TagsViewWidget();
+    layout->addWidget(this->tagsViewer);
+
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *closeButton = new QPushButton(tr("Close"));
     QObject::connect(closeButton, SIGNAL(clicked()), this, SLOT(reject()));
-    layout->addWidget(closeButton);
+    buttonLayout->addStretch(1);
+    buttonLayout->addWidget(closeButton);
+    layout->addLayout(buttonLayout);
 
     this->setLayout(layout);
 }
@@ -122,6 +136,8 @@ void ImageDialog::updateData(std::vector<std::shared_ptr<AWSImage>> images)
     this->virtualizationTypeLabel->setText(image->virtualizationType);
     this->hypervisorLabel->setText(image->hypervisor);
     this->creationDateLabel->setText(image->creationDate);
+
+    this->tagsViewer->updateData(image->tags);
 }
 
 void ImageDialog::clear()
@@ -143,4 +159,6 @@ void ImageDialog::clear()
     this->virtualizationTypeLabel->setText("");
     this->hypervisorLabel->setText("");
     this->creationDateLabel->setText("");
+
+    this->tagsViewer->clear();
 }

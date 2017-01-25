@@ -108,65 +108,16 @@ void InstanceItemModel::setInstances(std::vector<std::shared_ptr<AWSInstance>> i
     this->allInstances = instances;
     this->instances = this->allInstances;
 
-    this->setSearchText(this->currentSearchText);
+    this->applyFilters();
 
     this->endResetModel();
 }
 
-void InstanceItemModel::setSearchText(const QString searchText)
+void InstanceItemModel::setSearchTextFilter(const QString searchText)
 {
-    this->currentSearchText = searchText;
+    this->searchTextFilter = searchText;
 
-    this->beginResetModel();
-
-    if (searchText.isEmpty()) {
-        this->instances = this->allInstances;
-    } else {
-        this->instances.clear();
-
-        for (std::shared_ptr<AWSInstance> instance : this->allInstances) {
-            // check the instance tags for a match (Name is also a tag so no
-            // need to check it separately)
-            bool found = false;
-            for (AWSTag tag : instance->tags) {
-                if (tag.key.startsWith(searchText, Qt::CaseInsensitive) ||
-                        tag.value.startsWith(searchText, Qt::CaseInsensitive)) {
-                    this->instances.push_back(instance);
-                    found = true;
-                    break;
-                }
-            }
-
-            // if we have found a match in the tags for-loop we continue with
-            // the next instance
-            if (found) {
-                continue;
-            }
-
-            // check other important fields for a match
-            if (instance->id.startsWith(searchText, Qt::CaseInsensitive)) {
-                this->instances.push_back(instance);
-                continue;
-            }
-
-            if (instance->keyname.startsWith(searchText, Qt::CaseInsensitive)) {
-                this->instances.push_back(instance);
-                continue;
-            }
-
-            if (instance->publicIP.startsWith(searchText, Qt::CaseInsensitive)) {
-                this->instances.push_back(instance);
-                continue;
-            }
-
-            if (instance->privateIP.startsWith(searchText, Qt::CaseInsensitive)) {
-                this->instances.push_back(instance);
-                continue;
-            }
-        }
-    }
-
-    this->endResetModel();
+    this->applyFilters();
 }
 
 std::shared_ptr<AWSInstance> InstanceItemModel::getInstance(const QModelIndex &index)
@@ -256,4 +207,71 @@ std::vector<std::shared_ptr<AWSInstance>> InstanceItemModel::getInstancesByVpcId
     }
 
     return result;
+}
+
+void InstanceItemModel::setVpcFilter(const QString vpcId)
+{
+    this->vpcIdFilter = vpcId;
+
+    this->applyFilters();
+}
+
+void InstanceItemModel::applyFilters()
+{
+    this->beginResetModel();
+
+    if (this->searchTextFilter.isEmpty() && this->vpcIdFilter.isEmpty()) {
+        this->instances = this->allInstances;
+    } else {
+        this->instances.clear();
+
+        for (std::shared_ptr<AWSInstance> instance : this->allInstances) {
+            if (!this->vpcIdFilter.isEmpty()) {
+                if (instance->vpcId != this->vpcIdFilter) {
+                    continue;
+                }
+            }
+
+            // check the instance tags for a match (Name is also a tag so no
+            // need to check it separately)
+            bool found = false;
+            for (AWSTag tag : instance->tags) {
+                if (tag.key.startsWith(this->searchTextFilter, Qt::CaseInsensitive) ||
+                        tag.value.startsWith(this->searchTextFilter, Qt::CaseInsensitive)) {
+                    this->instances.push_back(instance);
+                    found = true;
+                    break;
+                }
+            }
+
+            // if we have found a match in the tags for-loop we continue with
+            // the next instance
+            if (found) {
+                continue;
+            }
+
+            // check other important fields for a match
+            if (instance->id.startsWith(this->searchTextFilter, Qt::CaseInsensitive)) {
+                this->instances.push_back(instance);
+                continue;
+            }
+
+            if (instance->keyname.startsWith(this->searchTextFilter, Qt::CaseInsensitive)) {
+                this->instances.push_back(instance);
+                continue;
+            }
+
+            if (instance->publicIP.startsWith(this->searchTextFilter, Qt::CaseInsensitive)) {
+                this->instances.push_back(instance);
+                continue;
+            }
+
+            if (instance->privateIP.startsWith(this->searchTextFilter, Qt::CaseInsensitive)) {
+                this->instances.push_back(instance);
+                continue;
+            }
+        }
+    }
+
+    this->endResetModel();
 }

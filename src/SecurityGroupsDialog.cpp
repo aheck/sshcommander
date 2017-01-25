@@ -8,9 +8,12 @@ SecurityGroupsDialog::SecurityGroupsDialog()
     this->list = new QListWidget();
     layout->addWidget(this->list);
 
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *closeButton = new QPushButton(tr("Close"));
     QObject::connect(closeButton, SIGNAL(clicked()), this, SLOT(reject()));
-    layout->addWidget(closeButton);
+    buttonLayout->addStretch(1);
+    buttonLayout->addWidget(closeButton);
+    layout->addLayout(buttonLayout);
 
     this->setLayout(layout);
 }

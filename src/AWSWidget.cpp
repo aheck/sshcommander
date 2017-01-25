@@ -2,6 +2,7 @@
 
 AWSWidget::AWSWidget(Preferences *preferences)
 {
+    this->updatingVpcs = false;
     this->preferences = preferences;
 
     this->region = AWSConnector::LOCATION_US_EAST_1;
@@ -29,17 +30,24 @@ AWSWidget::AWSWidget(Preferences *preferences)
     this->mainWidget = new QWidget();
     this->mainWidget->setLayout(new QVBoxLayout(this->mainWidget));
     this->toolBar = new QToolBar("toolBar", this->mainWidget);
-    this->toolBar->addAction(QIcon(":/images/view-refresh.svg"), "Refresh", this, SLOT(loadInstances()));
+    this->toolBar->addAction(QIcon(":/images/view-refresh.svg"), "Refresh", this, SLOT(loadData()));
     this->connectButton = this->toolBar->addAction(QIcon(":/images/applications-internet.svg"),
             "Connect to Instance", this, SLOT(connectToPublicIP()));
     this->connectButton->setEnabled(false);
     this->toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
-    this->searchLineEdit = new QLineEdit();
+
+    this->vpcComboBox = new QComboBox(this);
+    this->vpcComboBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    this->vpcComboBox->setToolTip(tr("Virtual Private Cloud (VPC)"));
+    QObject::connect(this->vpcComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeVpc(int)));
+
+    this->searchLineEdit = new QLineEdit(this);
     this->searchLineEdit->setPlaceholderText(tr("Filter by name, tag, instance ID, SSH key, IP or stack"));
     this->searchLineEdit->setClearButtonEnabled(true);
     QObject::connect(this->searchLineEdit, SIGNAL(textEdited(QString)),
             this, SLOT(searchForText(QString)));
     this->regionComboBox = new QComboBox();
+    this->regionComboBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     this->regionComboBox->setToolTip(tr("Region"));
 
     for (int i = 0; i < AWSConnector::Regions.count(); i++) {
@@ -47,8 +55,8 @@ AWSWidget::AWSWidget(Preferences *preferences)
                 AWSConnector::Regions.at(i));
     }
 
-    this->regionComboBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     QObject::connect(this->regionComboBox, SIGNAL(currentTextChanged(QString)), this, SLOT(changeRegion(QString)));
+
     this->instanceTable = new QTableView(this->mainWidget);
     this->instanceModel = new InstanceItemModel();
     this->instanceTable->setModel(this->instanceModel);
@@ -71,6 +79,16 @@ AWSWidget::AWSWidget(Preferences *preferences)
     toolBarLayout->addWidget(this->searchLineEdit);
     toolBarLayout->addWidget(this->regionComboBox);
     ((QVBoxLayout*) this->mainWidget->layout())->addLayout(toolBarLayout);
+
+    // build the VPC "toolbar" layout
+    QHBoxLayout *vpcLayout = new QHBoxLayout();
+    QLabel *vpcLabel = new QLabel(tr("VPC: "));
+    vpcLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    vpcLayout->addWidget(vpcLabel);
+    vpcLayout->addWidget(this->vpcComboBox);
+    vpcLayout->addStretch(1);
+    ((QVBoxLayout*) this->mainWidget->layout())->addLayout(vpcLayout);
+
     this->mainWidget->layout()->addWidget(this->instanceTable);
     this->instanceNumLabel = new QLabel();
     this->mainWidget->layout()->addWidget(this->instanceNumLabel);
@@ -108,10 +126,10 @@ void AWSWidget::connectToAWS()
     this->preferences->setAWSAccessKey(this->accessKeyLineEdit->text());
     this->preferences->setAWSSecretKey(this->secretKeyLineEdit->text());
 
-    this->loadInstances();
+    this->loadData();
 }
 
-void AWSWidget::loadInstances()
+void AWSWidget::loadData()
 {
     if (this->requestRunning || this->preferences->getAWSAccessKey().isEmpty()) {
         return;
@@ -119,6 +137,7 @@ void AWSWidget::loadInstances()
 
     this->requestRunning = true;
 
+    this->instanceModel->setVpcFilter(this->selectedVpcId);
     this->instanceModel->clear();
 
     std::cout << "Trying to connect to AWS..." << std::endl;
@@ -130,6 +149,7 @@ void AWSWidget::loadInstances()
     this->awsConnector->setRegion(this->region);
 
     this->awsConnector->describeInstances();
+    this->awsConnector->describeVpcs();
 }
 
 void AWSWidget::connectToPublicIP()
@@ -205,6 +225,10 @@ void AWSWidget::handleAWSResult(AWSResult *result)
             std::vector<std::shared_ptr<AWSSecurityGroup>> securityGroups = parseDescribeSecurityGroupsResponse(result, this->region);
 
             this->securityGroupsDialog->updateData(securityGroups);
+        } else if (result->responseType == "DescribeVpcsResponse") {
+            std::vector<std::shared_ptr<AWSVpc>> vpcs = parseDescribeVpcsResponse(result, this->region);
+
+            this->updateVpcs(vpcs);
         }
     }
 
@@ -214,8 +238,26 @@ void AWSWidget::handleAWSResult(AWSResult *result)
 
 void AWSWidget::changeRegion(QString regionText)
 {
+    if (this->region == regionText) {
+        return;
+    }
+
+    // if we switch regions the VPC ID becomes invalid
+    this->selectedVpcId = "";
+
     this->region = this->regionComboBox->itemData(this->regionComboBox->findText(regionText)).toString();
-    this->loadInstances();
+    this->loadData();
+}
+
+void AWSWidget::changeVpc(int index)
+{
+    if (this->updatingVpcs) {
+        return;
+    }
+
+    this->selectedVpcId = this->vpcComboBox->currentData(Qt::UserRole).toString();
+    std::cout << "selectedVpcId: " << this->selectedVpcId.toStdString() << std::endl;
+    this->instanceModel->setVpcFilter(this->selectedVpcId);
 }
 
 void AWSWidget::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
@@ -307,10 +349,51 @@ void AWSWidget::showTags()
 
 void AWSWidget::searchForText(const QString &text)
 {
-    this->instanceModel->setSearchText(text);
+    this->instanceModel->setSearchTextFilter(text);
 }
 
 void AWSWidget::copyItemToClipboard()
 {
     QGuiApplication::clipboard()->setText(this->clipboardCandidate);
+}
+
+void AWSWidget::updateVpcs(std::vector<std::shared_ptr<AWSVpc>> &vpcs)
+{
+    this->updatingVpcs = true;
+    this->vpcComboBox->clear();
+
+    this->vpcComboBox->addItem("", QVariant(""));
+    QString label;
+
+    for (auto vpc : vpcs) {
+        if (vpc->name.isEmpty()) {
+            label = vpc->id;
+        } else {
+            label = vpc->name + " (" + vpc->id + ")";
+        }
+
+        if (vpc->isDefault) {
+            label += " [default]";
+        }
+
+        this->vpcComboBox->addItem(label, QVariant(vpc->id));
+    }
+
+    this->updatingVpcs = false;
+
+    std::cout << "selectedVpcId: " << this->selectedVpcId.toStdString() << std::endl;
+
+    if (!this->selectedVpcId.isEmpty()) {
+        int currentIndex = this->vpcComboBox->findData(QVariant(this->selectedVpcId));
+        std::cout << "updateVpcs: currentIndex: " << currentIndex << std::endl;
+
+        // reset selected VPC ID in case the VPC no longer exists
+        if (currentIndex == -1) {
+            this->selectedVpcId = "";
+            this->instanceModel->setVpcFilter(this->selectedVpcId);
+        } else {
+            // select the right VPC in the combo box
+            this->vpcComboBox->setCurrentIndex(currentIndex);
+        }
+    }
 }

@@ -5,12 +5,15 @@ TagsDialog::TagsDialog()
     this->setMinimumWidth(300);
     QVBoxLayout *layout = new QVBoxLayout();
 
-    this->list = new QListWidget();
-    layout->addWidget(this->list);
+    this->tagsViewer = new TagsViewWidget();
+    layout->addWidget(this->tagsViewer);
 
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *closeButton = new QPushButton(tr("Close"));
     QObject::connect(closeButton, SIGNAL(clicked()), this, SLOT(reject()));
-    layout->addWidget(closeButton);
+    buttonLayout->addStretch(1);
+    buttonLayout->addWidget(closeButton);
+    layout->addLayout(buttonLayout);
 
     this->setLayout(layout);
 }
@@ -26,15 +29,7 @@ void TagsDialog::showDialog(std::shared_ptr<AWSInstance> instance)
 
     this->setWindowTitle(title);
 
-    this->list->clear();
-
-    if (instance->tags.count() > 0) {
-        for (AWSTag tag : instance->tags) {
-            this->list->addItem(tag.key + " = " + tag.value);
-        }
-    } else {
-        this->list->addItem("No Tags");
-    }
+    this->tagsViewer->updateData(instance->tags);
 
     this->exec();
 }

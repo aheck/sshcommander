@@ -8,16 +8,6 @@ MachineInfoWidget::MachineInfoWidget()
 
     this->disabledWidget = new DisabledWidget("No SSH Connection");
 
-    this->labelHostname = new QLabel(tr("Hostname:"));
-    this->labelUsername = new QLabel(tr("Username:"));
-    this->labelOperatingSystem = new QLabel(tr("Operating System:"));
-    this->labelDistro = new QLabel(tr("Distro:"));
-    this->labelCpu = new QLabel(tr("CPU(s):"));
-    this->labelMemory = new QLabel(tr("RAM:"));
-    this->labelSSHCommand = new QLabel(tr("SSH Command:"));
-    this->labelSCPCommand = new QLabel(tr("Copy File Command:"));
-    this->labelSCPDirCommand = new QLabel(tr("Copy Dir Command:"));
-
     this->valueHostname = new QLabel();
     this->valueHostname->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueUsername = new QLabel();
@@ -37,35 +27,39 @@ MachineInfoWidget::MachineInfoWidget()
     this->valueSCPDirCommand = new QLabel();
     this->valueSCPDirCommand->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
-    this->gridLayout = new QGridLayout();
+    QVBoxLayout *groupsLayout = new QVBoxLayout();
 
-    this->gridLayout->addWidget(this->labelHostname, 0, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueHostname, 0, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelUsername, 1, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueUsername, 1, 1, Qt::AlignLeft);
+    QFormLayout *generalLayout = new QFormLayout();
+    QGroupBox *generalGroup = new QGroupBox(tr("General"));
 
-    this->gridLayout->addWidget(this->labelOperatingSystem, 2, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueOperatingSystem, 2, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelDistro, 3, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueDistro, 3, 1, Qt::AlignLeft);
+    generalLayout->addRow(tr("Hostname:"), this->valueHostname);
+    generalLayout->addRow(tr("Username:"), this->valueUsername);
 
-    this->gridLayout->addWidget(this->labelCpu, 4, 0, Qt::AlignTop | Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueCpu, 4, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelMemory, 5, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueMemory, 5, 1, Qt::AlignLeft);
+    generalGroup->setLayout(generalLayout);
+    groupsLayout->addWidget(generalGroup);
 
-    this->gridLayout->addWidget(this->labelSSHCommand, 6, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueSSHCommand, 6, 1, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->labelSCPCommand, 7, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueSCPCommand, 7, 1, Qt::AlignLeft);
+    QFormLayout *systemLayout = new QFormLayout();
+    QGroupBox *systemGroup = new QGroupBox(tr("System"));
 
-    this->gridLayout->addWidget(this->labelSCPDirCommand, 8, 0, Qt::AlignLeft);
-    this->gridLayout->addWidget(this->valueSCPDirCommand, 8, 1, Qt::AlignLeft);
+    systemLayout->addRow(tr("Operating System:"), this->valueOperatingSystem);
+    systemLayout->addRow(tr("Distro:"), this->valueDistro);
+    systemLayout->addRow(tr("CPU(s):"), this->valueCpu);
+    systemLayout->addRow(tr("RAM:"), this->valueMemory);
 
-    this->gridLayout->setRowStretch(9, 1);
-    this->gridLayout->setColumnStretch(3, 1);
+    systemGroup->setLayout(systemLayout);
+    groupsLayout->addWidget(systemGroup);
 
-    this->page->setLayout(this->gridLayout);
+    QFormLayout *sshLayout = new QFormLayout();
+    QGroupBox *sshGroup = new QGroupBox(tr("SSH"));
+
+    sshLayout->addRow(tr("SSH Command:"), this->valueSSHCommand);
+    sshLayout->addRow(tr("Copy File Command:"), this->valueSCPCommand);
+    sshLayout->addRow(tr("Copy Dir Command:"), this->valueSCPDirCommand);
+
+    sshGroup->setLayout(sshLayout);
+    groupsLayout->addWidget(sshGroup);
+
+    this->page->setLayout(groupsLayout);
 
     QScrollArea *scrollArea = new QScrollArea();
     scrollArea->setWidgetResizable(true);
@@ -132,10 +126,47 @@ void MachineInfoWidget::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdRe
         this->valueDistro->setText(cmdResult->resultString.trimmed());
     } else if (cmdResult->command.startsWith("grep MemTotal: ")) {
         QString mem = cmdResult->resultString.remove("MemTotal:").trimmed();
+
+        if (mem.endsWith(" kB")) {
+            mem.remove(" kB");
+            QString unit = "MB";
+            double memSize = mem.toDouble();
+            memSize /= 1024;
+            if (memSize > 1023) {
+                unit = "GB";
+                memSize /= 1024;
+            }
+
+            mem = QString::number(memSize, 'f', 1) + " " + unit;
+        }
+
         this->valueMemory->setText(mem);
     } else if (cmdResult->command.startsWith("grep 'model name' ")) {
         QString cpu = cmdResult->resultString.remove("model name").remove(": ").trimmed();
         cpu = cpu.replace(QRegExp("\n\\s+"), "\n");
+
+        QStringList lines = cpu.split("\n");
+
+        if (lines.count() > 1) {
+            cpu = "";
+            QString currentLine = lines.at(0);
+            int num = 0;
+
+            for (auto line : lines) {
+                num++;
+
+                if (line != currentLine) {
+                    cpu += QString::number(num) + " x " + currentLine + "\n";
+                    currentLine = line;
+                    num = 1;
+                }
+            }
+
+            cpu += QString::number(num) + " x " + currentLine;
+        } else {
+            cpu = "1 x " + cpu;
+        }
+
         this->valueCpu->setText(cpu);
     }
 }

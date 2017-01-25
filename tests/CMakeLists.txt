@@ -39,6 +39,7 @@ add_executable(tests main.cpp
     ../src/TabbedTerminalWidget.cpp
     ../src/TerminalViewWidget.cpp
     ../src/TagsDialog.cpp
+    ../src/TagsViewWidget.cpp
     ../src/VpcDialog.cpp
 )
 

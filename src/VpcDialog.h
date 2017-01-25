@@ -13,6 +13,7 @@
 #include "AWSConnector.h"
 #include "AWSInstance.h"
 #include "AWSVpc.h"
+#include "TagsViewWidget.h"
 
 class VpcDialog : public QDialog
 {
@@ -33,6 +34,8 @@ private:
     QLabel *dhcpOptionsLabel;
     QLabel *instanceTenancyLabel;
     QLabel *isDefaultLabel;
+
+    TagsViewWidget *tagsViewer;
 };
 
 #endif

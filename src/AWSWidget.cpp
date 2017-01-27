@@ -37,6 +37,7 @@ AWSWidget::AWSWidget(Preferences *preferences)
     this->toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
 
     this->vpcComboBox = new QComboBox(this);
+    this->vpcComboBox->setMinimumWidth(250);
     this->vpcComboBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     this->vpcComboBox->setToolTip(tr("Virtual Private Cloud (VPC)"));
     QObject::connect(this->vpcComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeVpc(int)));

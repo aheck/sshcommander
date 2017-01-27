@@ -363,7 +363,7 @@ void AWSWidget::updateVpcs(std::vector<std::shared_ptr<AWSVpc>> &vpcs)
     this->updatingVpcs = true;
     this->vpcComboBox->clear();
 
-    this->vpcComboBox->addItem("", QVariant(""));
+    this->vpcComboBox->addItem("All VPCs", QVariant(""));
     QString label;
 
     for (auto vpc : vpcs) {

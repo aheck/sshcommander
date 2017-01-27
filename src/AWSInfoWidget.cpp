@@ -16,6 +16,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
 
     this->awsPage = new QWidget();
     this->awsContent = new QWidget();
+    this->awsContent->setObjectName("scrollAreaContent");
     this->disabledWidget = new DisabledWidget("No AWS Data");
 
     this->toolBar = new QToolBar();

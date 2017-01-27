@@ -5,6 +5,7 @@ MachineInfoWidget::MachineInfoWidget()
     this->enabled = false;
     this->widgetStack = new QStackedWidget();
     this->page = new QWidget();
+    this->page->setObjectName("scrollAreaContent");
 
     this->disabledWidget = new DisabledWidget("No SSH Connection");
 

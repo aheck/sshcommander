@@ -2,7 +2,7 @@
 
 SubnetDialog::SubnetDialog()
 {
-    this->setMinimumWidth(300);
+    this->setMinimumWidth(500);
     QVBoxLayout *layout = new QVBoxLayout();
 
     QLabel *caption = new QLabel("Subnet Details");

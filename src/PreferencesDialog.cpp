@@ -2,6 +2,8 @@
 
 PreferencesDialog::PreferencesDialog()
 {
+    this->setMinimumWidth(400);
+    this->setMinimumHeight(300);
     this->setWindowTitle(tr("Preferences"));
     this->setWindowIcon(QIcon(":/images/preferences-system.svg"));
     QVBoxLayout *layout = new QVBoxLayout();

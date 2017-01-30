@@ -2,7 +2,8 @@
 
 TagsDialog::TagsDialog()
 {
-    this->setMinimumWidth(300);
+    this->setMinimumWidth(500);
+    this->setMinimumHeight(300);
     QVBoxLayout *layout = new QVBoxLayout();
 
     this->tagsViewer = new TagsViewWidget();

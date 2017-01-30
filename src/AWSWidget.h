@@ -66,6 +66,7 @@ private slots:
     void showTags();
     void searchForText(const QString &text);
     void copyItemToClipboard();
+    void clearVpcComboBox();
 
 private:
     void updateNumberOfInstances();
@@ -90,6 +91,7 @@ private:
     QTableView *instanceTable;
     InstanceItemModel *instanceModel;
     QToolBar *toolBar;
+    QToolBar *vpcToolBar;
     QLineEdit *searchLineEdit;
     QComboBox *regionComboBox;
     QString selectedVpcId;

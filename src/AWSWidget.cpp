@@ -41,6 +41,8 @@ AWSWidget::AWSWidget(Preferences *preferences)
     this->vpcComboBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     this->vpcComboBox->setToolTip(tr("Virtual Private Cloud (VPC)"));
     QObject::connect(this->vpcComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeVpc(int)));
+    this->vpcToolBar = new QToolBar("vpcToolBar", this->mainWidget);
+    this->vpcToolBar->addAction(QIcon(":/images/edit-clear.svg"), "Clear VPC", this, SLOT(clearVpcComboBox()));
 
     this->searchLineEdit = new QLineEdit(this);
     this->searchLineEdit->setPlaceholderText(tr("Filter by name, tag, instance ID, SSH key, IP or stack"));
@@ -87,6 +89,7 @@ AWSWidget::AWSWidget(Preferences *preferences)
     vpcLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     vpcLayout->addWidget(vpcLabel);
     vpcLayout->addWidget(this->vpcComboBox);
+    vpcLayout->addWidget(this->vpcToolBar);
     vpcLayout->addStretch(1);
     ((QVBoxLayout*) this->mainWidget->layout())->addLayout(vpcLayout);
 
@@ -397,4 +400,9 @@ void AWSWidget::updateVpcs(std::vector<std::shared_ptr<AWSVpc>> &vpcs)
             this->vpcComboBox->setCurrentIndex(currentIndex);
         }
     }
+}
+
+void AWSWidget::clearVpcComboBox()
+{
+    this->vpcComboBox->setCurrentIndex(0);
 }

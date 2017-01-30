@@ -19,5 +19,6 @@
     <file>images/yellow-light.svg</file>
     <file>images/connection-type-standard.svg</file>
     <file>images/connection-type-aws.svg</file>
+    <file>images/edit-clear.svg</file>
 </qresource>
 </RCC>

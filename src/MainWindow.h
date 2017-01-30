@@ -20,7 +20,6 @@
 #include <QShortcut>
 #include <QSplitter>
 #include <QStackedWidget>
-#include <QStyle>
 #include <QToolBar>
 #include <QUrl>
 #include <QtDebug>

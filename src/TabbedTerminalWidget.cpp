@@ -121,7 +121,7 @@ void TabbedTerminalWidget::dataReceived(const QString &text)
         return;
     }
 
-    if (text.endsWith(" password: ")) {
+    if (text.endsWith(" password: ") || QRegExp("Password for \\S+@\\S+:").exactMatch(text)) {
         console->sendText(connEntry->password + "\n");
         disconnect(console, SIGNAL(receivedData(QString)),
                 this, SLOT(dataReceived(QString)));

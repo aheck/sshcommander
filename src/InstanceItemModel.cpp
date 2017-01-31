@@ -47,6 +47,8 @@ QVariant InstanceItemModel::headerData(int section, Qt::Orientation orientation,
             return QVariant("Private IP");
         case Column::CFSTACK:
             return QVariant("CloudFormation Stack");
+        case Column::VPC:
+            return QVariant("Virtual Private Cloud");
         case Column::LAUNCHTIME:
             return QVariant("Launch Time");
     }
@@ -93,6 +95,8 @@ QVariant InstanceItemModel::data(const QModelIndex &index, int role) const
             return QVariant(instance->privateIP);
         case Column::CFSTACK:
             return QVariant(instance->cfStackName);
+        case Column::VPC:
+            return QVariant(instance->formattedVpc());
         case Column::LAUNCHTIME:
             return QVariant(instance->launchTime);
     }
@@ -161,6 +165,8 @@ bool InstanceComparator::operator() (const std::shared_ptr<AWSInstance> &a, cons
         case Column::CFSTACK:
             result = a->cfStackName.compare(b->cfStackName) < 0;
             break;
+        case Column::VPC:
+            return a->formattedVpc().compare(b->formattedVpc()) < 0;
         case Column::LAUNCHTIME:
             result = a->launchTime.compare(b->launchTime) < 0;
             break;

@@ -19,7 +19,7 @@
 
 #include "AWSConnector.h"
 
-enum Column {ID = 0, NAME, STATUS, TYPE, KEYNAME, PUBLICIP, PRIVATEIP, CFSTACK, LAUNCHTIME, NUM_COLUMNS};
+enum Column {ID = 0, NAME, STATUS, TYPE, KEYNAME, PUBLICIP, PRIVATEIP, CFSTACK, VPC, LAUNCHTIME, NUM_COLUMNS};
 
 struct InstanceComparator {
     int column;

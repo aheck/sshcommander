@@ -309,6 +309,12 @@ void AWSWidget::showInstanceContextMenu(QPoint pos)
 
         menu.addSeparator();
 
+        std::shared_ptr<AWSInstance> instance = this->getSelectedInstance();
+        this->vpcIdCandidate = instance->vpcId;
+        menu.addAction(tr("Filter by instance VPC"), this, SLOT(selectVpc()));
+
+        menu.addSeparator();
+
         menu.addAction(tr("Connect to Private IP"), this, SLOT(connectToPrivateIP()));
         QAction *connectToInstance = menu.addAction(tr("Connect to Instance"), this, SLOT(connectToPublicIP()));
         connectToInstance->setIcon(QIcon(":/images/applications-internet.svg"));
@@ -405,4 +411,13 @@ void AWSWidget::updateVpcs(std::vector<std::shared_ptr<AWSVpc>> &vpcs)
 void AWSWidget::clearVpcComboBox()
 {
     this->vpcComboBox->setCurrentIndex(0);
+}
+
+void AWSWidget::selectVpc()
+{
+    int index = this->vpcComboBox->findData(this->vpcIdCandidate);
+
+    if (index > -1) {
+        this->vpcComboBox->setCurrentIndex(index);
+    }
 }

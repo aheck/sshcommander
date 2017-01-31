@@ -67,6 +67,7 @@ private slots:
     void searchForText(const QString &text);
     void copyItemToClipboard();
     void clearVpcComboBox();
+    void selectVpc();
 
 private:
     void updateNumberOfInstances();
@@ -110,6 +111,8 @@ private:
     // might be copied to the clipboard if the user selects the corresponding
     // context menu action.
     QString clipboardCandidate;
+
+    QString vpcIdCandidate;
 };
 
 #endif

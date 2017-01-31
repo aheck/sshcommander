@@ -69,6 +69,8 @@ private:
     NewDialog *editDialog;
     ConnectionListView *listView;
     SSHConnectionItemModel *model;
+    QAction *editAction;
+    QAction *deleteAction;
 };
 
 #endif

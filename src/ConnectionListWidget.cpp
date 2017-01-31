@@ -17,10 +17,12 @@ ConnectionListWidget::ConnectionListWidget(SSHConnectionItemModel *model)
     this->toolBar = new QToolBar();
     toolBar->addAction(QIcon(":/images/applications-internet.svg"), "New Connection",
             this, SIGNAL(newDialogRequested()));
-    toolBar->addAction(QIcon(":/images/preferences-system.svg"), "Edit Connection",
+    this->editAction = toolBar->addAction(QIcon(":/images/preferences-system.svg"), "Edit Connection",
             this, SLOT(editConnection()));
-    toolBar->addAction(QIcon(":/images/process-stop.svg"), "Delete Connection",
+    this->editAction->setEnabled(false);
+    this->deleteAction = toolBar->addAction(QIcon(":/images/process-stop.svg"), "Delete Connection",
             this, SLOT(removeSelectedConnection()));
+    this->deleteAction->setEnabled(false);
 
     this->editDialog = new NewDialog(true);
 
@@ -46,11 +48,11 @@ void ConnectionListWidget::showContextMenu(QPoint pos)
 
     if (this->listView->indexAt(pos).isValid()) {
         QMenu menu;
-        QAction *editAction = menu.addAction(tr("Edit"), this, SLOT(editConnection()));
-        editAction->setIcon(QIcon(":/images/preferences-system.svg"));
+        QAction *editAct = menu.addAction(tr("Edit"), this, SLOT(editConnection()));
+        editAct->setIcon(QIcon(":/images/preferences-system.svg"));
         menu.addSeparator();
-        QAction *deleteAction = menu.addAction(tr("Delete"), this, SLOT(removeSelectedConnection()));
-        deleteAction->setIcon(QIcon(":/images/process-stop.svg"));
+        QAction *deleteAct = menu.addAction(tr("Delete"), this, SLOT(removeSelectedConnection()));
+        deleteAct->setIcon(QIcon(":/images/process-stop.svg"));
 
         menu.exec(globalPos);
     }
@@ -60,6 +62,9 @@ void ConnectionListWidget::selectConnection(std::shared_ptr<SSHConnectionEntry> 
 {
     QModelIndex index = this->model->getIndexForSSHConnectionEntry(connEntry);
     this->listView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+
+    this->editAction->setEnabled(true);
+    this->deleteAction->setEnabled(true);
 }
 
 QModelIndexList ConnectionListWidget::getSelection()
@@ -121,8 +126,14 @@ void ConnectionListWidget::selectionChanged(const QItemSelection &selected,
     QModelIndexList indexes = selected.indexes();
 
     if (indexes.size() == 0) {
+        this->editAction->setEnabled(false);
+        this->deleteAction->setEnabled(false);
+
         return;
     }
+
+    this->editAction->setEnabled(true);
+    this->deleteAction->setEnabled(true);
 
     QModelIndex index = indexes.at(0);
 

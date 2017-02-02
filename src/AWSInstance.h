@@ -6,8 +6,10 @@
 #include <QList>
 #include <QString>
 
+#include "AWSCache.h"
 #include "AWSSecurityGroup.h"
 #include "AWSTag.h"
+#include "AWSVpc.h"
 
 class AWSInstance
 {
@@ -19,6 +21,7 @@ public:
     const QString formattedImage();
     const QString formattedVpc();
     const QString formattedSubnet();
+    void resolveReferences();
 
     QString id;
     QString name;

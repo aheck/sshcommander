@@ -346,6 +346,7 @@ void MainWindow::createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance,
 
     this->newDialog->isAwsInstance = true;
     this->newDialog->awsInstance = instance;
+    this->newDialog->awsInstance->resolveReferences();
     this->newDialog->exec();
     this->newDialog->isAwsInstance = false;
 }

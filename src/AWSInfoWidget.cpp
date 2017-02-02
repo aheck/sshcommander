@@ -215,6 +215,9 @@ void AWSInfoWidget::handleAWSResult(AWSResult *result)
                 std::shared_ptr<AWSInstance> newInstance = instances.at(0);
                 *(this->instance) = *newInstance;
                 this->updateData(this->instance);
+
+                AWSCache &cache = AWSCache::getInstance();
+                cache.updateInstances(this->instance->region, instances);
             } else if (instances.size() == 0) {
                 // The instance was terminted some time ago and AWS already
                 // deleted its data
@@ -231,10 +234,18 @@ void AWSInfoWidget::handleAWSResult(AWSResult *result)
             std::vector<std::shared_ptr<AWSSubnet>> subnets = parseDescribeSubnetsResponse(result, this->instance->region);
 
             this->subnetDialog->updateData(subnets);
+
+            AWSCache &cache = AWSCache::getInstance();
+            cache.updateSubnets(this->instance->region, subnets);
+
+            this->instance->resolveReferences();
         } else if (result->responseType == "DescribeVpcsResponse") {
             std::vector<std::shared_ptr<AWSVpc>> vpcs = parseDescribeVpcsResponse(result, this->instance->region);
 
             this->vpcDialog->updateData(vpcs);
+
+            AWSCache &cache = AWSCache::getInstance();
+            cache.updateVpcs(this->instance->region, vpcs);
         } else if (result->responseType == "DescribeImagesResponse") {
             std::vector<std::shared_ptr<AWSImage>> images = parseDescribeImagesResponse(result, this->instance->region);
 

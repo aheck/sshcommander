@@ -221,18 +221,31 @@ void AWSWidget::handleAWSResult(AWSResult *result)
         }
 
         if (result->responseType == "DescribeInstancesResponse") {
-            std::vector<std::shared_ptr<AWSInstance>> vector = ::parseDescribeInstancesResponse(result, this->region);
-            this->instanceModel->setInstances(vector);
+            std::vector<std::shared_ptr<AWSInstance>> instances = ::parseDescribeInstancesResponse(result, this->region);
+            this->instanceModel->setInstances(instances);
             this->connectButton->setEnabled(false);
             this->updateNumberOfInstances();
+
+            AWSCache &cache = AWSCache::getInstance();
+            cache.updateInstances(this->region, instances);
+
+            this->instanceModel->resolveAllReferences();
         } else if (result->responseType == "DescribeSecurityGroupsResponse") {
             std::vector<std::shared_ptr<AWSSecurityGroup>> securityGroups = parseDescribeSecurityGroupsResponse(result, this->region);
 
             this->securityGroupsDialog->updateData(securityGroups);
+
+            AWSCache &cache = AWSCache::getInstance();
+            cache.updateSecurityGroups(this->region, securityGroups);
         } else if (result->responseType == "DescribeVpcsResponse") {
             std::vector<std::shared_ptr<AWSVpc>> vpcs = parseDescribeVpcsResponse(result, this->region);
 
             this->updateVpcs(vpcs);
+
+            AWSCache &cache = AWSCache::getInstance();
+            cache.updateVpcs(this->region, vpcs);
+
+            this->instanceModel->resolveAllReferences();
         }
     }
 

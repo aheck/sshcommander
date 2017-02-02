@@ -281,3 +281,10 @@ void InstanceItemModel::applyFilters()
 
     this->endResetModel();
 }
+
+void InstanceItemModel::resolveAllReferences()
+{
+    for (auto instance : this->allInstances) {
+        instance->resolveReferences();
+    }
+}

@@ -111,3 +111,18 @@ const QString AWSInstance::formattedSubnet()
 
     return this->subnetId;
 }
+
+void AWSInstance::resolveReferences()
+{
+    AWSCache& cache = AWSCache::getInstance();
+
+    std::shared_ptr<AWSVpc> vpc = cache.resolveVpc(this->region, this->vpcId);
+    if (vpc != nullptr) {
+        this->vpcName = vpc->name;
+    }
+
+    std::shared_ptr<AWSSubnet> subnet = cache.resolveSubnet(this->region, this->subnetId);
+    if (subnet != nullptr) {
+        this->subnetName = subnet->name;
+    }
+}

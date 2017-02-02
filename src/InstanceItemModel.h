@@ -45,6 +45,7 @@ public:
     void setSearchTextFilter(const QString searchText);
     void setVpcFilter(const QString vpcId);
     std::vector<std::shared_ptr<AWSInstance>> getInstancesByVpcId(QString vpcId);
+    void resolveAllReferences();
 
 private:
     void applyFilters();

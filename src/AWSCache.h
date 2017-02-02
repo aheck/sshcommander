@@ -25,6 +25,10 @@
 
 #include "AWSInstance.h"
 #include "AWSSecurityGroup.h"
+#include "AWSSubnet.h"
+#include "AWSVpc.h"
+
+class AWSInstance;
 
 class AWSCache
 {
@@ -34,11 +38,20 @@ public:
     AWSCache(AWSCache const &other) = delete;
     void operator=(AWSCache const &) = delete;
 
+    void clearInstances(QString region);
+    void clearSecurityGroups(QString region);
+    void clearSubnets(QString region);
+    void clearVpcs(QString region);
+
     void updateInstances(const QString region, std::vector<std::shared_ptr<AWSInstance>> instances);
     void updateSecurityGroups(const QString region, std::vector<std::shared_ptr<AWSSecurityGroup>> securityGroups);
+    void updateSubnets(const QString region, std::vector<std::shared_ptr<AWSSubnet>> subnets);
+    void updateVpcs(const QString region, std::vector<std::shared_ptr<AWSVpc>> vpcs);
 
     std::shared_ptr<AWSInstance> resolveInstance(const QString region, const QString instanceId);
     std::shared_ptr<AWSSecurityGroup> resolveSecurityGroup(const QString region, const QString instanceId);
+    std::shared_ptr<AWSSubnet> resolveSubnet(const QString region, const QString subnetId);
+    std::shared_ptr<AWSVpc> resolveVpc(const QString region, const QString vpcId);
 
 private:
     AWSCache();
@@ -46,6 +59,8 @@ private:
 
     std::map<const QString, std::shared_ptr<AWSInstance>> instanceCache;
     std::map<const QString, std::shared_ptr<AWSSecurityGroup>> securityGroupCache;
+    std::map<const QString, std::shared_ptr<AWSSubnet>> subnetCache;
+    std::map<const QString, std::shared_ptr<AWSVpc>> vpcCache;
 
     const QString buildKey(const QString region, const QString id);
 };

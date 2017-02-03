@@ -214,6 +214,7 @@ void AWSInfoWidget::handleAWSResult(AWSResult *result)
             if (instances.size() == 1) {
                 std::shared_ptr<AWSInstance> newInstance = instances.at(0);
                 *(this->instance) = *newInstance;
+                this->instance->resolveReferences();
                 this->updateData(this->instance);
 
                 AWSCache &cache = AWSCache::getInstance();
@@ -233,15 +234,15 @@ void AWSInfoWidget::handleAWSResult(AWSResult *result)
         } else if (result->responseType == "DescribeSubnetsResponse") {
             std::vector<std::shared_ptr<AWSSubnet>> subnets = parseDescribeSubnetsResponse(result, this->instance->region);
 
+            this->instance->resolveReferences();
             this->subnetDialog->updateData(subnets);
 
             AWSCache &cache = AWSCache::getInstance();
             cache.updateSubnets(this->instance->region, subnets);
-
-            this->instance->resolveReferences();
         } else if (result->responseType == "DescribeVpcsResponse") {
             std::vector<std::shared_ptr<AWSVpc>> vpcs = parseDescribeVpcsResponse(result, this->instance->region);
 
+            this->instance->resolveReferences();
             this->vpcDialog->updateData(vpcs);
 
             AWSCache &cache = AWSCache::getInstance();

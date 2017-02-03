@@ -121,10 +121,24 @@ void TabbedTerminalWidget::dataReceived(const QString &text)
         return;
     }
 
-    if (text.endsWith(" password: ") || QRegExp("Password for \\S+@\\S+:").exactMatch(text)) {
+    if (this->passwordLineCounter.count(console) == 0) {
+        this->passwordLineCounter[console] = 1;
+    } else {
+        this->passwordLineCounter[console]++;
+
+        if (this->passwordLineCounter[console] > 10) {
+            disconnect(console, SIGNAL(receivedData(QString)),
+                    this, SLOT(dataReceived(QString)));
+            this->passwordLineCounter.erase(console);
+        }
+    }
+
+    if (QRegExp("^.*( )?(p|P)assword:( )?$").exactMatch(text) || QRegExp("Password for \\S+@\\S+:").exactMatch(text)) {
         console->sendText(connEntry->password + "\n");
+
         disconnect(console, SIGNAL(receivedData(QString)),
                 this, SLOT(dataReceived(QString)));
+        this->passwordLineCounter.erase(console);
     }
 }
 

@@ -43,6 +43,8 @@ private slots:
 private:
     Preferences *preferences;
     std::weak_ptr<SSHConnectionEntry> connEntryWeak;
+    std::map<QTermWidget*, int> passwordLineCounter;
+
     QTermWidget* createNewTermWidget(const QStringList *args, bool connectReceivedData);
 };
 

@@ -142,40 +142,40 @@ AWSInfoWidget::~AWSInfoWidget()
     delete this->awsConnector;
 }
 
-void AWSInfoWidget::updateData(std::shared_ptr<AWSInstance> instance)
+void AWSInfoWidget::updateData(std::shared_ptr<AWSInstance> newInstance)
 {
-    this->instance = instance;
+    this->instance = newInstance;
 
-    this->valueInstanceId->setText(instance->id);
-    this->valueName->setText(instance->name);
-    this->valueRegion->setText(instance->region);
-    this->valueAvailabilityZone->setText(instance->availabilityZone);
+    this->valueInstanceId->setText(newInstance->id);
+    this->valueName->setText(newInstance->name);
+    this->valueRegion->setText(newInstance->region);
+    this->valueAvailabilityZone->setText(newInstance->availabilityZone);
 
-    this->valueStatus->setText(instance->status);
-    if (instance->status == "running") {
+    this->valueStatus->setText(newInstance->status);
+    if (newInstance->status == "running") {
         this->valueStatus->setStyleSheet("QLabel { background-color : green; color: white; }");
-    } else if (instance->status == "terminated") {
+    } else if (newInstance->status == "terminated") {
         this->valueStatus->setStyleSheet("QLabel { background-color : red; color: white; }");
     } else {
         this->valueStatus->setStyleSheet("QLabel { background-color : yellow; color: white; }");
     }
-    this->valueKeyname->setText(instance->keyname);
-    this->valueType->setText(instance->type);
-    this->valueImage->setText(QString("%1 (<a href=\"http://localhost/\">View Image</a>)").arg(instance->formattedImage()));
+    this->valueKeyname->setText(newInstance->keyname);
+    this->valueType->setText(newInstance->type);
+    this->valueImage->setText(QString("%1 (<a href=\"http://localhost/\">View Image</a>)").arg(newInstance->formattedImage()));
 
-    this->valueLaunchTime->setText(instance->launchTime);
-    this->valuePublicIP->setText(instance->publicIP);
-    this->valuePrivateIP->setText(instance->privateIP);
-    this->valueVpc->setText(QString("%1 (<a href=\"http://localhost/\">View VPC</a>)").arg(instance->formattedVpc()));
+    this->valueLaunchTime->setText(newInstance->launchTime);
+    this->valuePublicIP->setText(newInstance->publicIP);
+    this->valuePrivateIP->setText(newInstance->privateIP);
+    this->valueVpc->setText(QString("%1 (<a href=\"http://localhost/\">View VPC</a>)").arg(newInstance->formattedVpc()));
 
-    this->valueSubnet->setText(QString("%1 (<a href=\"http://localhost/\">View Subnet</a>)").arg(instance->formattedSubnet()));
-    this->valueSourceDestCheck->setText(instance->sourceDestCheck);
-    this->valueCfStackName->setText(instance->cfStackName);
-    this->valueVirtualizationType->setText(instance->virtualizationType);
-    this->valueArchitecture->setText(instance->architecture);
-    this->valueHypervisor->setText(instance->hypervisor);
+    this->valueSubnet->setText(QString("%1 (<a href=\"http://localhost/\">View Subnet</a>)").arg(newInstance->formattedSubnet()));
+    this->valueSourceDestCheck->setText(newInstance->sourceDestCheck);
+    this->valueCfStackName->setText(newInstance->cfStackName);
+    this->valueVirtualizationType->setText(newInstance->virtualizationType);
+    this->valueArchitecture->setText(newInstance->architecture);
+    this->valueHypervisor->setText(newInstance->hypervisor);
 
-    this->tagsViewer->updateData(instance->tags);
+    this->tagsViewer->updateData(newInstance->tags);
 }
 
 void AWSInfoWidget::setAWSEnabled(bool enabled)
@@ -213,7 +213,6 @@ void AWSInfoWidget::handleAWSResult(AWSResult *result)
 
             if (instances.size() == 1) {
                 std::shared_ptr<AWSInstance> newInstance = instances.at(0);
-                *(this->instance) = *newInstance;
                 this->instance->resolveReferences();
                 this->updateData(this->instance);
 

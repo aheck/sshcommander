@@ -33,7 +33,7 @@ public:
     AWSInfoWidget(Preferences *preferences);
     ~AWSInfoWidget();
 
-    void updateData(std::shared_ptr<AWSInstance> instance);
+    void updateData(std::shared_ptr<AWSInstance> newInstance);
     void setAWSEnabled(bool enabled);
 
 public slots:

@@ -23,7 +23,9 @@ void AWSCache::clearInstances(QString region)
     auto iter = this->instanceCache.begin();
     while (iter != this->instanceCache.end()) {
         if (iter->first.startsWith(region)) {
-            iter = this->instanceCache.erase(iter);
+            this->instanceCache.erase(iter++);
+        } else {
+            ++iter;
         }
     }
 }
@@ -33,7 +35,9 @@ void AWSCache::clearSecurityGroups(QString region)
     auto iter = this->securityGroupCache.begin();
     while (iter != this->securityGroupCache.end()) {
         if (iter->first.startsWith(region)) {
-            iter = this->securityGroupCache.erase(iter);
+            this->securityGroupCache.erase(iter++);
+        } else {
+            ++iter;
         }
     }
 }
@@ -43,7 +47,9 @@ void AWSCache::clearSubnets(QString region)
     auto iter = this->subnetCache.begin();
     while (iter != this->subnetCache.end()) {
         if (iter->first.startsWith(region)) {
-            iter = this->subnetCache.erase(iter);
+            this->subnetCache.erase(iter++);
+        } else {
+            ++iter;
         }
     }
 }
@@ -53,7 +59,9 @@ void AWSCache::clearVpcs(QString region)
     auto iter = this->vpcCache.begin();
     while (iter != this->vpcCache.end()) {
         if (iter->first.startsWith(region)) {
-            iter = this->vpcCache.erase(iter);
+            this->vpcCache.erase(iter++);
+        } else {
+            ++iter;
         }
     }
 }

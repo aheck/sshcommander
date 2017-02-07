@@ -12,7 +12,9 @@ int main(int argc, char *argv[])
     app.setStyleSheet(
             "QScrollArea QWidget#scrollAreaContent {background-color: white;}"
             "QLineEdit {background-color: white;}"
+            "QLineEdit::focus {border: 3px solid #c1e0ff; border-radius: 5px;}"
             "QComboBox {background-color: white; selection-background-color: #4a90d9;}"
+            "QComboBox:editable::focus {border: 3px solid #c1e0ff; border-radius: 5px;}"
             "QSplitter::handle:vertical   {height: 3px; background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #fafafa, stop: 0.4 grey, stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);}"
             "QSplitter::handle:horizontal {width:  3px; background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #fafafa, stop: 0.4 grey, stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);}"
             "QGroupBox {border: 1px solid grey; margin-top: 0.5em; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 0.5, stop: 0 #f4f4f4, stop: 1 #fafafa);}"

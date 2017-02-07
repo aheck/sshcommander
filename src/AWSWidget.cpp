@@ -227,6 +227,7 @@ void AWSWidget::handleAWSResult(AWSResult *result)
             this->updateNumberOfInstances();
 
             AWSCache &cache = AWSCache::getInstance();
+            cache.clearInstances(this->region);
             cache.updateInstances(this->region, instances);
 
             this->instanceModel->resolveAllReferences();
@@ -243,6 +244,7 @@ void AWSWidget::handleAWSResult(AWSResult *result)
             this->updateVpcs(vpcs);
 
             AWSCache &cache = AWSCache::getInstance();
+            cache.clearVpcs(this->region);
             cache.updateVpcs(this->region, vpcs);
 
             this->instanceModel->resolveAllReferences();

@@ -70,7 +70,7 @@ void AWSConnector::sendRequest(const QString action, QList<QString> &extraParams
 
     // Request Params
     QString paramAction = action;
-    QString paramVersion = "2016-09-15";
+    QString paramVersion = "2016-11-15";
     QString paramAmzAlgorithm = "AWS4-HMAC-SHA256";
     QString paramAmzDate = now.toString("yyyyMMddTHHmmssZ");
     QString paramAmzSignedHeaders = "host;x-amz-date";
@@ -189,6 +189,40 @@ void AWSConnector::describeImages(QList<QString> &imageIds)
     }
 
     this->sendRequest("DescribeImages", extraParams);
+}
+
+void AWSConnector::describeRouteTables()
+{
+    QList<QString> extraParams;
+
+    this->sendRequest("DescribeRouteTables", extraParams);
+}
+
+void AWSConnector::describeRouteTablesWithSubnetId(QString &subnetId)
+{
+    QList<QString> extraParams;
+    QString filterName = "Filter.1.Name=association.subnet-id";
+    QString filterValue = "Filter.1.Value.1=" + subnetId;
+    extraParams.append(filterName);
+    extraParams.append(filterValue);
+
+    this->sendRequest("DescribeRouteTables", extraParams);
+}
+
+void AWSConnector::describeRouteTableMain(QString &vpcId)
+{
+    QList<QString> extraParams;
+    QString filterName = "Filter.1.Name=association.main";
+    QString filterValue = "Filter.1.Value.1=true";
+    extraParams.append(filterName);
+    extraParams.append(filterValue);
+
+    filterName = "Filter.2.Name=vpc-id";
+    filterValue = "Filter.2.Value=" + vpcId;
+    extraParams.append(filterName);
+    extraParams.append(filterValue);
+
+    this->sendRequest("DescribeRouteTables", extraParams);
 }
 
 void AWSConnector::replyFinished(QNetworkReply *reply)

@@ -238,6 +238,19 @@ void AWSInfoWidget::handleAWSResult(AWSResult *result)
 
             AWSCache &cache = AWSCache::getInstance();
             cache.updateSubnets(this->instance->region, subnets);
+        } else if (result->responseType == "DescribeRouteTablesResponse") {
+            std::vector<std::shared_ptr<AWSRouteTable>> routeTables = parseDescribeRouteTablesResponse(result, this->instance->region);
+
+            if (routeTables.size() == 0) {
+                // First we try to get the routing table associated with the
+                // subnet. If this request returns an empty set this means that
+                // the subnet is implicitly associated with the main routing
+                // table of the VPC. So we make a second request here to get the
+                // VPCs main routing table.
+                this->awsConnector->describeRouteTableMain(this->instance->vpcId);
+            } else {
+                this->subnetDialog->updateRouteTable(routeTables);
+            }
         } else if (result->responseType == "DescribeVpcsResponse") {
             std::vector<std::shared_ptr<AWSVpc>> vpcs = parseDescribeVpcsResponse(result, this->instance->region);
 

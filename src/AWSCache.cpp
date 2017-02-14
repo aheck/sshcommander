@@ -16,6 +16,7 @@ AWSCache::~AWSCache()
     this->securityGroupCache.clear();
     this->subnetCache.clear();
     this->vpcCache.clear();
+    this->routeTableCache.clear();
 }
 
 void AWSCache::clearInstances(QString region)
@@ -66,7 +67,19 @@ void AWSCache::clearVpcs(QString region)
     }
 }
 
-void AWSCache::updateInstances(const QString region, std::vector<std::shared_ptr<AWSInstance>> instances)
+void AWSCache::clearRouteTables(QString region)
+{
+    auto iter = this->routeTableCache.begin();
+    while (iter != this->routeTableCache.end()) {
+        if (iter->first.startsWith(region)) {
+            this->routeTableCache.erase(iter++);
+        } else {
+            ++iter;
+        }
+    }
+}
+
+void AWSCache::updateInstances(const QString region, std::vector<std::shared_ptr<AWSInstance>> &instances)
 {
     for (auto instance : instances) {
         QString key = buildKey(region, instance->id);
@@ -74,7 +87,7 @@ void AWSCache::updateInstances(const QString region, std::vector<std::shared_ptr
     }
 }
 
-void AWSCache::updateSecurityGroups(const QString region, std::vector<std::shared_ptr<AWSSecurityGroup>> securityGroups)
+void AWSCache::updateSecurityGroups(const QString region, std::vector<std::shared_ptr<AWSSecurityGroup>> &securityGroups)
 {
     for (auto securityGroup : securityGroups) {
         QString key = buildKey(region, securityGroup->id);
@@ -82,7 +95,7 @@ void AWSCache::updateSecurityGroups(const QString region, std::vector<std::share
     }
 }
 
-void AWSCache::updateSubnets(const QString region, std::vector<std::shared_ptr<AWSSubnet>> subnets)
+void AWSCache::updateSubnets(const QString region, std::vector<std::shared_ptr<AWSSubnet>> &subnets)
 {
     for (auto subnet : subnets) {
         QString key = buildKey(region, subnet->id);
@@ -90,11 +103,19 @@ void AWSCache::updateSubnets(const QString region, std::vector<std::shared_ptr<A
     }
 }
 
-void AWSCache::updateVpcs(const QString region, std::vector<std::shared_ptr<AWSVpc>> vpcs)
+void AWSCache::updateVpcs(const QString region, std::vector<std::shared_ptr<AWSVpc>> &vpcs)
 {
     for (auto vpc : vpcs) {
         QString key = buildKey(region, vpc->id);
         this->vpcCache[key] = vpc;
+    }
+}
+
+void AWSCache::updateRouteTables(const QString region, std::vector<std::shared_ptr<AWSRouteTable>> &routeTables)
+{
+    for (auto routeTable : routeTables) {
+        QString key = buildKey(region, routeTable->id);
+        this->routeTableCache[key] = routeTable;
     }
 }
 
@@ -120,6 +141,12 @@ std::shared_ptr<AWSVpc> AWSCache::resolveVpc(const QString region, const QString
 {
     QString key = buildKey(region, vpcId);
     return this->vpcCache[key];
+}
+
+std::shared_ptr<AWSRouteTable> AWSCache::resolveRouteTable(const QString region, const QString routeTableId)
+{
+    QString key = buildKey(region, routeTableId);
+    return this->routeTableCache[key];
 }
 
 inline const QString AWSCache::buildKey(const QString region, const QString id)

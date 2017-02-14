@@ -56,6 +56,17 @@ SubnetDialog::SubnetDialog()
     this->tagsViewer = new TagsViewWidget();
     layout->addWidget(this->tagsViewer);
 
+    QLabel *routeTableCaption = new QLabel("Route Table");
+    font = routeTableCaption->font();
+    font.setPointSize(12);
+    font.setBold(true);
+    routeTableCaption->setFont(font);
+    routeTableCaption->setStyleSheet("QLabel { color : grey; }");
+    layout->addWidget(routeTableCaption);
+
+    this->routeTableViewer = new RouteTableViewWidget();
+    layout->addWidget(this->routeTableViewer);
+
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *closeButton = new QPushButton(tr("Close"));
     QObject::connect(closeButton, SIGNAL(clicked()), this, SLOT(reject()));
@@ -82,6 +93,7 @@ void SubnetDialog::showDialog(AWSConnector *connector, std::shared_ptr<AWSInstan
         QList<QString> subnets;
         subnets.append(instance->subnetId);
         connector->describeSubnets(subnets);
+        connector->describeRouteTablesWithSubnetId(instance->subnetId);
     }
 
     this->exec();
@@ -106,6 +118,15 @@ void SubnetDialog::updateData(std::vector<std::shared_ptr<AWSSubnet>> subnets)
     this->mapPublicIpOnLaunchLabel->setText(subnet->mapPublicIpOnLaunch ? "true" : "false");
 
     this->tagsViewer->updateData(subnet->tags);
+}
+
+void SubnetDialog::updateRouteTable(std::vector<std::shared_ptr<AWSRouteTable>> routeTables)
+{
+    if (routeTables.size() < 1) {
+        return;
+    }
+
+    this->routeTableViewer->updateData(routeTables.at(0));
 }
 
 void SubnetDialog::clear()

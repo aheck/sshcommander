@@ -543,3 +543,80 @@ std::vector<std::shared_ptr<AWSImage>> parseDescribeImagesResponse(AWSResult *re
 
     return vector;
 }
+
+std::vector<std::shared_ptr<AWSRouteTable>> parseDescribeRouteTablesResponse(AWSResult *result, QString region)
+{
+    std::vector<std::shared_ptr<AWSRouteTable>> vector;
+    std::shared_ptr<AWSRouteTable> routeTable;
+    AWSRoute route;
+
+    if (result->httpBody.isEmpty()) {
+        return vector;
+    }
+
+    QBuffer buffer;
+    buffer.setData(result->httpBody.toUtf8());
+    buffer.open(QIODevice::ReadOnly);
+    QXmlStreamReader xml;
+    xml.setDevice(&buffer);
+
+    bool routeTableSet = false;
+    bool routeSet = false;
+    int itemLevel = 0;
+
+    while (!xml.isEndDocument()) {
+        xml.readNext();
+
+        if (xml.isStartElement()) {
+            QString name = xml.name().toString();
+            if (name == "routeTableSet") {
+                routeTableSet = true;
+            } else if (name == "item") {
+                itemLevel++;
+
+                // new route table item?
+                if (itemLevel == 1) {
+                    routeTable = std::make_shared<AWSRouteTable>();
+                    vector.push_back(routeTable);
+                } else if (routeSet && itemLevel == 2) {
+                    route = AWSRoute();
+                }
+            } else if (routeTableSet && itemLevel == 1) {
+                if (name == "routeTableId") {
+                    routeTable->id = xml.readElementText();
+                } else if (name == "vpcId") {
+                    routeTable->vpcId = xml.readElementText();
+                } else if (name == "routeSet") {
+                    routeSet = true;
+                }
+            } else if (routeTableSet && routeSet && itemLevel == 2) {
+                if (name == "destinationCidrBlock") {
+                    route.destinationCidrBlock = xml.readElementText();
+                } else if (name == "destinationIpv6CidrBlock") {
+                    route.destinationIpv6CidrBlock = xml.readElementText();
+                } else if (name == "gatewayId") {
+                    route.gatewayId = xml.readElementText();
+                } else if (name == "state") {
+                    route.state = xml.readElementText();
+                } else if (name == "origin") {
+                    route.origin = xml.readElementText();
+                }
+            }
+        } else if (xml.isEndElement()) {
+            QString name = xml.name().toString();
+            if (name == "routeTableSet") {
+                routeTableSet = false;
+            } else if (name == "item") {
+                if (routeSet && itemLevel == 2) {
+                    routeTable->routes.append(route);
+                }
+
+                itemLevel--;
+            } else if (name == "routeSet") {
+                routeSet = false;
+            }
+        }
+    }
+
+    return vector;
+}

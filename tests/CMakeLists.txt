@@ -11,6 +11,8 @@ add_executable(tests main.cpp
     ../src/AWSImage.cpp
     ../src/AWSInfoWidget.cpp
     ../src/AWSInstance.cpp
+    ../src/AWSRoute.cpp
+    ../src/AWSRouteTable.cpp
     ../src/AWSTag.cpp
     ../src/AWSResponseParsers.cpp
     ../src/AWSSecurityGroup.cpp
@@ -30,6 +32,7 @@ add_executable(tests main.cpp
     ../src/NotesEditor.cpp
     ../src/Preferences.cpp
     ../src/PreferencesDialog.cpp
+    ../src/RouteTableViewWidget.cpp
     ../src/SecurityGroupsDialog.cpp
     ../src/SSHConnection.cpp
     ../src/SSHConnectionEntry.cpp

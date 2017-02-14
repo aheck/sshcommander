@@ -68,21 +68,21 @@ void AWSInstance::write(QJsonObject &json) const
     json["cfStackName"] = this->cfStackName;
     json["sourceDestCheck"] = this->sourceDestCheck;
 
-    QJsonArray securityGroups;
+    QJsonArray securityGroupsArray;
     for (AWSSecurityGroup securityGroup: this->securityGroups) {
         QJsonObject obj;
         securityGroup.write(obj);
-        securityGroups.append(obj);
+        securityGroupsArray.append(obj);
     }
-    json["securityGroups"] = securityGroups;
+    json["securityGroups"] = securityGroupsArray;
 
-    QJsonArray tags;
+    QJsonArray tagsArray;
     for (AWSTag tag: this->tags) {
         QJsonObject obj;
         tag.write(obj);
-        tags.append(obj);
+        tagsArray.append(obj);
     }
-    json["tags"] = tags;
+    json["tags"] = tagsArray;
 }
 
 const QString AWSInstance::formattedImage()

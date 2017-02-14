@@ -22,6 +22,7 @@
 
 #include "AWSConnector.h"
 #include "AWSImage.h"
+#include "AWSRouteTable.h"
 #include "AWSSecurityGroup.h"
 #include "AWSSubnet.h"
 #include "AWSVpc.h"
@@ -31,5 +32,6 @@ std::vector<std::shared_ptr<AWSSecurityGroup>> parseDescribeSecurityGroupsRespon
 std::vector<std::shared_ptr<AWSSubnet>> parseDescribeSubnetsResponse(AWSResult *result, QString region);
 std::vector<std::shared_ptr<AWSVpc>> parseDescribeVpcsResponse(AWSResult *result, QString region);
 std::vector<std::shared_ptr<AWSImage>> parseDescribeImagesResponse(AWSResult *result, QString region);
+std::vector<std::shared_ptr<AWSRouteTable>> parseDescribeRouteTablesResponse(AWSResult *result, QString region);
 
 #endif

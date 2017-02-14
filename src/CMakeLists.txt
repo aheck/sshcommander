@@ -17,6 +17,8 @@ add_executable(sshcommander
     AWSImage.cpp
     AWSInfoWidget.cpp
     AWSInstance.cpp
+    AWSRoute.cpp
+    AWSRouteTable.cpp
     AWSTag.cpp
     AWSResponseParsers.cpp
     AWSSecurityGroup.cpp
@@ -36,6 +38,7 @@ add_executable(sshcommander
     NotesEditor.cpp
     Preferences.cpp
     PreferencesDialog.cpp
+    RouteTableViewWidget.cpp
     SecurityGroupsDialog.cpp
     SSHConnection.cpp
     SSHConnectionEntry.cpp

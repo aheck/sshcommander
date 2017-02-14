@@ -85,6 +85,9 @@ public:
     void describeVpcs();
     void describeVpcs(QList<QString> &vpcIds);
     void describeImages(QList<QString> &imageIds);
+    void describeRouteTables();
+    void describeRouteTablesWithSubnetId(QString &subnetId);
+    void describeRouteTableMain(QString &vpcId);
 
 private slots:
     void replyFinished(QNetworkReply *reply);

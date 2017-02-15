@@ -319,14 +319,37 @@ void AWSWidget::showInstanceContextMenu(QPoint pos)
             menu.addSeparator();
         }
 
+        std::shared_ptr<AWSInstance> instance = this->getSelectedInstance();
+
+        QMenu *instanceActions = menu.addMenu(tr("Instance Actions"));
+
+        QAction *startAction = instanceActions->addAction(tr("Start"), this, SLOT(startInstance()));
+        if (instance->status != "stopped") {
+            startAction->setEnabled(false);
+        }
+
+        QAction *stopAction = instanceActions->addAction(tr("Stop"), this, SLOT(stopInstance()));
+        if (instance->status != "running") {
+            stopAction->setEnabled(false);
+        }
+
+        QAction *rebootAction = instanceActions->addAction(tr("Reboot"), this, SLOT(rebootInstance()));
+        if (instance->status != "running") {
+            rebootAction->setEnabled(false);
+        }
+
+        QAction *terminateAction = instanceActions->addAction(tr("Terminate"), this, SLOT(terminateInstance()));
+        if (instance->status != "pending" && instance->status != "running") {
+            terminateAction->setEnabled(false);
+        }
+
         menu.addAction(tr("View Security Groups"), this, SLOT(showSecurityGroups()));
         menu.addAction(tr("View Tags"), this, SLOT(showTags()));
 
         menu.addSeparator();
 
-        std::shared_ptr<AWSInstance> instance = this->getSelectedInstance();
         this->vpcIdCandidate = instance->vpcId;
-        menu.addAction(tr("Filter by instance VPC"), this, SLOT(selectVpc()));
+        menu.addAction(tr("Filter by Instance VPC"), this, SLOT(selectVpc()));
 
         menu.addSeparator();
 
@@ -406,8 +429,6 @@ void AWSWidget::updateVpcs(std::vector<std::shared_ptr<AWSVpc>> &vpcs)
 
     this->updatingVpcs = false;
 
-    std::cout << "selectedVpcId: " << this->selectedVpcId.toStdString() << std::endl;
-
     if (!this->selectedVpcId.isEmpty()) {
         int currentIndex = this->vpcComboBox->findData(QVariant(this->selectedVpcId));
         std::cout << "updateVpcs: currentIndex: " << currentIndex << std::endl;
@@ -435,4 +456,84 @@ void AWSWidget::selectVpc()
     if (index > -1) {
         this->vpcComboBox->setCurrentIndex(index);
     }
+}
+
+void AWSWidget::stopInstance()
+{
+    std::shared_ptr<AWSInstance> instance = this->getSelectedInstance();
+
+    auto reply = QMessageBox::question(this, tr("Stopping Instance"),
+            QString("Do you really want to stop the instance '%1'?").arg(instance->formattedName()),
+            QMessageBox::Yes|QMessageBox::No);
+
+    if (reply == QMessageBox::No) {
+        return;
+    }
+
+    QList<QString> instanceIds;
+    instanceIds.append(instance->id);
+
+    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
+    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    this->awsConnector->setRegion(this->region);
+
+    this->awsConnector->stopInstances(instanceIds);
+}
+
+void AWSWidget::startInstance()
+{
+    std::shared_ptr<AWSInstance> instance = this->getSelectedInstance();
+
+    QList<QString> instanceIds;
+    instanceIds.append(instance->id);
+
+    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
+    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    this->awsConnector->setRegion(this->region);
+
+    this->awsConnector->startInstances(instanceIds);
+}
+
+void AWSWidget::rebootInstance()
+{
+    std::shared_ptr<AWSInstance> instance = this->getSelectedInstance();
+
+    auto reply = QMessageBox::question(this, tr("Rebooting Instance"),
+            QString("Do you really want to reboot the instance '%1'?").arg(instance->formattedName()),
+            QMessageBox::Yes|QMessageBox::No);
+
+    if (reply == QMessageBox::No) {
+        return;
+    }
+
+    QList<QString> instanceIds;
+    instanceIds.append(instance->id);
+
+    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
+    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    this->awsConnector->setRegion(this->region);
+
+    this->awsConnector->rebootInstances(instanceIds);
+}
+
+void AWSWidget::terminateInstance()
+{
+    std::shared_ptr<AWSInstance> instance = this->getSelectedInstance();
+
+    auto reply = QMessageBox::question(this, tr("Terminating Instance"),
+            QString("Do you really want to terminate the instance '%1'?").arg(instance->formattedName()),
+            QMessageBox::Yes|QMessageBox::No);
+
+    if (reply == QMessageBox::No) {
+        return;
+    }
+
+    QList<QString> instanceIds;
+    instanceIds.append(instance->id);
+
+    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
+    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    this->awsConnector->setRegion(this->region);
+
+    this->awsConnector->terminateInstances(instanceIds);
 }

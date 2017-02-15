@@ -142,4 +142,5 @@ void SubnetDialog::clear()
     this->mapPublicIpOnLaunchLabel->setText("");
 
     this->tagsViewer->clear();
+    this->routeTableViewer->clear();
 }

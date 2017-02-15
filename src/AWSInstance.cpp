@@ -85,6 +85,15 @@ void AWSInstance::write(QJsonObject &json) const
     json["tags"] = tagsArray;
 }
 
+const QString AWSInstance::formattedName()
+{
+    if (!this->name.isEmpty()) {
+        return this->name + " (" + this->id + ")";
+    }
+
+    return this->id;
+}
+
 const QString AWSInstance::formattedImage()
 {
     if (!this->imageName.isEmpty()) {

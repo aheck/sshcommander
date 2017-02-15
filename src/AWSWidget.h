@@ -69,6 +69,11 @@ private slots:
     void clearVpcComboBox();
     void selectVpc();
 
+    void stopInstance();
+    void startInstance();
+    void rebootInstance();
+    void terminateInstance();
+
 private:
     void updateNumberOfInstances();
     std::shared_ptr<AWSInstance> getSelectedInstance();

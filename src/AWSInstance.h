@@ -18,9 +18,12 @@ public:
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
+
+    const QString formattedName();
     const QString formattedImage();
     const QString formattedVpc();
     const QString formattedSubnet();
+
     void resolveReferences();
 
     QString id;

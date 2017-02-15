@@ -89,6 +89,11 @@ public:
     void describeRouteTablesWithSubnetId(QString &subnetId);
     void describeRouteTableMain(QString &vpcId);
 
+    void stopInstances(QList<QString> instanceIds);
+    void startInstances(QList<QString> instanceIds);
+    void rebootInstances(QList<QString> instanceIds);
+    void terminateInstances(QList<QString> instanceIds);
+
 private slots:
     void replyFinished(QNetworkReply *reply);
 

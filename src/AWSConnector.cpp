@@ -251,3 +251,55 @@ void AWSConnector::replyFinished(QNetworkReply *reply)
 
     emit awsReplyReceived(result);
 }
+
+void AWSConnector::stopInstances(QList<QString> instanceIds)
+{
+    QList<QString> extraParams;
+
+    int i = 0;
+    for (QString instanceId : instanceIds) {
+        i++;
+        extraParams.append("InstanceId." + QString::number(i) + "=" + instanceId);
+    }
+
+    this->sendRequest("StopInstances", extraParams);
+}
+
+void AWSConnector::startInstances(QList<QString> instanceIds)
+{
+    QList<QString> extraParams;
+
+    int i = 0;
+    for (QString instanceId : instanceIds) {
+        i++;
+        extraParams.append("InstanceId." + QString::number(i) + "=" + instanceId);
+    }
+
+    this->sendRequest("StartInstances", extraParams);
+}
+
+void AWSConnector::rebootInstances(QList<QString> instanceIds)
+{
+    QList<QString> extraParams;
+
+    int i = 0;
+    for (QString instanceId : instanceIds) {
+        i++;
+        extraParams.append("InstanceId." + QString::number(i) + "=" + instanceId);
+    }
+
+    this->sendRequest("RebootInstances", extraParams);
+}
+
+void AWSConnector::terminateInstances(QList<QString> instanceIds)
+{
+    QList<QString> extraParams;
+
+    int i = 0;
+    for (QString instanceId : instanceIds) {
+        i++;
+        extraParams.append("InstanceId." + QString::number(i) + "=" + instanceId);
+    }
+
+    this->sendRequest("TerminateInstances", extraParams);
+}

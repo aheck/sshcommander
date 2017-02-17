@@ -85,9 +85,17 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->valueHypervisor = new QLabel("");
     this->valueHypervisor->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
-    QVBoxLayout *groupsLayout = new QVBoxLayout();
+    QHBoxLayout *groupsLayout = new QHBoxLayout();
+    QVBoxLayout *groupsLeftLayout = new QVBoxLayout();
+    groupsLeftLayout->setAlignment(Qt::AlignTop);
+    QVBoxLayout *groupsRightLayout = new QVBoxLayout();
+    groupsRightLayout->setAlignment(Qt::AlignTop);
+
+    groupsLayout->addLayout(groupsLeftLayout);
+    groupsLayout->addLayout(groupsRightLayout);
 
     QGroupBox *generalGroup = new QGroupBox(tr("General"));
+    generalGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     QFormLayout *generalLayout = new QFormLayout();
 
     generalLayout->addRow(tr("Instance ID:"), this->valueInstanceId);
@@ -103,9 +111,10 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     generalLayout->addRow(tr("Tags:"), this->tagsViewer);
 
     generalGroup->setLayout(generalLayout);
-    groupsLayout->addWidget(generalGroup);
+    groupsLeftLayout->addWidget(generalGroup);
 
     QGroupBox *networkGroup = new QGroupBox(tr("Network"));
+    networkGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     QFormLayout *networkLayout = new QFormLayout();
 
     networkLayout->addRow(tr("Public IP:"), this->valuePublicIP);
@@ -116,9 +125,10 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     networkLayout->addRow(tr("Security Groups:"), this->valueSecurityGroups);
 
     networkGroup->setLayout(networkLayout);
-    groupsLayout->addWidget(networkGroup);
+    groupsRightLayout->addWidget(networkGroup);
 
     QGroupBox *miscGroup = new QGroupBox(tr("Misc"));
+    miscGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     QFormLayout *miscLayout = new QFormLayout();
 
     miscLayout->addRow(tr("Virtualization Type:"), this->valueVirtualizationType);
@@ -126,7 +136,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     miscLayout->addRow(tr("Hypervisor:"), this->valueHypervisor);
 
     miscGroup->setLayout(miscLayout);
-    groupsLayout->addWidget(miscGroup);
+    groupsRightLayout->addWidget(miscGroup);
 
     this->awsContent->setLayout(groupsLayout);
 

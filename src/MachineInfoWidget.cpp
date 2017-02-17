@@ -28,19 +28,28 @@ MachineInfoWidget::MachineInfoWidget()
     this->valueSCPDirCommand = new QLabel();
     this->valueSCPDirCommand->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
-    QVBoxLayout *groupsLayout = new QVBoxLayout();
+    QHBoxLayout *groupsLayout = new QHBoxLayout();
+    QVBoxLayout *groupsLeftLayout = new QVBoxLayout();
+    groupsLeftLayout->setAlignment(Qt::AlignTop);
+    QVBoxLayout *groupsRightLayout = new QVBoxLayout();
+    groupsRightLayout->setAlignment(Qt::AlignTop);
+
+    groupsLayout->addLayout(groupsLeftLayout);
+    groupsLayout->addLayout(groupsRightLayout);
 
     QFormLayout *generalLayout = new QFormLayout();
     QGroupBox *generalGroup = new QGroupBox(tr("General"));
+    generalGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     generalLayout->addRow(tr("Hostname:"), this->valueHostname);
     generalLayout->addRow(tr("Username:"), this->valueUsername);
 
     generalGroup->setLayout(generalLayout);
-    groupsLayout->addWidget(generalGroup);
+    groupsLeftLayout->addWidget(generalGroup);
 
     QFormLayout *systemLayout = new QFormLayout();
     QGroupBox *systemGroup = new QGroupBox(tr("System"));
+    systemGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     systemLayout->addRow(tr("Operating System:"), this->valueOperatingSystem);
     systemLayout->addRow(tr("Distro:"), this->valueDistro);
@@ -48,17 +57,18 @@ MachineInfoWidget::MachineInfoWidget()
     systemLayout->addRow(tr("RAM:"), this->valueMemory);
 
     systemGroup->setLayout(systemLayout);
-    groupsLayout->addWidget(systemGroup);
+    groupsLeftLayout->addWidget(systemGroup);
 
     QFormLayout *sshLayout = new QFormLayout();
     QGroupBox *sshGroup = new QGroupBox(tr("SSH"));
+    sshGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     sshLayout->addRow(tr("SSH Command:"), this->valueSSHCommand);
     sshLayout->addRow(tr("Copy File Command:"), this->valueSCPCommand);
     sshLayout->addRow(tr("Copy Dir Command:"), this->valueSCPDirCommand);
 
     sshGroup->setLayout(sshLayout);
-    groupsLayout->addWidget(sshGroup);
+    groupsRightLayout->addWidget(sshGroup);
 
     this->page->setLayout(groupsLayout);
 

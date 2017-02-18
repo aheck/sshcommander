@@ -53,6 +53,7 @@ private slots:
     void showContextMenu(QPoint pos);
     void selectionChanged(const QItemSelection &selected,
         const QItemSelection &deselected);
+    void awsConsoleToggled(bool checked);
 
 signals:
     // the user requested a dialog to create a new connection
@@ -64,6 +65,8 @@ signals:
     // the selected another connection
     void connectionChanged(int row);
 
+    void toggleAwsConsole(bool show);
+
 private:
     QToolBar *toolBar;
     NewDialog *editDialog;
@@ -71,6 +74,7 @@ private:
     SSHConnectionItemModel *model;
     QAction *editAction;
     QAction *deleteAction;
+    QAction *awsConsoleAction;
 };
 
 #endif

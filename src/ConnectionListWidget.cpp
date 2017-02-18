@@ -23,6 +23,10 @@ ConnectionListWidget::ConnectionListWidget(SSHConnectionItemModel *model)
     this->deleteAction = toolBar->addAction(QIcon(":/images/process-stop.svg"), "Delete Connection",
             this, SLOT(removeSelectedConnection()));
     this->deleteAction->setEnabled(false);
+    toolBar->addSeparator();
+    this->awsConsoleAction = toolBar->addAction(QIcon(":/images/connection-type-aws.svg"), tr("Show AWS Console"));
+    this->awsConsoleAction->setCheckable(true);
+    connect(this->awsConsoleAction, SIGNAL(toggled(bool)), this, SLOT(awsConsoleToggled(bool)));
 
     this->editDialog = new NewDialog(true);
 
@@ -181,4 +185,15 @@ void ConnectionListWidget::removeSelectedConnection()
 
     this->model->removeConnectionEntry(connEntry);
     emit connectionRemoved(connEntry);
+}
+
+void ConnectionListWidget::awsConsoleToggled(bool checked)
+{
+    if (!checked) {
+        this->awsConsoleAction->setToolTip(tr("Show AWS Console"));
+    } else {
+        this->awsConsoleAction->setToolTip(tr("Hide AWS Console"));
+    }
+
+    emit toggleAwsConsole(checked);
 }

@@ -68,6 +68,7 @@ public slots:
 
 private slots:
     void notesChanged();
+    void toggleAwsConsole(bool show);
 
 private:
     std::shared_ptr<SSHConnectionEntry> getConnectionEntryByTermWidget(QTermWidget *console);
@@ -86,7 +87,7 @@ private:
     QSplitter *splitter;
     QSplitter *sessionInfoSplitter;
 
-    QTabWidget *rightWidget;
+    QStackedWidget *rightWidget;
     QTabWidget *appletTab;
 
     // Models

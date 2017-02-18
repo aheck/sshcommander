@@ -61,6 +61,7 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(connectionRemoved(std::shared_ptr<SSHConnectionEntry>)));
     connect(this->connectionList, SIGNAL(connectionChanged(int)),
             this, SLOT(changeConnection(int)));
+    connect(this->connectionList, SIGNAL(toggleAwsConsole(bool)), this, SLOT(toggleAwsConsole(bool)));
 
     this->splitter->addWidget(this->connectionList);
 
@@ -88,16 +89,16 @@ MainWindow::MainWindow(QWidget *parent) :
     this->sessionInfoSplitter->setStretchFactor(1, 5);
     this->sessionInfoSplitter->setCollapsible(0, false);
 
-    // create the tab that allows to switch between SSH and AWS
-    this->rightWidget = new QTabWidget();
-    rightWidget->addTab(this->sessionInfoSplitter, "SSH");
+    // create the stacked widget that allows to switch between SSH and AWS
+    this->rightWidget = new QStackedWidget();
+    rightWidget->addWidget(this->sessionInfoSplitter);
 
     this->awsWidget = new AWSWidget(&this->preferences);
     connect(this->awsWidget, SIGNAL(newConnection(std::shared_ptr<AWSInstance>,
             std::vector<std::shared_ptr<AWSInstance>>, bool)), this,
             SLOT(createSSHConnectionToAWS(std::shared_ptr<AWSInstance>,
             std::vector<std::shared_ptr<AWSInstance>>, bool)));
-    rightWidget->addTab(this->awsWidget, "AWS");
+    rightWidget->addWidget(this->awsWidget);
 
     this->splitter->addWidget(rightWidget);
     this->splitter->setStretchFactor(0, 1);
@@ -464,5 +465,14 @@ void MainWindow::toggleEnlargeWidget()
         this->menuBar()->hide();
 
         this->viewEnlarged = true;
+    }
+}
+
+void MainWindow::toggleAwsConsole(bool show)
+{
+    if (show) {
+        rightWidget->setCurrentIndex(1);
+    } else {
+        rightWidget->setCurrentIndex(0);
     }
 }

@@ -14,6 +14,7 @@
 #include <memory>
 
 #include <QAbstractItemModel>
+#include <QColor>
 #include <QIcon>
 #include <QModelIndex>
 

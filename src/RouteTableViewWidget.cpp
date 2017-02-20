@@ -50,6 +50,7 @@ void RouteTableViewWidget::updateData(std::shared_ptr<AWSRouteTable> routeTable)
 void RouteTableViewWidget::clear()
 {
     this->table->clearContents();
+    this->table->setRowCount(0);
 }
 
 void RouteTableViewWidget::showContextMenu(QPoint pos)

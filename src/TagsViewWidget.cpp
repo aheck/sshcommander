@@ -50,6 +50,7 @@ void TagsViewWidget::updateData(QList<AWSTag> &tags)
 void TagsViewWidget::clear()
 {
     this->table->clearContents();
+    this->table->setRowCount(0);
 }
 
 void TagsViewWidget::showContextMenu(QPoint pos)

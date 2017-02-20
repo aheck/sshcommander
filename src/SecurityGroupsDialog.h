@@ -4,8 +4,9 @@
 #include <memory>
 
 #include <QDialog>
-#include <QListWidget>
+#include <QHeaderView>
 #include <QPushButton>
+#include <QTableWidget>
 #include <QVBoxLayout>
 
 #include "AWSConnector.h"
@@ -24,7 +25,7 @@ public:
     void clear();
 
 private:
-    QListWidget *list;
+    QTableWidget *table;
 };
 
 #endif

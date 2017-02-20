@@ -6,8 +6,19 @@ SecurityGroupsDialog::SecurityGroupsDialog()
     this->setMinimumHeight(300);
     QVBoxLayout *layout = new QVBoxLayout();
 
-    this->list = new QListWidget();
-    layout->addWidget(this->list);
+    this->table = new QTableWidget(this);
+    QStringList columnNames = {"Protocol", "Source Port", "Destination Port", "Networks"};
+    this->table->setColumnCount(4);
+    this->table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    this->table->verticalHeader()->setVisible(false);
+    this->table->setHorizontalHeaderLabels(columnNames);
+    this->table->horizontalHeader()->setStretchLastSection(true);
+    this->table->setSelectionBehavior(QAbstractItemView::SelectRows);
+    this->table->setSelectionMode(QAbstractItemView::SingleSelection);
+    for (int i = 0; i < this->table->horizontalHeader()->count(); i++) {
+        this->table->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Interactive);
+    }
+    layout->addWidget(this->table);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *closeButton = new QPushButton(tr("Close"));
@@ -30,7 +41,7 @@ void SecurityGroupsDialog::showDialog(AWSConnector *connector, std::shared_ptr<A
 
     this->setWindowTitle(title);
 
-    this->list->clear();
+    this->table->clearContents();
 
     if (instance->securityGroups.count() > 0) {
         QList<QString> groupIds;
@@ -39,7 +50,9 @@ void SecurityGroupsDialog::showDialog(AWSConnector *connector, std::shared_ptr<A
         }
         connector->describeSecurityGroups(groupIds);
     } else {
-        this->list->addItem("No Security Groups");
+        this->table->setRowCount(1);
+        this->table->setItem(0, 0, new QTableWidgetItem(tr("No Security Groups")));
+        this->table->setSpan(0, 0, 1, 4);
     }
 
     this->exec();
@@ -47,44 +60,96 @@ void SecurityGroupsDialog::showDialog(AWSConnector *connector, std::shared_ptr<A
 
 void SecurityGroupsDialog::updateData(std::vector<std::shared_ptr<AWSSecurityGroup>> securityGroups)
 {
-    for (std::shared_ptr<AWSSecurityGroup> sg : securityGroups) {
-        QListWidgetItem *item = new QListWidgetItem(QString("SG: %1 (%2)").arg(sg->name).arg(sg->id),
-                this->list, QListWidgetItem::Type);
-        QFont font = item->font();
-        font.setBold(true);
-        item->setFont(font);
-        item->setToolTip(sg->description);
-        this->list->addItem(item);
-        this->list->addItem("Ingress");
-        for (AWSIngressPermission perm : sg->ingressPermissions) {
-            QString item = perm.ipProtocol + ": " + perm.fromPort + "-" + perm.toPort + " ";
+    int row = 0;
 
+    for (std::shared_ptr<AWSSecurityGroup> sg : securityGroups) {
+        this->table->setRowCount(row + 1);
+
+        QString sgLabel = QString("SG: %1 (%2)").arg(sg->name).arg(sg->id);
+        QTableWidgetItem *sgCaptionItem = new QTableWidgetItem(sgLabel);
+        sgCaptionItem->setFlags(Qt::ItemIsEnabled);
+        QFont font = sgCaptionItem->font();
+        font.setBold(true);
+        font.setPointSize(font.pointSize() + 2);
+        sgCaptionItem->setFont(font);
+        sgCaptionItem->setToolTip(sg->description);
+        this->table->setItem(row, 0, sgCaptionItem);
+        this->table->setSpan(row, 0, 1, 4);
+
+        row++;
+        this->table->setRowCount(row + 1);
+
+        QTableWidgetItem *inboundItem = new QTableWidgetItem("Inbound");
+        inboundItem->setFlags(Qt::ItemIsEnabled);
+        font = inboundItem->font();
+        font.setBold(true);
+        inboundItem->setFont(font);
+        this->table->setItem(row, 0, inboundItem);
+        this->table->setSpan(row, 0, 1, 4);
+
+        row++;
+        this->table->setRowCount(row + 1);
+
+        for (AWSIngressPermission perm : sg->ingressPermissions) {
             int i = 0;
+            QString cidrs;
             for (QString cidr : perm.cidrs) {
                 if (i != 0) {
-                    item += ",";
+                    cidrs += ",";
                 }
-                item += cidr;
+                cidrs += cidr;
                 i++;
             }
 
-            this->list->addItem(item);
+            QString ipProtocol = perm.ipProtocol;
+            if (ipProtocol == "-1") {
+                ipProtocol = "ALL";
+            }
+
+            this->table->setItem(row, 0, new QTableWidgetItem(ipProtocol));
+            this->table->setItem(row, 1, new QTableWidgetItem(perm.fromPort));
+            this->table->setItem(row, 2, new QTableWidgetItem(perm.toPort));
+            this->table->setItem(row, 3, new QTableWidgetItem(cidrs));
+
+            row++;
+            this->table->setRowCount(row + 1);
         }
 
-        this->list->addItem("Egress");
-        for (AWSEgressPermission perm : sg->egressPermissions) {
-            QString item = perm.ipProtocol + ": " + perm.fromPort + "-" + perm.toPort + " ";
+        QTableWidgetItem *outboundItem = new QTableWidgetItem("Outbound");
+        outboundItem->setFlags(Qt::ItemIsEnabled);
+        font = outboundItem->font();
+        font.setBold(true);
+        outboundItem->setFont(font);
+        this->table->setItem(row, 0, outboundItem);
+        this->table->setSpan(row, 0, 1, 4);
 
+        row++;
+        this->table->setRowCount(row + 1);
+        for (AWSEgressPermission perm : sg->egressPermissions) {
             int i = 0;
+            QString cidrs;
             for (QString cidr : perm.cidrs) {
                 if (i != 0) {
-                    item += ",";
+                    cidrs += ",";
                 }
-                item += cidr;
+                cidrs += cidr;
                 i++;
             }
 
-            this->list->addItem(item);
+            QString ipProtocol = perm.ipProtocol;
+            if (ipProtocol == "-1") {
+                ipProtocol = "ALL";
+            }
+
+            this->table->setItem(row, 0, new QTableWidgetItem(ipProtocol));
+            this->table->setItem(row, 1, new QTableWidgetItem(perm.fromPort));
+            this->table->setItem(row, 2, new QTableWidgetItem(perm.toPort));
+            this->table->setItem(row, 3, new QTableWidgetItem(cidrs));
+
+            row++;
+            this->table->setRowCount(row + 1);
         }
     }
+
+    this->table->setRowCount(row);
 }

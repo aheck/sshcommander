@@ -20,7 +20,7 @@ void TabbedTerminalWidget::addTerminalSession()
 
     QStringList args = connEntry->generateCliArgs();
     QTermWidget *console = createNewTermWidget(&args, !connEntry->password.isEmpty());
-    this->addTab(console, QString::asprintf("Session %d", connEntry->nextSessionNumber++));
+    this->addTab(console, "Session " + QString::number(connEntry->nextSessionNumber++));
     this->setCurrentWidget(console);
 
     console->startShellProgram();

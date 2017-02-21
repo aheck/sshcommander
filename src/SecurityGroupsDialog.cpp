@@ -7,7 +7,7 @@ SecurityGroupsDialog::SecurityGroupsDialog()
     QVBoxLayout *layout = new QVBoxLayout();
 
     this->table = new QTableWidget(this);
-    QStringList columnNames = {"Protocol", "Source Port", "Destination Port", "Networks"};
+    QStringList columnNames = {"Protocol", "Start Port", "End Port", "Networks"};
     this->table->setColumnCount(4);
     this->table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     this->table->verticalHeader()->setVisible(false);
@@ -41,6 +41,7 @@ void SecurityGroupsDialog::showDialog(AWSConnector *connector, std::shared_ptr<A
 
     this->setWindowTitle(title);
 
+    this->table->setRowCount(0);
     this->table->clearContents();
 
     if (instance->securityGroups.count() > 0) {
@@ -73,22 +74,26 @@ void SecurityGroupsDialog::updateData(std::vector<std::shared_ptr<AWSSecurityGro
         font.setPointSize(font.pointSize() + 2);
         sgCaptionItem->setFont(font);
         sgCaptionItem->setToolTip(sg->description);
+        sgCaptionItem->setBackground(QBrush(QColor(245, 245, 245)));
         this->table->setItem(row, 0, sgCaptionItem);
         this->table->setSpan(row, 0, 1, 4);
 
         row++;
         this->table->setRowCount(row + 1);
 
-        QTableWidgetItem *inboundItem = new QTableWidgetItem("Inbound");
-        inboundItem->setFlags(Qt::ItemIsEnabled);
-        font = inboundItem->font();
-        font.setBold(true);
-        inboundItem->setFont(font);
-        this->table->setItem(row, 0, inboundItem);
-        this->table->setSpan(row, 0, 1, 4);
+        if (sg->ingressPermissions.count() > 0) {
+            QTableWidgetItem *inboundItem = new QTableWidgetItem("Inbound");
+            inboundItem->setFlags(Qt::ItemIsEnabled);
+            font = inboundItem->font();
+            font.setBold(true);
+            inboundItem->setFont(font);
+            inboundItem->setBackground(QBrush(QColor(248, 248, 248)));
+            this->table->setItem(row, 0, inboundItem);
+            this->table->setSpan(row, 0, 1, 4);
 
-        row++;
-        this->table->setRowCount(row + 1);
+            row++;
+            this->table->setRowCount(row + 1);
+        }
 
         for (AWSIngressPermission perm : sg->ingressPermissions) {
             int i = 0;
@@ -115,16 +120,20 @@ void SecurityGroupsDialog::updateData(std::vector<std::shared_ptr<AWSSecurityGro
             this->table->setRowCount(row + 1);
         }
 
-        QTableWidgetItem *outboundItem = new QTableWidgetItem("Outbound");
-        outboundItem->setFlags(Qt::ItemIsEnabled);
-        font = outboundItem->font();
-        font.setBold(true);
-        outboundItem->setFont(font);
-        this->table->setItem(row, 0, outboundItem);
-        this->table->setSpan(row, 0, 1, 4);
+        if (sg->egressPermissions.count() > 0) {
+            QTableWidgetItem *outboundItem = new QTableWidgetItem("Outbound");
+            outboundItem->setFlags(Qt::ItemIsEnabled);
+            font = outboundItem->font();
+            font.setBold(true);
+            outboundItem->setFont(font);
+            outboundItem->setBackground(QBrush(QColor(248, 248, 248)));
+            this->table->setItem(row, 0, outboundItem);
+            this->table->setSpan(row, 0, 1, 4);
 
-        row++;
-        this->table->setRowCount(row + 1);
+            row++;
+            this->table->setRowCount(row + 1);
+        }
+
         for (AWSEgressPermission perm : sg->egressPermissions) {
             int i = 0;
             QString cidrs;

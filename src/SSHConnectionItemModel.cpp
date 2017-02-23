@@ -106,3 +106,22 @@ QModelIndex SSHConnectionItemModel::getIndexForSSHConnectionEntry(const std::sha
 
     return QModelIndex();
 }
+
+void SSHConnectionItemModel::updateAWSInstances()
+{
+    AWSCache &cache = AWSCache::getInstance();
+
+    for (auto entry : this->entries) {
+        if (entry->isAwsInstance == false) {
+            continue;
+        }
+
+        auto newInstance = cache.resolveInstance(entry->awsInstance->region, entry->awsInstance->id);
+
+        if (newInstance != nullptr) {
+            if (entry->awsInstance != newInstance) {
+                entry->awsInstance = newInstance;
+            }
+        }
+    }
+}

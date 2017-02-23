@@ -17,6 +17,7 @@
 #include <QModelIndex>
 #include <QList>
 
+#include "AWSCache.h"
 #include "SSHConnectionEntry.h"
 
 class SSHConnectionItemModel : public QAbstractItemModel
@@ -34,6 +35,7 @@ public:
     std::shared_ptr<SSHConnectionEntry> getConnEntry(int index);
     std::shared_ptr<SSHConnectionEntry> getConnEntryByName(const QString name);
     QModelIndex getIndexForSSHConnectionEntry(const std::shared_ptr<SSHConnectionEntry> entry) const;
+    void updateAWSInstances();
 
 private:
     QList<std::shared_ptr<SSHConnectionEntry>> entries;

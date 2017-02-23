@@ -56,14 +56,14 @@ bool ConnectionListView::event(QEvent *event)
                     text += "<tr><td>Instance Name: </td><td>" + connEntry->awsInstance->name + "</td></tr>";
                 }
 
-                QString statusColor = "yellow";
+                QString statusColor = "goldenrod";
                 if (connEntry->awsInstance->status == "terminated") {
                     statusColor = "red";
                 } else if (connEntry->awsInstance->status == "running") {
                     statusColor = "green";
                 }
 
-                text += "<tr><td>Status: </td><td style=\"color: " + statusColor + ";\">" + connEntry->awsInstance->status + "</td></tr>";
+                text += "<tr><td>Status: </td><td style=\"font-weight:bold; color: " + statusColor + ";\">" + connEntry->awsInstance->status + "</td></tr>";
                 text += "<tr><td>Region: </td><td>" + connEntry->awsInstance->region + "</td></tr>";
                 text += "<tr><td>Availability Zone: </td><td>" + connEntry->awsInstance->availabilityZone + "</td></tr>";
                 text += "<tr><td>VPC: </td><td>" + connEntry->awsInstance->formattedVpc() + "</td></tr>";

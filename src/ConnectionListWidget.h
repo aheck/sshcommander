@@ -44,10 +44,12 @@ public:
     std::shared_ptr<SSHConnectionEntry> getSelectedConnectionEntry();
     void selectFirstConnection();
     const QString getSelectedUsernameAndHost();
+    void resetAWSConsoleButton();
 
 public slots:
     void editConnection();
     void removeSelectedConnection();
+    void updateAWSInstances();
 
 private slots:
     void showContextMenu(QPoint pos);

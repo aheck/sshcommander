@@ -98,6 +98,7 @@ MainWindow::MainWindow(QWidget *parent) :
             std::vector<std::shared_ptr<AWSInstance>>, bool)), this,
             SLOT(createSSHConnectionToAWS(std::shared_ptr<AWSInstance>,
             std::vector<std::shared_ptr<AWSInstance>>, bool)));
+    connect(this->awsWidget, SIGNAL(awsInstancesUpdated()), this->connectionList, SLOT(updateAWSInstances()));
     rightWidget->addWidget(this->awsWidget);
 
     this->splitter->addWidget(rightWidget);
@@ -185,6 +186,7 @@ void MainWindow::createNewConnection()
 
     this->terminalView->setDisabledPageEnabled(false);
     this->rightWidget->setCurrentIndex(0);
+    this->connectionList->resetAWSConsoleButton();
 
     this->terminalView->setFocusOnCurrentTerminal();
 }

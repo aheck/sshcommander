@@ -231,6 +231,8 @@ void AWSWidget::handleAWSResult(AWSResult *result)
             cache.updateInstances(this->region, instances);
 
             this->instanceModel->resolveAllReferences();
+
+            emit awsInstancesUpdated();
         } else if (result->responseType == "DescribeSecurityGroupsResponse") {
             std::vector<std::shared_ptr<AWSSecurityGroup>> securityGroups = parseDescribeSecurityGroupsResponse(result, this->region);
 

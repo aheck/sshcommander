@@ -53,6 +53,7 @@ signals:
     void newConnection(std::shared_ptr<AWSInstance> instance,
             std::vector<std::shared_ptr<AWSInstance>> vpcNeighbours,
             bool toPrivateIP);
+    void awsInstancesUpdated();
 
 private slots:
     void doubleClicked(const QModelIndex &index);

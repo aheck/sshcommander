@@ -197,3 +197,13 @@ void ConnectionListWidget::awsConsoleToggled(bool checked)
 
     emit toggleAwsConsole(checked);
 }
+
+void ConnectionListWidget::updateAWSInstances()
+{
+    this->model->updateAWSInstances();
+}
+
+void ConnectionListWidget::resetAWSConsoleButton()
+{
+    this->awsConsoleAction->setChecked(false);
+}

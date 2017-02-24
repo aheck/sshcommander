@@ -25,6 +25,7 @@ public:
     const QString formattedSubnet();
 
     void resolveReferences();
+    void copyResolvedReferences(std::shared_ptr<AWSInstance> instance);
 
     QString id;
     QString name;

@@ -154,38 +154,40 @@ AWSInfoWidget::~AWSInfoWidget()
 
 void AWSInfoWidget::updateData(std::shared_ptr<AWSInstance> newInstance)
 {
+    newInstance->copyResolvedReferences(this->instance);
     this->instance = newInstance;
+    this->instance->resolveReferences();
 
-    this->valueInstanceId->setText(newInstance->id);
-    this->valueName->setText(newInstance->name);
-    this->valueRegion->setText(newInstance->region);
-    this->valueAvailabilityZone->setText(newInstance->availabilityZone);
+    this->valueInstanceId->setText(this->instance->id);
+    this->valueName->setText(this->instance->name);
+    this->valueRegion->setText(this->instance->region);
+    this->valueAvailabilityZone->setText(this->instance->availabilityZone);
 
-    this->valueStatus->setText(newInstance->status);
-    if (newInstance->status == "running") {
+    this->valueStatus->setText(this->instance->status);
+    if (this->instance->status == "running") {
         this->valueStatus->setStyleSheet("QLabel { font-weight: bold; color: green;}");
-    } else if (newInstance->status == "terminated") {
+    } else if (this->instance->status == "terminated") {
         this->valueStatus->setStyleSheet("QLabel { font-weight: bold; color : red;}");
     } else {
         this->valueStatus->setStyleSheet("QLabel { font-weight: bold; color : goldenrod;}");
     }
-    this->valueKeyname->setText(newInstance->keyname);
-    this->valueType->setText(newInstance->type);
-    this->valueImage->setText(QString("%1 (<a href=\"http://localhost/\">View Image</a>)").arg(newInstance->formattedImage()));
+    this->valueKeyname->setText(this->instance->keyname);
+    this->valueType->setText(this->instance->type);
+    this->valueImage->setText(QString("%1 (<a href=\"http://localhost/\">View Image</a>)").arg(this->instance->formattedImage()));
 
-    this->valueLaunchTime->setText(newInstance->launchTime);
-    this->valuePublicIP->setText(newInstance->publicIP);
-    this->valuePrivateIP->setText(newInstance->privateIP);
-    this->valueVpc->setText(QString("%1 (<a href=\"http://localhost/\">View VPC</a>)").arg(newInstance->formattedVpc()));
+    this->valueLaunchTime->setText(this->instance->launchTime);
+    this->valuePublicIP->setText(this->instance->publicIP);
+    this->valuePrivateIP->setText(this->instance->privateIP);
+    this->valueVpc->setText(QString("%1 (<a href=\"http://localhost/\">View VPC</a>)").arg(this->instance->formattedVpc()));
 
-    this->valueSubnet->setText(QString("%1 (<a href=\"http://localhost/\">View Subnet</a>)").arg(newInstance->formattedSubnet()));
-    this->valueSourceDestCheck->setText(newInstance->sourceDestCheck);
-    this->valueCfStackName->setText(newInstance->cfStackName);
-    this->valueVirtualizationType->setText(newInstance->virtualizationType);
-    this->valueArchitecture->setText(newInstance->architecture);
-    this->valueHypervisor->setText(newInstance->hypervisor);
+    this->valueSubnet->setText(QString("%1 (<a href=\"http://localhost/\">View Subnet</a>)").arg(this->instance->formattedSubnet()));
+    this->valueSourceDestCheck->setText(this->instance->sourceDestCheck);
+    this->valueCfStackName->setText(this->instance->cfStackName);
+    this->valueVirtualizationType->setText(this->instance->virtualizationType);
+    this->valueArchitecture->setText(this->instance->architecture);
+    this->valueHypervisor->setText(this->instance->hypervisor);
 
-    this->tagsViewer->updateData(newInstance->tags);
+    this->tagsViewer->updateData(this->instance->tags);
 }
 
 void AWSInfoWidget::setAWSEnabled(bool enabled)
@@ -223,11 +225,11 @@ void AWSInfoWidget::handleAWSResult(AWSResult *result)
 
             if (instances.size() == 1) {
                 std::shared_ptr<AWSInstance> newInstance = instances.at(0);
-                this->instance->resolveReferences();
-                this->updateData(this->instance);
+                this->updateData(newInstance);
 
                 AWSCache &cache = AWSCache::getInstance();
-                cache.updateInstances(this->instance->region, instances);
+                cache.updateInstances(newInstance->region, instances);
+                emit awsInstancesUpdated();
             } else if (instances.size() == 0) {
                 // The instance was terminted some time ago and AWS already
                 // deleted its data

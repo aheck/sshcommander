@@ -99,6 +99,7 @@ MainWindow::MainWindow(QWidget *parent) :
             SLOT(createSSHConnectionToAWS(std::shared_ptr<AWSInstance>,
             std::vector<std::shared_ptr<AWSInstance>>, bool)));
     connect(this->awsWidget, SIGNAL(awsInstancesUpdated()), this->connectionList, SLOT(updateAWSInstances()));
+    connect(this->awsInfo, SIGNAL(awsInstancesUpdated()), this->connectionList, SLOT(updateAWSInstances()));
     rightWidget->addWidget(this->awsWidget);
 
     this->splitter->addWidget(rightWidget);

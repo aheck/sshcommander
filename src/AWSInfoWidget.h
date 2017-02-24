@@ -44,6 +44,9 @@ public slots:
     void showSubnet();
     void reloadInstanceData();
 
+signals:
+    void awsInstancesUpdated();
+
 private:
     Preferences *preferences;
     std::shared_ptr<AWSInstance> instance;

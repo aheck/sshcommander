@@ -135,3 +135,34 @@ void AWSInstance::resolveReferences()
         this->subnetName = subnet->name;
     }
 }
+
+void AWSInstance::copyResolvedReferences(std::shared_ptr<AWSInstance> other)
+{
+    if (other == nullptr) {
+        return;
+    }
+
+    if (this->imageId.isEmpty()) {
+        this->imageId = other->imageId;
+    }
+
+    if (this->imageName.isEmpty()) {
+        this->imageName = other->imageName;
+    }
+
+    if (this->subnetId.isEmpty()) {
+        this->subnetId = other->subnetId;
+    }
+
+    if (this->subnetName.isEmpty()) {
+        this->subnetName = other->subnetName;
+    }
+
+    if (this->vpcId.isEmpty()) {
+        this->vpcId = other->vpcId;
+    }
+
+    if (this->vpcName.isEmpty()) {
+        this->vpcName = other->vpcName;
+    }
+}

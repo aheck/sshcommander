@@ -120,6 +120,7 @@ void SSHConnectionItemModel::updateAWSInstances()
 
         if (newInstance != nullptr) {
             if (entry->awsInstance != newInstance) {
+                newInstance->copyResolvedReferences(entry->awsInstance);
                 entry->awsInstance = newInstance;
             }
         }

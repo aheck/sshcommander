@@ -2,8 +2,8 @@
 
 SecurityGroupsDialog::SecurityGroupsDialog()
 {
-    this->setMinimumWidth(500);
-    this->setMinimumHeight(300);
+    this->setMinimumWidth(650);
+    this->setMinimumHeight(500);
     QVBoxLayout *layout = new QVBoxLayout();
 
     this->table = new QTableWidget(this);

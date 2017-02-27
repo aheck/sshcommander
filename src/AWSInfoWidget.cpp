@@ -74,7 +74,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->tagsViewer = new TagsViewWidget();
     this->tagsViewer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     this->valueSecurityGroups = new QLabel();
-    this->valueSecurityGroups->setText("<a href=\"http://localhost/\">View Security Groups</a>");
+    this->valueSecurityGroups->setText("<a href=\"http://localhost/\" style=\"font-weight: bold;\">View Security Groups</a>");
     this->valueSecurityGroups->setTextFormat(Qt::RichText);
     this->valueSecurityGroups->setTextInteractionFlags(Qt::TextBrowserInteraction);
     QObject::connect(this->valueSecurityGroups, SIGNAL(linkActivated(QString)), this, SLOT(showSecurityGroups()));
@@ -173,14 +173,17 @@ void AWSInfoWidget::updateData(std::shared_ptr<AWSInstance> newInstance)
     }
     this->valueKeyname->setText(this->instance->keyname);
     this->valueType->setText(this->instance->type);
-    this->valueImage->setText(QString("%1 (<a href=\"http://localhost/\">View Image</a>)").arg(this->instance->formattedImage()));
+    this->valueImage->setText(QString("%1 (<a href=\"http://localhost/\" style=\"font-weight: bold;\">View Image</a>)")
+            .arg(this->instance->formattedImage()));
 
     this->valueLaunchTime->setText(this->instance->launchTime);
     this->valuePublicIP->setText(this->instance->publicIP);
     this->valuePrivateIP->setText(this->instance->privateIP);
-    this->valueVpc->setText(QString("%1 (<a href=\"http://localhost/\">View VPC</a>)").arg(this->instance->formattedVpc()));
+    this->valueVpc->setText(QString("%1 (<a href=\"http://localhost/\" style=\"font-weight: bold;\">View VPC</a>)")
+            .arg(this->instance->formattedVpc()));
 
-    this->valueSubnet->setText(QString("%1 (<a href=\"http://localhost/\">View Subnet</a>)").arg(this->instance->formattedSubnet()));
+    this->valueSubnet->setText(QString("%1 (<a href=\"http://localhost/\" style=\"font-weight: bold;\">View Subnet</a>)")
+            .arg(this->instance->formattedSubnet()));
     this->valueSourceDestCheck->setText(this->instance->sourceDestCheck);
     this->valueCfStackName->setText(this->instance->cfStackName);
     this->valueVirtualizationType->setText(this->instance->virtualizationType);

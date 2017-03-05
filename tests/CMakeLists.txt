@@ -6,6 +6,8 @@ add_executable(tests main.cpp
     InstanceItemModelTests.cpp
 
     ../src/AboutDialog.cpp
+    ../src/Applet.cpp
+    ../src/AppletWidget.cpp
     ../src/AWSCache.cpp
     ../src/AWSConnector.cpp
     ../src/AWSImage.cpp

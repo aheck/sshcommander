@@ -2,12 +2,8 @@
 
 MachineInfoWidget::MachineInfoWidget()
 {
-    this->enabled = false;
-    this->widgetStack = new QStackedWidget();
     this->page = new QWidget();
     this->page->setObjectName("scrollAreaContent");
-
-    this->disabledWidget = new DisabledWidget("No SSH Connection");
 
     this->valueHostname = new QLabel();
     this->valueHostname->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -76,26 +72,28 @@ MachineInfoWidget::MachineInfoWidget()
     scrollArea->setWidgetResizable(true);
     scrollArea->setWidget(this->page);
 
-    this->widgetStack->addWidget(this->disabledWidget);
-    this->widgetStack->addWidget(scrollArea);
-
     QVBoxLayout *layout = new QVBoxLayout();
     layout->setSpacing(0);
     layout->setMargin(0);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(this->widgetStack);
+    layout->addWidget(scrollArea);
     this->setLayout(layout);
 }
 
-void MachineInfoWidget::setMachineEnabled(bool enabled)
+const QString MachineInfoWidget::getDisplayName()
 {
-    this->enabled = enabled;
+    return tr("Machine");
+}
 
-    if (this->enabled) {
-        this->widgetStack->setCurrentIndex(1);
-    } else {
-        this->widgetStack->setCurrentIndex(0);
-    }
+QIcon MachineInfoWidget::getIcon()
+{
+    return QIcon();
+}
+
+void MachineInfoWidget::init(std::shared_ptr<SSHConnectionEntry> connEntry)
+{
+    Applet::init(connEntry);
+    this->updateData(connEntry);
 }
 
 void MachineInfoWidget::updateData(std::shared_ptr<SSHConnectionEntry> connEntry)

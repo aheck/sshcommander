@@ -5,7 +5,6 @@ NotesEditor::NotesEditor()
     QVBoxLayout *layout = new QVBoxLayout();
 
     this->editor = new QTextEdit();
-    this->widgetStack = new QStackedWidget();
     QWidget *editorWidget = new QWidget();
 
     QToolBar *toolBar = new QToolBar();
@@ -74,27 +73,29 @@ NotesEditor::NotesEditor()
 
     editorWidget->setLayout(layout);
 
-    this->disabledWidget = new DisabledWidget("No SSH Connection");
-
-    this->widgetStack->addWidget(this->disabledWidget);
-    this->widgetStack->addWidget(editorWidget);
-    this->widgetStack->setCurrentIndex(0);
-
     this->setLayout(new QVBoxLayout());
     this->layout()->setSpacing(0);
     this->layout()->setMargin(0);
     this->layout()->setContentsMargins(0, 0, 0, 0);
 
-    this->layout()->addWidget(widgetStack);
+    this->layout()->addWidget(editorWidget);
 }
 
-void NotesEditor::setEnabled(bool enabled)
+const QString NotesEditor::getDisplayName()
 {
-    if (enabled) {
-        this->widgetStack->setCurrentIndex(1);
-    } else {
-        this->widgetStack->setCurrentIndex(0);
-    }
+    return tr("Notes");
+}
+
+QIcon NotesEditor::getIcon()
+{
+    return QIcon();
+}
+
+void NotesEditor::init(std::shared_ptr<SSHConnectionEntry> connEntry)
+{
+    Applet::init(connEntry);
+
+    this->setHtml(connEntry->notes);
 }
 
 void NotesEditor::setHtml(const QString &text)
@@ -109,7 +110,11 @@ QString NotesEditor::toHtml() const
 
 void NotesEditor::textWasChanged()
 {
-    emit textChanged();
+    if (connEntry == nullptr) {
+        return;
+    }
+
+    this->connEntry->notes = this->toHtml();
 }
 
 void NotesEditor::changeFont(const QFont &font)

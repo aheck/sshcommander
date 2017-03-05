@@ -65,33 +65,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->splitter->addWidget(this->connectionList);
 
-    this->sessionInfoSplitter = new QSplitter(Qt::Vertical);
+    this->terminalViewContainer = new QWidget();
+    this->terminalViewContainer->setLayout(new QVBoxLayout());
 
-    this->terminalView = new TerminalViewWidget();
-    this->sessionInfoSplitter->addWidget(this->terminalView);
+    this->terminalView = new TerminalViewWidget(this->preferences);
+    this->terminalViewContainer->layout()->addWidget(this->terminalView);
+    this->terminalViewContainer->layout()->setContentsMargins(0, 0, 0, 0);
     connect(this->terminalView, SIGNAL(requestToggleEnlarge()), this, SLOT(toggleEnlargeWidget()));
-
-    this->notesEditor = new NotesEditor();
-    connect(this->notesEditor, SIGNAL(textChanged()), this, SLOT(notesChanged()));
-
-    // create the connection applets
-    this->machineInfo = new MachineInfoWidget();
-    this->awsInfo = new AWSInfoWidget(&this->preferences);
-
-    // create the tab where the applets reside
-    this->appletTab = new QTabWidget();
-    this->appletTab->addTab(this->machineInfo, "Machine");
-    this->appletTab->addTab(this->notesEditor, "Notes");
-    this->appletTab->addTab(this->awsInfo, "AWS");
-
-    this->sessionInfoSplitter->addWidget(this->appletTab);
-    this->sessionInfoSplitter->setStretchFactor(0, 10);
-    this->sessionInfoSplitter->setStretchFactor(1, 5);
-    this->sessionInfoSplitter->setCollapsible(0, false);
 
     // create the stacked widget that allows to switch between SSH and AWS
     this->rightWidget = new QStackedWidget();
-    rightWidget->addWidget(this->sessionInfoSplitter);
+    rightWidget->addWidget(this->terminalViewContainer);
 
     this->awsWidget = new AWSWidget(&this->preferences);
     connect(this->awsWidget, SIGNAL(newConnection(std::shared_ptr<AWSInstance>,
@@ -99,7 +83,6 @@ MainWindow::MainWindow(QWidget *parent) :
             SLOT(createSSHConnectionToAWS(std::shared_ptr<AWSInstance>,
             std::vector<std::shared_ptr<AWSInstance>>, bool)));
     connect(this->awsWidget, SIGNAL(awsInstancesUpdated()), this->connectionList, SLOT(updateAWSInstances()));
-    connect(this->awsInfo, SIGNAL(awsInstancesUpdated()), this->connectionList, SLOT(updateAWSInstances()));
     rightWidget->addWidget(this->awsWidget);
 
     this->splitter->addWidget(rightWidget);
@@ -182,7 +165,7 @@ void MainWindow::createNewConnection()
     TabbedTerminalWidget *tabs = new TabbedTerminalWidget(&this->preferences, connEntry);
     connEntry->tabs = tabs;
     tabs->addTerminalSession();
-    this->terminalView->addConnection(tabs);
+    this->terminalView->addConnection(this->preferences, connEntry, tabs);
     this->terminalView->setLastConnection();
 
     this->terminalView->setDisabledPageEnabled(false);
@@ -205,7 +188,6 @@ void MainWindow::readSettings()
     this->resize(settings.value("size", QSize(1000, 700)).toSize());
     this->move(settings.value("pos", QPoint(200, 200)).toPoint());
     this->splitter->restoreState(settings.value("splitterSizes").toByteArray());
-    this->sessionInfoSplitter->restoreState(settings.value("sessionInfoSplitterSizes").toByteArray());
     this->awsWidget->setRegion(settings.value("selectedAwsRegion", AWSConnector::LOCATION_US_EAST_1).toString());
     settings.endGroup();
 
@@ -231,7 +213,7 @@ void MainWindow::readSettings()
             tabs->addInactiveSession(entry->tabNames->at(i));
         }
 
-        this->terminalView->addConnection(tabs);
+        this->terminalView->addConnection(this->preferences, entry, tabs);
 
         entry->tabs = tabs;
 
@@ -254,8 +236,6 @@ void MainWindow::saveSettings()
     settings.setValue("size", this->size());
     settings.setValue("pos", this->pos());
     settings.setValue("splitterSizes", this->splitter->saveState());
-    settings.setValue("sessionInfoSplitterSizes", this->sessionInfoSplitter->saveState());
-    settings.setValue("sessionInfoSplitterSizes", this->sessionInfoSplitter->saveState());
     settings.setValue("selectedAwsRegion", this->awsWidget->getRegion());
     settings.endGroup();
 
@@ -357,19 +337,9 @@ void MainWindow::createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance,
 
 void MainWindow::connectionRemoved(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
-    TabbedTerminalWidget *tabWidget = connEntry->tabs;
-    for (int i = tabWidget->count(); i >= 0; --i) {
-        QTermWidget *termWidget = (QTermWidget*) tabWidget->widget(i);
-        tabWidget->removeTab(i);
-        delete termWidget;
-    }
-
-    this->terminalView->removeConnection(tabWidget);
+    this->terminalView->removeConnection(connEntry->tabs);
 
     if (this->connectionModel->rowCount(QModelIndex()) == 0) {
-        this->machineInfo->setMachineEnabled(false);
-        this->notesEditor->setEnabled(false);
-        this->awsInfo->setAWSEnabled(false);
         this->terminalView->setDisabledPageEnabled(true);
         this->setWindowTitle(PROGRAM_NAME);
     }
@@ -384,19 +354,6 @@ void MainWindow::updateConnectionTabs()
     }
 
     this->setWindowTitle(connEntry->name + " - " + PROGRAM_NAME);
-
-    this->machineInfo->setMachineEnabled(true);
-    this->machineInfo->updateData(connEntry);
-
-    this->notesEditor->setEnabled(true);
-    this->notesEditor->setHtml(connEntry->notes);
-
-    if (connEntry->isAwsInstance) {
-        this->awsInfo->setAWSEnabled(true);
-        this->awsInfo->updateData(connEntry->awsInstance);
-    } else {
-        this->awsInfo->setAWSEnabled(false);
-    }
 }
 
 void MainWindow::openWebsite()
@@ -430,17 +387,6 @@ void MainWindow::showPreferencesDialog()
     }
 }
 
-void MainWindow::notesChanged()
-{
-    std::shared_ptr<SSHConnectionEntry> connEntry = this->connectionList->getSelectedConnectionEntry();
-
-    if (connEntry == nullptr) {
-        return;
-    }
-
-    connEntry->notes = this->notesEditor->toHtml();
-}
-
 void MainWindow::toggleEnlargeWidget()
 {
     if (this->connectionList->getSelectedConnectionEntry() == nullptr) {
@@ -456,7 +402,7 @@ void MainWindow::toggleEnlargeWidget()
 
     if (this->viewEnlarged) {
         this->hiddenPage->layout()->removeWidget(widget);
-        this->sessionInfoSplitter->insertWidget(0, widget);
+        this->terminalViewContainer->layout()->addWidget(widget);
         this->widgetStack->setCurrentIndex(0);
         this->menuBar()->show();
 

@@ -28,7 +28,8 @@ class TabbedTerminalWidget : public QTabWidget
     Q_OBJECT
 
 public:
-    explicit TabbedTerminalWidget(Preferences *preferences, std::weak_ptr<SSHConnectionEntry> connEntry, QWidget *parent = 0);
+    TabbedTerminalWidget(Preferences *preferences, std::weak_ptr<SSHConnectionEntry> connEntry, QWidget *parent = 0);
+    ~TabbedTerminalWidget();
 
     void addTerminalSession();
     void addInactiveSession(const QString title);

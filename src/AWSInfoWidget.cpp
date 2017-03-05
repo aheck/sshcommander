@@ -4,8 +4,6 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
 {
     this->preferences = preferences;
 
-    this->enabled = false;
-
     this->securityGroupsDialog = new SecurityGroupsDialog();
     this->imageDialog = new ImageDialog();
     this->subnetDialog = new SubnetDialog();
@@ -17,7 +15,6 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->awsPage = new QWidget();
     this->awsContent = new QWidget();
     this->awsContent->setObjectName("scrollAreaContent");
-    this->disabledWidget = new DisabledWidget("No AWS Data");
 
     this->toolBar = new QToolBar();
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
@@ -31,10 +28,6 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->scrollArea->setWidgetResizable(true);
     this->scrollArea->setWidget(this->awsContent);
     this->awsPage->layout()->addWidget(this->scrollArea);
-
-    this->widgetStack = new QStackedWidget();
-    this->widgetStack->layout()->setContentsMargins(0, 0, 0, 0);
-    this->widgetStack->addWidget(this->disabledWidget); this->widgetStack->addWidget(this->awsPage);
 
     this->valueInstanceId = new QLabel("");
     this->valueInstanceId->setTextInteractionFlags(Qt::TextSelectableByMouse);
@@ -141,7 +134,7 @@ AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
     this->awsContent->setLayout(groupsLayout);
 
     this->mainLayout = new QVBoxLayout();
-    this->mainLayout->addWidget(this->widgetStack);
+    this->mainLayout->addWidget(this->awsPage);
     this->mainLayout->setContentsMargins(0, 0, 0, 0);
     this->setLayout(mainLayout);
 }
@@ -150,6 +143,22 @@ AWSInfoWidget::~AWSInfoWidget()
 {
     delete this->securityGroupsDialog;
     delete this->awsConnector;
+}
+
+const QString AWSInfoWidget::getDisplayName()
+{
+    return "AWS";
+}
+
+QIcon AWSInfoWidget::getIcon()
+{
+    return QIcon(":/images/connection-type-aws.svg");
+}
+
+void AWSInfoWidget::init(std::shared_ptr<SSHConnectionEntry> connEntry)
+{
+    Applet::init(connEntry);
+    this->updateData(connEntry->awsInstance);
 }
 
 void AWSInfoWidget::updateData(std::shared_ptr<AWSInstance> newInstance)
@@ -191,17 +200,6 @@ void AWSInfoWidget::updateData(std::shared_ptr<AWSInstance> newInstance)
     this->valueHypervisor->setText(this->instance->hypervisor);
 
     this->tagsViewer->updateData(this->instance->tags);
-}
-
-void AWSInfoWidget::setAWSEnabled(bool enabled)
-{
-    this->enabled = enabled;
-
-    if (this->enabled) {
-        this->widgetStack->setCurrentIndex(1);
-    } else {
-        this->widgetStack->setCurrentIndex(0);
-    }
 }
 
 void AWSInfoWidget::handleAWSResult(AWSResult *result)

@@ -67,7 +67,6 @@ public slots:
     void toggleEnlargeWidget();
 
 private slots:
-    void notesChanged();
     void toggleAwsConsole(bool show);
 
 private:
@@ -85,7 +84,6 @@ private:
     QToolBar *toolBar;
 
     QSplitter *splitter;
-    QSplitter *sessionInfoSplitter;
 
     QStackedWidget *rightWidget;
     QTabWidget *appletTab;
@@ -99,15 +97,13 @@ private:
     NewDialog *newDialog;
     PreferencesDialog *preferencesDialog;
 
-    // Applets
-    MachineInfoWidget *machineInfo;
-    NotesEditor *notesEditor;
-    AWSInfoWidget *awsInfo;
-
     // Main widgets
     AWSWidget *awsWidget;
     ConnectionListWidget *connectionList;
     TerminalViewWidget *terminalView;
+    // we remove terminalView from and add it again to this container when
+    // toggling enlarged view
+    QWidget *terminalViewContainer;
 };
 
 #endif

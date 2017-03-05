@@ -14,6 +14,15 @@ TabbedTerminalWidget::TabbedTerminalWidget(Preferences *preferences, std::weak_p
     connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
 }
 
+TabbedTerminalWidget::~TabbedTerminalWidget()
+{
+    for (int i = this->count(); i >= 0; --i) {
+        QTermWidget *termWidget = (QTermWidget*) this->widget(i);
+        this->removeTab(i);
+        delete termWidget;
+    }
+}
+
 void TabbedTerminalWidget::addTerminalSession()
 {
     auto connEntry = this->connEntryWeak.lock();

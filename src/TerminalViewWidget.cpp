@@ -1,6 +1,6 @@
 #include "TerminalViewWidget.h"
 
-TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
+TerminalViewWidget::TerminalViewWidget(Preferences &preferences, QWidget *parent) :
     QWidget(parent)
 {
     this->enlarged = false;
@@ -10,25 +10,35 @@ TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
     DisabledWidget *disabledPage = new DisabledWidget("No SSH Connection");
     this->widgetStack->addWidget(disabledPage);
 
-    toolBar = new QToolBar(this);
-    toolBar->addAction(QIcon(":/images/utilities-terminal.svg"), "New Session", this, SLOT(createNewSession()));
-    toolBar->addAction(QIcon(":/images/view-refresh.svg"), "Restart Session", this, SLOT(restartCurrentSession()));
-    this->toggleEnlarged = toolBar->addAction(QIcon(":/images/view-fullscreen.svg"),
+    this->toolBar = new QToolBar(this);
+    this->toolBar->addAction(QIcon(":/images/utilities-terminal.svg"), "New Session", this, SLOT(createNewSession()));
+    this->toolBar->addAction(QIcon(":/images/view-refresh.svg"), "Restart Session", this, SLOT(restartCurrentSession()));
+    this->toggleEnlarged = this->toolBar->addAction(QIcon(":/images/view-fullscreen.svg"),
             "Toggle Enlarged View (F10)", this, SLOT(toggleEnlarge()));
     this->toggleEnlarged->setCheckable(true);
 
-    this->connectionStack = new QStackedWidget();
+    this->terminalStack = new QStackedWidget();
+    this->appletStack = new QStackedWidget();
+
+    this->terminalSplitter = new QSplitter(Qt::Vertical);
+
+    this->terminalSplitter->setCollapsible(0, false);
+
+    // build layout
     QVBoxLayout *boxLayout = new QVBoxLayout();
     boxLayout->setSpacing(0);
     boxLayout->setMargin(0);
     boxLayout->setContentsMargins(0, 0, 0, 0);
-    boxLayout->addWidget(toolBar);
-    boxLayout->addWidget(this->connectionStack);
+    boxLayout->addWidget(this->toolBar);
+    boxLayout->addWidget(this->terminalStack);
 
     this->terminalPage = new QWidget();
     this->terminalPage->setLayout(boxLayout);
 
-    this->widgetStack->addWidget(this->terminalPage);
+    this->terminalSplitter->addWidget(this->terminalPage);
+    this->terminalSplitter->addWidget(this->appletStack);
+
+    this->widgetStack->addWidget(this->terminalSplitter);
 
     // assign shortcuts
     QShortcut *toggleEnlargedShortcut = new QShortcut(QKeySequence(Qt::Key_F10), this);
@@ -48,28 +58,35 @@ TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
     this->layout()->addWidget(this->widgetStack);
 }
 
-void TerminalViewWidget::addConnection(TabbedTerminalWidget *tabbedTerminal)
+void TerminalViewWidget::addConnection(Preferences &preferences, std::shared_ptr<SSHConnectionEntry> connEntry, TabbedTerminalWidget *tabs)
 {
-    this->connectionStack->addWidget(tabbedTerminal);
+    this->terminalStack->addWidget(tabs);
+
+    AppletWidget *applets = new AppletWidget(preferences, connEntry);
+    this->appletStack->addWidget(applets);
 }
 
 void TerminalViewWidget::removeConnection(TabbedTerminalWidget *tabbedTerminal)
 {
-    this->connectionStack->removeWidget(tabbedTerminal);
+    int index = this->terminalStack->indexOf(tabbedTerminal);
+
+    this->terminalStack->removeWidget(tabbedTerminal);
+    this->appletStack->removeWidget(this->appletStack->widget(index));
 }
 
 void TerminalViewWidget::setCurrentConnection(int row)
 {
-    this->connectionStack->setCurrentIndex(row);
+    this->terminalStack->setCurrentIndex(row);
+    this->appletStack->setCurrentIndex(row);
 }
 
 void TerminalViewWidget::setLastConnection()
 {
-    if (this->connectionStack->count() == 0) {
+    if (this->terminalStack->count() == 0) {
         return;
     }
 
-    this->setCurrentConnection(this->connectionStack->count() - 1);
+    this->setCurrentConnection(this->terminalStack->count() - 1);
 }
 
 void TerminalViewWidget::setDisabledPageEnabled(bool enabled)
@@ -83,31 +100,31 @@ void TerminalViewWidget::setDisabledPageEnabled(bool enabled)
 
 void TerminalViewWidget::createNewSession()
 {
-    if (this->connectionStack->count() == 0) {
+    if (this->terminalStack->count() == 0) {
         return;
     }
 
-    TabbedTerminalWidget *tabs = static_cast<TabbedTerminalWidget *>(this->connectionStack->currentWidget());
+    TabbedTerminalWidget *tabs = static_cast<TabbedTerminalWidget *>(this->terminalStack->currentWidget());
     tabs->addTerminalSession();
 }
 
 void TerminalViewWidget::restartCurrentSession()
 {
-    if (this->connectionStack->count() == 0) {
+    if (this->terminalStack->count() == 0) {
         return;
     }
 
-    TabbedTerminalWidget *tabs = static_cast<TabbedTerminalWidget *>(this->connectionStack->currentWidget());
+    TabbedTerminalWidget *tabs = static_cast<TabbedTerminalWidget *>(this->terminalStack->currentWidget());
     tabs->restartCurrentSession();
 }
 
 void TerminalViewWidget::setFocusOnCurrentTerminal()
 {
-    if (this->connectionStack->count() == 0) {
+    if (this->terminalStack->count() == 0) {
         return;
     }
 
-    QWidget *widget = this->connectionStack->currentWidget();
+    QWidget *widget = this->terminalStack->currentWidget();
     auto *tabs = static_cast<TabbedTerminalWidget *>(widget);
     widget = tabs->currentWidget();
 
@@ -118,11 +135,11 @@ void TerminalViewWidget::setFocusOnCurrentTerminal()
 
 void TerminalViewWidget::nextTab()
 {
-    if (this->connectionStack->count() == 0) {
+    if (this->terminalStack->count() == 0) {
         return;
     }
 
-    TabbedTerminalWidget *tabs = static_cast<TabbedTerminalWidget *>(this->connectionStack->currentWidget());
+    TabbedTerminalWidget *tabs = static_cast<TabbedTerminalWidget *>(this->terminalStack->currentWidget());
 
     if (tabs->currentIndex() < (tabs->count() - 1)) {
         tabs->setCurrentIndex(tabs->currentIndex() + 1);
@@ -135,11 +152,11 @@ void TerminalViewWidget::nextTab()
 
 void TerminalViewWidget::prevTab()
 {
-    if (this->connectionStack->count() == 0) {
+    if (this->terminalStack->count() == 0) {
         return;
     }
 
-    TabbedTerminalWidget *tabs = static_cast<TabbedTerminalWidget *>(this->connectionStack->currentWidget());
+    TabbedTerminalWidget *tabs = static_cast<TabbedTerminalWidget *>(this->terminalStack->currentWidget());
 
     if (tabs->currentIndex() > 0) {
         tabs->setCurrentIndex(tabs->currentIndex() - 1);
@@ -162,8 +179,8 @@ void TerminalViewWidget::toggleEnlarge()
 void TerminalViewWidget::updateConsoleSettings(const QFont &font, const QString colorScheme)
 {
     // update all running QTermWidget instances
-    for (int i = 0; i < this->connectionStack->count(); i++) {
-        TabbedTerminalWidget *tabs = static_cast<TabbedTerminalWidget *>(this->connectionStack->widget(i));
+    for (int i = 0; i < this->terminalStack->count(); i++) {
+        TabbedTerminalWidget *tabs = static_cast<TabbedTerminalWidget *>(this->terminalStack->widget(i));
 
         for (int j = 0; j < tabs->count(); j++) {
             QWidget *widget = tabs->widget(j);

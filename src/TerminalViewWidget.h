@@ -23,9 +23,12 @@
 #include <QVBoxLayout>
 #include <QToolBar>
 #include <QShortcut>
+#include <QSplitter>
 #include <QStackedWidget>
 
+#include "AppletWidget.h"
 #include "DisabledWidget.h"
+#include "Preferences.h"
 #include "SSHConnectionEntry.h"
 #include "SSHConnectionItemModel.h"
 
@@ -34,9 +37,9 @@ class TerminalViewWidget : public QWidget
     Q_OBJECT
 
 public:
-    TerminalViewWidget(QWidget *parent = 0);
+    TerminalViewWidget(Preferences &preferences, QWidget *parent = 0);
 
-    void addConnection(TabbedTerminalWidget *tabbedTerminal);
+    void addConnection(Preferences &preferences, std::shared_ptr<SSHConnectionEntry> connEntry, TabbedTerminalWidget *tabs);
     void removeConnection(TabbedTerminalWidget *tabbedTerminal);
     void setCurrentConnection(int row);
     void setLastConnection();
@@ -60,7 +63,9 @@ private:
     QAction *toggleEnlarged;
     QToolBar *toolBar;
     QStackedWidget *widgetStack;
-    QStackedWidget *connectionStack;
+    QStackedWidget *terminalStack;
+    QStackedWidget *appletStack;
+    QSplitter *terminalSplitter;
     QWidget *terminalPage;
 };
 

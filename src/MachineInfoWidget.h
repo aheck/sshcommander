@@ -8,33 +8,33 @@
 #include <QGroupBox>
 #include <QLabel>
 #include <QScrollArea>
-#include <QStackedWidget>
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "Applet.h"
 #include "SSHConnectionManager.h"
-#include "DisabledWidget.h"
 #include "SSHConnectionEntry.h"
 
-class MachineInfoWidget : public QWidget
+class MachineInfoWidget : public Applet
 {
     Q_OBJECT
 
 public:
     MachineInfoWidget();
 
-    void setMachineEnabled(bool enabled);
+    // implement the Applet interface
+    virtual const QString getDisplayName() override;
+    virtual QIcon getIcon() override;
+    virtual void init(std::shared_ptr<SSHConnectionEntry> connEntry) override;
+
     void updateData(std::shared_ptr<SSHConnectionEntry> connEntry);
 
 public slots:
     void sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult);
 
 private:
-    bool enabled;
     std::shared_ptr<SSHConnectionEntry> connEntry;
     QWidget *page;
-    DisabledWidget *disabledWidget;
-    QStackedWidget *widgetStack;
     QLabel *valueHostname;
     QLabel *valueOperatingSystem;
     QLabel *valueDistro;

@@ -18,16 +18,20 @@
 #include <QToolBar>
 #include <QWidget>
 
-#include "DisabledWidget.h"
+#include "Applet.h"
 
-class NotesEditor : public QWidget
+class NotesEditor : public Applet
 {
     Q_OBJECT
 
 public:
     NotesEditor();
 
-    void setEnabled(bool enabled);
+    // the Applet interface
+    virtual const QString getDisplayName() override;
+    virtual QIcon getIcon() override;
+    virtual void init(std::shared_ptr<SSHConnectionEntry> connEntry) override;
+
     void setHtml(const QString &text);
     QString toHtml() const;
 
@@ -45,14 +49,9 @@ private slots:
     void currentCharFormatChanged(const QTextCharFormat &format);
     void fontChanged(const QFont &font);
 
-signals:
-    void textChanged();
-
 private:
     void applyFormat(const QTextCharFormat &format);
 
-    DisabledWidget *disabledWidget;
-    QStackedWidget *widgetStack;
     QTextEdit *editor;
     QFontComboBox *comboFont;
     QComboBox *comboSize;

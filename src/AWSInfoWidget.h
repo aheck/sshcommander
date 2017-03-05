@@ -10,14 +10,13 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QScrollArea>
-#include <QStackedWidget>
 #include <QToolBar>
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "Applet.h"
 #include "AWSConnector.h"
 #include "AWSResponseParsers.h"
-#include "DisabledWidget.h"
 #include "ImageDialog.h"
 #include "Preferences.h"
 #include "SecurityGroupsDialog.h"
@@ -25,7 +24,7 @@
 #include "TagsViewWidget.h"
 #include "VpcDialog.h"
 
-class AWSInfoWidget : public QWidget
+class AWSInfoWidget : public Applet
 {
     Q_OBJECT
 
@@ -33,8 +32,11 @@ public:
     AWSInfoWidget(Preferences *preferences);
     ~AWSInfoWidget();
 
+    virtual const QString getDisplayName() override;
+    virtual QIcon getIcon() override;
+    virtual void init(std::shared_ptr<SSHConnectionEntry> connEntry) override;
+
     void updateData(std::shared_ptr<AWSInstance> newInstance);
-    void setAWSEnabled(bool enabled);
 
 public slots:
     void handleAWSResult(AWSResult *result);
@@ -55,10 +57,7 @@ private:
     ImageDialog *imageDialog;
     SubnetDialog *subnetDialog;
     VpcDialog *vpcDialog;
-    bool enabled;
     QScrollArea *scrollArea;
-    QStackedWidget *widgetStack;
-    DisabledWidget * disabledWidget;
     QWidget *awsPage;
     QWidget *awsContent;
     QVBoxLayout *mainLayout;

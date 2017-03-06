@@ -44,7 +44,7 @@ public slots:
     void loadData();
 
 public:
-    AWSWidget(Preferences *preferences);
+    AWSWidget();
 
     QString getRegion() const;
     void setRegion(const QString region);
@@ -80,8 +80,6 @@ private:
     std::shared_ptr<AWSInstance> getSelectedInstance();
     void connectToInstance(bool toPrivateIP);
     void updateVpcs(std::vector<std::shared_ptr<AWSVpc>> &vpcs);
-
-    Preferences *preferences;
 
     QLineEdit *accessKeyLineEdit;
     QLineEdit *secretKeyLineEdit;

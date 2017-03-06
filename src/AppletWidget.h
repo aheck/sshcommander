@@ -22,7 +22,7 @@ class AppletWidget : public QWidget
     Q_OBJECT
 
 public:
-    AppletWidget(Preferences &preferences, std::shared_ptr<SSHConnectionEntry> connEntry, QWidget *parent = 0);
+    AppletWidget(std::shared_ptr<SSHConnectionEntry> connEntry, QWidget *parent = 0);
     ~AppletWidget();
 
 private:

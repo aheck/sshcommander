@@ -1,9 +1,7 @@
 #include "AWSInfoWidget.h"
 
-AWSInfoWidget::AWSInfoWidget(Preferences *preferences)
+AWSInfoWidget::AWSInfoWidget()
 {
-    this->preferences = preferences;
-
     this->securityGroupsDialog = new SecurityGroupsDialog();
     this->imageDialog = new ImageDialog();
     this->subnetDialog = new SubnetDialog();
@@ -284,8 +282,10 @@ void AWSInfoWidget::handleAWSResult(AWSResult *result)
 
 void AWSInfoWidget::showSecurityGroups()
 {
-    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
-    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    Preferences &preferences = Preferences::getInstance();
+
+    this->awsConnector->setAccessKey(preferences.getAWSAccessKey());
+    this->awsConnector->setSecretKey(preferences.getAWSSecretKey());
     this->awsConnector->setRegion(this->instance->region);
 
     this->securityGroupsDialog->showDialog(this->awsConnector, instance);
@@ -293,8 +293,10 @@ void AWSInfoWidget::showSecurityGroups()
 
 void AWSInfoWidget::showImage()
 {
-    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
-    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    Preferences &preferences = Preferences::getInstance();
+
+    this->awsConnector->setAccessKey(preferences.getAWSAccessKey());
+    this->awsConnector->setSecretKey(preferences.getAWSSecretKey());
     this->awsConnector->setRegion(this->instance->region);
 
     this->imageDialog->showDialog(this->awsConnector, instance);
@@ -302,8 +304,10 @@ void AWSInfoWidget::showImage()
 
 void AWSInfoWidget::showVpc()
 {
-    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
-    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    Preferences &preferences = Preferences::getInstance();
+
+    this->awsConnector->setAccessKey(preferences.getAWSAccessKey());
+    this->awsConnector->setSecretKey(preferences.getAWSSecretKey());
     this->awsConnector->setRegion(this->instance->region);
 
     this->vpcDialog->showDialog(this->awsConnector, instance);
@@ -311,8 +315,10 @@ void AWSInfoWidget::showVpc()
 
 void AWSInfoWidget::showSubnet()
 {
-    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
-    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    Preferences &preferences = Preferences::getInstance();
+
+    this->awsConnector->setAccessKey(preferences.getAWSAccessKey());
+    this->awsConnector->setSecretKey(preferences.getAWSSecretKey());
     this->awsConnector->setRegion(this->instance->region);
 
     this->subnetDialog->showDialog(this->awsConnector, instance);
@@ -320,8 +326,10 @@ void AWSInfoWidget::showSubnet()
 
 void AWSInfoWidget::reloadInstanceData()
 {
-    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
-    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    Preferences &preferences = Preferences::getInstance();
+
+    this->awsConnector->setAccessKey(preferences.getAWSAccessKey());
+    this->awsConnector->setSecretKey(preferences.getAWSSecretKey());
     this->awsConnector->setRegion(this->instance->region);
 
     QList<QString> instanceIds;

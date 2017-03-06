@@ -9,7 +9,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->enlargedWidget = nullptr;
 
     // read in the user preferences from QSettings
-    this->preferences.read();
+    Preferences &preferences = Preferences::getInstance();
+    preferences.read();
 
     // dialogs
     this->aboutDialog = new AboutDialog();
@@ -68,7 +69,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->terminalViewContainer = new QWidget();
     this->terminalViewContainer->setLayout(new QVBoxLayout());
 
-    this->terminalView = new TerminalViewWidget(this->preferences);
+    this->terminalView = new TerminalViewWidget();
     this->terminalViewContainer->layout()->addWidget(this->terminalView);
     this->terminalViewContainer->layout()->setContentsMargins(0, 0, 0, 0);
     connect(this->terminalView, SIGNAL(requestToggleEnlarge()), this, SLOT(toggleEnlargeWidget()));
@@ -77,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->rightWidget = new QStackedWidget();
     rightWidget->addWidget(this->terminalViewContainer);
 
-    this->awsWidget = new AWSWidget(&this->preferences);
+    this->awsWidget = new AWSWidget();
     connect(this->awsWidget, SIGNAL(newConnection(std::shared_ptr<AWSInstance>,
             std::vector<std::shared_ptr<AWSInstance>>, bool)), this,
             SLOT(createSSHConnectionToAWS(std::shared_ptr<AWSInstance>,
@@ -162,10 +163,10 @@ void MainWindow::createNewConnection()
     this->connectionModel->appendConnectionEntry(connEntry);
     this->connectionList->selectLast();
 
-    TabbedTerminalWidget *tabs = new TabbedTerminalWidget(&this->preferences, connEntry);
+    TabbedTerminalWidget *tabs = new TabbedTerminalWidget(connEntry);
     connEntry->tabs = tabs;
     tabs->addTerminalSession();
-    this->terminalView->addConnection(this->preferences, connEntry, tabs);
+    this->terminalView->addConnection(connEntry, tabs);
     this->terminalView->setLastConnection();
 
     this->terminalView->setDisabledPageEnabled(false);
@@ -207,13 +208,13 @@ void MainWindow::readSettings()
         std::shared_ptr<SSHConnectionEntry> entry = std::make_shared<SSHConnectionEntry>();
         entry->read(curValue.toObject());
 
-        TabbedTerminalWidget *tabs = new TabbedTerminalWidget(&this->preferences, entry);
+        TabbedTerminalWidget *tabs = new TabbedTerminalWidget(entry);
 
         for (int i = 0; i < entry->tabNames->size(); i++) {
             tabs->addInactiveSession(entry->tabNames->at(i));
         }
 
-        this->terminalView->addConnection(this->preferences, entry, tabs);
+        this->terminalView->addConnection(entry, tabs);
 
         entry->tabs = tabs;
 
@@ -363,27 +364,28 @@ void MainWindow::openWebsite()
 
 void MainWindow::showPreferencesDialog()
 {
-    this->preferencesDialog->setFont(this->preferences.getTerminalFont());
-    this->preferencesDialog->setColorScheme(this->preferences.getColorScheme());
-    this->preferencesDialog->setAWSAccessKey(this->preferences.getAWSAccessKey());
-    this->preferencesDialog->setAWSSecretKey(this->preferences.getAWSSecretKey());
+    Preferences &preferences = Preferences::getInstance();
+    this->preferencesDialog->setFont(preferences.getTerminalFont());
+    this->preferencesDialog->setColorScheme(preferences.getColorScheme());
+    this->preferencesDialog->setAWSAccessKey(preferences.getAWSAccessKey());
+    this->preferencesDialog->setAWSSecretKey(preferences.getAWSSecretKey());
 
     if (this->preferencesDialog->exec() == QDialog::Accepted) {
         // did the user change the font or the color scheme?
-        if (this->preferencesDialog->getFont() != this->preferences.getTerminalFont() ||
-                this->preferencesDialog->getColorScheme() != this->preferences.getColorScheme()) {
-            this->preferences.setTerminalFont(this->preferencesDialog->getFont());
-            this->preferences.setColorScheme(this->preferencesDialog->getColorScheme());
-            this->terminalView->updateConsoleSettings(this->preferences.getTerminalFont(),
-                    this->preferences.getColorScheme());
+        if (this->preferencesDialog->getFont() != preferences.getTerminalFont() ||
+                this->preferencesDialog->getColorScheme() != preferences.getColorScheme()) {
+            preferences.setTerminalFont(this->preferencesDialog->getFont());
+            preferences.setColorScheme(this->preferencesDialog->getColorScheme());
+            this->terminalView->updateConsoleSettings(preferences.getTerminalFont(),
+                    preferences.getColorScheme());
         }
 
         // update the AWS credentials
-        this->preferences.setAWSAccessKey(this->preferencesDialog->getAWSAccessKey());
-        this->preferences.setAWSSecretKey(this->preferencesDialog->getAWSSecretKey());
+        preferences.setAWSAccessKey(this->preferencesDialog->getAWSAccessKey());
+        preferences.setAWSSecretKey(this->preferencesDialog->getAWSSecretKey());
 
         // save the preferences with QSettings
-        this->preferences.save();
+       preferences.save();
     }
 }
 

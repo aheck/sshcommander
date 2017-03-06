@@ -1,9 +1,8 @@
 #include "AWSWidget.h"
 
-AWSWidget::AWSWidget(Preferences *preferences)
+AWSWidget::AWSWidget()
 {
     this->updatingVpcs = false;
-    this->preferences = preferences;
 
     this->region = AWSConnector::LOCATION_US_EAST_1;
     this->firstTryToLogin = false;
@@ -103,9 +102,11 @@ AWSWidget::AWSWidget(Preferences *preferences)
     this->layout()->addWidget(this->loginWidget);
     this->layout()->addWidget(this->mainWidget);
 
+    Preferences &preferences = Preferences::getInstance();
+
     // we only show the login widget if we haven't read any AWS credentials
     // from the program settings
-    if (!this->preferences->getAWSAccessKey().isEmpty() && !this->preferences->getAWSSecretKey().isEmpty()) {
+    if (!preferences.getAWSAccessKey().isEmpty() && !preferences.getAWSSecretKey().isEmpty()) {
         this->loginWidget->setVisible(false);
         this->curWidget = this->mainWidget;
     } else {
@@ -125,17 +126,20 @@ void AWSWidget::doubleClicked(const QModelIndex &index)
 
 void AWSWidget::connectToAWS()
 {
+    Preferences &preferences = Preferences::getInstance();
     this->firstTryToLogin = true;
 
-    this->preferences->setAWSAccessKey(this->accessKeyLineEdit->text());
-    this->preferences->setAWSSecretKey(this->secretKeyLineEdit->text());
+    preferences.setAWSAccessKey(this->accessKeyLineEdit->text());
+    preferences.setAWSSecretKey(this->secretKeyLineEdit->text());
 
     this->loadData();
 }
 
 void AWSWidget::loadData()
 {
-    if (this->requestRunning || this->preferences->getAWSAccessKey().isEmpty()) {
+    Preferences &preferences = Preferences::getInstance();
+
+    if (this->requestRunning || preferences.getAWSAccessKey().isEmpty()) {
         return;
     }
 
@@ -146,9 +150,9 @@ void AWSWidget::loadData()
 
     std::cout << "Trying to connect to AWS..." << std::endl;
 
-    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
-    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
-    this->preferences->save();
+    this->awsConnector->setAccessKey(preferences.getAWSAccessKey());
+    this->awsConnector->setSecretKey(preferences.getAWSSecretKey());
+    preferences.save();
 
     this->awsConnector->setRegion(this->region);
 
@@ -475,8 +479,10 @@ void AWSWidget::stopInstance()
     QList<QString> instanceIds;
     instanceIds.append(instance->id);
 
-    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
-    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    Preferences &preferences = Preferences::getInstance();
+
+    this->awsConnector->setAccessKey(preferences.getAWSAccessKey());
+    this->awsConnector->setSecretKey(preferences.getAWSSecretKey());
     this->awsConnector->setRegion(this->region);
 
     this->awsConnector->stopInstances(instanceIds);
@@ -489,8 +495,10 @@ void AWSWidget::startInstance()
     QList<QString> instanceIds;
     instanceIds.append(instance->id);
 
-    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
-    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    Preferences &preferences = Preferences::getInstance();
+
+    this->awsConnector->setAccessKey(preferences.getAWSAccessKey());
+    this->awsConnector->setSecretKey(preferences.getAWSSecretKey());
     this->awsConnector->setRegion(this->region);
 
     this->awsConnector->startInstances(instanceIds);
@@ -511,8 +519,10 @@ void AWSWidget::rebootInstance()
     QList<QString> instanceIds;
     instanceIds.append(instance->id);
 
-    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
-    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    Preferences &preferences = Preferences::getInstance();
+
+    this->awsConnector->setAccessKey(preferences.getAWSAccessKey());
+    this->awsConnector->setSecretKey(preferences.getAWSSecretKey());
     this->awsConnector->setRegion(this->region);
 
     this->awsConnector->rebootInstances(instanceIds);
@@ -533,8 +543,10 @@ void AWSWidget::terminateInstance()
     QList<QString> instanceIds;
     instanceIds.append(instance->id);
 
-    this->awsConnector->setAccessKey(this->preferences->getAWSAccessKey());
-    this->awsConnector->setSecretKey(this->preferences->getAWSSecretKey());
+    Preferences &preferences = Preferences::getInstance();
+
+    this->awsConnector->setAccessKey(preferences.getAWSAccessKey());
+    this->awsConnector->setSecretKey(preferences.getAWSSecretKey());
     this->awsConnector->setRegion(this->region);
 
     this->awsConnector->terminateInstances(instanceIds);

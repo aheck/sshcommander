@@ -89,7 +89,6 @@ private:
     QTabWidget *appletTab;
 
     // Models
-    Preferences preferences;
     SSHConnectionItemModel *connectionModel;
 
     // Dialogs

@@ -28,7 +28,7 @@ class TabbedTerminalWidget : public QTabWidget
     Q_OBJECT
 
 public:
-    TabbedTerminalWidget(Preferences *preferences, std::weak_ptr<SSHConnectionEntry> connEntry, QWidget *parent = 0);
+    TabbedTerminalWidget(std::weak_ptr<SSHConnectionEntry> connEntry, QWidget *parent = 0);
     ~TabbedTerminalWidget();
 
     void addTerminalSession();
@@ -42,7 +42,6 @@ private slots:
     void closeTab(int tabIndex);
 
 private:
-    Preferences *preferences;
     std::weak_ptr<SSHConnectionEntry> connEntryWeak;
     std::map<QTermWidget*, int> passwordLineCounter;
 

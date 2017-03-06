@@ -29,7 +29,7 @@ class AWSInfoWidget : public Applet
     Q_OBJECT
 
 public:
-    AWSInfoWidget(Preferences *preferences);
+    AWSInfoWidget();
     ~AWSInfoWidget();
 
     virtual const QString getDisplayName() override;
@@ -50,7 +50,6 @@ signals:
     void awsInstancesUpdated();
 
 private:
-    Preferences *preferences;
     std::shared_ptr<AWSInstance> instance;
     AWSConnector *awsConnector;
     SecurityGroupsDialog *securityGroupsDialog;

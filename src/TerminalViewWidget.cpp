@@ -1,6 +1,6 @@
 #include "TerminalViewWidget.h"
 
-TerminalViewWidget::TerminalViewWidget(Preferences &preferences, QWidget *parent) :
+TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
     QWidget(parent)
 {
     this->enlarged = false;
@@ -58,11 +58,11 @@ TerminalViewWidget::TerminalViewWidget(Preferences &preferences, QWidget *parent
     this->layout()->addWidget(this->widgetStack);
 }
 
-void TerminalViewWidget::addConnection(Preferences &preferences, std::shared_ptr<SSHConnectionEntry> connEntry, TabbedTerminalWidget *tabs)
+void TerminalViewWidget::addConnection(std::shared_ptr<SSHConnectionEntry> connEntry, TabbedTerminalWidget *tabs)
 {
     this->terminalStack->addWidget(tabs);
 
-    AppletWidget *applets = new AppletWidget(preferences, connEntry);
+    AppletWidget *applets = new AppletWidget(connEntry);
     this->appletStack->addWidget(applets);
 }
 

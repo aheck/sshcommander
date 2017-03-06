@@ -1,6 +1,6 @@
 #include "AppletWidget.h"
 
-AppletWidget::AppletWidget(Preferences &preferences, std::shared_ptr<SSHConnectionEntry> connEntry, QWidget *parent)
+AppletWidget::AppletWidget(std::shared_ptr<SSHConnectionEntry> connEntry, QWidget *parent)
 {
     this->appletTab = new QTabWidget();
 
@@ -8,7 +8,7 @@ AppletWidget::AppletWidget(Preferences &preferences, std::shared_ptr<SSHConnecti
     this->applets.append(new MachineInfoWidget());
     this->applets.append(new NotesEditor());
     if (connEntry->isAwsInstance) {
-        this->applets.append(new AWSInfoWidget(&preferences));
+        this->applets.append(new AWSInfoWidget());
     }
 
     // create the tab where the applets reside

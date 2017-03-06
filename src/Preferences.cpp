@@ -5,6 +5,17 @@ Preferences::Preferences()
     this->hasDefaultTerminalFont = false;
 }
 
+Preferences::~Preferences()
+{
+    this->hasDefaultTerminalFont = false;
+}
+
+Preferences& Preferences::getInstance()
+{
+    static Preferences preferences;
+    return preferences;
+}
+
 void Preferences::read()
 {
     QSettings settings;

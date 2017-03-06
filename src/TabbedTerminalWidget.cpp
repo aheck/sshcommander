@@ -1,11 +1,10 @@
 #include "TabbedTerminalWidget.h"
 
-TabbedTerminalWidget::TabbedTerminalWidget(Preferences *preferences, std::weak_ptr<SSHConnectionEntry> connEntry, QWidget *parent) :
+TabbedTerminalWidget::TabbedTerminalWidget(std::weak_ptr<SSHConnectionEntry> connEntry, QWidget *parent) :
         QTabWidget(parent)
 {
     CustomTabBar* tabBar = new CustomTabBar();
 
-    this->preferences = preferences;
     this->connEntryWeak = connEntry;
     this->setTabBar(tabBar);
     this->setTabsClosable(true);
@@ -101,12 +100,14 @@ QTermWidget* TabbedTerminalWidget::createNewTermWidget(const QStringList *args, 
         connect(console, SIGNAL(receivedData(QString)), this, SLOT(dataReceived(QString)));
     }
 
+    Preferences &preferences = Preferences::getInstance();
+
     console->setAutoClose(false);
     console->setShellProgram(*program);
     console->setArgs(*args);
-    console->setTerminalFont(this->preferences->getTerminalFont());
+    console->setTerminalFont(preferences.getTerminalFont());
 
-    console->setColorScheme(this->preferences->getColorScheme());
+    console->setColorScheme(preferences.getColorScheme());
     console->setScrollBarPosition(QTermWidget::ScrollBarRight);
 
     return console;

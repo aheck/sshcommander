@@ -22,7 +22,10 @@ class Preferences : public QObject
     Q_OBJECT
 
 public:
-    Preferences();
+    static Preferences& getInstance();
+
+    Preferences(Preferences const &other) = delete;
+    void operator=(Preferences const &) = delete;
 
     void read();
     void save();
@@ -41,6 +44,9 @@ public:
     void setColorScheme(const QString colorScheme);
 
 private:
+    Preferences();
+    ~Preferences();
+
     bool hasDefaultTerminalFont;
     QFont defaultTerminalFont;
     QFont terminalFont;

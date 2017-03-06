@@ -37,9 +37,9 @@ class TerminalViewWidget : public QWidget
     Q_OBJECT
 
 public:
-    TerminalViewWidget(Preferences &preferences, QWidget *parent = 0);
+    TerminalViewWidget(QWidget *parent = 0);
 
-    void addConnection(Preferences &preferences, std::shared_ptr<SSHConnectionEntry> connEntry, TabbedTerminalWidget *tabs);
+    void addConnection(std::shared_ptr<SSHConnectionEntry> connEntry, TabbedTerminalWidget *tabs);
     void removeConnection(TabbedTerminalWidget *tabbedTerminal);
     void setCurrentConnection(int row);
     void setLastConnection();

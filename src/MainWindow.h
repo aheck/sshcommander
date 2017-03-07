@@ -27,12 +27,9 @@
 #include <qtermwidget.h>
 
 #include "AboutDialog.h"
-#include "AWSInfoWidget.h"
 #include "AWSWidget.h"
 #include "ConnectionListWidget.h"
 #include "DisabledWidget.h"
-#include "MachineInfoWidget.h"
-#include "NotesEditor.h"
 #include "NewDialog.h"
 #include "Preferences.h"
 #include "PreferencesDialog.h"

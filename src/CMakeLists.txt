@@ -11,13 +11,15 @@ QT5_ADD_RESOURCES (ProgramResources
 
 add_executable(sshcommander
     main.cpp
+    applets/AWSInfoWidget.cpp
+    applets/NotesEditor.cpp
+    applets/MachineInfoWidget.cpp
     AboutDialog.cpp
     Applet.cpp
     AppletWidget.cpp
     AWSCache.cpp
     AWSConnector.cpp
     AWSImage.cpp
-    AWSInfoWidget.cpp
     AWSInstance.cpp
     AWSRoute.cpp
     AWSRouteTable.cpp
@@ -34,10 +36,8 @@ add_executable(sshcommander
     ImageDialog.cpp
     InactiveSessionWidget.cpp
     InstanceItemModel.cpp
-    MachineInfoWidget.cpp
     MainWindow.cpp
     NewDialog.cpp
-    NotesEditor.cpp
     Preferences.cpp
     PreferencesDialog.cpp
     RouteTableViewWidget.cpp

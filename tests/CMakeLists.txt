@@ -5,13 +5,15 @@ include_directories("../src")
 add_executable(tests main.cpp
     InstanceItemModelTests.cpp
 
+    ../src/applets/AWSInfoWidget.cpp
+    ../src/applets/NotesEditor.cpp
+    ../src/applets/MachineInfoWidget.cpp
     ../src/AboutDialog.cpp
     ../src/Applet.cpp
     ../src/AppletWidget.cpp
     ../src/AWSCache.cpp
     ../src/AWSConnector.cpp
     ../src/AWSImage.cpp
-    ../src/AWSInfoWidget.cpp
     ../src/AWSInstance.cpp
     ../src/AWSRoute.cpp
     ../src/AWSRouteTable.cpp
@@ -28,10 +30,8 @@ add_executable(tests main.cpp
     ../src/ImageDialog.cpp
     ../src/InactiveSessionWidget.cpp
     ../src/InstanceItemModel.cpp
-    ../src/MachineInfoWidget.cpp
     ../src/MainWindow.cpp
     ../src/NewDialog.cpp
-    ../src/NotesEditor.cpp
     ../src/Preferences.cpp
     ../src/PreferencesDialog.cpp
     ../src/RouteTableViewWidget.cpp

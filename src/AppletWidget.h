@@ -10,9 +10,9 @@
 #include <QHBoxLayout>
 #include <QTabWidget>
 
-#include "AWSInfoWidget.h"
-#include "MachineInfoWidget.h"
-#include "NotesEditor.h"
+#include "applets/AWSInfoWidget.h"
+#include "applets/MachineInfoWidget.h"
+#include "applets/NotesEditor.h"
 #include "InactiveSessionWidget.h"
 #include "Preferences.h"
 #include "SSHConnectionEntry.h"

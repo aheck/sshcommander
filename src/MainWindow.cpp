@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setWindowIcon(QIcon(":/images/utilities-terminal.svg"));
 
     this->viewEnlarged = false;
-    this->enlargedWidget = nullptr;
+    this->awsConsoleDetached = false;
 
     // read in the user preferences from QSettings
     Preferences &preferences = Preferences::getInstance();
@@ -99,7 +99,11 @@ MainWindow::MainWindow(QWidget *parent) :
     this->widgetStack->addWidget(this->hiddenPage);
     this->widgetStack->setCurrentIndex(0);
 
-    setCentralWidget(this->widgetStack);
+    this->setCentralWidget(this->widgetStack);
+
+    this->awsConsoleWindow = new AWSConsoleWindow();
+    connect(this->awsWidget, SIGNAL(requestToggleDetach(bool)), this, SLOT(toggleDetachAwsConsole(bool)));
+    connect(this->awsConsoleWindow, SIGNAL(requestReattach()), this->awsWidget, SLOT(reattach()));
 
     this->readSettings();
 
@@ -425,5 +429,26 @@ void MainWindow::toggleAwsConsole(bool show)
         rightWidget->setCurrentIndex(1);
     } else {
         rightWidget->setCurrentIndex(0);
+    }
+}
+
+void MainWindow::toggleDetachAwsConsole(bool detach)
+{
+    if (detach) {
+        this->awsWidget->setParent(this->awsConsoleWindow);
+        this->awsConsoleWindow->layout()->addWidget(this->awsWidget);
+        this->rightWidget->setCurrentIndex(0);
+        this->awsWidget->show();
+        this->awsConsoleWindow->show();
+
+        this->connectionList->disableAWSConsoleButton();
+    } else {
+        this->awsConsoleWindow->layout()->removeWidget(this->awsWidget);
+        this->awsWidget->setParent(this->rightWidget);
+        this->rightWidget->addWidget(this->awsWidget);
+        this->rightWidget->setCurrentIndex(1);
+        this->awsConsoleWindow->hide();
+
+        this->connectionList->enableAWSConsoleButton();
     }
 }

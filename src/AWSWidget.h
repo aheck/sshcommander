@@ -42,6 +42,7 @@ public slots:
     void connectToAWS();
     void handleAWSResult(AWSResult *result);
     void loadData();
+    void reattach();
 
 public:
     AWSWidget();
@@ -54,6 +55,7 @@ signals:
             std::vector<std::shared_ptr<AWSInstance>> vpcNeighbours,
             bool toPrivateIP);
     void awsInstancesUpdated();
+    void requestToggleDetach(bool detach);
 
 private slots:
     void doubleClicked(const QModelIndex &index);
@@ -69,6 +71,7 @@ private slots:
     void copyItemToClipboard();
     void clearVpcComboBox();
     void selectVpc();
+    void toggleWindowMode(bool checked);
 
     void stopInstance();
     void startInstance();
@@ -105,6 +108,7 @@ private:
     bool requestRunning;
     bool firstTryToLogin;
     QAction *connectButton;
+    QAction *toggleWindowButton;
     QLabel *instanceNumLabel;
     SecurityGroupsDialog *securityGroupsDialog;
     TagsDialog *tagsDialog;

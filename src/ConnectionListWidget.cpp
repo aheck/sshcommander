@@ -207,3 +207,13 @@ void ConnectionListWidget::resetAWSConsoleButton()
 {
     this->awsConsoleAction->setChecked(false);
 }
+
+void ConnectionListWidget::disableAWSConsoleButton()
+{
+    this->awsConsoleAction->setEnabled(false);
+}
+
+void ConnectionListWidget::enableAWSConsoleButton()
+{
+    this->awsConsoleAction->setEnabled(true);
+}

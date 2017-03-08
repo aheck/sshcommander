@@ -45,6 +45,8 @@ public:
     void selectFirstConnection();
     const QString getSelectedUsernameAndHost();
     void resetAWSConsoleButton();
+    void disableAWSConsoleButton();
+    void enableAWSConsoleButton();
 
 public slots:
     void editConnection();

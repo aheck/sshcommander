@@ -13,6 +13,7 @@ add_executable(tests main.cpp
     ../src/AppletWidget.cpp
     ../src/AWSCache.cpp
     ../src/AWSConnector.cpp
+    ../src/AWSConsoleWindow.cpp
     ../src/AWSImage.cpp
     ../src/AWSInstance.cpp
     ../src/AWSRoute.cpp

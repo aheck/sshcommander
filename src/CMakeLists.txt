@@ -19,6 +19,7 @@ add_executable(sshcommander
     AppletWidget.cpp
     AWSCache.cpp
     AWSConnector.cpp
+    AWSConsoleWindow.cpp
     AWSImage.cpp
     AWSInstance.cpp
     AWSRoute.cpp

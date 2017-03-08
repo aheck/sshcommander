@@ -33,6 +33,10 @@ AWSWidget::AWSWidget()
     this->connectButton = this->toolBar->addAction(QIcon(":/images/applications-internet.svg"),
             "Connect to Instance", this, SLOT(connectToPublicIP()));
     this->connectButton->setEnabled(false);
+    this->toggleWindowButton = this->toolBar->addAction(QIcon(":/images/window-new.svg"),
+            "Detach Window");
+    connect(this->toggleWindowButton, SIGNAL(toggled(bool)), this, SLOT(toggleWindowMode(bool)));
+    this->toggleWindowButton->setCheckable(true);
     this->toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
 
     this->vpcComboBox = new QComboBox(this);
@@ -550,4 +554,20 @@ void AWSWidget::terminateInstance()
     this->awsConnector->setRegion(this->region);
 
     this->awsConnector->terminateInstances(instanceIds);
+}
+
+void AWSWidget::toggleWindowMode(bool checked)
+{
+    if (checked) {
+        this->toggleWindowButton->setToolTip(tr("Reattach Window"));
+    } else {
+        this->toggleWindowButton->setToolTip(tr("Detach Window"));
+    }
+
+    emit requestToggleDetach(checked);
+}
+
+void AWSWidget::reattach()
+{
+    this->toggleWindowButton->setChecked(false);
 }

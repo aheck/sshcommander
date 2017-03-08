@@ -22,11 +22,13 @@
 #include <QStackedWidget>
 #include <QToolBar>
 #include <QUrl>
+#include <QWindow>
 #include <QtDebug>
 
 #include <qtermwidget.h>
 
 #include "AboutDialog.h"
+#include "AWSConsoleWindow.h"
 #include "AWSWidget.h"
 #include "ConnectionListWidget.h"
 #include "DisabledWidget.h"
@@ -65,6 +67,7 @@ public slots:
 
 private slots:
     void toggleAwsConsole(bool show);
+    void toggleDetachAwsConsole(bool detach);
 
 private:
     std::shared_ptr<SSHConnectionEntry> getConnectionEntryByTermWidget(QTermWidget *console);
@@ -74,7 +77,7 @@ private:
     void selectConnection(std::shared_ptr<SSHConnectionEntry> connEntry);
 
     bool viewEnlarged;
-    QWidget *enlargedWidget;
+    bool awsConsoleDetached;
 
     QWidget *hiddenPage;
     QStackedWidget *widgetStack;
@@ -97,6 +100,11 @@ private:
     AWSWidget *awsWidget;
     ConnectionListWidget *connectionList;
     TerminalViewWidget *terminalView;
+
+    // this window is used for the AWS console when the user detaches it from
+    // the main window
+    AWSConsoleWindow *awsConsoleWindow;
+
     // we remove terminalView from and add it again to this container when
     // toggling enlarged view
     QWidget *terminalViewContainer;

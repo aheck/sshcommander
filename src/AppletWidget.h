@@ -13,6 +13,7 @@
 #include "applets/AWSInfoWidget.h"
 #include "applets/MachineInfoWidget.h"
 #include "applets/NotesEditor.h"
+#include "applets/PortsApplet.h"
 #include "InactiveSessionWidget.h"
 #include "Preferences.h"
 #include "SSHConnectionEntry.h"

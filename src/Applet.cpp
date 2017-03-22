@@ -24,3 +24,13 @@ void Applet::init(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
     this->connEntry = connEntry;
 }
+
+void Applet::onFirstShow()
+{
+
+}
+
+void Applet::onShow()
+{
+
+}

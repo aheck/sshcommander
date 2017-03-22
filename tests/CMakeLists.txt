@@ -8,6 +8,7 @@ add_executable(tests main.cpp
     ../src/applets/AWSInfoWidget.cpp
     ../src/applets/NotesEditor.cpp
     ../src/applets/MachineInfoWidget.cpp
+    ../src/applets/PortsApplet.cpp
     ../src/AboutDialog.cpp
     ../src/Applet.cpp
     ../src/AppletWidget.cpp

@@ -14,6 +14,7 @@ add_executable(sshcommander
     applets/AWSInfoWidget.cpp
     applets/NotesEditor.cpp
     applets/MachineInfoWidget.cpp
+    applets/PortsApplet.cpp
     AboutDialog.cpp
     Applet.cpp
     AppletWidget.cpp

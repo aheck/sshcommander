@@ -10,6 +10,7 @@ AppletWidget::AppletWidget(std::shared_ptr<SSHConnectionEntry> connEntry, QWidge
     if (connEntry->isAwsInstance) {
         this->applets.append(new AWSInfoWidget());
     }
+    this->applets.append(new PortsApplet());
 
     // create the tab where the applets reside
     this->appletTab = new QTabWidget();

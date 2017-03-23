@@ -21,5 +21,8 @@
     <file>images/connection-type-aws.svg</file>
     <file>images/edit-clear.svg</file>
     <file>images/window-new.svg</file>
+    <file>images/computer.svg</file>
+    <file>images/network-wired.svg</file>
+    <file>images/accessories-text-editor.svg</file>
 </qresource>
 </RCC>

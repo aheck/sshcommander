@@ -88,7 +88,7 @@ const QString NotesEditor::getDisplayName()
 
 QIcon NotesEditor::getIcon()
 {
-    return QIcon();
+    return QIcon(":/images/accessories-text-editor.svg");
 }
 
 void NotesEditor::init(std::shared_ptr<SSHConnectionEntry> connEntry)

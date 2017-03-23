@@ -87,7 +87,7 @@ const QString MachineInfoWidget::getDisplayName()
 
 QIcon MachineInfoWidget::getIcon()
 {
-    return QIcon();
+    return QIcon(":/images/computer.svg");
 }
 
 void MachineInfoWidget::init(std::shared_ptr<SSHConnectionEntry> connEntry)

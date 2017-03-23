@@ -33,7 +33,7 @@ const QString PortsApplet::getDisplayName()
 
 QIcon PortsApplet::getIcon()
 {
-    return QIcon();
+    return QIcon(":/images/network-wired.svg");
 }
 
 void PortsApplet::init(std::shared_ptr<SSHConnectionEntry> connEntry)

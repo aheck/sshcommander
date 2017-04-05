@@ -33,6 +33,7 @@
 #include "Preferences.h"
 #include "SecurityGroupsDialog.h"
 #include "TagsDialog.h"
+#include "VpcDialog.h"
 
 class AWSWidget : public QWidget
 {
@@ -67,9 +68,11 @@ private slots:
     void showInstanceContextMenu(QPoint pos);
     void showSecurityGroups();
     void showTags();
+    void showVpcDialog();
     void searchForText(const QString &text);
     void copyItemToClipboard();
     void clearVpcComboBox();
+    void updateShowVpcButton();
     void selectVpc();
     void toggleWindowMode(bool checked);
 
@@ -109,7 +112,9 @@ private:
     bool firstTryToLogin;
     QAction *connectButton;
     QAction *toggleWindowButton;
+    QAction *showVpcButton;
     QLabel *instanceNumLabel;
+    VpcDialog *vpcDialog;
     SecurityGroupsDialog *securityGroupsDialog;
     TagsDialog *tagsDialog;
 

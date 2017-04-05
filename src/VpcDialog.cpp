@@ -60,6 +60,25 @@ VpcDialog::VpcDialog()
     this->setLayout(layout);
 }
 
+void VpcDialog::showDialog(AWSConnector *connector, const QString vpcId, const QString vpcName)
+{
+    if (vpcName.isEmpty()) {
+        this->setWindowTitle("VPC " + vpcId);
+    } else {
+        this->setWindowTitle("VPC " + vpcName + "(" + vpcId + ")");
+    }
+
+    this->clear();
+
+    if (!vpcId.isEmpty()) {
+        QList<QString> vpcIds;
+        vpcIds.append(vpcId);
+        connector->describeVpcs(vpcIds, "VpcDialog");
+    }
+
+    this->exec();
+}
+
 void VpcDialog::showDialog(AWSConnector *connector, std::shared_ptr<AWSInstance> instance)
 {
     QString title;
@@ -75,7 +94,7 @@ void VpcDialog::showDialog(AWSConnector *connector, std::shared_ptr<AWSInstance>
     if (!instance->vpcId.isEmpty()) {
         QList<QString> vpcIds;
         vpcIds.append(instance->vpcId);
-        connector->describeVpcs(vpcIds);
+        connector->describeVpcs(vpcIds, "VpcDialog");
     }
 
     this->exec();

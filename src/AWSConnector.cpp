@@ -57,13 +57,13 @@ void AWSConnector::setRegion(QString region)
     this->region = region;
 }
 
-void AWSConnector::sendRequest(const QString action)
+void AWSConnector::sendRequest(const QString action, const QString userType)
 {
     QList<QString> extraParams;
     this->sendRequest(action, extraParams);
 }
 
-void AWSConnector::sendRequest(const QString action, QList<QString> &extraParams)
+void AWSConnector::sendRequest(const QString action, QList<QString> &extraParams, const QString userType)
 {
     QDateTime now = QDateTime::currentDateTimeUtc();
     QList<QString> params = extraParams;
@@ -121,16 +121,17 @@ void AWSConnector::sendRequest(const QString action, QList<QString> &extraParams
     req.setSslConfiguration(sslConfiguration);
     req.setRawHeader(QByteArray("Authorization"), authorizationHeader.toUtf8());
     req.setRawHeader(QByteArray("x-amz-date"), paramAmzDate.toUtf8());
-    networkManager.get(req);
+    QNetworkReply *reply = networkManager.get(req);
+    reply->setProperty("userType", QVariant(userType));
 }
 
-void AWSConnector::describeInstances()
+void AWSConnector::describeInstances(const QString userType)
 {
     QList<QString> extraParams;
-    this->sendRequest("DescribeInstances", extraParams);
+    this->sendRequest("DescribeInstances", extraParams, userType);
 }
 
-void AWSConnector::describeInstances(QList<QString> &instanceIds)
+void AWSConnector::describeInstances(QList<QString> &instanceIds, const QString userType)
 {
     QList<QString> extraParams;
     for (int i = 0; i < instanceIds.count(); i++) {
@@ -138,10 +139,10 @@ void AWSConnector::describeInstances(QList<QString> &instanceIds)
         extraParams.append(instanceIdParam);
     }
 
-    this->sendRequest("DescribeInstances", extraParams);
+    this->sendRequest("DescribeInstances", extraParams, userType);
 }
 
-void AWSConnector::describeSecurityGroups(QList<QString> &groupIds)
+void AWSConnector::describeSecurityGroups(QList<QString> &groupIds, const QString userType)
 {
     QList<QString> extraParams;
     for (int i = 0; i < groupIds.count(); i++) {
@@ -149,10 +150,10 @@ void AWSConnector::describeSecurityGroups(QList<QString> &groupIds)
         extraParams.append(groupIdParam);
     }
 
-    this->sendRequest("DescribeSecurityGroups", extraParams);
+    this->sendRequest("DescribeSecurityGroups", extraParams, userType);
 }
 
-void AWSConnector::describeSubnets(QList<QString> &subnetIds)
+void AWSConnector::describeSubnets(QList<QString> &subnetIds, const QString userType)
 {
     QList<QString> extraParams;
     for (int i = 0; i < subnetIds.count(); i++) {
@@ -160,16 +161,16 @@ void AWSConnector::describeSubnets(QList<QString> &subnetIds)
         extraParams.append(subnetIdParam);
     }
 
-    this->sendRequest("DescribeSubnets", extraParams);
+    this->sendRequest("DescribeSubnets", extraParams, userType);
 }
 
-void AWSConnector::describeVpcs()
+void AWSConnector::describeVpcs(const QString userType)
 {
     QList<QString> vpcIds;
-    this->sendRequest("DescribeVpcs", vpcIds);
+    this->sendRequest("DescribeVpcs", vpcIds, userType);
 }
 
-void AWSConnector::describeVpcs(QList<QString> &vpcIds)
+void AWSConnector::describeVpcs(QList<QString> &vpcIds, const QString userType)
 {
     QList<QString> extraParams;
     for (int i = 0; i < vpcIds.count(); i++) {
@@ -177,10 +178,10 @@ void AWSConnector::describeVpcs(QList<QString> &vpcIds)
         extraParams.append(vpcIdParam);
     }
 
-    this->sendRequest("DescribeVpcs", extraParams);
+    this->sendRequest("DescribeVpcs", extraParams, userType);
 }
 
-void AWSConnector::describeImages(QList<QString> &imageIds)
+void AWSConnector::describeImages(QList<QString> &imageIds, const QString userType)
 {
     QList<QString> extraParams;
     for (int i = 0; i < imageIds.count(); i++) {
@@ -188,17 +189,17 @@ void AWSConnector::describeImages(QList<QString> &imageIds)
         extraParams.append(imageIdParam);
     }
 
-    this->sendRequest("DescribeImages", extraParams);
+    this->sendRequest("DescribeImages", extraParams, userType);
 }
 
-void AWSConnector::describeRouteTables()
+void AWSConnector::describeRouteTables(const QString userType)
 {
     QList<QString> extraParams;
 
-    this->sendRequest("DescribeRouteTables", extraParams);
+    this->sendRequest("DescribeRouteTables", extraParams, userType);
 }
 
-void AWSConnector::describeRouteTablesWithSubnetId(QString &subnetId)
+void AWSConnector::describeRouteTablesWithSubnetId(QString &subnetId, const QString userType)
 {
     QList<QString> extraParams;
     QString filterName = "Filter.1.Name=association.subnet-id";
@@ -206,10 +207,10 @@ void AWSConnector::describeRouteTablesWithSubnetId(QString &subnetId)
     extraParams.append(filterName);
     extraParams.append(filterValue);
 
-    this->sendRequest("DescribeRouteTables", extraParams);
+    this->sendRequest("DescribeRouteTables", extraParams, userType);
 }
 
-void AWSConnector::describeRouteTableMain(QString &vpcId)
+void AWSConnector::describeRouteTableMain(QString &vpcId, const QString userType)
 {
     QList<QString> extraParams;
     QString filterName = "Filter.1.Name=association.main";
@@ -222,7 +223,7 @@ void AWSConnector::describeRouteTableMain(QString &vpcId)
     extraParams.append(filterName);
     extraParams.append(filterValue);
 
-    this->sendRequest("DescribeRouteTables", extraParams);
+    this->sendRequest("DescribeRouteTables", extraParams, userType);
 }
 
 void AWSConnector::replyFinished(QNetworkReply *reply)
@@ -245,6 +246,8 @@ void AWSConnector::replyFinished(QNetworkReply *reply)
     } else {
         result->isSuccess = true;
     }
+
+    result->userType = reply->property("userType").toString();
 
     reply->deleteLater();
     reply = nullptr;

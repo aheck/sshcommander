@@ -24,5 +24,6 @@
     <file>images/computer.svg</file>
     <file>images/network-wired.svg</file>
     <file>images/accessories-text-editor.svg</file>
+    <file>images/dialog-information.svg</file>
 </qresource>
 </RCC>

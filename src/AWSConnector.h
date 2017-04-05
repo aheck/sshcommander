@@ -38,6 +38,7 @@ struct AWSResult
     int httpStatus;
     QString responseType;
     QString httpBody;
+    QString userType; // a type defined by the user to identify a response
 };
 
 struct AWSFilter
@@ -72,22 +73,22 @@ public:
     void setSecretKey(QString secretKey);
     void setRegion(QString region);
 
-    void sendRequest(const QString action);
-    void sendRequest(const QString action, QList<QString> &extraParams);
+    void sendRequest(const QString action, const QString userType = "");
+    void sendRequest(const QString action, QList<QString> &extraParams, const QString userType = "");
 
     // These methods execute actual AWS API calls. They have no return value
     // because the API is asynchronous. To receive replies the caller has to
     // connect to the awsReplyReceived signal.
-    void describeInstances();
-    void describeInstances(QList<QString> &instanceIds);
-    void describeSecurityGroups(QList<QString> &groupIds);
-    void describeSubnets(QList<QString> &subnetIds);
-    void describeVpcs();
-    void describeVpcs(QList<QString> &vpcIds);
-    void describeImages(QList<QString> &imageIds);
-    void describeRouteTables();
-    void describeRouteTablesWithSubnetId(QString &subnetId);
-    void describeRouteTableMain(QString &vpcId);
+    void describeInstances(const QString userType = "");
+    void describeInstances(QList<QString> &instanceIds, const QString userType = "");
+    void describeSecurityGroups(QList<QString> &groupIds, const QString userType = "");
+    void describeSubnets(QList<QString> &subnetIds, const QString userType = "");
+    void describeVpcs(const QString userType = "");
+    void describeVpcs(QList<QString> &vpcIds, const QString userType = "");
+    void describeImages(QList<QString> &imageIds, const QString userType = "");
+    void describeRouteTables(const QString userType = "");
+    void describeRouteTablesWithSubnetId(QString &subnetId, const QString userType = "");
+    void describeRouteTableMain(QString &vpcId, const QString userType = "");
 
     void stopInstances(QList<QString> instanceIds);
     void startInstances(QList<QString> instanceIds);

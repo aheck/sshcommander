@@ -12,6 +12,7 @@ AWSWidget::AWSWidget()
 
     this->securityGroupsDialog = new SecurityGroupsDialog();
     this->tagsDialog = new TagsDialog();
+    this->vpcDialog = new VpcDialog();
 
     // build the loginWidget
     this->loginWidget = new QWidget();
@@ -45,6 +46,8 @@ AWSWidget::AWSWidget()
     this->vpcComboBox->setToolTip(tr("Virtual Private Cloud (VPC)"));
     QObject::connect(this->vpcComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeVpc(int)));
     this->vpcToolBar = new QToolBar("vpcToolBar", this->mainWidget);
+    this->showVpcButton = this->vpcToolBar->addAction(QIcon(":/images/dialog-information.svg"), "Show VPC Details", this, SLOT(showVpcDialog()));
+    this->showVpcButton->setEnabled(false);
     this->vpcToolBar->addAction(QIcon(":/images/edit-clear.svg"), "Clear VPC", this, SLOT(clearVpcComboBox()));
 
     this->searchLineEdit = new QLineEdit(this);
@@ -251,11 +254,18 @@ void AWSWidget::handleAWSResult(AWSResult *result)
         } else if (result->responseType == "DescribeVpcsResponse") {
             std::vector<std::shared_ptr<AWSVpc>> vpcs = parseDescribeVpcsResponse(result, this->region);
 
-            this->updateVpcs(vpcs);
+            if (result->userType == "VpcDialog") {
+                this->vpcDialog->updateData(vpcs);
 
-            AWSCache &cache = AWSCache::getInstance();
-            cache.clearVpcs(this->region);
-            cache.updateVpcs(this->region, vpcs);
+                AWSCache &cache = AWSCache::getInstance();
+                cache.updateVpcs(this->region, vpcs);
+            } else {
+                this->updateVpcs(vpcs);
+
+                AWSCache &cache = AWSCache::getInstance();
+                cache.clearVpcs(this->region);
+                cache.updateVpcs(this->region, vpcs);
+            }
 
             this->instanceModel->resolveAllReferences();
         }
@@ -285,7 +295,7 @@ void AWSWidget::changeVpc(int index)
     }
 
     this->selectedVpcId = this->vpcComboBox->currentData(Qt::UserRole).toString();
-    std::cout << "selectedVpcId: " << this->selectedVpcId.toStdString() << std::endl;
+    this->updateShowVpcButton();
     this->instanceModel->setVpcFilter(this->selectedVpcId);
 }
 
@@ -405,6 +415,15 @@ void AWSWidget::showTags()
     this->tagsDialog->showDialog(instance);
 }
 
+void AWSWidget::showVpcDialog()
+{
+    if (this->vpcComboBox->currentIndex() == 0) {
+        return;
+    }
+
+    this->vpcDialog->showDialog(this->awsConnector, this->vpcComboBox->currentData().toString(), "");
+}
+
 void AWSWidget::searchForText(const QString &text)
 {
     this->instanceModel->setSearchTextFilter(text);
@@ -452,11 +471,18 @@ void AWSWidget::updateVpcs(std::vector<std::shared_ptr<AWSVpc>> &vpcs)
             this->vpcComboBox->setCurrentIndex(currentIndex);
         }
     }
+
+    this->updateShowVpcButton();
 }
 
 void AWSWidget::clearVpcComboBox()
 {
     this->vpcComboBox->setCurrentIndex(0);
+    this->showVpcButton->setEnabled(false);
+}
+
+void AWSWidget::updateShowVpcButton() {
+    this->showVpcButton->setEnabled(this->vpcComboBox->currentIndex() != 0);
 }
 
 void AWSWidget::selectVpc()
@@ -465,6 +491,7 @@ void AWSWidget::selectVpc()
 
     if (index > -1) {
         this->vpcComboBox->setCurrentIndex(index);
+        this->updateShowVpcButton();
     }
 }
 

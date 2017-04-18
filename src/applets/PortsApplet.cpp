@@ -11,12 +11,10 @@ PortsApplet::PortsApplet()
     this->layout()->setContentsMargins(0, 0, 0, 0);
     this->layout()->addWidget(this->toolBar);
 
-    this->table = new QTableWidget(this);
-    QStringList columnNames = {"Protocol", "Local Address", "Local Port", "Foreign Address", "Foreign Port", "State"};
-    this->table->setColumnCount(6);
+    this->table = new QTableView(this);
+    this->model = new PortsItemModel();
+    this->table->setModel(this->model);
     this->table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    this->table->verticalHeader()->setVisible(false);
-    this->table->setHorizontalHeaderLabels(columnNames);
     this->table->horizontalHeader()->setStretchLastSection(true);
     this->table->setSelectionBehavior(QAbstractItemView::SelectRows);
     this->table->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -60,52 +58,7 @@ void PortsApplet::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult)
         return;
     }
 
-    QStringList lines = cmdResult->resultString.trimmed().split("\n");
-
-    // remove the two header lines
-    if (lines.count() > 2) {
-        lines.removeFirst();
-        lines.removeFirst();
-    }
-
-    QRegularExpression spaceRegExp("\\s+");
-    QRegularExpression hostnameRegExp("^(.*):(\\d+|\\*)$");
-    this->table->setRowCount(lines.count());
-
-    for (int i = 0; i < lines.count(); i++) {
-        QString line = lines.at(i);
-
-        QStringList fields = line.split(spaceRegExp);
-
-        if (fields.count() < 5) {
-            continue;
-        }
-
-        // protocol
-        this->table->setItem(i, 0, new QTableWidgetItem(fields.at(0)));
-
-        // local address and local port
-        QString localAddressAndPort = fields.at(3);
-
-        QRegularExpressionMatch match = hostnameRegExp.match(localAddressAndPort);
-        if (match.hasMatch()) {
-            this->table->setItem(i, 1, new QTableWidgetItem(match.captured(1)));
-            this->table->setItem(i, 2, new QTableWidgetItem(match.captured(2)));
-        }
-
-        // foreign address and foreign port
-        QString foreignAddressAndPort = fields.at(4);
-
-        match = hostnameRegExp.match(foreignAddressAndPort);
-        if (match.hasMatch()) {
-            this->table->setItem(i, 3, new QTableWidgetItem(match.captured(1)));
-            this->table->setItem(i, 4, new QTableWidgetItem(match.captured(2)));
-        }
-
-        if (fields.count() >= 6) {
-            this->table->setItem(i, 5, new QTableWidgetItem(fields.at(5)));
-        }
-    }
+    this->model->updateData(cmdResult->resultString);
 }
 
 void PortsApplet::reloadData()

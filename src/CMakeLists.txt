@@ -15,6 +15,7 @@ add_executable(sshcommander
     applets/NotesEditor.cpp
     applets/MachineInfoWidget.cpp
     applets/PortsApplet.cpp
+    applets/PortsItemModel.cpp
     AboutDialog.cpp
     Applet.cpp
     AppletWidget.cpp

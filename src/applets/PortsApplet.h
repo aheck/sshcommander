@@ -5,12 +5,11 @@
 #include <memory>
 
 #include <QHeaderView>
-#include <QRegularExpression>
-#include <QRegularExpressionMatch>
-#include <QTableWidget>
+#include <QTableView>
 #include <QToolBar>
 
 #include "Applet.h"
+#include "PortsItemModel.h"
 #include "SSHConnectionManager.h"
 
 class PortsApplet : public Applet
@@ -34,7 +33,8 @@ public slots:
 
 private:
     QToolBar *toolBar;
-    QTableWidget *table;
+    QTableView *table;
+    PortsItemModel *model;
 };
 
 #endif

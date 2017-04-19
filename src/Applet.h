@@ -26,11 +26,13 @@ public:
     virtual QIcon getIcon();
 
     virtual void init(std::shared_ptr<SSHConnectionEntry> connEntry);
-    virtual void onFirstShow();
     virtual void onShow();
 
 protected:
     std::shared_ptr<SSHConnectionEntry> connEntry;
+
+private:
+    bool firstShow;
 };
 
 #endif

@@ -2,6 +2,7 @@
 
 PortsApplet::PortsApplet()
 {
+    this->firstShow = true;
     this->toolBar = new QToolBar();
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
             "Reload", this, SLOT(reloadData()));
@@ -37,11 +38,15 @@ QIcon PortsApplet::getIcon()
 void PortsApplet::init(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
     Applet::init(connEntry);
-    this->onFirstShow();
 }
 
-void PortsApplet::onFirstShow()
+void PortsApplet::onShow()
 {
+    if (!this->firstShow) {
+        return;
+    }
+
+    this->firstShow = false;
     this->updateData();
 }
 

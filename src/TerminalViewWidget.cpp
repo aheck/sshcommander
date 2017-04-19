@@ -78,6 +78,10 @@ void TerminalViewWidget::setCurrentConnection(int row)
 {
     this->terminalStack->setCurrentIndex(row);
     this->appletStack->setCurrentIndex(row);
+
+    // Send the currently shown Applet a onShow signal
+    AppletWidget *currentAppletWidget = static_cast<AppletWidget*>(this->appletStack->currentWidget());
+    currentAppletWidget->appletChanged(-1);
 }
 
 void TerminalViewWidget::setLastConnection()

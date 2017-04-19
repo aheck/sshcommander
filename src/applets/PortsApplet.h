@@ -23,7 +23,7 @@ public:
     virtual const QString getDisplayName() override;
     virtual QIcon getIcon() override;
     virtual void init(std::shared_ptr<SSHConnectionEntry> connEntry) override;
-    virtual void onFirstShow() override;
+    virtual void onShow() override;
 
     void updateData();
 
@@ -35,6 +35,7 @@ private:
     QToolBar *toolBar;
     QTableView *table;
     PortsItemModel *model;
+    bool firstShow;
 };
 
 #endif

@@ -26,6 +26,9 @@ public:
     AppletWidget(std::shared_ptr<SSHConnectionEntry> connEntry, QWidget *parent = 0);
     ~AppletWidget();
 
+public slots:
+    void appletChanged(int index);
+
 private:
     QList<Applet*> applets;
     QTabWidget *appletTab;

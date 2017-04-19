@@ -2,6 +2,8 @@
 
 MachineInfoWidget::MachineInfoWidget()
 {
+    this->firstShow = true;
+
     this->page = new QWidget();
     this->page->setObjectName("scrollAreaContent");
 
@@ -93,13 +95,20 @@ QIcon MachineInfoWidget::getIcon()
 void MachineInfoWidget::init(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
     Applet::init(connEntry);
-    this->updateData(connEntry);
 }
 
-void MachineInfoWidget::updateData(std::shared_ptr<SSHConnectionEntry> connEntry)
+void MachineInfoWidget::onShow()
 {
-    this->connEntry = connEntry;
+    if (!this->firstShow) {
+        return;
+    }
 
+    this->firstShow = false;
+    this->updateData();
+}
+
+void MachineInfoWidget::updateData()
+{
     this->valueHostname->setText(connEntry->hostname);
     this->valueUsername->setText(connEntry->username);
 

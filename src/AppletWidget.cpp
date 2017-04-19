@@ -14,10 +14,13 @@ AppletWidget::AppletWidget(std::shared_ptr<SSHConnectionEntry> connEntry, QWidge
 
     // create the tab where the applets reside
     this->appletTab = new QTabWidget();
+
     for (auto applet : this->applets) {
         this->appletTab->addTab(applet, applet->getIcon(), applet->getDisplayName());
         applet->init(connEntry);
     }
+
+    connect(this->appletTab, SIGNAL(currentChanged(int)), this, SLOT(appletChanged(int)));
 
     this->setLayout(new QHBoxLayout());
     this->layout()->setContentsMargins(0, 0, 0, 0);
@@ -27,4 +30,10 @@ AppletWidget::AppletWidget(std::shared_ptr<SSHConnectionEntry> connEntry, QWidge
 AppletWidget::~AppletWidget()
 {
 
+}
+
+void AppletWidget::appletChanged(int index)
+{
+    Applet *applet = static_cast<Applet*>(this->appletTab->currentWidget());
+    applet->onShow();
 }

@@ -26,14 +26,14 @@ public:
     virtual const QString getDisplayName() override;
     virtual QIcon getIcon() override;
     virtual void init(std::shared_ptr<SSHConnectionEntry> connEntry) override;
+    virtual void onShow() override;
 
-    void updateData(std::shared_ptr<SSHConnectionEntry> connEntry);
+    void updateData();
 
 public slots:
     void sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult);
 
 private:
-    std::shared_ptr<SSHConnectionEntry> connEntry;
     QWidget *page;
     QLabel *valueHostname;
     QLabel *valueOperatingSystem;
@@ -44,6 +44,7 @@ private:
     QLabel *valueSSHCommand;
     QLabel *valueSCPCommand;
     QLabel *valueSCPDirCommand;
+    bool firstShow;
 };
 
 #endif

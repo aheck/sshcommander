@@ -1,6 +1,6 @@
-#include "AWSInfoWidget.h"
+#include "AWSInfoApplet.h"
 
-AWSInfoWidget::AWSInfoWidget()
+AWSInfoApplet::AWSInfoApplet()
 {
     this->securityGroupsDialog = new SecurityGroupsDialog();
     this->imageDialog = new ImageDialog();
@@ -137,29 +137,29 @@ AWSInfoWidget::AWSInfoWidget()
     this->setLayout(mainLayout);
 }
 
-AWSInfoWidget::~AWSInfoWidget()
+AWSInfoApplet::~AWSInfoApplet()
 {
     delete this->securityGroupsDialog;
     delete this->awsConnector;
 }
 
-const QString AWSInfoWidget::getDisplayName()
+const QString AWSInfoApplet::getDisplayName()
 {
     return "AWS";
 }
 
-QIcon AWSInfoWidget::getIcon()
+QIcon AWSInfoApplet::getIcon()
 {
     return QIcon(":/images/connection-type-aws.svg");
 }
 
-void AWSInfoWidget::init(std::shared_ptr<SSHConnectionEntry> connEntry)
+void AWSInfoApplet::init(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
     Applet::init(connEntry);
     this->updateData(connEntry->awsInstance);
 }
 
-void AWSInfoWidget::updateData(std::shared_ptr<AWSInstance> newInstance)
+void AWSInfoApplet::updateData(std::shared_ptr<AWSInstance> newInstance)
 {
     newInstance->copyResolvedReferences(this->instance);
     this->instance = newInstance;
@@ -200,7 +200,7 @@ void AWSInfoWidget::updateData(std::shared_ptr<AWSInstance> newInstance)
     this->tagsViewer->updateData(this->instance->tags);
 }
 
-void AWSInfoWidget::handleAWSResult(AWSResult *result)
+void AWSInfoApplet::handleAWSResult(AWSResult *result)
 {
     std::cout << "AWS Result received in AWSWidget" << std::endl;
     std::cout << "Success: " << result->isSuccess << std::endl;
@@ -280,7 +280,7 @@ void AWSInfoWidget::handleAWSResult(AWSResult *result)
     delete result;
 }
 
-void AWSInfoWidget::showSecurityGroups()
+void AWSInfoApplet::showSecurityGroups()
 {
     Preferences &preferences = Preferences::getInstance();
 
@@ -291,7 +291,7 @@ void AWSInfoWidget::showSecurityGroups()
     this->securityGroupsDialog->showDialog(this->awsConnector, instance);
 }
 
-void AWSInfoWidget::showImage()
+void AWSInfoApplet::showImage()
 {
     Preferences &preferences = Preferences::getInstance();
 
@@ -302,7 +302,7 @@ void AWSInfoWidget::showImage()
     this->imageDialog->showDialog(this->awsConnector, instance);
 }
 
-void AWSInfoWidget::showVpc()
+void AWSInfoApplet::showVpc()
 {
     Preferences &preferences = Preferences::getInstance();
 
@@ -313,7 +313,7 @@ void AWSInfoWidget::showVpc()
     this->vpcDialog->showDialog(this->awsConnector, instance);
 }
 
-void AWSInfoWidget::showSubnet()
+void AWSInfoApplet::showSubnet()
 {
     Preferences &preferences = Preferences::getInstance();
 
@@ -324,7 +324,7 @@ void AWSInfoWidget::showSubnet()
     this->subnetDialog->showDialog(this->awsConnector, instance);
 }
 
-void AWSInfoWidget::reloadInstanceData()
+void AWSInfoApplet::reloadInstanceData()
 {
     Preferences &preferences = Preferences::getInstance();
 

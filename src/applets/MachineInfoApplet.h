@@ -1,5 +1,5 @@
-#ifndef MACHINEINFOWIDGET_H
-#define MACHINEINFOWIDGET_H
+#ifndef MACHINEINFOAPPLET_H
+#define MACHINEINFOAPPLET_H
 
 #include <memory>
 
@@ -15,12 +15,12 @@
 #include "SSHConnectionManager.h"
 #include "SSHConnectionEntry.h"
 
-class MachineInfoWidget : public Applet
+class MachineInfoApplet : public Applet
 {
     Q_OBJECT
 
 public:
-    MachineInfoWidget();
+    MachineInfoApplet();
 
     // implement the Applet interface
     virtual const QString getDisplayName() override;

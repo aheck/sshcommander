@@ -10,8 +10,8 @@
 #include <QHBoxLayout>
 #include <QTabWidget>
 
-#include "applets/AWSInfoWidget.h"
-#include "applets/MachineInfoWidget.h"
+#include "applets/AWSInfoApplet.h"
+#include "applets/MachineInfoApplet.h"
 #include "applets/NotesEditor.h"
 #include "applets/PortsApplet.h"
 #include "InactiveSessionWidget.h"

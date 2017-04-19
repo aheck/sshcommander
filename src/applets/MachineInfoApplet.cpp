@@ -1,6 +1,6 @@
-#include "MachineInfoWidget.h"
+#include "MachineInfoApplet.h"
 
-MachineInfoWidget::MachineInfoWidget()
+MachineInfoApplet::MachineInfoApplet()
 {
     this->firstShow = true;
 
@@ -82,22 +82,22 @@ MachineInfoWidget::MachineInfoWidget()
     this->setLayout(layout);
 }
 
-const QString MachineInfoWidget::getDisplayName()
+const QString MachineInfoApplet::getDisplayName()
 {
     return tr("Machine");
 }
 
-QIcon MachineInfoWidget::getIcon()
+QIcon MachineInfoApplet::getIcon()
 {
     return QIcon(":/images/computer.svg");
 }
 
-void MachineInfoWidget::init(std::shared_ptr<SSHConnectionEntry> connEntry)
+void MachineInfoApplet::init(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
     Applet::init(connEntry);
 }
 
-void MachineInfoWidget::onShow()
+void MachineInfoApplet::onShow()
 {
     if (!this->firstShow) {
         return;
@@ -107,7 +107,7 @@ void MachineInfoWidget::onShow()
     this->updateData();
 }
 
-void MachineInfoWidget::updateData()
+void MachineInfoApplet::updateData()
 {
     this->valueHostname->setText(connEntry->hostname);
     this->valueUsername->setText(connEntry->username);
@@ -120,7 +120,7 @@ void MachineInfoWidget::updateData()
     connMgr.executeRemoteCmd(this->connEntry, "uname -s -r -i", this, "sshResultReceived");
 }
 
-void MachineInfoWidget::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult)
+void MachineInfoApplet::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult)
 {
     if (!cmdResult->isSuccess) {
         std::cout << "ERROR: SSH remote command failed: " << cmdResult->errorString.toStdString() << std::endl;

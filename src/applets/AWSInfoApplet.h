@@ -1,5 +1,5 @@
-#ifndef AWSINFOWIDGET_H
-#define AWSINFOWIDGET_H
+#ifndef AWSINFOAPPLET_H
+#define AWSINFOAPPLET_H
 
 #include <memory>
 
@@ -24,13 +24,13 @@
 #include "TagsViewWidget.h"
 #include "VpcDialog.h"
 
-class AWSInfoWidget : public Applet
+class AWSInfoApplet : public Applet
 {
     Q_OBJECT
 
 public:
-    AWSInfoWidget();
-    ~AWSInfoWidget();
+    AWSInfoApplet();
+    ~AWSInfoApplet();
 
     virtual const QString getDisplayName() override;
     virtual QIcon getIcon() override;

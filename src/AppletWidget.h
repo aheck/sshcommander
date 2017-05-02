@@ -14,6 +14,7 @@
 #include "applets/MachineInfoApplet.h"
 #include "applets/NotesEditor.h"
 #include "applets/PortsApplet.h"
+#include "applets/RoutesApplet.h"
 #include "InactiveSessionWidget.h"
 #include "Preferences.h"
 #include "SSHConnectionEntry.h"

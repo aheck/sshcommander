@@ -10,6 +10,8 @@ add_executable(tests main.cpp
     ../src/applets/MachineInfoApplet.cpp
     ../src/applets/PortsApplet.cpp
     ../src/applets/PortsItemModel.cpp
+    ../src/applets/RoutesApplet.cpp
+    ../src/applets/RoutesItemModel.cpp
     ../src/AboutDialog.cpp
     ../src/Applet.cpp
     ../src/AppletWidget.cpp

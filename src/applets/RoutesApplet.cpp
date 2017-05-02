@@ -1,6 +1,6 @@
-#include "PortsApplet.h"
+#include "RoutesApplet.h"
 
-PortsApplet::PortsApplet()
+RoutesApplet::RoutesApplet()
 {
     this->firstShow = true;
     this->toolBar = new QToolBar();
@@ -13,7 +13,7 @@ PortsApplet::PortsApplet()
     this->layout()->addWidget(this->toolBar);
 
     this->table = new QTableView(this);
-    this->model = new PortsItemModel();
+    this->model = new RoutesItemModel();
     this->table->setModel(this->model);
     this->table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     this->table->horizontalHeader()->setStretchLastSection(true);
@@ -25,22 +25,22 @@ PortsApplet::PortsApplet()
     this->layout()->addWidget(this->table);
 }
 
-const QString PortsApplet::getDisplayName()
+const QString RoutesApplet::getDisplayName()
 {
-    return tr("Ports");
+    return tr("Routes");
 }
 
-QIcon PortsApplet::getIcon()
+QIcon RoutesApplet::getIcon()
 {
     return QIcon(":/images/network-wired.svg");
 }
 
-void PortsApplet::init(std::shared_ptr<SSHConnectionEntry> connEntry)
+void RoutesApplet::init(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
     Applet::init(connEntry);
 }
 
-void PortsApplet::onShow()
+void RoutesApplet::onShow()
 {
     if (!this->firstShow) {
         return;
@@ -50,15 +50,15 @@ void PortsApplet::onShow()
     this->updateData();
 }
 
-void PortsApplet::updateData()
+void RoutesApplet::updateData()
 {
     this->model->clear();
 
     SSHConnectionManager &connMgr = SSHConnectionManager::getInstance();
-    connMgr.executeRemoteCmd(this->connEntry, "netstat -lntu", this, "sshResultReceived");
+    connMgr.executeRemoteCmd(this->connEntry, "route -n", this, "sshResultReceived");
 }
 
-void PortsApplet::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult)
+void RoutesApplet::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult)
 {
     if (!cmdResult->isSuccess) {
         std::cout << "ERROR: SSH remote command failed: " << cmdResult->errorString.toStdString() << std::endl;
@@ -68,7 +68,7 @@ void PortsApplet::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult)
     this->model->updateData(cmdResult->resultString);
 }
 
-void PortsApplet::reloadData()
+void RoutesApplet::reloadData()
 {
     this->updateData();
 }

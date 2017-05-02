@@ -85,6 +85,8 @@ void PortsItemModel::clear()
 
 void PortsItemModel::updateData(QString data)
 {
+    this->clear();
+
     emit layoutAboutToBeChanged();
 
     QStringList lines = data.trimmed().split("\n");

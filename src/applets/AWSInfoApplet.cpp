@@ -63,7 +63,7 @@ AWSInfoApplet::AWSInfoApplet()
     this->valueCfStackName = new QLabel("");
     this->valueCfStackName->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->tagsViewer = new TagsViewWidget();
-    this->tagsViewer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    this->tagsViewer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     this->valueSecurityGroups = new QLabel();
     this->valueSecurityGroups->setText("<a href=\"http://localhost/\" style=\"font-weight: bold;\">View Security Groups</a>");
     this->valueSecurityGroups->setTextFormat(Qt::RichText);
@@ -86,7 +86,7 @@ AWSInfoApplet::AWSInfoApplet()
     groupsLayout->addLayout(groupsRightLayout);
 
     QGroupBox *generalGroup = new QGroupBox(tr("General"));
-    generalGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    generalGroup->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     QFormLayout *generalLayout = new QFormLayout();
 
     generalLayout->addRow(tr("Instance ID:"), this->valueInstanceId);
@@ -105,7 +105,7 @@ AWSInfoApplet::AWSInfoApplet()
     groupsLeftLayout->addWidget(generalGroup);
 
     QGroupBox *networkGroup = new QGroupBox(tr("Network"));
-    networkGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    networkGroup->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     QFormLayout *networkLayout = new QFormLayout();
 
     networkLayout->addRow(tr("Public IP:"), this->valuePublicIP);
@@ -119,7 +119,7 @@ AWSInfoApplet::AWSInfoApplet()
     groupsRightLayout->addWidget(networkGroup);
 
     QGroupBox *miscGroup = new QGroupBox(tr("Misc"));
-    miscGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    miscGroup->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     QFormLayout *miscLayout = new QFormLayout();
 
     miscLayout->addRow(tr("Virtualization Type:"), this->valueVirtualizationType);

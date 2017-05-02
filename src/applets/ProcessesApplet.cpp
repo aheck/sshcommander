@@ -32,7 +32,7 @@ const QString ProcessesApplet::getDisplayName()
 
 QIcon ProcessesApplet::getIcon()
 {
-    return QIcon(":/images/network-wired.svg");
+    return QIcon(":/images/emblem-system.svg");
 }
 
 void ProcessesApplet::init(std::shared_ptr<SSHConnectionEntry> connEntry)

@@ -25,5 +25,6 @@
     <file>images/network-wired.svg</file>
     <file>images/accessories-text-editor.svg</file>
     <file>images/dialog-information.svg</file>
+    <file>images/emblem-system.svg</file>
 </qresource>
 </RCC>

@@ -18,6 +18,8 @@ add_executable(sshcommander
     applets/PortsItemModel.cpp
     applets/RoutesApplet.cpp
     applets/RoutesItemModel.cpp
+    applets/ProcessesApplet.cpp
+    applets/ProcessesItemModel.cpp
     AboutDialog.cpp
     Applet.cpp
     AppletWidget.cpp

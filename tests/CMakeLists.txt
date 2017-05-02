@@ -12,6 +12,8 @@ add_executable(tests main.cpp
     ../src/applets/PortsItemModel.cpp
     ../src/applets/RoutesApplet.cpp
     ../src/applets/RoutesItemModel.cpp
+    ../src/applets/ProcessesApplet.cpp
+    ../src/applets/ProcessesItemModel.cpp
     ../src/AboutDialog.cpp
     ../src/Applet.cpp
     ../src/AppletWidget.cpp

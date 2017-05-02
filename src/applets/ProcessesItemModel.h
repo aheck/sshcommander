@@ -1,12 +1,12 @@
 /*****************************************************************************
  *
- * RoutesItemModel is the model behind the table showing routes on remote
- * machines.
+ * ProcessesItemModel is the model behind the table showing running processes
+ * on remote machines.
  *
  ****************************************************************************/
 
-#ifndef ROUTESITEMMODEL_H
-#define ROUTESITEMMODEL_H
+#ifndef PROCESSESITEMMODEL_H
+#define PROCESSESITEMMODEL_H
 
 #include <memory>
 
@@ -17,16 +17,14 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
-enum class RouteColumns {Destination = 0, Gateway, Genmask, Interface, Count};
+enum class ProcessColumns {Pid = 0, Command, Count};
 
-struct RouteEntry {
-    QString destination;
-    QString gateway;
-    QString genmask;
-    QString interface;
+struct ProcessEntry {
+    QString pid;
+    QString command;
 };
 
-class RoutesItemModel : public QAbstractItemModel
+class ProcessesItemModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
@@ -41,7 +39,7 @@ public:
     void updateData(QString data);
 
 private:
-    std::vector<std::shared_ptr<RouteEntry>> routesData;
+    std::vector<std::shared_ptr<ProcessEntry>> procData;
 };
 
 #endif

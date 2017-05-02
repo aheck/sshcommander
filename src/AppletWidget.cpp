@@ -12,6 +12,7 @@ AppletWidget::AppletWidget(std::shared_ptr<SSHConnectionEntry> connEntry, QWidge
     }
     this->applets.append(new PortsApplet());
     this->applets.append(new RoutesApplet());
+    this->applets.append(new ProcessesApplet());
 
     // create the tab where the applets reside
     this->appletTab = new QTabWidget();

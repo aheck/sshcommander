@@ -10,6 +10,7 @@
 
 #include "Applet.h"
 #include "PortsItemModel.h"
+#include "RichTextDelegate.h"
 #include "SSHConnectionManager.h"
 
 class PortsApplet : public Applet

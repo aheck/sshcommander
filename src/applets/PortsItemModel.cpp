@@ -1,5 +1,26 @@
 #include "PortsItemModel.h"
 
+#include <iostream>
+
+std::map<QString, KnownPort> PortsItemModel::knownPorts = PortsItemModel::initKnownPorts();
+
+std::map<QString, KnownPort> PortsItemModel::initKnownPorts()
+{
+    std::map<QString, KnownPort> map;
+    KnownPort port;
+
+    port.tcp = true;
+    port.udp = true;
+    port.portNumber = 22;
+    port.name = "SSH";
+    port.description = "The Secure Shell Protocol";
+    port.url = "https://en.wikipedia.org/wiki/Secure_Shell";
+
+    map["tcp:22"] = port;
+
+    return map;
+}
+
 QModelIndex PortsItemModel::index(int row, int column, const QModelIndex &parent) const
 {
     return this->createIndex(row, column);
@@ -43,6 +64,8 @@ QVariant PortsItemModel::headerData(int section, Qt::Orientation orientation, in
             return QVariant(tr("Foreign Port"));
         case static_cast<int>(PortColumns::State):
             return QVariant(tr("State"));
+        case static_cast<int>(PortColumns::Details):
+            return QVariant(tr("Protocol Guess"));
     }
 
     return QVariant();
@@ -50,7 +73,7 @@ QVariant PortsItemModel::headerData(int section, Qt::Orientation orientation, in
 
 QVariant PortsItemModel::data(const QModelIndex &index, int role) const
 {
-    if (role != Qt::DisplayRole) {
+    if (role != Qt::DisplayRole && role != Qt::EditRole) {
         return QVariant();
     }
 
@@ -69,9 +92,28 @@ QVariant PortsItemModel::data(const QModelIndex &index, int role) const
             return QVariant(entry->foreignPort);
         case (static_cast<int>(PortColumns::State)):
             return QVariant(entry->state);
+        case (static_cast<int>(PortColumns::Details)):
+			if (role != Qt::EditRole) {
+				return QVariant();
+			}
+
+            KnownPort port;
+            QString queryString = entry->protocol + ":" + entry->localPort;
+            if (PortsItemModel::knownPorts.count(queryString) != 0) {
+                port = PortsItemModel::knownPorts[queryString];
+
+                return QVariant("<a href=\"" + port.url + "\">" + port.name + " - " + port.description + "</a>");
+            } else {
+                return QVariant("?");
+            }
     }
 
     return QVariant();
+}
+
+Qt::ItemFlags PortsItemModel::flags(const QModelIndex &index) const
+{
+    return Qt::ItemIsEditable | QAbstractItemModel::flags(index);
 }
 
 void PortsItemModel::clear()

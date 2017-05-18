@@ -13,9 +13,10 @@ PortsApplet::PortsApplet()
     this->layout()->addWidget(this->toolBar);
 
     this->table = new QTableView(this);
+    this->table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    this->table->setItemDelegateForColumn(static_cast<int>(PortColumns::Details), new RichTextDelegate());
     this->model = new PortsItemModel();
     this->table->setModel(this->model);
-    this->table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     this->table->horizontalHeader()->setStretchLastSection(true);
     this->table->setSelectionBehavior(QAbstractItemView::SelectRows);
     this->table->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -66,6 +67,11 @@ void PortsApplet::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult)
     }
 
     this->model->updateData(cmdResult->resultString);
+
+    for (int i = 0; i < this->model->rowCount(QModelIndex()); i++) {
+        QModelIndex index = this->model->index(i, 3, QModelIndex());
+        this->table->openPersistentEditor(index);
+    }
 }
 
 void PortsApplet::reloadData()

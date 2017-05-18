@@ -17,7 +17,7 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 
-enum class PortColumns {Protocol = 0, LocalAddress, LocalPort, ForeignAddress, ForeignPort, State, Count};
+enum class PortColumns {Protocol = 0, LocalAddress, LocalPort, Details, ForeignAddress, ForeignPort, State, Count};
 
 struct NetstatEntry {
     QString protocol;
@@ -26,6 +26,15 @@ struct NetstatEntry {
     QString foreignAddress;
     QString foreignPort;
     QString state;
+};
+
+struct KnownPort {
+  bool tcp;
+  bool udp;
+  uint16_t portNumber;
+  QString name;
+  QString description;
+  QString url;
 };
 
 class PortsItemModel : public QAbstractItemModel
@@ -38,9 +47,13 @@ public:
     int columnCount(const QModelIndex &parent) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    virtual Qt::ItemFlags flags(const QModelIndex & index) const override;
     void clear();
 
     void updateData(QString data);
+
+    static std::map<QString, KnownPort> initKnownPorts();
+    static std::map<QString, KnownPort> knownPorts;
 
 private:
     std::vector<std::shared_ptr<NetstatEntry>> portsData;

@@ -52,11 +52,10 @@ public:
 
     void updateData(QString data);
 
-    static std::map<QString, KnownPort> initKnownPorts();
-    static std::map<QString, KnownPort> knownPorts;
-
 private:
     std::vector<std::shared_ptr<NetstatEntry>> portsData;
+
+    static std::map<QString, KnownPort> knownPorts;
 };
 
 #endif

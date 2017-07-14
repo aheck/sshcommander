@@ -35,6 +35,14 @@ struct KnownPort {
   QString name;
   QString description;
   QString url;
+
+  QString getCaption();
+};
+
+struct NetstatEntryComparator {
+    int column;
+
+    bool operator() (const std::shared_ptr<NetstatEntry> &a, const std::shared_ptr<NetstatEntry> &b);
 };
 
 class PortsItemModel : public QAbstractItemModel
@@ -51,8 +59,11 @@ public:
     void clear();
 
     void updateData(QString data);
+    void sort(int column, Qt::SortOrder order) override;
 
 private:
+    KnownPort findKnownPort(bool *success, std::shared_ptr<NetstatEntry> entry) const;
+
     std::vector<std::shared_ptr<NetstatEntry>> portsData;
 
     static std::map<QString, KnownPort> knownPorts;

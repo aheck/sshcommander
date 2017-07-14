@@ -24,6 +24,12 @@ struct ProcessEntry {
     QString command;
 };
 
+struct ProcessEntryComparator {
+    int column;
+
+    bool operator() (const std::shared_ptr<ProcessEntry> &a, const std::shared_ptr<ProcessEntry> &b);
+};
+
 class ProcessesItemModel : public QAbstractItemModel
 {
     Q_OBJECT
@@ -35,6 +41,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     void clear();
+    void sort(int column, Qt::SortOrder order) override;
 
     void updateData(QString data);
 

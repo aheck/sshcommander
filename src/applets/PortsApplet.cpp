@@ -15,6 +15,7 @@ PortsApplet::PortsApplet()
     this->table = new QTableView(this);
     this->table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     this->table->setItemDelegateForColumn(static_cast<int>(PortColumns::Details), new RichTextDelegate());
+    this->table->setSortingEnabled(true);
     this->model = new PortsItemModel();
     this->table->setModel(this->model);
     this->table->horizontalHeader()->setStretchLastSection(true);

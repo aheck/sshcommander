@@ -276,11 +276,6 @@ void InstanceItemModel::applyFilters()
                 this->instances.push_back(instance);
                 continue;
             }
-
-            if (instance->cfStackName.startsWith(this->searchTextFilter, Qt::CaseInsensitive)) {
-                this->instances.push_back(instance);
-                continue;
-            }
         }
     }
 

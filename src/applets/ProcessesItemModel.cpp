@@ -109,3 +109,44 @@ void ProcessesItemModel::updateData(QString data)
 
     emit layoutChanged();
 }
+
+void ProcessesItemModel::sort(int column, Qt::SortOrder order)
+{
+    ProcessEntryComparator cmp;
+
+    emit layoutAboutToBeChanged();
+
+    cmp.column = column;
+
+    if (order == Qt::DescendingOrder) {
+        std::stable_sort(this->procData.begin(), this->procData.end(), cmp);
+    } else {
+        std::stable_sort(this->procData.rbegin(), this->procData.rend(), cmp);
+    }
+
+    emit layoutChanged();
+}
+
+bool ProcessEntryComparator::operator() (const std::shared_ptr<ProcessEntry> &a, const std::shared_ptr<ProcessEntry> &b) {
+    bool result = false;
+
+    if (a.get() == b.get()) {
+        return false;
+    }
+
+    bool ok;
+    int aint, bint;
+
+    switch (this->column) {
+        case static_cast<int>(ProcessColumns::Pid):
+            aint = a->pid.toInt(&ok);
+            bint = b->pid.toInt(&ok);
+            result = aint < bint;
+            break;
+        case static_cast<int>(ProcessColumns::Command):
+            result = a->command.compare(b->command) < 0;
+            break;
+    }
+
+    return result;
+}

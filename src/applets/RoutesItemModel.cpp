@@ -114,3 +114,45 @@ void RoutesItemModel::updateData(QString data)
 
     emit layoutChanged();
 }
+
+void RoutesItemModel::sort(int column, Qt::SortOrder order)
+{
+    RouteEntryComparator cmp;
+
+    emit layoutAboutToBeChanged();
+
+    cmp.column = column;
+
+    if (order == Qt::DescendingOrder) {
+        std::stable_sort(this->routesData.begin(), this->routesData.end(), cmp);
+    } else {
+        std::stable_sort(this->routesData.rbegin(), this->routesData.rend(), cmp);
+    }
+
+    emit layoutChanged();
+}
+
+bool RouteEntryComparator::operator() (const std::shared_ptr<RouteEntry> &a, const std::shared_ptr<RouteEntry> &b) {
+    bool result = false;
+
+    if (a.get() == b.get()) {
+        return false;
+    }
+
+    switch (this->column) {
+        case static_cast<int>(RouteColumns::Destination):
+            result = a->destination.compare(b->destination) < 0;
+            break;
+        case static_cast<int>(RouteColumns::Gateway):
+            result = a->gateway.compare(b->gateway) < 0;
+            break;
+        case static_cast<int>(RouteColumns::Genmask):
+            result = a->genmask.compare(b->genmask) < 0;
+            break;
+        case static_cast<int>(RouteColumns::Interface):
+            result = a->interface.compare(b->interface) < 0;
+            break;
+    }
+
+    return result;
+}

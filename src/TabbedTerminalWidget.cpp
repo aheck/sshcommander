@@ -9,6 +9,7 @@ TabbedTerminalWidget::TabbedTerminalWidget(std::weak_ptr<SSHConnectionEntry> con
     this->setTabBar(tabBar);
     this->setTabsClosable(true);
     this->setTabPosition(QTabWidget::North);
+    this->setMovable(true);
 
     connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
 }

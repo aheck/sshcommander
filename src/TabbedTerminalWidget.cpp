@@ -1,5 +1,13 @@
 #include "TabbedTerminalWidget.h"
 
+TerminalSessionEntry::TerminalSessionEntry()
+{
+    this->uuid = QUuid::createUuid();
+    this->detached = false;
+    this->container = nullptr;
+    this->window = nullptr;
+}
+
 TabbedTerminalWidget::TabbedTerminalWidget(std::weak_ptr<SSHConnectionEntry> connEntry, QWidget *parent) :
         QTabWidget(parent)
 {
@@ -12,6 +20,7 @@ TabbedTerminalWidget::TabbedTerminalWidget(std::weak_ptr<SSHConnectionEntry> con
     this->setMovable(true);
 
     connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
+    connect(tabBar, SIGNAL(tabDetachRequested(int)), this, SLOT(detachTab(int)), Qt::QueuedConnection);
 }
 
 TabbedTerminalWidget::~TabbedTerminalWidget()
@@ -27,68 +36,89 @@ void TabbedTerminalWidget::addTerminalSession()
 {
     auto connEntry = this->connEntryWeak.lock();
 
+    TerminalSessionEntry *terminalSession = new TerminalSessionEntry();
+
     QStringList args = connEntry->generateCliArgs();
     QTermWidget *console = createNewTermWidget(&args, !connEntry->password.isEmpty());
-    this->addTab(console, "Session " + QString::number(connEntry->nextSessionNumber++));
-    this->setCurrentWidget(console);
+    TerminalContainer *container = new TerminalContainer(terminalSession->uuid);
+    container->setWidget(console);
+    this->addTab(container, "Session " + QString::number(connEntry->nextSessionNumber++));
+    this->setCurrentWidget(container);
+
+    terminalSession->container = container;
+    this->terminalSessions[terminalSession->uuid] = terminalSession;
 
     console->startShellProgram();
-
-    this->setFocus();
     console->setFocus();
 }
 
 void TabbedTerminalWidget::addInactiveSession(const QString title)
 {
-    InactiveSessionWidget *inactiveSessionWidget = new InactiveSessionWidget();
-    connect(inactiveSessionWidget, SIGNAL(createSession()), this, SLOT(restartCurrentSession()));
+    TerminalSessionEntry *terminalSession = new TerminalSessionEntry();
+    InactiveSessionWidget *inactiveSessionWidget = new InactiveSessionWidget(terminalSession->uuid);
 
-    this->addTab(inactiveSessionWidget, title);
+    TerminalContainer *container = new TerminalContainer(terminalSession->uuid);
+    container->setWidget(inactiveSessionWidget);
+    connect(inactiveSessionWidget, SIGNAL(createSession(QUuid)), this, SLOT(startInactiveSession(QUuid)));
+
+    terminalSession->container = container;
+    this->terminalSessions[terminalSession->uuid] = terminalSession;
+
+    this->addTab(container, title);
 }
 
-void TabbedTerminalWidget::restartCurrentSession()
+void TabbedTerminalWidget::startInactiveSession(QUuid uuid)
 {
+    std::cout << "startInactiveSession\n";
+
     QWidget *oldWidget = nullptr;
     auto connEntry = this->connEntryWeak.lock();
+    TerminalSessionEntry *terminalEntry = this->terminalSessions[uuid];
 
-    if (this->count() == 0) {
-        return;
-    }
+    QString sessionName = terminalEntry->sessionName;
+    TerminalContainer *container = terminalEntry->container;
 
-    int tabIndex = this->currentIndex();
-    const QString tabText = this->tabText(tabIndex);
+    if (container->getWidgetClassname() == "QTermWidget") {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Restart Session?",
+                QString("Do you really want to restart SSH session '%1' with '%2'?").arg(sessionName).arg(connEntry->name),
+                QMessageBox::Yes|QMessageBox::No);
 
-    if (this->currentWidget() != nullptr) {
-        if (QString("QTermWidget") == this->currentWidget()->metaObject()->className()) {
-            QMessageBox::StandardButton reply;
-            reply = QMessageBox::question(this, "Restart Session?",
-                    QString("Do you really want to restart SSH session '%1' with '%2'?").arg(tabText).arg(connEntry->name),
-                    QMessageBox::Yes|QMessageBox::No);
-
-            if (reply == QMessageBox::No) {
-                return;
-            }
+        if (reply == QMessageBox::No) {
+            return;
         }
-
-        oldWidget = this->currentWidget();
     }
 
     QStringList args = connEntry->generateCliArgs();
     QTermWidget *console = createNewTermWidget(&args, !connEntry->password.isEmpty());
-    this->setUpdatesEnabled(false);
-    this->removeTab(tabIndex);
-    this->insertTab(tabIndex, console, tabText);
-    this->setCurrentIndex(tabIndex);
-    this->setUpdatesEnabled(true);
+
+    if (!terminalEntry->detached) {
+        oldWidget = container->getWidget();
+
+        if (oldWidget != nullptr) {
+            container->getWidget()->deleteLater();
+        }
+
+        container->setWidget(console);
+    } else {
+        terminalEntry->window->layout()->takeAt(0)->widget()->deleteLater();
+        terminalEntry->window->layout()->addWidget(console);
+    }
 
     console->startShellProgram();
 
-    this->setFocus();
     console->setFocus();
+}
 
-    if (oldWidget) {
-        delete oldWidget;
+void TabbedTerminalWidget::restartCurrentSession()
+{
+    if (this->count() == 0) {
+        return;
     }
+
+    TerminalContainer *container = static_cast<TerminalContainer*>(this->currentWidget());
+
+    startInactiveSession(container->getUuid());
 }
 
 QTermWidget* TabbedTerminalWidget::createNewTermWidget(const QStringList *args, bool connectReceivedData)
@@ -123,6 +153,12 @@ void TabbedTerminalWidget::dataReceived(const QString &text)
 
     auto connEntry = this->connEntryWeak.lock();
 
+    if (!connEntry) {
+        std::cerr << "Failed to acquire shared_ptr on connEntryWeak in " <<
+            __FILE__ << ":" << __LINE__ << std::endl;
+        return;
+    }
+
     QTermWidget *console = static_cast<QTermWidget *>(sender);
     if (connEntry == nullptr) {
         return;
@@ -156,9 +192,16 @@ void TabbedTerminalWidget::dataReceived(const QString &text)
 void TabbedTerminalWidget::closeTab(int tabIndex)
 {
     auto connEntry = this->connEntryWeak.lock();
-    QTermWidget *termWidget = (QTermWidget*) this->widget(tabIndex);
 
-    if (termWidget != nullptr) {
+    if (!connEntry) {
+        std::cerr << "Failed to acquire shared_ptr on connEntryWeak in " <<
+            __FILE__ << ":" << __LINE__ << std::endl;
+        return;
+    }
+
+    TerminalContainer *container = static_cast<TerminalContainer*>(this->widget(tabIndex));
+
+    if (container != nullptr) {
         QMessageBox::StandardButton reply;
         const QString usernameAndHost = connEntry->name;
         reply = QMessageBox::question(this, "Closing Session",
@@ -169,7 +212,80 @@ void TabbedTerminalWidget::closeTab(int tabIndex)
             return;
         }
 
+        QUuid uuid(container->getUuid());
+        TerminalSessionEntry *terminalEntry = this->terminalSessions[uuid];
+        this->terminalSessions.erase(uuid);
+        delete terminalEntry;
+
         this->removeTab(tabIndex);
-        delete termWidget;
+        delete container;
     }
+}
+
+void TabbedTerminalWidget::detachTab(int index)
+{
+    auto connEntry = this->connEntryWeak.lock();
+
+    if (!connEntry) {
+        std::cerr << "Failed to acquire shared_ptr on connEntryWeak in " <<
+            __FILE__ << ":" << __LINE__ << std::endl;
+        return;
+    }
+
+    DetachedTerminalWindow *window = new DetachedTerminalWindow(this);
+    window->setWindowTitle(this->tabText(index) + " - " + connEntry->name);
+    connect(window, SIGNAL(tabReattachRequested(QUuid)), this, SLOT(reattachTab(QUuid)));
+
+    TerminalContainer *container = static_cast<TerminalContainer*>(this->widget(index));
+
+    DetachedSessionWidget *newWidget = new DetachedSessionWidget();
+    newWidget->setUuid(container->getUuid());
+    connect(newWidget, SIGNAL(requestShowWindow(QUuid)), this, SLOT(showDetachedWindow(QUuid)));
+
+    TerminalSessionEntry *terminalEntry = this->terminalSessions[container->getUuid()];
+
+    QWidget *termWidget = container->getWidget();
+    container->setWidget(newWidget);
+
+    termWidget->setParent(window);
+    window->setUuid(container->getUuid());
+    window->layout()->addWidget(termWidget);
+
+    terminalEntry->detached = true;
+    terminalEntry->window = window;
+
+    termWidget->show();
+    window->show();
+}
+
+void TabbedTerminalWidget::reattachTab(QUuid uuid)
+{
+    TerminalSessionEntry *terminalEntry = this->terminalSessions[uuid];
+
+    if (terminalEntry->detached == false) {
+        return;
+    }
+
+    QWidget *window = terminalEntry->window;
+    QWidget *termWidget = window->layout()->itemAt(0)->widget();
+
+    window->layout()->removeWidget(termWidget);
+    termWidget->setParent(this);
+
+    terminalEntry->container->getWidget()->deleteLater();
+    terminalEntry->container->setWidget(termWidget);
+    window->hide();
+
+    terminalEntry->detached = false;
+    terminalEntry->window = nullptr;
+
+    window->deleteLater();
+}
+
+void TabbedTerminalWidget::showDetachedWindow(QUuid uuid)
+{
+    TerminalSessionEntry *terminalEntry = this->terminalSessions[uuid];
+
+    terminalEntry->window->raise();
+    terminalEntry->window->activateWindow();
 }

@@ -33,6 +33,8 @@ add_executable(tests main.cpp
     ../src/ConnectionListView.cpp
     ../src/ConnectionListWidget.cpp
     ../src/CustomTabBar.cpp
+    ../src/DetachedSessionWidget.cpp
+    ../src/DetachedTerminalWindow.cpp
     ../src/DisabledWidget.cpp
     ../src/ImageDialog.cpp
     ../src/InactiveSessionWidget.cpp
@@ -50,6 +52,7 @@ add_executable(tests main.cpp
     ../src/SSHConnectionManager.cpp
     ../src/SubnetDialog.cpp
     ../src/TabbedTerminalWidget.cpp
+    ../src/TerminalContainer.cpp
     ../src/TerminalViewWidget.cpp
     ../src/TagsDialog.cpp
     ../src/TagsViewWidget.cpp

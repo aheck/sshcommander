@@ -11,17 +11,33 @@
 #ifndef TABBEDTERMINALWIDGET_H
 #define TABBEDTERMINALWIDGET_H
 
+#include <memory>
+
 #include <QMessageBox>
+#include <QMouseEvent>
 #include <QTabWidget>
 
 #include "qtermwidget.h"
 
 #include "CustomTabBar.h"
+#include "DetachedSessionWidget.h"
+#include "DetachedTerminalWindow.h"
 #include "InactiveSessionWidget.h"
 #include "Preferences.h"
 #include "SSHConnectionEntry.h"
+#include "TerminalContainer.h"
 
 struct SSHConnectionEntry;
+
+struct TerminalSessionEntry {
+    QUuid uuid;
+    QString sessionName;
+    bool detached;
+    TerminalContainer *container;
+    DetachedTerminalWindow *window;
+
+    TerminalSessionEntry();
+};
 
 class TabbedTerminalWidget : public QTabWidget
 {
@@ -35,17 +51,22 @@ public:
     void addInactiveSession(const QString title);
 
 public slots:
+    void startInactiveSession(QUuid uuid);
     void restartCurrentSession();
+    void detachTab(int index);
+    void reattachTab(QUuid uuid);
+    void showDetachedWindow(QUuid uuid);
 
 private slots:
     void dataReceived(const QString &text);
     void closeTab(int tabIndex);
 
 private:
-    std::weak_ptr<SSHConnectionEntry> connEntryWeak;
-    std::map<QTermWidget*, int> passwordLineCounter;
-
     QTermWidget* createNewTermWidget(const QStringList *args, bool connectReceivedData);
+
+    std::weak_ptr<SSHConnectionEntry> connEntryWeak;
+    std::map<QUuid, TerminalSessionEntry*> terminalSessions;
+    std::map<QTermWidget*, int> passwordLineCounter;
 };
 
 #endif

@@ -1,6 +1,6 @@
 #include "InactiveSessionWidget.h"
 
-InactiveSessionWidget::InactiveSessionWidget()
+InactiveSessionWidget::InactiveSessionWidget(QUuid uuid)
 {
     QVBoxLayout *layout = new QVBoxLayout();
     layout->setAlignment(Qt::AlignCenter);
@@ -16,10 +16,11 @@ InactiveSessionWidget::InactiveSessionWidget()
     QObject::connect(connectButton, SIGNAL(clicked()), this, SLOT(createSessionSlot()));
     layout->addWidget(connectButton);
 
+    this->uuid = uuid;
     this->setLayout(layout);
 }
 
 void InactiveSessionWidget::createSessionSlot()
 {
-    emit createSession();
+    emit createSession(this->uuid);
 }

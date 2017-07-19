@@ -39,6 +39,8 @@ add_executable(sshcommander
     ConnectionListView.cpp
     ConnectionListWidget.cpp
     CustomTabBar.cpp
+    DetachedSessionWidget.cpp
+    DetachedTerminalWindow.cpp
     DisabledWidget.cpp
     ImageDialog.cpp
     InactiveSessionWidget.cpp
@@ -56,6 +58,7 @@ add_executable(sshcommander
     SSHConnectionManager.cpp
     SubnetDialog.cpp
     TabbedTerminalWidget.cpp
+    TerminalContainer.cpp
     TerminalViewWidget.cpp
     TagsDialog.cpp
     TagsViewWidget.cpp

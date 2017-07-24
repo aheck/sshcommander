@@ -67,6 +67,15 @@ void TabbedTerminalWidget::addInactiveSession(const QString title)
     this->addTab(container, title);
 }
 
+void TabbedTerminalWidget::closeAllDetachedWindows()
+{
+    for (auto iter : this->terminalSessions) {
+        if (iter.second->detached) {
+            iter.second->window->close();
+        }
+    }
+}
+
 void TabbedTerminalWidget::startInactiveSession(QUuid uuid)
 {
     std::cout << "startInactiveSession\n";

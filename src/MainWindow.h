@@ -55,6 +55,7 @@ public:
 public slots:
     void changeConnection(int row);
     void createNewConnection();
+    void closeEvent(QCloseEvent *event) override;
     void aboutToQuit();
     void createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance,
             std::vector<std::shared_ptr<AWSInstance>> vpcNeighbours, bool toPrivateIP);

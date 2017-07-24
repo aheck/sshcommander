@@ -70,6 +70,8 @@ void TerminalViewWidget::removeConnection(TabbedTerminalWidget *tabbedTerminal)
 {
     int index = this->terminalStack->indexOf(tabbedTerminal);
 
+    tabbedTerminal->closeAllDetachedWindows();
+
     this->terminalStack->removeWidget(tabbedTerminal);
     this->appletStack->removeWidget(this->appletStack->widget(index));
 }

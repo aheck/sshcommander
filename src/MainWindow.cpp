@@ -180,6 +180,14 @@ void MainWindow::createNewConnection()
     this->terminalView->setFocusOnCurrentTerminal();
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    std::shared_ptr<SSHConnectionEntry> connEntry;
+    for (int i = 0; (connEntry = this->connectionModel->getConnEntry(i)); i++) {
+        connEntry->tabs->closeAllDetachedWindows();
+    }
+}
+
 void MainWindow::aboutToQuit()
 {
     this->saveSettings();

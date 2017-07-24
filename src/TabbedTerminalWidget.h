@@ -49,6 +49,7 @@ public:
 
     void addTerminalSession();
     void addInactiveSession(const QString title);
+    void closeAllDetachedWindows();
 
 public slots:
     void startInactiveSession(QUuid uuid);

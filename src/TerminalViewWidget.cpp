@@ -83,6 +83,10 @@ void TerminalViewWidget::setCurrentConnection(int row)
 
     // Send the currently shown Applet a onShow signal
     AppletWidget *currentAppletWidget = static_cast<AppletWidget*>(this->appletStack->currentWidget());
+    if (currentAppletWidget == nullptr) {
+        return;
+    }
+
     currentAppletWidget->appletChanged(-1);
 }
 

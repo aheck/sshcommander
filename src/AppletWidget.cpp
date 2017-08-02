@@ -37,5 +37,10 @@ AppletWidget::~AppletWidget()
 void AppletWidget::appletChanged(int index)
 {
     Applet *applet = static_cast<Applet*>(this->appletTab->currentWidget());
+
+    if (applet == nullptr) {
+        return;
+    }
+
     applet->onShow();
 }

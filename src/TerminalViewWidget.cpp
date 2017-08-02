@@ -79,9 +79,13 @@ void TerminalViewWidget::removeConnection(TabbedTerminalWidget *tabbedTerminal)
 void TerminalViewWidget::setCurrentConnection(int row)
 {
     this->terminalStack->setCurrentIndex(row);
+    QWidget *termWidget = this->terminalStack->currentWidget();
+    if (termWidget != nullptr) {
+        termWidget->setFocus();
+    }
     this->appletStack->setCurrentIndex(row);
 
-    // Send the currently shown Applet a onShow signal
+    // Send the currently shown Applet an onShow signal
     AppletWidget *currentAppletWidget = static_cast<AppletWidget*>(this->appletStack->currentWidget());
     if (currentAppletWidget == nullptr) {
         return;

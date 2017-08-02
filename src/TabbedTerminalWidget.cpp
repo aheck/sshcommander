@@ -49,6 +49,7 @@ void TabbedTerminalWidget::addTerminalSession()
     this->terminalSessions[terminalSession->uuid] = terminalSession;
 
     console->startShellProgram();
+
     console->setFocus();
 }
 
@@ -287,6 +288,8 @@ void TabbedTerminalWidget::reattachTab(QUuid uuid)
 
     terminalEntry->detached = false;
     terminalEntry->window = nullptr;
+
+    termWidget->setFocus();
 
     window->deleteLater();
 }

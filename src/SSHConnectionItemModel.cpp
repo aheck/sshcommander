@@ -90,23 +90,6 @@ void SSHConnectionItemModel::removeConnectionEntry(std::shared_ptr<SSHConnection
 
 bool SSHConnectionItemModel::moveConnectionEntry(int originRow, int targetRow)
 {
-    if (originRow == targetRow) {
-        return false;
-    }
-
-    if (originRow < 0) {
-        return false;
-    }
-
-    if (originRow >= this->entries.size() || targetRow >= this->entries.size()) {
-        return false;
-    }
-
-    // append when targetRow < 0
-    if (targetRow < 0) {
-        targetRow = this->entries.size();
-    }
-
     auto entry = this->entries.at(originRow);
 
     beginRemoveRows(QModelIndex(), originRow, originRow);

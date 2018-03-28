@@ -99,8 +99,8 @@ bool ConnectionListView::event(QEvent *event)
 
 void ConnectionListView::dragEnterEvent(QDragEnterEvent *event)
 {
-    QModelIndex index = this->indexAt(event->pos());
-    this->draggedIndex = index;
+    QModelIndexList indexes = this->selectedIndexes();
+    this->draggedRow = indexes.first().row();
     event->accept();
 }
 
@@ -114,8 +114,28 @@ void ConnectionListView::dragMoveEvent(QDragMoveEvent *event)
 void ConnectionListView::dropEvent(QDropEvent *event)
 {
     QModelIndex index = this->indexAt(event->pos());
-    static_cast<SSHConnectionItemModel*>(this->model())->moveConnectionEntry(this->draggedIndex.row(), index.row());
+    int originRow = this->draggedRow;
+    int targetRow = index.row();
+
+    // append when targetRow < 0
+    if (targetRow < 0) {
+        targetRow = this->model()->rowCount() - 1;
+    }
+
+    if (originRow == targetRow) {
+        return;
+    }
+
+    if (originRow < 0) {
+        return;
+    }
+
+    if (originRow >= this->model()->rowCount() || targetRow >= this->model()->rowCount()) {
+        return;
+    }
+
+    static_cast<SSHConnectionItemModel*>(this->model())->moveConnectionEntry(originRow, targetRow);
 
     this->setCurrentIndex(index);
-    emit connectionMoved(this->draggedIndex.row(), index.row());
+    emit connectionMoved(originRow, targetRow);
 }

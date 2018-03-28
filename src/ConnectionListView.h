@@ -26,7 +26,7 @@ signals:
     void connectionMoved(int originRow, int targetRow);
 
 private:
-    QModelIndex draggedIndex;
+    int draggedRow;
 };
 
 #endif

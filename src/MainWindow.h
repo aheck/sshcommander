@@ -54,6 +54,7 @@ public:
 
 public slots:
     void changeConnection(int row);
+    void moveConnection(int originRow, int targetRow);
     void createNewConnection();
     void closeEvent(QCloseEvent *event) override;
     void aboutToQuit();

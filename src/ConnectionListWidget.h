@@ -50,13 +50,14 @@ public:
 
 public slots:
     void editConnection();
+    void moveConnection(int originRow, int targetRow);
     void removeSelectedConnection();
     void updateAWSInstances();
 
 private slots:
     void showContextMenu(QPoint pos);
     void selectionChanged(const QItemSelection &selected,
-        const QItemSelection &deselected);
+    const QItemSelection &deselected);
     void awsConsoleToggled(bool checked);
 
 signals:
@@ -66,10 +67,13 @@ signals:
     // a connection was removed by the user
     void connectionRemoved(std::shared_ptr<SSHConnectionEntry> connEntry);
 
-    // the selected another connection
+    // the user selected another connection
     void connectionChanged(int row);
 
     void toggleAwsConsole(bool show);
+
+    // the user moved a connection in the list widget
+    void connectionMoved(int originRow, int targetRow);
 
 private:
     QToolBar *toolBar;

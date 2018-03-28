@@ -3,6 +3,15 @@
 ConnectionListView::ConnectionListView()
 {
     this->setUniformItemSizes(true);
+    this->setSelectionMode(QAbstractItemView::SingleSelection);
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+    this->setDragEnabled(true);
+    this->setAcceptDrops(true);
+    this->viewport()->setAcceptDrops(true);
+    this->setDropIndicatorShown(true);
+    this->setDragDropMode(QAbstractItemView::InternalMove);
+    this->setDefaultDropAction(Qt::MoveAction);
+
     this->setStyleSheet(
             "QListView::item { border: 0; padding: 0.75em; }\n"
             "QListView::item:selected { color: #ffffff; background: "
@@ -86,4 +95,27 @@ bool ConnectionListView::event(QEvent *event)
     }
 
     return QListView::event(event);
+}
+
+void ConnectionListView::dragEnterEvent(QDragEnterEvent *event)
+{
+    QModelIndex index = this->indexAt(event->pos());
+    this->draggedIndex = index;
+    event->accept();
+}
+
+void ConnectionListView::dragMoveEvent(QDragMoveEvent *event)
+{
+    QModelIndex index = this->indexAt(event->pos());
+    event->setDropAction(Qt::MoveAction);
+    event->accept();
+}
+
+void ConnectionListView::dropEvent(QDropEvent *event)
+{
+    QModelIndex index = this->indexAt(event->pos());
+    static_cast<SSHConnectionItemModel*>(this->model())->moveConnectionEntry(this->draggedIndex.row(), index.row());
+
+    this->setCurrentIndex(index);
+    emit connectionMoved(this->draggedIndex.row(), index.row());
 }

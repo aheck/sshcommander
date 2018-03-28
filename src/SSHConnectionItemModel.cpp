@@ -55,6 +55,20 @@ QVariant SSHConnectionItemModel::data(const QModelIndex &index, int role) const
     return QVariant(result);
 }
 
+Qt::DropActions SSHConnectionItemModel::supportedDropActions() const
+{
+    return Qt::MoveAction;
+}
+
+Qt::ItemFlags SSHConnectionItemModel::flags(const QModelIndex &index) const
+{
+    if (index.isValid()){
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
+    }
+
+    return Qt::ItemIsSelectable|Qt::ItemIsDragEnabled| Qt::ItemIsDropEnabled|Qt::ItemIsEnabled;
+}
+
 void SSHConnectionItemModel::appendConnectionEntry(std::shared_ptr<SSHConnectionEntry> entry)
 {
     int pos = this->rowCount();
@@ -72,6 +86,38 @@ void SSHConnectionItemModel::removeConnectionEntry(std::shared_ptr<SSHConnection
     this->entries.removeAt(index.row());
     this->sshConnByHost.remove(entry->name);
     endRemoveRows();
+}
+
+bool SSHConnectionItemModel::moveConnectionEntry(int originRow, int targetRow)
+{
+    if (originRow == targetRow) {
+        return false;
+    }
+
+    if (originRow < 0) {
+        return false;
+    }
+
+    if (originRow >= this->entries.size() || targetRow >= this->entries.size()) {
+        return false;
+    }
+
+    // append when targetRow < 0
+    if (targetRow < 0) {
+        targetRow = this->entries.size();
+    }
+
+    auto entry = this->entries.at(originRow);
+
+    beginRemoveRows(QModelIndex(), originRow, originRow);
+    this->entries.removeAt(originRow);
+    endRemoveRows();
+
+    this->beginInsertRows(QModelIndex(), targetRow, targetRow);
+    this->entries.insert(targetRow, entry);
+    this->endInsertRows();
+
+    return true;
 }
 
 std::shared_ptr<SSHConnectionEntry> SSHConnectionItemModel::getConnEntry(int index)

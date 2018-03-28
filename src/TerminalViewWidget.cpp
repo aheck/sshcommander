@@ -76,6 +76,20 @@ void TerminalViewWidget::removeConnection(TabbedTerminalWidget *tabbedTerminal)
     this->appletStack->removeWidget(this->appletStack->widget(index));
 }
 
+void TerminalViewWidget::moveConnection(int originRow, int targetRow)
+{
+    QWidget *tabbedTerminal = this->terminalStack->widget(originRow);
+    QWidget *applet = this->appletStack->widget(originRow);
+
+    this->terminalStack->removeWidget(tabbedTerminal);
+    this->appletStack->removeWidget(applet);
+
+    this->terminalStack->insertWidget(targetRow, tabbedTerminal);
+    this->appletStack->insertWidget(targetRow, applet);
+
+    this->setCurrentConnection(targetRow);
+}
+
 void TerminalViewWidget::setCurrentConnection(int row)
 {
     this->terminalStack->setCurrentIndex(row);

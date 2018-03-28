@@ -63,6 +63,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->connectionList, SIGNAL(connectionChanged(int)),
             this, SLOT(changeConnection(int)));
     connect(this->connectionList, SIGNAL(toggleAwsConsole(bool)), this, SLOT(toggleAwsConsole(bool)));
+    connect(this->connectionList, SIGNAL(connectionMoved(int, int)),
+            this, SLOT(moveConnection(int, int)));
 
     this->splitter->addWidget(this->connectionList);
 
@@ -127,6 +129,13 @@ void MainWindow::changeConnection(int row)
     this->updateConnectionTabs();
 
     this->terminalView->setFocusOnCurrentTerminal();
+}
+
+void MainWindow::moveConnection(int originRow, int targetRow)
+{
+    this->terminalView->moveConnection(originRow, targetRow);
+
+    changeConnection(targetRow);
 }
 
 void MainWindow::createNewConnection()

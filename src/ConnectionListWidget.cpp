@@ -5,9 +5,8 @@ ConnectionListWidget::ConnectionListWidget(SSHConnectionItemModel *model)
     this->model = model;
 
     this->listView = new ConnectionListView();
-    this->listView->setSelectionMode(QAbstractItemView::SingleSelection);
     this->listView->setModel(this->model);
-    this->listView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this->listView, SIGNAL(connectionMoved(int, int)), this, SLOT(moveConnection(int, int)));
 
     connect(this->listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
             this, SLOT(selectionChanged(QItemSelection, QItemSelection)));
@@ -110,6 +109,11 @@ void ConnectionListWidget::editConnection()
     connEntry->sshkey = this->editDialog->getSSHKey();
     connEntry->password = this->editDialog->getPassword();
     connEntry->port = this->editDialog->getPortNumber();
+}
+
+void ConnectionListWidget::moveConnection(int originRow, int targetRow)
+{
+    emit connectionMoved(originRow, targetRow);
 }
 
 std::shared_ptr<SSHConnectionEntry> ConnectionListWidget::getSelectedConnectionEntry()

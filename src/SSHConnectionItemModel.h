@@ -24,14 +24,19 @@ class SSHConnectionItemModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    QModelIndex index(int row, int column, const QModelIndex &parent) const;
-    QModelIndex parent(const QModelIndex &index) const;
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent) const override;
+    QModelIndex parent(const QModelIndex &index) const override;
+    int rowCount(const QModelIndex &parent) const override;
+    int columnCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    Qt::DropActions supportedDropActions() const override;
+    //bool removeRows(int row, int count, const QModelIndex &parent) override;
+    //bool insertRows(int row, int count, const QModelIndex &parent) override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     void appendConnectionEntry(std::shared_ptr<SSHConnectionEntry> entry);
     void removeConnectionEntry(std::shared_ptr<SSHConnectionEntry> entry);
+    bool moveConnectionEntry(int originRow, int targetRow);
     std::shared_ptr<SSHConnectionEntry> getConnEntry(int index);
     std::shared_ptr<SSHConnectionEntry> getConnEntryByName(const QString name);
     QModelIndex getIndexForSSHConnectionEntry(const std::shared_ptr<SSHConnectionEntry> entry) const;

@@ -41,6 +41,7 @@ public:
 
     void addConnection(std::shared_ptr<SSHConnectionEntry> connEntry, TabbedTerminalWidget *tabs);
     void removeConnection(TabbedTerminalWidget *tabbedTerminal);
+    void moveConnection(int originRow, int targetRow);
     void setCurrentConnection(int row);
     void setLastConnection();
     void setDisabledPageEnabled(bool enabled);

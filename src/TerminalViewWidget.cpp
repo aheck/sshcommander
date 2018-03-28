@@ -156,9 +156,18 @@ void TerminalViewWidget::setFocusOnCurrentTerminal()
     auto *tabs = static_cast<TabbedTerminalWidget *>(widget);
     widget = tabs->currentWidget();
 
-    if (widget != nullptr) {
-        widget->setFocus();
+    if (widget == nullptr) {
+        return;
     }
+
+    auto *container = static_cast<TerminalContainer *>(widget);
+    widget = container->getWidget();
+
+    if (widget == nullptr) {
+        return;
+    }
+
+    widget->setFocus();
 }
 
 void TerminalViewWidget::nextTab()

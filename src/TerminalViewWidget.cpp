@@ -13,6 +13,10 @@ TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
     this->toolBar = new QToolBar(this);
     this->toolBar->addAction(QIcon(":/images/utilities-terminal.svg"), "New Session", this, SLOT(createNewSession()));
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"), "Restart Session", this, SLOT(restartCurrentSession()));
+    this->toggleWindowButton = this->toolBar->addAction(QIcon(":/images/window-new.svg"),
+            "Detach Terminal");
+    connect(this->toggleWindowButton, SIGNAL(toggled(bool)), this, SLOT(toggleWindowMode(bool)));
+    this->toggleWindowButton->setCheckable(true);
     this->toggleEnlarged = this->toolBar->addAction(QIcon(":/images/view-fullscreen.svg"),
             "Toggle Enlarged View (F10)", this, SLOT(toggleEnlarge()));
     this->toggleEnlarged->setCheckable(true);
@@ -60,10 +64,12 @@ TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
 
 void TerminalViewWidget::addConnection(std::shared_ptr<SSHConnectionEntry> connEntry, TabbedTerminalWidget *tabs)
 {
+    connect(tabs, SIGNAL(currentChanged(int)), this, SLOT(updateTab()));
     this->terminalStack->addWidget(tabs);
 
     AppletWidget *applets = new AppletWidget(connEntry);
     this->appletStack->addWidget(applets);
+    updateTab();
 }
 
 void TerminalViewWidget::removeConnection(TabbedTerminalWidget *tabbedTerminal)
@@ -74,6 +80,7 @@ void TerminalViewWidget::removeConnection(TabbedTerminalWidget *tabbedTerminal)
 
     this->terminalStack->removeWidget(tabbedTerminal);
     this->appletStack->removeWidget(this->appletStack->widget(index));
+    updateTab();
 }
 
 void TerminalViewWidget::moveConnection(int originRow, int targetRow)
@@ -106,6 +113,7 @@ void TerminalViewWidget::setCurrentConnection(int row)
     }
 
     currentAppletWidget->appletChanged(-1);
+    updateTab();
 }
 
 void TerminalViewWidget::setLastConnection()
@@ -228,5 +236,30 @@ void TerminalViewWidget::updateConsoleSettings(const QFont &font, const QString 
                 console->update();
             }
         }
+    }
+}
+
+void TerminalViewWidget::updateTab()
+{
+    TabbedTerminalWidget *tabs = static_cast<TabbedTerminalWidget *>(this->terminalStack->currentWidget());
+    TerminalContainer *container = static_cast<TerminalContainer*>(tabs->widget(tabs->currentIndex()));
+    this->toggleWindowButton->setChecked(container->getDetached());
+}
+
+void TerminalViewWidget::toggleWindowMode(bool checked)
+{
+    if (this->terminalStack->count() == 0) {
+        return;
+    }
+
+    TabbedTerminalWidget *tabs = static_cast<TabbedTerminalWidget *>(this->terminalStack->currentWidget());
+
+    if (checked) {
+        this->toggleWindowButton->setToolTip(tr("Reattach Terminal"));
+        tabs->detachTab(tabs->currentIndex());
+    } else {
+        this->toggleWindowButton->setToolTip(tr("Detach Terminal"));
+        TerminalContainer *container = static_cast<TerminalContainer*>(tabs->widget(tabs->currentIndex()));
+        tabs->reattachTab(container->getUuid());
     }
 }

@@ -242,11 +242,14 @@ void TabbedTerminalWidget::detachTab(int index)
         return;
     }
 
+    TerminalContainer *container = static_cast<TerminalContainer*>(this->widget(index));
+    if (container->getDetached()) {
+        return;
+    }
+
     DetachedTerminalWindow *window = new DetachedTerminalWindow(this);
     window->setWindowTitle(this->tabText(index) + " - " + connEntry->name);
     connect(window, SIGNAL(tabReattachRequested(QUuid)), this, SLOT(reattachTab(QUuid)));
-
-    TerminalContainer *container = static_cast<TerminalContainer*>(this->widget(index));
 
     DetachedSessionWidget *newWidget = new DetachedSessionWidget();
     newWidget->setUuid(container->getUuid());
@@ -262,6 +265,7 @@ void TabbedTerminalWidget::detachTab(int index)
     window->layout()->addWidget(termWidget);
 
     terminalEntry->detached = true;
+    container->setDetached(terminalEntry->detached);
     terminalEntry->window = window;
 
     termWidget->show();
@@ -287,6 +291,7 @@ void TabbedTerminalWidget::reattachTab(QUuid uuid)
     window->hide();
 
     terminalEntry->detached = false;
+    terminalEntry->container->setDetached(terminalEntry->detached);
     terminalEntry->window = nullptr;
 
     termWidget->setFocus();

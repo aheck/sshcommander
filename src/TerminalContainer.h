@@ -24,9 +24,12 @@ public:
     void setWidget(QWidget *widget);
     QWidget* getWidget();
     QString getWidgetClassname();
+    void setDetached(bool detached);
+    bool getDetached();
 
 private:
     QUuid uuid;
+    bool detached;
     QWidget *widget;
 };
 

@@ -7,6 +7,7 @@ TerminalContainer::TerminalContainer(QUuid uuid, QWidget *parent) :
 {
     this->widget = nullptr;
     this->uuid = uuid;
+    this->detached = false;
 
     this->setLayout(new QVBoxLayout());
     this->layout()->setContentsMargins(0, 0, 0, 0);
@@ -51,4 +52,14 @@ QString TerminalContainer::getWidgetClassname()
     }
 
     return this->widget->metaObject()->className();
+}
+
+void TerminalContainer::setDetached(bool detached)
+{
+    this->detached = detached;
+}
+
+bool TerminalContainer::getDetached()
+{
+    return this->detached;
 }

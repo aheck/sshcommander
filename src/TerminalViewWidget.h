@@ -55,13 +55,17 @@ public slots:
     void createNewSession();
     void restartCurrentSession();
     void toggleEnlarge();
+    void toggleWindowMode(bool checked);
 
     void prevTab();
     void nextTab();
 
+    void updateTab();
+
 private:
     bool enlarged;
     QAction *toggleEnlarged;
+    QAction *toggleWindowButton;
     QToolBar *toolBar;
     QStackedWidget *widgetStack;
     QStackedWidget *terminalStack;

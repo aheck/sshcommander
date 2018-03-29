@@ -136,6 +136,6 @@ void ConnectionListView::dropEvent(QDropEvent *event)
 
     static_cast<SSHConnectionItemModel*>(this->model())->moveConnectionEntry(originRow, targetRow);
 
-    this->setCurrentIndex(index);
+    this->setCurrentIndex(this->model()->index(targetRow, 0));
     emit connectionMoved(originRow, targetRow);
 }

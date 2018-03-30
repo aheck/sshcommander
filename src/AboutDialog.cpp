@@ -75,7 +75,7 @@ AboutDialog::AboutDialog()
     commitIdLabel->setAlignment(Qt::AlignCenter);
     layout->addWidget(commitIdLabel);
 
-    QLabel *copyrightLabel = new QLabel("\nCopyright © 2016-2017 Andreas Heck\n\n"
+    QLabel *copyrightLabel = new QLabel("\nCopyright © 2016-2018 Andreas Heck\n\n"
             "This program is free software under the\n"
             "terms of the GNU General Public License Version 2", this);
     copyrightLabel->setAlignment(Qt::AlignCenter);

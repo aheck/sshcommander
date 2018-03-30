@@ -4,6 +4,7 @@ TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
     QWidget(parent)
 {
     this->enlarged = false;
+    this->appletsShown = true;
 
     this->widgetStack = new QStackedWidget();
 
@@ -25,6 +26,7 @@ TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
     this->appletStack = new QStackedWidget();
 
     this->terminalSplitter = new QSplitter(Qt::Vertical);
+    this->terminalSplitter->setObjectName("terminalSplitter");
 
     // build layout
     QVBoxLayout *boxLayout = new QVBoxLayout();
@@ -42,6 +44,18 @@ TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
     this->terminalSplitter->setCollapsible(0, false);
     this->terminalSplitter->setStretchFactor(0, 15);
     this->terminalSplitter->setStretchFactor(1, 1);
+
+    QSplitterHandle *handle = this->terminalSplitter->handle(1);
+    QHBoxLayout *splitterHandleLayout = new QHBoxLayout();
+    splitterHandleLayout->setContentsMargins(5, 0, 0, 0);
+    handle->setLayout(splitterHandleLayout);
+    QLabel *handleLabel = new QLabel("Applets");
+    handleLabel->setStyleSheet("QLabel { color : white; }");
+    QPushButton *handleButton = new QPushButton("<", handle);
+    connect(handleButton, SIGNAL(clicked()), this, SLOT(toggleApplets()));
+    handle->layout()->addWidget(handleLabel);
+    handle->layout()->addItem(new QSpacerItem(0, 80, QSizePolicy::Expanding, QSizePolicy::Expanding));
+    handle->layout()->addWidget(handleButton);
 
     this->widgetStack->addWidget(this->terminalSplitter);
 
@@ -262,5 +276,25 @@ void TerminalViewWidget::toggleWindowMode(bool checked)
         this->toggleWindowButton->setToolTip(tr("Detach Terminal"));
         TerminalContainer *container = static_cast<TerminalContainer*>(tabs->widget(tabs->currentIndex()));
         tabs->reattachTab(container->getUuid());
+    }
+}
+
+void TerminalViewWidget::toggleApplets()
+{
+    QList<int> sizes = this->terminalSplitter->sizes();
+
+    if (this->appletsShown) {
+        this->terminalSize = sizes.at(0);
+        this->appletSize = sizes.at(1);
+        sizes.replace(1, 0);
+        this->terminalSplitter->setSizes(sizes);
+
+        this->appletsShown = false;
+    } else {
+        sizes.replace(0, this->terminalSize);
+        sizes.replace(1, this->appletSize);
+        this->terminalSplitter->setSizes(sizes);
+
+        this->appletsShown = true;
     }
 }

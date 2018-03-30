@@ -61,9 +61,13 @@ public slots:
     void nextTab();
 
     void updateTab();
+    void toggleApplets();
 
 private:
     bool enlarged;
+    bool appletsShown;
+    int terminalSize;
+    int appletSize;
     QAction *toggleEnlarged;
     QAction *toggleWindowButton;
     QToolBar *toolBar;

@@ -26,8 +26,6 @@ TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
 
     this->terminalSplitter = new QSplitter(Qt::Vertical);
 
-    this->terminalSplitter->setCollapsible(0, false);
-
     // build layout
     QVBoxLayout *boxLayout = new QVBoxLayout();
     boxLayout->setSpacing(0);
@@ -41,6 +39,9 @@ TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
 
     this->terminalSplitter->addWidget(this->terminalPage);
     this->terminalSplitter->addWidget(this->appletStack);
+    this->terminalSplitter->setCollapsible(0, false);
+    this->terminalSplitter->setStretchFactor(0, 15);
+    this->terminalSplitter->setStretchFactor(1, 1);
 
     this->widgetStack->addWidget(this->terminalSplitter);
 

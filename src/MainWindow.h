@@ -51,11 +51,13 @@ public:
     ~MainWindow();
     void readSettings();
     void saveSettings();
+    bool askToQuit();
 
 public slots:
     void changeConnection(int row);
     void moveConnection(int originRow, int targetRow);
     void createNewConnection();
+    void quit();
     void closeEvent(QCloseEvent *event) override;
     void aboutToQuit();
     void createSSHConnectionToAWS(std::shared_ptr<AWSInstance> instance,

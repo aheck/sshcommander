@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QAction *newRole = connMenu->addAction(QIcon(":/images/applications-internet.svg"), tr("&New"), this, SLOT(showNewDialog()));
     newRole->setMenuRole(QAction::NoRole);
     connMenu->addSeparator();
-    QAction *quitRole = connMenu->addAction(QIcon(":/images/system-log-out.svg"), tr("&Quit"), qApp, SLOT(quit()));
+    QAction *quitRole = connMenu->addAction(QIcon(":/images/system-log-out.svg"), tr("&Quit"), this, SLOT(quit()));
     quitRole->setMenuRole(QAction::QuitRole);
 
     QMenu *editMenu = new QMenu(tr("Edit"));
@@ -189,8 +189,36 @@ void MainWindow::createNewConnection()
     this->terminalView->setFocusOnCurrentTerminal();
 }
 
+bool MainWindow::askToQuit()
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Really Quit SSH Commander?",
+            QString("Quitting SSH Commander will terminate all your running SSH "
+                "connections. Do you really want to quit SSH commander?"),
+            QMessageBox::Yes|QMessageBox::No);
+
+    if (reply == QMessageBox::Yes) {
+        return true;
+    }
+
+    return false;
+}
+
+void MainWindow::quit()
+{
+    if (this->askToQuit() == false) {
+        return;
+    }
+
+    qApp->quit();
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    if (this->askToQuit() == false) {
+        event->ignore();
+    }
+
     std::shared_ptr<SSHConnectionEntry> connEntry;
     for (int i = 0; (connEntry = this->connectionModel->getConnEntry(i)); i++) {
         connEntry->tabs->closeAllDetachedWindows();

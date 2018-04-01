@@ -27,6 +27,7 @@ TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
 
     this->terminalSplitter = new QSplitter(Qt::Vertical);
     this->terminalSplitter->setObjectName("terminalSplitter");
+    connect(this->terminalSplitter, SIGNAL(splitterMoved(int, int)), this, SLOT(terminalSplitterMoved(int, int)));
 
     // build layout
     QVBoxLayout *boxLayout = new QVBoxLayout();
@@ -56,6 +57,7 @@ TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
     handle->layout()->addWidget(handleLabel);
     handle->layout()->addItem(new QSpacerItem(0, 80, QSizePolicy::Expanding, QSizePolicy::Expanding));
     handle->layout()->addWidget(handleButton);
+    handleButton->setCursor(Qt::ArrowCursor);
 
     this->widgetStack->addWidget(this->terminalSplitter);
 
@@ -297,4 +299,22 @@ void TerminalViewWidget::toggleApplets()
 
         this->appletsShown = true;
     }
+}
+
+void TerminalViewWidget::terminalSplitterMoved(int pos, int index)
+{
+    QList<int> sizes = this->terminalSplitter->sizes();
+
+    if (sizes.at(1) == 0) {
+        this->appletsShown = false;
+    } else {
+        this->appletsShown = true;
+    }
+}
+
+void TerminalViewWidget::showEvent(QShowEvent *event)
+{
+    QList<int> sizes = this->terminalSplitter->sizes();
+    this->terminalSize = sizes.at(0);
+    this->appletSize = sizes.at(1);
 }

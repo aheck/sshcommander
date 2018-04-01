@@ -47,6 +47,7 @@ public:
     void setDisabledPageEnabled(bool enabled);
     void setFocusOnCurrentTerminal();
     void updateConsoleSettings(const QFont &font, const QString colorScheme);
+    void showEvent(QShowEvent *event) override;
 
 signals:
     void requestToggleEnlarge();
@@ -62,6 +63,7 @@ public slots:
 
     void updateTab();
     void toggleApplets();
+    void terminalSplitterMoved(int pos, int index);
 
 private:
     bool enlarged;

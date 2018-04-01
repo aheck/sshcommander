@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->widgetStack = new QStackedWidget();
 
     this->splitter = new QSplitter(Qt::Horizontal);
+    this->splitter->setObjectName("mainSplitter");
     this->splitter->setContentsMargins(0, 0, 0, 0);
 
     // create the connection list and its model

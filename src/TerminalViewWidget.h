@@ -22,6 +22,7 @@
 #include <QMessageBox>
 #include <QVBoxLayout>
 #include <QToolBar>
+#include <QToolButton>
 #include <QShortcut>
 #include <QSplitter>
 #include <QStackedWidget>
@@ -66,6 +67,8 @@ public slots:
     void terminalSplitterMoved(int pos, int index);
 
 private:
+    void setAppletsShown(bool appletsShown);
+
     bool enlarged;
     bool appletsShown;
     int terminalSize;
@@ -78,6 +81,7 @@ private:
     QStackedWidget *appletStack;
     QSplitter *terminalSplitter;
     QWidget *terminalPage;
+    QToolButton *handleButton;
 };
 
 #endif

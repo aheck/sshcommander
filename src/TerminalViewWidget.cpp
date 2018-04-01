@@ -52,7 +52,8 @@ TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
     handle->setLayout(splitterHandleLayout);
     QLabel *handleLabel = new QLabel("Applets");
     handleLabel->setStyleSheet("QLabel { color : white; }");
-    QPushButton *handleButton = new QPushButton("<", handle);
+    this->handleButton = new QToolButton(handle);
+    this->handleButton->setArrowType(Qt::DownArrow);
     connect(handleButton, SIGNAL(clicked()), this, SLOT(toggleApplets()));
     handle->layout()->addWidget(handleLabel);
     handle->layout()->addItem(new QSpacerItem(0, 80, QSizePolicy::Expanding, QSizePolicy::Expanding));
@@ -281,6 +282,17 @@ void TerminalViewWidget::toggleWindowMode(bool checked)
     }
 }
 
+void TerminalViewWidget::setAppletsShown(bool appletsShown)
+{
+    this->appletsShown = appletsShown;
+
+    if (appletsShown) {
+        this->handleButton->setArrowType(Qt::DownArrow);
+    } else {
+        this->handleButton->setArrowType(Qt::UpArrow);
+    }
+}
+
 void TerminalViewWidget::toggleApplets()
 {
     QList<int> sizes = this->terminalSplitter->sizes();
@@ -291,13 +303,13 @@ void TerminalViewWidget::toggleApplets()
         sizes.replace(1, 0);
         this->terminalSplitter->setSizes(sizes);
 
-        this->appletsShown = false;
+        this->setAppletsShown(false);
     } else {
         sizes.replace(0, this->terminalSize);
         sizes.replace(1, this->appletSize);
         this->terminalSplitter->setSizes(sizes);
 
-        this->appletsShown = true;
+        this->setAppletsShown(true);
     }
 }
 
@@ -306,9 +318,9 @@ void TerminalViewWidget::terminalSplitterMoved(int pos, int index)
     QList<int> sizes = this->terminalSplitter->sizes();
 
     if (sizes.at(1) == 0) {
-        this->appletsShown = false;
+        this->setAppletsShown(false);
     } else {
-        this->appletsShown = true;
+        this->setAppletsShown(true);
     }
 }
 

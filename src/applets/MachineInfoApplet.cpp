@@ -121,6 +121,8 @@ void MachineInfoApplet::init(std::shared_ptr<SSHConnectionEntry> connEntry)
 
 void MachineInfoApplet::onShow()
 {
+    this->updateKnownHostsData();
+
     if (!this->firstShow) {
         return;
     }
@@ -138,6 +140,14 @@ void MachineInfoApplet::updateData()
     this->valueSCPCommand->setText(this->connEntry->generateSCPCommand("File2Copy", "/tmp"));
     this->valueSCPDirCommand->setText(this->connEntry->generateSCPCommand("Dir2Copy", "/tmp", true));
 
+    this->updateKnownHostsData();
+
+    SSHConnectionManager &connMgr = SSHConnectionManager::getInstance();
+    connMgr.executeRemoteCmd(this->connEntry, "uname -s -r -i", this, "sshResultReceived");
+}
+
+void MachineInfoApplet::updateKnownHostsData()
+{
     this->knownHostsFilePath = this->getKnownHostsFilePath();
     this->valueKnownHostsFile->setText(this->knownHostsFilePath);
     if (QFile::exists(this->knownHostsFilePath)) {
@@ -147,12 +157,11 @@ void MachineInfoApplet::updateData()
     }
     if (this->isHostInKnownHostsFile()) {
         this->valueKnownHostsEntryExists->setText(tr("Yes"));
+        this->removeHostButton->setEnabled(true);
     } else {
         this->valueKnownHostsEntryExists->setText(tr("No"));
+        this->removeHostButton->setEnabled(false);
     }
-
-    SSHConnectionManager &connMgr = SSHConnectionManager::getInstance();
-    connMgr.executeRemoteCmd(this->connEntry, "uname -s -r -i", this, "sshResultReceived");
 }
 
 void MachineInfoApplet::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult)
@@ -260,7 +269,7 @@ void MachineInfoApplet::removeHostFromKnownHosts()
         msgBox.exec();
     }
 
-    this->updateData();
+    this->updateKnownHostsData();
 }
 
 bool MachineInfoApplet::isHostInKnownHostLine(QString hostname, QString line)

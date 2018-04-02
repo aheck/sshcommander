@@ -31,6 +31,7 @@ public:
     virtual void onShow() override;
 
     void updateData();
+    void updateKnownHostsData();
 
 public slots:
     void sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult);

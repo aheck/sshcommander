@@ -26,6 +26,13 @@ MachineInfoApplet::MachineInfoApplet()
     this->valueSCPDirCommand = new QLabel();
     this->valueSCPDirCommand->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
+    this->valueKnownHostsFile = new QLabel();
+    this->valueKnownHostsFile->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    this->valueFileExists = new QLabel();
+    this->valueFileExists->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    this->valueKnownHostsEntryExists = new QLabel();
+    this->valueKnownHostsEntryExists->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
     QHBoxLayout *groupsLayout = new QHBoxLayout();
     QVBoxLayout *groupsLeftLayout = new QVBoxLayout();
     groupsLeftLayout->setAlignment(Qt::AlignTop);
@@ -68,6 +75,21 @@ MachineInfoApplet::MachineInfoApplet()
     sshGroup->setLayout(sshLayout);
     groupsRightLayout->addWidget(sshGroup);
 
+    QFormLayout *knownHostsLayout = new QFormLayout();
+    QGroupBox *knownHostsGroup = new QGroupBox(tr("Local Known Hosts"));
+    knownHostsGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+
+    knownHostsLayout->addRow(tr("Known Hosts File:"), this->valueKnownHostsFile);
+    knownHostsLayout->addRow(tr("File Exists:"), this->valueFileExists);
+    this->removeHostButton = new QPushButton(this->tr("Remove Host"));
+    connect(this->removeHostButton, SIGNAL(clicked()), this, SLOT(removeHostFromKnownHosts()));
+    this->removeHostButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    knownHostsLayout->addRow(tr("Host exists in Known Hosts File:"), this->valueKnownHostsEntryExists);
+    knownHostsLayout->addRow(tr("Remove this Host from Known Hosts:"), this->removeHostButton);
+
+    knownHostsGroup->setLayout(knownHostsLayout);
+    groupsRightLayout->addWidget(knownHostsGroup);
+
     this->page->setLayout(groupsLayout);
 
     QScrollArea *scrollArea = new QScrollArea();
@@ -109,12 +131,25 @@ void MachineInfoApplet::onShow()
 
 void MachineInfoApplet::updateData()
 {
-    this->valueHostname->setText(connEntry->hostname);
-    this->valueUsername->setText(connEntry->username);
+    this->valueHostname->setText(this->connEntry->hostname);
+    this->valueUsername->setText(this->connEntry->username);
 
-    this->valueSSHCommand->setText(connEntry->generateSSHCommand());
-    this->valueSCPCommand->setText(connEntry->generateSCPCommand("File2Copy", "/tmp"));
-    this->valueSCPDirCommand->setText(connEntry->generateSCPCommand("Dir2Copy", "/tmp", true));
+    this->valueSSHCommand->setText(this->connEntry->generateSSHCommand());
+    this->valueSCPCommand->setText(this->connEntry->generateSCPCommand("File2Copy", "/tmp"));
+    this->valueSCPDirCommand->setText(this->connEntry->generateSCPCommand("Dir2Copy", "/tmp", true));
+
+    this->knownHostsFilePath = this->getKnownHostsFilePath();
+    this->valueKnownHostsFile->setText(this->knownHostsFilePath);
+    if (QFile::exists(this->knownHostsFilePath)) {
+        this->valueFileExists->setText(tr("Yes"));
+    } else {
+        this->valueFileExists->setText(tr("No"));
+    }
+    if (this->isHostInKnownHostsFile()) {
+        this->valueKnownHostsEntryExists->setText(tr("Yes"));
+    } else {
+        this->valueKnownHostsEntryExists->setText(tr("No"));
+    }
 
     SSHConnectionManager &connMgr = SSHConnectionManager::getInstance();
     connMgr.executeRemoteCmd(this->connEntry, "uname -s -r -i", this, "sshResultReceived");
@@ -187,4 +222,131 @@ void MachineInfoApplet::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdRe
 
         this->valueCpu->setText(cpu);
     }
+}
+
+QString MachineInfoApplet::getKnownHostsFilePath()
+{
+    QString path;
+
+    path = QDir::homePath() + "/.ssh/known_hosts";
+
+    return path;
+}
+
+void MachineInfoApplet::removeHostFromKnownHosts()
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Really Remove this Host?",
+            QString("The known hosts file stores the identities of hosts you have already connected to. "
+                "When SSH refuses to connect because the identity of a host does not match the identity "
+                "stored in the known hosts file an attacker might have manipulated your connection or "
+                "in some cases he even hacked your host.\n\n"
+                "If you don't know why the identity of your target host changed you should "
+                "investigate why this happened instead of just deleting the known hosts entry.\n\n"
+                "Do you really want to remove this host from your known hosts file?"),
+            QMessageBox::Yes|QMessageBox::No);
+
+    if (reply == QMessageBox::No) {
+        return;
+    }
+
+    bool success = this->removeHostFromKnownHostsFile();
+
+    if (!success) {
+        QMessageBox msgBox;
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.setText("Failed to remove host '" + this->connEntry->hostname +
+                "' from known hosts file '" + this->knownHostsFilePath + "'");
+        msgBox.exec();
+    }
+
+    this->updateData();
+}
+
+bool MachineInfoApplet::isHostInKnownHostLine(QString hostname, QString line)
+{
+    QStringList fields = line.split(" ");
+    if (fields.length() < 2) {
+        return false;
+    }
+
+    QString hostField = fields.at(0);
+
+    // SHA1 HMAC hashed hostnames?
+    if (hostField.startsWith("|1|")) {
+        hostField.remove(0, 3); // remove hash marker |1|
+        QStringList hashFields = hostField.split("|");
+        if (hashFields.length() != 2) {
+            return false;
+        }
+
+        QByteArray key = QByteArray::fromBase64(hashFields.at(0).toLatin1());
+        QByteArray hashedHostname = QByteArray::fromBase64(hashFields.at(1).toLatin1());
+
+        QByteArray hostnameHashed = QMessageAuthenticationCode::hash(hostname.toLatin1(), key, QCryptographicHash::Sha1);
+
+        if (hashedHostname == hostnameHashed) {
+            return true;
+        }
+    } else { // plain text hostnames
+        QStringList hostnames = hostField.split(",");
+
+        for (QString curHostname : hostnames) {
+            if (curHostname == hostname) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool MachineInfoApplet::isHostInKnownHostsFile()
+{
+    QFile file(this->knownHostsFilePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return false;
+    }
+
+    while (!file.atEnd()) {
+        QByteArray lineBytes = file.readLine();
+        QString line = QString::fromLatin1(lineBytes);
+
+        if (isHostInKnownHostLine(this->connEntry->hostname, line)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool MachineInfoApplet::removeHostFromKnownHostsFile()
+{
+    QStringList linesToWrite;
+
+    QFile file(this->knownHostsFilePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return false;
+    }
+
+    while (!file.atEnd()) {
+        QByteArray lineBytes = file.readLine();
+        QString line = QString::fromLatin1(lineBytes);
+
+        if (!isHostInKnownHostLine(this->connEntry->hostname, line)) {
+            linesToWrite.append(line);
+        }
+    }
+
+    file.close();
+
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return false;
+    }
+
+    for (QString line : linesToWrite) {
+        file.write(line.toLatin1());
+    }
+
+    return true;
 }

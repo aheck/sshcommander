@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include <QDir>
+#include <QFile>
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QGroupBox>
@@ -33,7 +35,15 @@ public:
 public slots:
     void sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult);
 
+private slots:
+    void removeHostFromKnownHosts();
+
 private:
+    QString getKnownHostsFilePath();
+    bool isHostInKnownHostLine(QString hostname, QString line);
+    bool isHostInKnownHostsFile();
+    bool removeHostFromKnownHostsFile();
+
     QWidget *page;
     QLabel *valueHostname;
     QLabel *valueOperatingSystem;
@@ -44,7 +54,12 @@ private:
     QLabel *valueSSHCommand;
     QLabel *valueSCPCommand;
     QLabel *valueSCPDirCommand;
+    QLabel *valueKnownHostsFile;
+    QLabel *valueFileExists;
+    QLabel *valueKnownHostsEntryExists;
+    QPushButton *removeHostButton;
     bool firstShow;
+    QString knownHostsFilePath;
 };
 
 #endif

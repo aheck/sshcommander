@@ -3,6 +3,7 @@
 MachineInfoApplet::MachineInfoApplet()
 {
     this->firstShow = true;
+    connect(&this->fileWatcher, SIGNAL(fileChanged(QString)), this, SLOT(updateKnownHostsData()));
 
     this->page = new QWidget();
     this->page->setObjectName("scrollAreaContent");
@@ -149,6 +150,11 @@ void MachineInfoApplet::updateData()
 void MachineInfoApplet::updateKnownHostsData()
 {
     this->knownHostsFilePath = this->getKnownHostsFilePath();
+    // With QFileSystemWatcher we can only add the path once so calling
+    // it with each update makes sure it is always set, even when the
+    // known hosts file gets deleted and recreated in the meantime
+    this->fileWatcher.addPath(this->knownHostsFilePath);
+
     this->valueKnownHostsFile->setText(this->knownHostsFilePath);
     if (QFile::exists(this->knownHostsFilePath)) {
         this->valueFileExists->setText(tr("Yes"));

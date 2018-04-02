@@ -5,6 +5,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QFileSystemWatcher>
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QGroupBox>
@@ -31,10 +32,10 @@ public:
     virtual void onShow() override;
 
     void updateData();
-    void updateKnownHostsData();
 
 public slots:
     void sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult);
+    void updateKnownHostsData();
 
 private slots:
     void removeHostFromKnownHosts();
@@ -61,6 +62,7 @@ private:
     QPushButton *removeHostButton;
     bool firstShow;
     QString knownHostsFilePath;
+    QFileSystemWatcher fileWatcher;
 };
 
 #endif

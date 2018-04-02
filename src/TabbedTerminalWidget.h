@@ -68,6 +68,9 @@ private:
     std::weak_ptr<SSHConnectionEntry> connEntryWeak;
     std::map<QUuid, TerminalSessionEntry*> terminalSessions;
     std::map<QTermWidget*, int> passwordLineCounter;
+
+signals:
+    void terminalAttachmentChanged();
 };
 
 #endif

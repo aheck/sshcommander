@@ -243,7 +243,7 @@ void TabbedTerminalWidget::detachTab(int index)
     }
 
     TerminalContainer *container = static_cast<TerminalContainer*>(this->widget(index));
-    if (container->getDetached()) {
+    if (container->isDetached()) {
         return;
     }
 
@@ -270,6 +270,8 @@ void TabbedTerminalWidget::detachTab(int index)
 
     termWidget->show();
     window->show();
+
+    emit terminalAttachmentChanged();
 }
 
 void TabbedTerminalWidget::reattachTab(QUuid uuid)
@@ -297,6 +299,8 @@ void TabbedTerminalWidget::reattachTab(QUuid uuid)
     termWidget->setFocus();
 
     window->deleteLater();
+
+    emit terminalAttachmentChanged();
 }
 
 void TabbedTerminalWidget::showDetachedWindow(QUuid uuid)

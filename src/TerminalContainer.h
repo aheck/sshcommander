@@ -25,7 +25,7 @@ public:
     QWidget* getWidget();
     QString getWidgetClassname();
     void setDetached(bool detached);
-    bool getDetached();
+    bool isDetached();
 
 private:
     QUuid uuid;

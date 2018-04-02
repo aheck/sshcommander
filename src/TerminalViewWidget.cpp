@@ -83,6 +83,7 @@ TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
 void TerminalViewWidget::addConnection(std::shared_ptr<SSHConnectionEntry> connEntry, TabbedTerminalWidget *tabs)
 {
     connect(tabs, SIGNAL(currentChanged(int)), this, SLOT(updateTab()));
+    connect(tabs, SIGNAL(terminalAttachmentChanged()), this, SLOT(updateTab()));
     this->terminalStack->addWidget(tabs);
 
     AppletWidget *applets = new AppletWidget(connEntry);
@@ -261,7 +262,13 @@ void TerminalViewWidget::updateTab()
 {
     TabbedTerminalWidget *tabs = static_cast<TabbedTerminalWidget *>(this->terminalStack->currentWidget());
     TerminalContainer *container = static_cast<TerminalContainer*>(tabs->widget(tabs->currentIndex()));
-    this->toggleWindowButton->setChecked(container->getDetached());
+    this->toggleWindowButton->setChecked(container->isDetached());
+
+    if (container->isDetached()) {
+        this->toggleWindowButton->setToolTip(tr("Reattach Terminal"));
+    } else {
+        this->toggleWindowButton->setToolTip(tr("Detach Terminal"));
+    }
 }
 
 void TerminalViewWidget::toggleWindowMode(bool checked)
@@ -273,10 +280,8 @@ void TerminalViewWidget::toggleWindowMode(bool checked)
     TabbedTerminalWidget *tabs = static_cast<TabbedTerminalWidget *>(this->terminalStack->currentWidget());
 
     if (checked) {
-        this->toggleWindowButton->setToolTip(tr("Reattach Terminal"));
         tabs->detachTab(tabs->currentIndex());
     } else {
-        this->toggleWindowButton->setToolTip(tr("Detach Terminal"));
         TerminalContainer *container = static_cast<TerminalContainer*>(tabs->widget(tabs->currentIndex()));
         tabs->reattachTab(container->getUuid());
     }

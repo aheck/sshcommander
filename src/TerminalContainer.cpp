@@ -59,7 +59,7 @@ void TerminalContainer::setDetached(bool detached)
     this->detached = detached;
 }
 
-bool TerminalContainer::getDetached()
+bool TerminalContainer::isDetached()
 {
     return this->detached;
 }

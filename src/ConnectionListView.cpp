@@ -106,7 +106,6 @@ void ConnectionListView::dragEnterEvent(QDragEnterEvent *event)
 
 void ConnectionListView::dragMoveEvent(QDragMoveEvent *event)
 {
-    QModelIndex index = this->indexAt(event->pos());
     event->setDropAction(Qt::MoveAction);
     event->accept();
 }

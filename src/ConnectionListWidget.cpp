@@ -207,6 +207,11 @@ void ConnectionListWidget::updateAWSInstances()
     this->model->updateAWSInstances();
 }
 
+void ConnectionListWidget::setAWSConsoleButton()
+{
+    this->awsConsoleAction->setChecked(true);
+}
+
 void ConnectionListWidget::resetAWSConsoleButton()
 {
     this->awsConsoleAction->setChecked(false);

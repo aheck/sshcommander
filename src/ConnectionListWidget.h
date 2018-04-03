@@ -44,6 +44,7 @@ public:
     std::shared_ptr<SSHConnectionEntry> getSelectedConnectionEntry();
     void selectFirstConnection();
     const QString getSelectedUsernameAndHost();
+    void setAWSConsoleButton();
     void resetAWSConsoleButton();
     void disableAWSConsoleButton();
     void enableAWSConsoleButton();

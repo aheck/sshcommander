@@ -496,5 +496,6 @@ void MainWindow::toggleDetachAwsConsole(bool detach)
         this->awsConsoleWindow->hide();
 
         this->connectionList->enableAWSConsoleButton();
+        this->connectionList->setAWSConsoleButton();
     }
 }

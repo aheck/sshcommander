@@ -245,7 +245,10 @@ void MainWindow::readSettings()
     QString filename = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("connections.json");
     QFile file(filename);
     if (!file.open(QFile::ReadOnly)) {
-        std::cout << "Failed to open connections.json" << std::endl;
+        QMessageBox msgBox;
+        msgBox.setText("Can't load settings. Failed to open " + filename);
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.exec();
         return;
     }
 
@@ -319,8 +322,8 @@ void MainWindow::saveSettings()
     if (!jsonDir.exists()) {
         if (!jsonDir.mkpath(jsonDir.path())) {
             QMessageBox msgBox;
-            msgBox.setText("Failed to create directory '" + jsonDir.path() + "'");
-            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.setText("Can't save program settings. Failed to create directory '" + jsonDir.path() + "'");
+            msgBox.setIcon(QMessageBox::Critical);
             msgBox.exec();
             return;
         }
@@ -331,8 +334,8 @@ void MainWindow::saveSettings()
 
     if (!file.open(QIODevice::WriteOnly)) {
         QMessageBox msgBox;
-        msgBox.setText("Failed to open file '" + jsonFilePath + "' for writing.");
-        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setText("Can't save program settings. Failed to open file '" + jsonFilePath + "' for writing.");
+        msgBox.setIcon(QMessageBox::Critical);
         msgBox.exec();
         return;
     }
@@ -340,7 +343,7 @@ void MainWindow::saveSettings()
     qint64 bytesWritten = file.write(jsonDoc.toJson());
     if (bytesWritten == -1) {
         QMessageBox msgBox;
-        msgBox.setText("Failed to write to file '" + jsonFilePath + "'");
+        msgBox.setText("Can't save program settings. Failed to write to file '" + jsonFilePath + "'");
         msgBox.setIcon(QMessageBox::Critical);
         msgBox.exec();
     }

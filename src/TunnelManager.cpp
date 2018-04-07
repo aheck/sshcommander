@@ -13,6 +13,25 @@ TunnelEntry::~TunnelEntry()
     }
 }
 
+void TunnelEntry::read(const QJsonObject &json)
+{
+    this->hostname = json["hostname"].toString();
+    this->username = json["username"].toString();
+    this->localPort = json["localPort"].toInt();
+    this->remotePort = json["remotePort"].toInt();
+    this->shortDescription = json["username"].toString();
+    this->termWidget = nullptr;
+}
+
+void TunnelEntry::write(QJsonObject &json) const
+{
+    json["hostname"] = this->hostname;
+    json["username"] = this->username;
+    json["localPort"] = this->localPort;
+    json["remotePort"] = this->remotePort;
+    json["shortDescription"] = this->shortDescription;
+}
+
 TunnelManager& TunnelManager::getInstance()
 {
     static TunnelManager tunnelManager;
@@ -22,10 +41,103 @@ TunnelManager& TunnelManager::getInstance()
 TunnelManager::TunnelManager()
 {
     connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(cleanUp()));
+
+    this->restoreFromJson();
 }
 
 TunnelManager::~TunnelManager()
 {
+}
+
+bool TunnelManager::saveToJson()
+{
+    QJsonDocument jsonDoc;
+    QJsonObject jsonObject;
+
+    for (auto const& cur : this->tunnelsByConnection) {
+        QString connectionName = cur.first;
+
+        QJsonArray tunnelsArray = QJsonArray();
+
+        for (std::shared_ptr<TunnelEntry> tunnel : this->tunnelsByConnection[connectionName]) {
+            QJsonObject curObj;
+            tunnel->write(curObj);
+            tunnelsArray.append(curObj);
+        }
+
+        jsonObject[connectionName] = tunnelsArray;
+    }
+
+    jsonDoc.setObject(jsonObject);
+
+    QDir jsonDir = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+
+    if (!jsonDir.exists()) {
+        if (!jsonDir.mkpath(jsonDir.path())) {
+            QMessageBox msgBox;
+            msgBox.setText("Can't save SSH tunnels. Failed to create directory '" + jsonDir.path() + "'");
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.exec();
+            return false;
+        }
+    }
+
+    QString jsonFilePath = jsonDir.filePath("tunnels.json");
+    QFile file(jsonFilePath);
+
+    if (!file.open(QIODevice::WriteOnly)) {
+        QMessageBox msgBox;
+        msgBox.setText("Can't save SSH tunnels. Failed to open file '" + jsonFilePath + "' for writing.");
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.exec();
+        return false;
+    }
+
+    qint64 bytesWritten = file.write(jsonDoc.toJson());
+    if (bytesWritten == -1) {
+        QMessageBox msgBox;
+        msgBox.setText("Can't save SSH tunnels. Failed to write to file '" + jsonFilePath + "'");
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.exec();
+    }
+
+    file.close();
+
+    return true;
+}
+
+bool TunnelManager::restoreFromJson()
+{
+    QString filename = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("tunnels.json");
+    QFile file(filename);
+    if (!file.open(QFile::ReadOnly)) {
+        QMessageBox msgBox;
+        msgBox.setText("Can't restore SSH tunnels. Failed to open " + filename);
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.exec();
+        return false;
+    }
+
+    QByteArray fileContent(file.readAll());
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(fileContent);
+
+    QJsonObject jsonObj = jsonDoc.object();
+    QJsonArray connArray(jsonObj["connections"].toArray());
+
+    for (const QString& connectionName : jsonObj.keys()) {
+        QJsonArray connArray(jsonObj[connectionName].toArray());
+
+        for (QJsonValue curValue : connArray) {
+            std::shared_ptr<TunnelEntry> tunnel = std::make_shared<TunnelEntry>();
+            tunnel->read(curValue.toObject());
+
+            this->tunnelsByConnection[connectionName].push_back(tunnel);
+        }
+    }
+
+    file.close();
+
+    return true;
 }
 
 int TunnelManager::countTunnels(QString username, QString hostname)
@@ -107,6 +219,8 @@ bool TunnelManager::removeTunnel(QString username, QString hostname, int localPo
 
 void TunnelManager::cleanUp()
 {
+    this->saveToJson();
+
     for (auto const& cur : this->tunnelsByConnection) {
         this->tunnelsByConnection[cur.first].clear();
     }
@@ -138,7 +252,6 @@ bool TunnelManager::findListeningPortInProcFile(int port, QString procPath)
 
         QString localAddress = fields.at(1);
         QStringList localAddressParts = localAddress.split(":");
-        QString localIP = localAddressParts.at(0);
         QString localPort = localAddressParts.at(1);
 
         QString remoteAddress = fields.at(2);

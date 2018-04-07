@@ -16,6 +16,12 @@
 #include <vector>
 
 #include <QApplication>
+#include <QDir>
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QStandardPaths>
 #include <QString>
 
 #include "SSHConnectionEntry.h"
@@ -32,6 +38,9 @@ struct TunnelEntry
 
     TunnelEntry();
     ~TunnelEntry();
+
+    void read(const QJsonObject &json);
+    void write(QJsonObject &json) const;
 };
 
 class TunnelManager : public QObject
@@ -43,6 +52,9 @@ public:
 
     TunnelManager(TunnelManager const &other) = delete;
     void operator=(TunnelManager const &) = delete;
+
+    bool saveToJson();
+    bool restoreFromJson();
 
     int countTunnels(QString username, QString hostname);
     std::shared_ptr<TunnelEntry> getTunnel(QString username, QString hostname, int row);

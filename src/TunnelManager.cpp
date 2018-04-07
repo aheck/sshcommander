@@ -111,3 +111,70 @@ void TunnelManager::cleanUp()
         this->tunnelsByConnection[cur.first].clear();
     }
 }
+
+bool TunnelManager::findListeningPortInProcFile(int port, QString procPath)
+{
+    bool result = false;
+    QFile file(procPath);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return false;
+    }
+
+    QRegExp sep("\\s+");
+    QRegExp nullAddressRegex("^0+:0+$");
+
+    // skip header line
+    QByteArray lineBytes = file.readLine();
+
+    while (!file.atEnd()) {
+        lineBytes = file.readLine();
+        QString line = QString::fromLatin1(lineBytes).trimmed();
+
+        QStringList fields = line.split(sep);
+        if (fields.length() < 2) {
+            return false;
+        }
+
+        QString localAddress = fields.at(1);
+        QStringList localAddressParts = localAddress.split(":");
+        QString localIP = localAddressParts.at(0);
+        QString localPort = localAddressParts.at(1);
+
+        QString remoteAddress = fields.at(2);
+
+        // The kernel lists the listening ports first. A listening address has
+        // a remote address that is all zero. Once we see a non-zero remote
+        // address we don't need to read the rest of the file.
+        if (nullAddressRegex.exactMatch(remoteAddress)) {
+            break;
+        }
+
+        bool ok;
+        int localPortInt = localPort.toInt(&ok, 16);
+
+        if (port == localPortInt) {
+            result = true;
+        }
+    }
+
+    file.close();
+
+    return result;
+}
+
+bool TunnelManager::isLocalPortInUse(int port)
+{
+#ifdef Q_OS_LINUX
+    if (TunnelManager::findListeningPortInProcFile(port, "/proc/net/tcp")) {
+        return true;
+    }
+
+    if (TunnelManager::findListeningPortInProcFile(port, "/proc/net/tcp6")) {
+        return true;
+    }
+
+    return false;
+#elif Q_OS_MACOS
+#endif
+}

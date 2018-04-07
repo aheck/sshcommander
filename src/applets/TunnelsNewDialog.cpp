@@ -69,6 +69,13 @@ void TunnelsNewDialog::acceptDialog()
         return;
     }
 
+    if (TunnelManager::isLocalPortInUse(this->localPort)) {
+        msgBox.setText(QString("Local port ") + QString::number(this->localPort) + " is already used by another process");
+        msgBox.exec();
+
+        return;
+    }
+
     this->accept();
 }
 

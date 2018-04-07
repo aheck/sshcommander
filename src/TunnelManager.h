@@ -52,6 +52,9 @@ public:
     void restartTunnel(QString username, QString hostname, int localPort, int remotePort);
     bool removeTunnel(QString username, QString hostname, int localPort, int remotePort);
 
+    static bool findListeningPortInProcFile(int port, QString procPath);
+    static bool isLocalPortInUse(int port);
+
 public slots:
     void cleanUp();
 

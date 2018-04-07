@@ -10,6 +10,8 @@
 #include <QMessageBox>
 #include <QToolButton>
 
+#include "TunnelManager.h"
+
 class TunnelsNewDialog : public QDialog
 {
     Q_OBJECT

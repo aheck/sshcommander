@@ -16,10 +16,13 @@ add_executable(sshcommander
     applets/MachineInfoApplet.cpp
     applets/PortsApplet.cpp
     applets/PortsItemModel.cpp
-    applets/RoutesApplet.cpp
-    applets/RoutesItemModel.cpp
     applets/ProcessesApplet.cpp
     applets/ProcessesItemModel.cpp
+    applets/RoutesApplet.cpp
+    applets/RoutesItemModel.cpp
+    applets/TunnelsApplet.cpp
+    applets/TunnelsItemModel.cpp
+    applets/TunnelsNewDialog.cpp
     AboutDialog.cpp
     Applet.cpp
     AppletWidget.cpp
@@ -56,12 +59,14 @@ add_executable(sshcommander
     SSHConnectionEntry.cpp
     SSHConnectionItemModel.cpp
     SSHConnectionManager.cpp
+    SSHTermWidget.cpp
     SubnetDialog.cpp
     TabbedTerminalWidget.cpp
     TerminalContainer.cpp
     TerminalViewWidget.cpp
     TagsDialog.cpp
     TagsViewWidget.cpp
+    TunnelManager.cpp
     VpcDialog.cpp
     ${ProgramResources}
 )

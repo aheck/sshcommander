@@ -1,6 +1,7 @@
 /*****************************************************************************
  *
- *  AppletWidget the widget that organizes multiple QTermWidget
+ *  AppletWidget is the widget that instantiates and contains all the applets
+ *  in the lower part of the screen.
  *
  ****************************************************************************/
 
@@ -16,6 +17,7 @@
 #include "applets/PortsApplet.h"
 #include "applets/ProcessesApplet.h"
 #include "applets/RoutesApplet.h"
+#include "applets/TunnelsApplet.h"
 #include "InactiveSessionWidget.h"
 #include "Preferences.h"
 #include "SSHConnectionEntry.h"

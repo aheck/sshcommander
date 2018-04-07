@@ -74,7 +74,6 @@ private slots:
     void toggleDetachAwsConsole(bool detach);
 
 private:
-    std::shared_ptr<SSHConnectionEntry> getConnectionEntryByTermWidget(QTermWidget *console);
     void removeTermWidgetMapping(QWidget *widget);
     QString findSSHKey(const QString keyname);
     void updateConnectionTabs();

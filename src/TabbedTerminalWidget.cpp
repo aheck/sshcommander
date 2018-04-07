@@ -39,7 +39,8 @@ void TabbedTerminalWidget::addTerminalSession()
     TerminalSessionEntry *terminalSession = new TerminalSessionEntry();
 
     QStringList args = connEntry->generateCliArgs();
-    QTermWidget *console = createNewTermWidget(&args, !connEntry->password.isEmpty());
+    SSHTermWidget *console = new SSHTermWidget(&args, this->connEntryWeak, this);
+
     TerminalContainer *container = new TerminalContainer(terminalSession->uuid);
     container->setWidget(console);
     this->addTab(container, "Session " + QString::number(connEntry->nextSessionNumber++));
@@ -88,7 +89,7 @@ void TabbedTerminalWidget::startInactiveSession(QUuid uuid)
     QString sessionName = terminalEntry->sessionName;
     TerminalContainer *container = terminalEntry->container;
 
-    if (container->getWidgetClassname() == "QTermWidget") {
+    if (container->getWidgetClassname() == "SSHTermWidget") {
         QMessageBox::StandardButton reply;
         reply = QMessageBox::question(this, "Restart Session?",
                 QString("Do you really want to restart SSH session '%1' with '%2'?").arg(sessionName).arg(connEntry->name),
@@ -100,7 +101,7 @@ void TabbedTerminalWidget::startInactiveSession(QUuid uuid)
     }
 
     QStringList args = connEntry->generateCliArgs();
-    QTermWidget *console = createNewTermWidget(&args, !connEntry->password.isEmpty());
+    SSHTermWidget *console = new SSHTermWidget(&args, this->connEntryWeak, this);
 
     if (!terminalEntry->detached) {
         oldWidget = container->getWidget();
@@ -129,74 +130,6 @@ void TabbedTerminalWidget::restartCurrentSession()
     TerminalContainer *container = static_cast<TerminalContainer*>(this->currentWidget());
 
     startInactiveSession(container->getUuid());
-}
-
-QTermWidget* TabbedTerminalWidget::createNewTermWidget(const QStringList *args, bool connectReceivedData)
-{
-    const QString *program = new QString("/usr/bin/ssh");
-
-    QTermWidget *console = new QTermWidget(0);
-
-    if (connectReceivedData) {
-        connect(console, SIGNAL(receivedData(QString)), this, SLOT(dataReceived(QString)));
-    }
-
-    Preferences &preferences = Preferences::getInstance();
-
-    console->setAutoClose(false);
-    console->setShellProgram(*program);
-    console->setArgs(*args);
-    console->setTerminalFont(preferences.getTerminalFont());
-
-    console->setColorScheme(preferences.getColorScheme());
-    console->setScrollBarPosition(QTermWidget::ScrollBarRight);
-
-    return console;
-}
-
-void TabbedTerminalWidget::dataReceived(const QString &text)
-{
-    QObject *sender = QObject::sender();
-    if (sender->metaObject()->className() != QString("QTermWidget")) {
-        return;
-    }
-
-    auto connEntry = this->connEntryWeak.lock();
-
-    if (!connEntry) {
-        std::cerr << "Failed to acquire shared_ptr on connEntryWeak in " <<
-            __FILE__ << ":" << __LINE__ << std::endl;
-        return;
-    }
-
-    QTermWidget *console = static_cast<QTermWidget *>(sender);
-    if (connEntry == nullptr) {
-        return;
-    }
-
-    if (connEntry->password.isEmpty()) {
-        return;
-    }
-
-    if (this->passwordLineCounter.count(console) == 0) {
-        this->passwordLineCounter[console] = 1;
-    } else {
-        this->passwordLineCounter[console]++;
-
-        if (this->passwordLineCounter[console] > 10) {
-            disconnect(console, SIGNAL(receivedData(QString)),
-                    this, SLOT(dataReceived(QString)));
-            this->passwordLineCounter.erase(console);
-        }
-    }
-
-    if (QRegExp("^.*( )?(p|P)assword:( )?$").exactMatch(text) || QRegExp("Password for \\S+@\\S+:").exactMatch(text)) {
-        console->sendText(connEntry->password + "\n");
-
-        disconnect(console, SIGNAL(receivedData(QString)),
-                this, SLOT(dataReceived(QString)));
-        this->passwordLineCounter.erase(console);
-    }
 }
 
 void TabbedTerminalWidget::closeTab(int tabIndex)

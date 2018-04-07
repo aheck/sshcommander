@@ -36,6 +36,7 @@ public:
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
     QStringList generateCliArgs();
+    QStringList generateTunnelArgs(int localPort, int remotePort);
     QString generateSSHCommand();
     QString generateSCPCommand(QString src, QString dest, bool dir = false);
     const QString encodePassword(const QString &password) const;

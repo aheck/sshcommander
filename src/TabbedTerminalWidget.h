@@ -25,6 +25,7 @@
 #include "InactiveSessionWidget.h"
 #include "Preferences.h"
 #include "SSHConnectionEntry.h"
+#include "SSHTermWidget.h"
 #include "TerminalContainer.h"
 
 struct SSHConnectionEntry;
@@ -59,15 +60,11 @@ public slots:
     void showDetachedWindow(QUuid uuid);
 
 private slots:
-    void dataReceived(const QString &text);
     void closeTab(int tabIndex);
 
 private:
-    QTermWidget* createNewTermWidget(const QStringList *args, bool connectReceivedData);
-
     std::weak_ptr<SSHConnectionEntry> connEntryWeak;
     std::map<QUuid, TerminalSessionEntry*> terminalSessions;
-    std::map<QTermWidget*, int> passwordLineCounter;
 
 signals:
     void terminalAttachmentChanged();

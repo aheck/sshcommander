@@ -10,10 +10,13 @@ add_executable(tests main.cpp
     ../src/applets/MachineInfoApplet.cpp
     ../src/applets/PortsApplet.cpp
     ../src/applets/PortsItemModel.cpp
-    ../src/applets/RoutesApplet.cpp
-    ../src/applets/RoutesItemModel.cpp
     ../src/applets/ProcessesApplet.cpp
     ../src/applets/ProcessesItemModel.cpp
+    ../src/applets/RoutesApplet.cpp
+    ../src/applets/RoutesItemModel.cpp
+    ../src/applets/TunnelsApplet.cpp
+    ../src/applets/TunnelsItemModel.cpp
+    ../src/applets/TunnelsNewDialog.cpp
     ../src/AboutDialog.cpp
     ../src/Applet.cpp
     ../src/AppletWidget.cpp
@@ -50,12 +53,14 @@ add_executable(tests main.cpp
     ../src/SSHConnectionEntry.cpp
     ../src/SSHConnectionItemModel.cpp
     ../src/SSHConnectionManager.cpp
+    ../src/SSHTermWidget.cpp
     ../src/SubnetDialog.cpp
     ../src/TabbedTerminalWidget.cpp
     ../src/TerminalContainer.cpp
     ../src/TerminalViewWidget.cpp
     ../src/TagsDialog.cpp
     ../src/TagsViewWidget.cpp
+    ../src/TunnelManager.cpp
     ../src/VpcDialog.cpp
 )
 

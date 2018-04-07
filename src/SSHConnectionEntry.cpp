@@ -127,6 +127,20 @@ QStringList SSHConnectionEntry::generateCliArgs()
     return args;
 }
 
+QStringList SSHConnectionEntry::generateTunnelArgs(int localPort, int remotePort)
+{
+    QStringList args;
+
+    //args.append("-o");
+    //args.append("\"ExitOnForwardFailure yes\"");
+    args.append("-L");
+    args.append(QString::asprintf("%d:localhost:%d", localPort, remotePort));
+
+    args.append(this->generateCliArgs());
+
+    return args;
+}
+
 QString SSHConnectionEntry::generateSSHCommand()
 {
     QString cmd = "ssh ";

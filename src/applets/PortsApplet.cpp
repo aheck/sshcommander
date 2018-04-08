@@ -16,6 +16,8 @@ PortsApplet::PortsApplet()
     this->table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     this->table->setItemDelegateForColumn(static_cast<int>(PortColumns::Details), new RichTextDelegate());
     this->table->setSortingEnabled(true);
+    this->table->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this->table, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     this->model = new PortsItemModel();
     this->table->setModel(this->model);
     this->table->horizontalHeader()->setStretchLastSection(true);
@@ -24,6 +26,10 @@ PortsApplet::PortsApplet()
     for (int i = 0; i < this->table->horizontalHeader()->count(); i++) {
         this->table->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Interactive);
     }
+
+    this->newDialog = new PortsNewTunnelDialog(this);
+    connect(this->newDialog, SIGNAL(accepted()), this, SLOT(createTunnel()));
+
     this->layout()->addWidget(this->table);
 }
 
@@ -78,4 +84,52 @@ void PortsApplet::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult)
 void PortsApplet::reloadData()
 {
     this->updateData();
+}
+
+void PortsApplet::showContextMenu(QPoint pos)
+{
+    QPoint globalPos = this->table->mapToGlobal(pos);
+    QModelIndex index = this->table->indexAt(pos);
+
+    if (index.isValid()) {
+        QMenu menu;
+
+        //std::shared_ptr<AWSInstance> instance = this->getSelectedInstance();
+        menu.addAction(tr("Tunnel this port to local machine"), this, SLOT(showNewTunnelDialog()));
+
+        menu.addSeparator();
+
+        QMenu *openWithProgramActions = menu.addMenu(tr("Open with..."));
+
+        QAction *pgOpenAction = openWithProgramActions->addAction(tr("..."), this, SLOT(startInstance()));
+
+        menu.exec(globalPos);
+    }
+}
+
+void PortsApplet::showNewTunnelDialog()
+{
+    this->newDialog->show();
+}
+
+void PortsApplet::createTunnel()
+{
+    int row = this->getSelectedRow();
+    std::shared_ptr<NetstatEntry> netstatEntry = this->model->getNetstatEntry(row);
+    int remotePort = netstatEntry->localPort.toInt(nullptr, 10);
+
+    int localPort = this->newDialog->getLocalPort();
+    QString shortDescription = this->newDialog->getShortDescription();
+
+    TunnelManager::getInstance().createTunnel(this->connEntry, localPort, remotePort, shortDescription);
+}
+
+int PortsApplet::getSelectedRow()
+{
+    QModelIndexList indexes = this->table->selectionModel()->selectedIndexes();
+    if (indexes.isEmpty()) {
+        return -1;
+    }
+
+    return indexes.first().row();
 }

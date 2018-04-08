@@ -60,6 +60,7 @@ public:
 
     void updateData(QString data);
     void sort(int column, Qt::SortOrder order) override;
+    std::shared_ptr<NetstatEntry> getNetstatEntry(int row) const;
 
 private:
     KnownPort findKnownPort(bool *success, std::shared_ptr<NetstatEntry> entry) const;

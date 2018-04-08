@@ -4,12 +4,15 @@
 #include <iostream>
 #include <memory>
 
+#include <QAction>
 #include <QHeaderView>
+#include <QMenu>
 #include <QTableView>
 #include <QToolBar>
 
 #include "Applet.h"
 #include "PortsItemModel.h"
+#include "PortsNewTunnelDialog.h"
 #include "RichTextDelegate.h"
 #include "SSHConnectionManager.h"
 
@@ -27,15 +30,22 @@ public:
     virtual void onShow() override;
 
     void updateData();
+    int getSelectedRow();
 
 public slots:
     void sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult);
     void reloadData();
 
+protected slots:
+    void showContextMenu(QPoint pos);
+    void showNewTunnelDialog();
+    void createTunnel();
+
 private:
     QToolBar *toolBar;
     QTableView *table;
     PortsItemModel *model;
+    PortsNewTunnelDialog *newDialog;
     bool firstShow;
 };
 

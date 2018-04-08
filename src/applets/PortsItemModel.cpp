@@ -75,13 +75,22 @@ QVariant PortsItemModel::headerData(int section, Qt::Orientation orientation, in
     return QVariant();
 }
 
+std::shared_ptr<NetstatEntry> PortsItemModel::getNetstatEntry(int row) const
+{
+    if (row < 0 || row > this->rowCount(QModelIndex()) - 1) {
+        return nullptr;
+    }
+
+    return this->portsData.at(row);
+}
+
 QVariant PortsItemModel::data(const QModelIndex &index, int role) const
 {
     if (role != Qt::DisplayRole && role != Qt::EditRole) {
         return QVariant();
     }
 
-    std::shared_ptr<NetstatEntry> entry = this->portsData.at(index.row());
+    std::shared_ptr<NetstatEntry> entry = this->getNetstatEntry(index.row());
 
     switch (index.column()) {
         case (static_cast<int>(PortColumns::Protocol)):

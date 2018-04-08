@@ -60,10 +60,11 @@ public:
 
     int countTunnels(QString username, QString hostname);
     std::shared_ptr<TunnelEntry> getTunnel(QString username, QString hostname, int row);
+    std::shared_ptr<TunnelEntry> getTunnel(QString username, QString hostname, int localPort, int remotePort);
     std::vector<std::shared_ptr<TunnelEntry>> getTunnels(QString username, QString hostname);
 
     void createTunnel(std::shared_ptr<SSHConnectionEntry> connEntry, int localPort, int remoteport, QString shortDescription);
-    void restartTunnel(QString username, QString hostname, int localPort, int remotePort);
+    void restartTunnel(std::shared_ptr<SSHConnectionEntry> connEntry, QString username, QString hostname, int localPort, int remotePort);
     bool removeTunnel(QString username, QString hostname, int localPort, int remotePort);
 
     static bool isProcessOwnerOfSocketInode(int pid, int inode);

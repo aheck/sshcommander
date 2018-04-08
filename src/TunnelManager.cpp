@@ -19,7 +19,7 @@ void TunnelEntry::read(const QJsonObject &json)
     this->username = json["username"].toString();
     this->localPort = json["localPort"].toInt();
     this->remotePort = json["remotePort"].toInt();
-    this->shortDescription = json["username"].toString();
+    this->shortDescription = json["shortDescription"].toString();
     this->termWidget = nullptr;
 }
 
@@ -174,6 +174,19 @@ std::shared_ptr<TunnelEntry> TunnelManager::getTunnel(QString username, QString 
     return tunnels[row];
 }
 
+std::shared_ptr<TunnelEntry> TunnelManager::getTunnel(QString username, QString hostname, int localPort, int remotePort)
+{
+    const QString connection = username + "@" + hostname;
+
+    for (auto tunnel : this->tunnelsByConnection[connection]) {
+        if (tunnel->localPort == localPort && tunnel->remotePort == remotePort) {
+            return tunnel;
+        }
+    }
+
+    return nullptr;
+}
+
 std::vector<std::shared_ptr<TunnelEntry>> TunnelManager::getTunnels(QString username, QString hostname)
 {
     QString connectionId = username + "@" + hostname;
@@ -203,9 +216,23 @@ void TunnelManager::createTunnel(std::shared_ptr<SSHConnectionEntry> connEntry, 
     std::cout << "SSH tunnel command: " << args.join(" ").toStdString() << "\n";
 }
 
-void TunnelManager::restartTunnel(QString username, QString hostname, int localport, int remoteport)
+void TunnelManager::restartTunnel(std::shared_ptr<SSHConnectionEntry> connEntry, QString username, QString hostname, int localPort, int remotePort)
 {
+    auto tunnel = this->getTunnel(username, hostname, localPort, remotePort);
+    std::weak_ptr<SSHConnectionEntry> connEntryWeak = connEntry;
 
+    if (tunnel == nullptr) {
+        return;
+    }
+
+    if (tunnel->termWidget != nullptr) {
+        delete tunnel->termWidget;
+        tunnel->termWidget = nullptr;
+    }
+
+    const QStringList args = connEntry->generateTunnelArgs(localPort, remotePort);
+    SSHTermWidget *termWidget = new SSHTermWidget(&args, connEntryWeak, 0);
+    termWidget->startShellProgram();
 }
 
 bool TunnelManager::removeTunnel(QString username, QString hostname, int localPort, int remotePort)

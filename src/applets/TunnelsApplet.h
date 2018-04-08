@@ -35,6 +35,7 @@ public slots:
 protected slots:
     void createTunnel();
     void reloadData();
+    void restartTunnel();
     void removeTunnel();
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
@@ -44,6 +45,7 @@ protected:
 private:
     TunnelsNewDialog *newDialog;
     QToolBar *toolBar;
+    QAction *restartAction;
     QAction *deleteAction;
     QTableView *table;
     TunnelsItemModel *model;

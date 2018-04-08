@@ -14,6 +14,9 @@ TunnelsApplet::TunnelsApplet()
     this->toolBar->addAction(QIcon(":/images/applications-internet.svg"),
             "New Tunnel", this, SLOT(showCreateTunnelDialog()));
     this->toolBar->addSeparator();
+    this->restartAction = this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
+            "Restart Tunnel", this, SLOT(restartTunnel()));
+    this->restartAction->setEnabled(false);
     this->deleteAction = this->toolBar->addAction(QIcon(":/images/process-stop.svg"),
             "Delete Tunnel", this, SLOT(removeTunnel()));
     this->deleteAction->setEnabled(false);
@@ -93,6 +96,35 @@ void TunnelsApplet::reloadData()
     this->updateData();
 }
 
+void TunnelsApplet::restartTunnel()
+{
+    int row = this->getSelectedRow();
+
+    if (row < 0) {
+        return;
+    }
+
+    auto tunnel = TunnelManager::getInstance().getTunnel(this->connEntry->username, this->connEntry->hostname, row);
+
+    QString connection = tunnel->username + "@" + tunnel->hostname;
+    QString msg = QString("Do you really want to restart the SSH tunnel mapping port ") + QString::number(tunnel->remotePort) + " on '" +
+        connection + "' to port " + QString::number(tunnel->localPort) + " on your machine?";
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Do you really want to restart this SSH tunnel?",
+            msg, QMessageBox::Yes|QMessageBox::No);
+
+    if (reply == QMessageBox::No) {
+        return;
+    }
+
+    int localPort = tunnel->localPort;
+    int remotePort = tunnel->remotePort;
+
+    TunnelManager::getInstance().restartTunnel(this->connEntry, this->connEntry->username, this->connEntry->hostname, localPort, remotePort);
+    this->model->reloadData();
+}
+
 void TunnelsApplet::removeTunnel()
 {
     int row = this->getSelectedRow();
@@ -118,8 +150,7 @@ void TunnelsApplet::removeTunnel()
     int localPort = tunnel->localPort;
     int remotePort = tunnel->remotePort;
 
-    bool success = TunnelManager::getInstance().removeTunnel(this->connEntry->username, this->connEntry->hostname, localPort, remotePort);
-    std::cout << "Success: " << success << "\n";
+    TunnelManager::getInstance().removeTunnel(this->connEntry->username, this->connEntry->hostname, localPort, remotePort);
     this->model->reloadData();
 }
 
@@ -139,9 +170,11 @@ void TunnelsApplet::selectionChanged(const QItemSelection &selected, const QItem
 
     if (indexes.size() == 0) {
         this->deleteAction->setEnabled(false);
+        this->restartAction->setEnabled(false);
 
         return;
     }
 
     this->deleteAction->setEnabled(true);
+    this->restartAction->setEnabled(true);
 }

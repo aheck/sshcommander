@@ -243,11 +243,12 @@ bool TunnelManager::removeTunnel(QString username, QString hostname, int localPo
 
     int i = 0;
     for (auto cur : this->tunnelsByConnection[connection]) {
-        i++;
         if (cur->localPort == localPort && cur->remotePort == remotePort) {
             tunnel = cur;
             break;
         }
+
+        i++;
     }
 
     if (tunnel == nullptr) {

@@ -52,7 +52,7 @@ QVariant TunnelsItemModel::headerData(int section, Qt::Orientation orientation, 
 
 QVariant TunnelsItemModel::data(const QModelIndex &index, int role) const
 {
-    if (role != Qt::DisplayRole && role != Qt::EditRole) {
+    if (role != Qt::DisplayRole && role != Qt::DecorationRole) {
         return QVariant();
     }
 
@@ -70,6 +70,14 @@ QVariant TunnelsItemModel::data(const QModelIndex &index, int role) const
         case (static_cast<int>(TunnelColumns::ShortDescription)):
             return QVariant(tunnel->shortDescription);
         case (static_cast<int>(TunnelColumns::Connected)):
+            if (role== Qt::DecorationRole) {
+                if (tunnel->isConnected()) {
+                    return QIcon(":/images/green-light.svg");
+                } else {
+                    return QIcon(":/images/red-light.svg");
+                }
+            }
+
             return QVariant("");
         case (static_cast<int>(TunnelColumns::Controls)):
             return QVariant("");

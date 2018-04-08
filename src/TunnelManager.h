@@ -41,6 +41,8 @@ struct TunnelEntry
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
+
+    bool isConnected();
 };
 
 class TunnelManager : public QObject
@@ -64,7 +66,8 @@ public:
     void restartTunnel(QString username, QString hostname, int localPort, int remotePort);
     bool removeTunnel(QString username, QString hostname, int localPort, int remotePort);
 
-    static bool findListeningPortInProcFile(int port, QString procPath);
+    static bool isProcessOwnerOfSocketInode(int pid, int inode);
+    static int findInodeListeningOnPort(int port, QString procPath);
     static bool isLocalPortInUse(int port);
 
 public slots:

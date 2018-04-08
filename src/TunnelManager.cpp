@@ -32,6 +32,22 @@ void TunnelEntry::write(QJsonObject &json) const
     json["shortDescription"] = this->shortDescription;
 }
 
+bool TunnelEntry::isConnected()
+{
+    if (this->termWidget == nullptr) {
+        return false;
+    }
+
+    int pid = this->termWidget->getShellPID();
+    int inode = TunnelManager::findInodeListeningOnPort(this->localPort, "/proc/net/tcp");
+
+    if (inode < 0) {
+        return false;
+    }
+
+    return TunnelManager::isProcessOwnerOfSocketInode(pid, inode);
+}
+
 TunnelManager& TunnelManager::getInstance()
 {
     static TunnelManager tunnelManager;
@@ -226,17 +242,50 @@ void TunnelManager::cleanUp()
     }
 }
 
-bool TunnelManager::findListeningPortInProcFile(int port, QString procPath)
+bool TunnelManager::isProcessOwnerOfSocketInode(int pid, int inode)
 {
-    bool result = false;
-    QFile file(procPath);
+    QString path = QString("/proc/") + QString::number(pid) + "/fd/";
 
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    QDir dir(path);
+    if (!dir.exists()) {
+        std::cerr << "Failed to open directory: " << path.toStdString() << "\n";
         return false;
     }
 
+    for (QString filename : dir.entryList()) {
+        if (filename == "." || filename == "..") {
+            continue;
+        }
+
+        QString linkPath(path + filename);
+        QFile linkFile(linkPath);
+        QString linkText(linkFile.symLinkTarget());
+
+        if (linkText.contains("socket:[")) {
+            QStringList fields = linkText.split(":");
+            QString socketNum = fields.at(1);
+            socketNum.remove(0, 1);
+            socketNum.chop(1);
+            int socketInode = socketNum.toInt(nullptr, 10);
+
+            if (socketInode == inode) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+int TunnelManager::findInodeListeningOnPort(int port, QString procPath)
+{
+    QFile file(procPath);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return -1;
+    }
+
     QRegExp sep("\\s+");
-    QRegExp nullAddressRegex("^0+:0+$");
 
     // skip header line
     QByteArray lineBytes = file.readLine();
@@ -254,36 +303,36 @@ bool TunnelManager::findListeningPortInProcFile(int port, QString procPath)
         QStringList localAddressParts = localAddress.split(":");
         QString localPort = localAddressParts.at(1);
 
-        QString remoteAddress = fields.at(2);
+        QString state = fields.at(3);
 
         // The kernel lists the listening ports first. A listening address has
-        // a remote address that is all zero. Once we see a non-zero remote
-        // address we don't need to read the rest of the file.
-        if (nullAddressRegex.exactMatch(remoteAddress)) {
+        // field st set to "0A". Once we see an entry with a different 
+        // st value we don't need to continue reading the file.
+        if (state != "0A") {
             break;
         }
 
-        bool ok;
-        int localPortInt = localPort.toInt(&ok, 16);
+        int localPortInt = localPort.toInt(nullptr, 16);
 
         if (port == localPortInt) {
-            result = true;
+            QString inode = fields.at(9);
+            return inode.toInt(nullptr, 10);
         }
     }
 
     file.close();
 
-    return result;
+    return -1;
 }
 
 bool TunnelManager::isLocalPortInUse(int port)
 {
 #ifdef Q_OS_LINUX
-    if (TunnelManager::findListeningPortInProcFile(port, "/proc/net/tcp")) {
+    if (TunnelManager::findInodeListeningOnPort(port, "/proc/net/tcp") > -1) {
         return true;
     }
 
-    if (TunnelManager::findListeningPortInProcFile(port, "/proc/net/tcp6")) {
+    if (TunnelManager::findInodeListeningOnPort(port, "/proc/net/tcp6") > -1) {
         return true;
     }
 

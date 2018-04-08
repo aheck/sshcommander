@@ -62,6 +62,8 @@ void TunnelsApplet::init(std::shared_ptr<SSHConnectionEntry> connEntry)
 
 void TunnelsApplet::onShow()
 {
+    this->reloadData();
+
     if (!this->firstShow) {
         return;
     }

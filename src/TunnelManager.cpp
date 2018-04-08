@@ -45,7 +45,8 @@ bool TunnelEntry::isConnected()
         return false;
     }
 
-    return TunnelManager::isProcessOwnerOfSocketInode(pid, inode);
+    bool isOwner = TunnelManager::isProcessOwnerOfSocketInode(pid, inode);
+    return isOwner;
 }
 
 TunnelManager& TunnelManager::getInstance()
@@ -231,8 +232,8 @@ void TunnelManager::restartTunnel(std::shared_ptr<SSHConnectionEntry> connEntry,
     }
 
     const QStringList args = connEntry->generateTunnelArgs(localPort, remotePort);
-    SSHTermWidget *termWidget = new SSHTermWidget(&args, connEntryWeak, 0);
-    termWidget->startShellProgram();
+    tunnel->termWidget = new SSHTermWidget(&args, connEntryWeak, 0);
+    tunnel->termWidget->startShellProgram();
 }
 
 bool TunnelManager::removeTunnel(QString username, QString hostname, int localPort, int remotePort)

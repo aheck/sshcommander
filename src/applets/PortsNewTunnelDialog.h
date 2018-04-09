@@ -5,6 +5,7 @@
 
 #include <QDialog>
 #include <QFormLayout>
+#include <QHostInfo>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QMessageBox>
@@ -22,6 +23,10 @@ public:
     const int getLocalPort();
     const QString getShortDescription();
     void clear();
+    void setRemotePort(int remotePort);
+    int getRemotePort();
+    void setRemoteHostname(QString remoteHostname);
+    void update();
 
 public slots:
     void acceptDialog();
@@ -29,7 +34,9 @@ public slots:
 private:
     int localPort;
     int remotePort;
+    QString remoteHostname;
     QFormLayout *formLayout;
+    QLabel *descriptionLabel;
     QLineEdit *localPortLineEdit;
     QLineEdit *shortDescriptionLineEdit;
 };

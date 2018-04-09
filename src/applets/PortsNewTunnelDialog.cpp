@@ -26,6 +26,8 @@ PortsNewTunnelDialog::PortsNewTunnelDialog(QWidget *parent)
     buttonsLayout->addWidget(cancelButton);
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
+    this->descriptionLabel = new QLabel();
+    mainLayout->addWidget(this->descriptionLabel);
     mainLayout->addLayout(this->formLayout);
     mainLayout->addLayout(buttonsLayout);
     setLayout(mainLayout);
@@ -70,4 +72,26 @@ void PortsNewTunnelDialog::clear()
 {
     this->localPortLineEdit->clear();
     this->shortDescriptionLineEdit->clear();
+}
+
+void PortsNewTunnelDialog::setRemotePort(int remotePort)
+{
+    this->remotePort = remotePort;
+}
+
+void PortsNewTunnelDialog::setRemoteHostname(QString remoteHostname)
+{
+    this->remoteHostname = remoteHostname;
+}
+
+void PortsNewTunnelDialog::update()
+{
+    this->descriptionLabel->setText("Create a tunnel from a port on your local machine '" +
+            QHostInfo::localHostName() + "' to port " + QString::number(this->remotePort) +
+            " on the remote host '" + this->remoteHostname + "':");
+}
+
+int PortsNewTunnelDialog::getRemotePort()
+{
+    return this->remotePort;
 }

@@ -109,16 +109,21 @@ void PortsApplet::showContextMenu(QPoint pos)
 
 void PortsApplet::showNewTunnelDialog()
 {
+    int row = this->getSelectedRow();
+    std::shared_ptr<NetstatEntry> netstatEntry = this->model->getNetstatEntry(row);
+    int remotePort = netstatEntry->localPort.toInt(nullptr, 10);
+
+    this->newDialog->clear();
+    this->newDialog->setRemoteHostname(this->connEntry->hostname);
+    this->newDialog->setRemotePort(remotePort);
+    this->newDialog->update();
     this->newDialog->show();
 }
 
 void PortsApplet::createTunnel()
 {
-    int row = this->getSelectedRow();
-    std::shared_ptr<NetstatEntry> netstatEntry = this->model->getNetstatEntry(row);
-    int remotePort = netstatEntry->localPort.toInt(nullptr, 10);
-
     int localPort = this->newDialog->getLocalPort();
+    int remotePort = this->newDialog->getRemotePort();
     QString shortDescription = this->newDialog->getShortDescription();
 
     TunnelManager::getInstance().createTunnel(this->connEntry, localPort, remotePort, shortDescription);

@@ -72,7 +72,7 @@ public:
     static bool isLocalPortInUse(int port);
 
 public slots:
-    void cleanUp();
+    void cleanup();
 
 private:
     TunnelManager();

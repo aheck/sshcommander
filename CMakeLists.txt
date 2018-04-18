@@ -24,10 +24,12 @@ include_directories(
 link_directories("/usr/local/lib")
 
 option(STATIC_BUILD "Create a build where qtermwidget and libssh2 are statically linked")
+option(BUILD_TEST "Build the unit tests" OFF)
 
 add_subdirectory(src)
 
-enable_testing()
-add_subdirectory(tests)
+if (BUILD_TEST)
+    add_subdirectory(tests)
+endif()
 
 add_test(tests tests/tests)

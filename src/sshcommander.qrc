@@ -26,5 +26,10 @@
     <file>images/accessories-text-editor.svg</file>
     <file>images/dialog-information.svg</file>
     <file>images/emblem-system.svg</file>
+    <file>images/folder-remote.svg</file>
+    <file>images/drive-harddisk.svg</file>
+    <file>images/folder-open.svg</file>
+    <file>images/go-top.svg</file>
+    <file>images/go-next.svg</file>
 </qresource>
 </RCC>

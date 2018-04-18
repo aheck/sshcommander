@@ -141,6 +141,21 @@ QStringList SSHConnectionEntry::generateTunnelArgs(int localPort, int remotePort
     return args;
 }
 
+QStringList SSHConnectionEntry::generateSSHFSArgs(QString localDir, QString remoteDir)
+{
+    QStringList args;
+
+    args.append(this->generateCliArgs());
+    int lastIndex = args.size() - 1;
+    QString hostWithPath = args.at(lastIndex) + ":" + remoteDir;
+    args.replace(lastIndex, hostWithPath);
+
+    args.append(localDir);
+    args.append("-f");
+
+    return args;
+}
+
 QString SSHConnectionEntry::generateSSHCommand()
 {
     QString cmd = "ssh ";

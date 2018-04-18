@@ -21,6 +21,9 @@ add_executable(sshcommander
     applets/ProcessesItemModel.cpp
     applets/RoutesApplet.cpp
     applets/RoutesItemModel.cpp
+    applets/SSHFilesystemApplet.cpp
+    applets/SSHFilesystemItemModel.cpp
+    applets/SSHFilesystemNewDialog.cpp
     applets/TunnelsApplet.cpp
     applets/TunnelsItemModel.cpp
     applets/TunnelsNewDialog.cpp
@@ -60,6 +63,7 @@ add_executable(sshcommander
     SSHConnectionEntry.cpp
     SSHConnectionItemModel.cpp
     SSHConnectionManager.cpp
+    SSHFilesystemManager.cpp
     SSHTermWidget.cpp
     SubnetDialog.cpp
     TabbedTerminalWidget.cpp

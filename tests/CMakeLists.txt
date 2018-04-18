@@ -15,6 +15,9 @@ add_executable(tests main.cpp
     ../src/applets/ProcessesItemModel.cpp
     ../src/applets/RoutesApplet.cpp
     ../src/applets/RoutesItemModel.cpp
+    ../src/applets/SSHFilesystemApplet.cpp
+    ../src/applets/SSHFilesystemItemModel.cpp
+    ../src/applets/SSHFilesystemNewDialog.cpp
     ../src/applets/TunnelsApplet.cpp
     ../src/applets/TunnelsItemModel.cpp
     ../src/applets/TunnelsNewDialog.cpp
@@ -54,6 +57,7 @@ add_executable(tests main.cpp
     ../src/SSHConnectionEntry.cpp
     ../src/SSHConnectionItemModel.cpp
     ../src/SSHConnectionManager.cpp
+    ../src/SSHFilesystemManager.cpp
     ../src/SSHTermWidget.cpp
     ../src/SubnetDialog.cpp
     ../src/TabbedTerminalWidget.cpp

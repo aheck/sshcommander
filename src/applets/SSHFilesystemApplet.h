@@ -1,25 +1,28 @@
-#ifndef TUNNELSAPPLET_H
-#define TUNNELSAPPLET_H
+#ifndef SSHFILESYSTEMAPPLET_H
+#define SSHFILESYSTEMAPPLET_H
 
 #include <iostream>
 #include <memory>
 
 #include <QHeaderView>
+#include <QDesktopServices>
 #include <QTableView>
 #include <QToolBar>
+#include <QItemSelection>
 
-#include "TunnelManager.h"
+#include "SSHFilesystemManager.h"
+
+#include "SSHFilesystemItemModel.h"
+#include "SSHFilesystemNewDialog.h"
 
 #include "Applet.h"
-#include "TunnelsItemModel.h"
-#include "TunnelsNewDialog.h"
 
-class TunnelsApplet : public Applet
+class SSHFilesystemApplet : public Applet
 {
     Q_OBJECT
 
 public:
-    TunnelsApplet();
+    SSHFilesystemApplet();
 
     // the Applet interface
     virtual const QString getDisplayName() override;
@@ -30,25 +33,29 @@ public:
     void updateData();
 
 public slots:
-    void showCreateTunnelDialog();
+    void reloadData();
+    void showNewDialog();
 
 protected slots:
-    void createTunnel();
-    void reloadData();
-    void restartTunnel();
-    void removeTunnel();
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void createNewMountEntry();
+    void openDirectory();
+    void mountMountEntry();
+    void unmountMountEntry();
+    void removeMountEntry();
 
 protected:
     int getSelectedRow();
 
 private:
-    TunnelsNewDialog *newDialog;
+    SSHFilesystemNewDialog *newDialog;
     QToolBar *toolBar;
+    QAction *openAction;
+    QAction *mountAction;
     QAction *restartAction;
     QAction *deleteAction;
     QTableView *table;
-    TunnelsItemModel *model;
+    SSHFilesystemItemModel *model;
     bool firstShow;
 };
 

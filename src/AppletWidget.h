@@ -17,6 +17,7 @@
 #include "applets/PortsApplet.h"
 #include "applets/ProcessesApplet.h"
 #include "applets/RoutesApplet.h"
+#include "applets/SSHFilesystemApplet.h"
 #include "applets/TunnelsApplet.h"
 #include "InactiveSessionWidget.h"
 #include "Preferences.h"

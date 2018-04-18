@@ -39,18 +39,17 @@ void SSHTermWidget::dataReceived(const QString &text)
         return;
     }
 
-    if (this->passwordLineCounter == 0) {
-        this->passwordLineCounter = 1;
-    } else {
-        this->passwordLineCounter++;
+    this->passwordLineCounter++;
 
-        if (this->passwordLineCounter > 10) {
-            disconnect(this, SIGNAL(receivedData(QString)),
-                    this, SLOT(dataReceived(QString)));
-        }
+    if (this->passwordLineCounter > 10) {
+        disconnect(this, SIGNAL(receivedData(QString)),
+                this, SLOT(dataReceived(QString)));
     }
 
+    std::cout << text.toStdString() << "\n";
+
     if (QRegExp("^.*( )?(p|P)assword:( )?$").exactMatch(text) || QRegExp("Password for \\S+@\\S+:").exactMatch(text)) {
+        std::cout << "Sending ssh password...\n";
         this->sendText(connEntry->password + "\n");
 
         disconnect(this, SIGNAL(receivedData(QString)),

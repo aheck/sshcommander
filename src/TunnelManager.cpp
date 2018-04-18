@@ -57,7 +57,7 @@ TunnelManager& TunnelManager::getInstance()
 
 TunnelManager::TunnelManager()
 {
-    connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(cleanUp()));
+    connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
 
     this->restoreFromJson();
 }
@@ -262,7 +262,7 @@ bool TunnelManager::removeTunnel(QString username, QString hostname, int localPo
     return true;
 }
 
-void TunnelManager::cleanUp()
+void TunnelManager::cleanup()
 {
     this->saveToJson();
 

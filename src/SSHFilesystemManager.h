@@ -36,9 +36,11 @@ struct SSHFSMountEntry
     QString hostname;
     QString username;
     QString localDir;
+    QString localDirCanonical;
     QString remoteDir;
     QString shortDescription;
     SSHTermWidget *termWidget;
+    std::weak_ptr<SSHConnectionEntry> connEntry;
 
     SSHFSMountEntry();
     ~SSHFSMountEntry();
@@ -46,6 +48,8 @@ struct SSHFSMountEntry
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
 
+    void mount();
+    void unmount();
     bool isMounted();
 };
 
@@ -67,8 +71,7 @@ public:
     std::shared_ptr<SSHFSMountEntry> getMountEntry(QString username, QString hostname, QString localDir, QString remoteDir);
     std::vector<std::shared_ptr<SSHFSMountEntry>> getMountEntries(QString username, QString hostname);
 
-    void mountFilesystem(std::shared_ptr<SSHConnectionEntry> connEntry, QString localDir, QString remoteDir, QString shortDescription);
-    void unmountFilesystem(std::shared_ptr<SSHConnectionEntry> connEntry, QString username, QString hostname, QString localDir, QString remoteDir);
+    void createMountEntry(std::shared_ptr<SSHConnectionEntry> connEntry, QString localDir, QString remoteDir, QString shortDescription);
     bool removeMountEntry(QString username, QString hostname, QString localDir, QString remoteDir);
 
 public slots:

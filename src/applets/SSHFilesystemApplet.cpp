@@ -126,7 +126,7 @@ void SSHFilesystemApplet::selectionChanged(const QItemSelection &selected, const
 
 void SSHFilesystemApplet::createNewMountEntry()
 {
-    SSHFilesystemManager::getInstance().mountFilesystem(this->connEntry,
+    SSHFilesystemManager::getInstance().createMountEntry(this->connEntry,
             this->newDialog->getLocalDir(), this->newDialog->getRemoteDir(),
             this->newDialog->getShortDescription());
 
@@ -148,12 +148,28 @@ void SSHFilesystemApplet::openDirectory()
 
 void SSHFilesystemApplet::mountMountEntry()
 {
+    int row = this->getSelectedRow();
 
+    if (row < 0) {
+        return;
+    }
+
+    auto mountEntry = SSHFilesystemManager::getInstance().getMountEntry(this->connEntry->username, this->connEntry->hostname, row);
+
+    mountEntry->mount();
 }
 
 void SSHFilesystemApplet::unmountMountEntry()
 {
+    int row = this->getSelectedRow();
 
+    if (row < 0) {
+        return;
+    }
+
+    auto mountEntry = SSHFilesystemManager::getInstance().getMountEntry(this->connEntry->username, this->connEntry->hostname, row);
+
+    mountEntry->unmount();
 }
 
 void SSHFilesystemApplet::removeMountEntry()

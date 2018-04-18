@@ -7,18 +7,7 @@ SSHFSMountEntry::SSHFSMountEntry()
 
 SSHFSMountEntry::~SSHFSMountEntry()
 {
-    if (this->termWidget != nullptr) {
-        int pid = this->termWidget->getShellPID();
-
-        kill(pid, SIGTERM);
-        int status = 0;
-        std::cout << "Waiting for sshfs...\n";
-        waitpid(pid, &status, 0);
-        std::cout << "Finished waiting for sshfs\n";
-
-        delete this->termWidget;
-        this->termWidget = nullptr;
-    }
+    this->unmount();
 }
 
 void SSHFSMountEntry::read(const QJsonObject &json)
@@ -26,6 +15,7 @@ void SSHFSMountEntry::read(const QJsonObject &json)
     this->hostname = json["hostname"].toString();
     this->username = json["username"].toString();
     this->localDir = json["localDir"].toString();
+    this->localDirCanonical = json["localDirCanonical"].toString();
     this->remoteDir = json["remoteDir"].toString();
     this->shortDescription = json["shortDescription"].toString();
     this->termWidget = nullptr;
@@ -36,8 +26,44 @@ void SSHFSMountEntry::write(QJsonObject &json) const
     json["hostname"] = this->hostname;
     json["username"] = this->username;
     json["localDir"] = this->localDir;
+    json["localDirCanonical"] = this->localDirCanonical;
     json["remoteDir"] = this->remoteDir;
     json["shortDescription"] = this->shortDescription;
+}
+
+void SSHFSMountEntry::mount()
+{
+    auto connEntry = this->connEntry.lock();
+
+    if (connEntry == nullptr) {
+        return;
+    }
+
+    const QStringList args = connEntry->generateSSHFSArgs(localDir, remoteDir);
+    SSHTermWidget *termWidget = new SSHTermWidget(&args, this->connEntry, 0);
+    termWidget->setShellProgram("/usr/bin/sshfs");
+    termWidget->startShellProgram();
+    this->termWidget = termWidget;
+
+    std::cout << "SSHFS command: sshfs " << args.join(" ").toStdString() << "\n";
+}
+
+void SSHFSMountEntry::unmount()
+{
+    if (this->termWidget == nullptr) {
+        return;
+    }
+
+    int pid = this->termWidget->getShellPID();
+
+    kill(pid, SIGTERM);
+    int status = 0;
+    std::cout << "Waiting for sshfs...\n";
+    waitpid(pid, &status, 0);
+    std::cout << "Finished waiting for sshfs\n";
+
+    delete this->termWidget;
+    this->termWidget = nullptr;
 }
 
 bool SSHFSMountEntry::isMounted()
@@ -49,10 +75,10 @@ bool SSHFSMountEntry::isMounted()
     }
 
     QString remote = this->username + "@" + this->hostname + ":" + remoteDir;
-    QByteArray lineBytes;
+    char lineBuffer[4096];
 
-    while (!(lineBytes = file.readLine()).isEmpty()) {
-        QString line = QString::fromLatin1(lineBytes).trimmed();
+    while ((file.readLine(lineBuffer, sizeof(lineBuffer))) > 0) {
+        QString line = QString(lineBuffer).trimmed();
 
         QStringList fields = line.split(" ");
         if (fields.length() < 3) {
@@ -60,16 +86,13 @@ bool SSHFSMountEntry::isMounted()
         }
 
         QString fsType = fields.at(2);
-        QFileInfo fileInfo(this->localDir);
 
-        /*
         if (fsType != "fuse.sshfs") {
             continue;
         }
-        */
 
         QString localDir = fields.at(1);
-        if (localDir != fileInfo.canonicalFilePath()) {
+        if (localDir != this->localDirCanonical) {
             continue;
         }
 
@@ -229,32 +252,25 @@ std::vector<std::shared_ptr<SSHFSMountEntry>> SSHFilesystemManager::getMountEntr
     return this->mountsByConnection[connectionId];
 }
 
-void SSHFilesystemManager::mountFilesystem(std::shared_ptr<SSHConnectionEntry> connEntry, QString localDir, QString remoteDir, QString shortDescription)
+void SSHFilesystemManager::createMountEntry(std::shared_ptr<SSHConnectionEntry> connEntry, QString localDir, QString remoteDir, QString shortDescription)
 {
-    const QString connection = connEntry->username + "@" + connEntry->hostname;
-    std::weak_ptr<SSHConnectionEntry> connEntryWeak = connEntry;
-
-    const QStringList args = connEntry->generateSSHFSArgs(localDir, remoteDir);
-    SSHTermWidget *termWidget = new SSHTermWidget(&args, connEntryWeak, 0);
-    termWidget->setShellProgram("/usr/bin/sshfs");
-    termWidget->startShellProgram();
-
     std::shared_ptr<SSHFSMountEntry> mountEntry = std::make_shared<SSHFSMountEntry>();
 
     mountEntry->hostname = connEntry->hostname;
     mountEntry->username = connEntry->username;
     mountEntry->localDir = localDir;
+
+    QFileInfo fileInfo(mountEntry->localDir);
+    mountEntry->localDirCanonical = fileInfo.canonicalFilePath();
+
     mountEntry->remoteDir = remoteDir;
     mountEntry->shortDescription = shortDescription;
-    mountEntry->termWidget = termWidget;
+    mountEntry->connEntry = connEntry;
 
+    const QString connection = connEntry->username + "@" + connEntry->hostname;
     this->mountsByConnection[connection].push_back(mountEntry);
 
-    std::cout << "SSHFS command: sshfs " << args.join(" ").toStdString() << "\n";
-}
-
-void SSHFilesystemManager::unmountFilesystem(std::shared_ptr<SSHConnectionEntry> connEntry, QString username, QString hostname, QString localDir, QString remoteDir)
-{
+    mountEntry->mount();
 }
 
 bool SSHFilesystemManager::removeMountEntry(QString username, QString hostname, QString localDir, QString remoteDir)

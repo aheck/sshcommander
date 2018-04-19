@@ -145,11 +145,17 @@ QStringList SSHConnectionEntry::generateSSHFSArgs(QString localDir, QString remo
 {
     QStringList args;
 
-    args.append(this->generateCliArgs());
-    int lastIndex = args.size() - 1;
-    QString hostWithPath = args.at(lastIndex) + ":" + remoteDir;
-    args.replace(lastIndex, hostWithPath);
+    if (!this->sshkey.isEmpty()) {
+        args.append("-o");
+        args.append("IdentityFile=" + this->sshkey);
+    }
 
+    if (this->port != QString(DEFAULT_SSH_PORT).toInt(nullptr, 10)) {
+        args.append("-p");
+        args.append(QString(port));
+    }
+
+    args.append(this->username + "@" + this->hostname + ":" + remoteDir);
     args.append(localDir);
     args.append("-f");
 

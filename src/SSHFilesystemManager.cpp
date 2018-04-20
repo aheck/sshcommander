@@ -74,6 +74,8 @@ bool SSHFSMountEntry::isMounted()
         return false;
     }
 
+    QRegExp spaceCode("\\\\040");
+
     QString remote = this->username + "@" + this->hostname + ":" + remoteDir;
     char lineBuffer[4096];
 
@@ -92,6 +94,7 @@ bool SSHFSMountEntry::isMounted()
         }
 
         QString localDir = fields.at(1);
+        localDir.replace(spaceCode, " ");
         if (localDir != this->localDirCanonical) {
             continue;
         }

@@ -156,7 +156,8 @@ void SSHFilesystemApplet::mountMountEntry()
 
     auto mountEntry = SSHFilesystemManager::getInstance().getMountEntry(this->connEntry->username, this->connEntry->hostname, row);
 
-    mountEntry->mount();
+    mountEntry->mount(this->connEntry);
+    this->model->reloadData();
 }
 
 void SSHFilesystemApplet::unmountMountEntry()
@@ -170,6 +171,7 @@ void SSHFilesystemApplet::unmountMountEntry()
     auto mountEntry = SSHFilesystemManager::getInstance().getMountEntry(this->connEntry->username, this->connEntry->hostname, row);
 
     mountEntry->unmount();
+    this->model->reloadData();
 }
 
 void SSHFilesystemApplet::removeMountEntry()

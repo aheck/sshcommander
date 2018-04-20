@@ -40,7 +40,6 @@ struct SSHFSMountEntry
     QString remoteDir;
     QString shortDescription;
     SSHTermWidget *termWidget;
-    std::weak_ptr<SSHConnectionEntry> connEntry;
 
     SSHFSMountEntry();
     ~SSHFSMountEntry();
@@ -48,7 +47,7 @@ struct SSHFSMountEntry
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
 
-    void mount();
+    void mount(std::shared_ptr<SSHConnectionEntry>);
     void unmount();
     bool isMounted();
 };

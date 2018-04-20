@@ -31,16 +31,10 @@ void SSHFSMountEntry::write(QJsonObject &json) const
     json["shortDescription"] = this->shortDescription;
 }
 
-void SSHFSMountEntry::mount()
+void SSHFSMountEntry::mount(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
-    auto connEntry = this->connEntry.lock();
-
-    if (connEntry == nullptr) {
-        return;
-    }
-
     const QStringList args = connEntry->generateSSHFSArgs(localDir, remoteDir);
-    SSHTermWidget *termWidget = new SSHTermWidget(&args, this->connEntry, 0);
+    SSHTermWidget *termWidget = new SSHTermWidget(&args, connEntry, 0);
     termWidget->setShellProgram("/usr/bin/sshfs");
     termWidget->startShellProgram();
     this->termWidget = termWidget;
@@ -268,12 +262,11 @@ void SSHFilesystemManager::createMountEntry(std::shared_ptr<SSHConnectionEntry> 
 
     mountEntry->remoteDir = remoteDir;
     mountEntry->shortDescription = shortDescription;
-    mountEntry->connEntry = connEntry;
 
     const QString connection = connEntry->username + "@" + connEntry->hostname;
     this->mountsByConnection[connection].push_back(mountEntry);
 
-    mountEntry->mount();
+    mountEntry->mount(connEntry);
 }
 
 bool SSHFilesystemManager::removeMountEntry(QString username, QString hostname, QString localDir, QString remoteDir)

@@ -19,7 +19,6 @@
 #ifndef SSHCONNECTIONMANAGER_H
 #define SSHCONNECTIONMANAGER_H
 
-#include <libssh2.h>
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <unistd.h>
@@ -33,10 +32,14 @@
 #include <mutex>
 #include <thread>
 
+#include <libssh2.h>
+#include <libssh2_sftp.h>
+
 #include <QHostInfo>
 #include <QMetaObject>
 #include <QString>
 
+#include "DirEntry.h"
 #include "SSHConnection.h"
 #include "SSHConnectionEntry.h"
 
@@ -68,6 +71,7 @@ public:
 
     uint64_t executeRemoteCmd(std::shared_ptr<SSHConnectionEntry> connEntry,
             QString cmd, QObject *slotObject, const char *slot);
+    std::vector<std::shared_ptr<DirEntry>> readDirectory(std::shared_ptr<SSHConnectionEntry>, QString dir);
 
 private:
     SSHConnectionManager();
@@ -76,6 +80,7 @@ private:
     uint64_t generateRequestId();
     std::shared_ptr<RemoteCmdResult> doExecuteRemoteCmd(std::shared_ptr<SSHConnection>, QString cmd);
     int waitsocket(std::shared_ptr<SSHConnection> conn);
+    std::vector<std::shared_ptr<DirEntry>> doReadDirectory(std::shared_ptr<SSHConnectionEntry> connEntry, QString dir);
 
     std::mutex requestIdMutex;
     uint64_t nextRequestId;

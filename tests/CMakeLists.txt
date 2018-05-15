@@ -6,6 +6,7 @@ add_executable(tests main.cpp
     InstanceItemModelTests.cpp
 
     ../src/applets/AWSInfoApplet.cpp
+    ../src/applets/FileBrowserApplet.cpp
     ../src/applets/NotesEditor.cpp
     ../src/applets/MachineInfoApplet.cpp
     ../src/applets/PortsApplet.cpp
@@ -15,6 +16,7 @@ add_executable(tests main.cpp
     ../src/applets/ProcessesItemModel.cpp
     ../src/applets/RoutesApplet.cpp
     ../src/applets/RoutesItemModel.cpp
+    ../src/applets/SFTPFilesystemModel.cpp
     ../src/applets/SSHFilesystemApplet.cpp
     ../src/applets/SSHFilesystemItemModel.cpp
     ../src/applets/SSHFilesystemNewDialog.cpp
@@ -43,6 +45,7 @@ add_executable(tests main.cpp
     ../src/DetachedSessionWidget.cpp
     ../src/DetachedTerminalWindow.cpp
     ../src/DisabledWidget.cpp
+    ../src/DirEntry.cpp
     ../src/ImageDialog.cpp
     ../src/InactiveSessionWidget.cpp
     ../src/InstanceItemModel.cpp

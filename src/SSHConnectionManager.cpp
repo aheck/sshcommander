@@ -89,8 +89,6 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
     if (!session) {
         return nullptr;
     }
-
-    libssh2_session_set_blocking(session, 0);
  
     while ((retval = libssh2_session_handshake(session, sock)) == LIBSSH2_ERROR_EAGAIN);
 
@@ -122,6 +120,8 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
             return nullptr;
         }
     }
+
+    libssh2_session_set_blocking(session, 0);
 
     return conn;
 }
@@ -185,7 +185,7 @@ std::shared_ptr<RemoteCmdResult> SSHConnectionManager::doExecuteRemoteCmd(std::s
     }
 
     exitcode = 127;
-    while((retval = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN ) {
+    while((retval = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN) {
         this->waitsocket(conn);
     }
  
@@ -210,6 +210,86 @@ std::shared_ptr<RemoteCmdResult> SSHConnectionManager::doExecuteRemoteCmd(std::s
     return result;
 }
 
+std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::readDirectory(std::shared_ptr<SSHConnectionEntry> connEntry, QString dir)
+{
+    connEntry->connectionMutex.lock();
+    auto entries = this->doReadDirectory(connEntry, dir);
+    connEntry->connectionMutex.unlock();
+
+    return entries;
+}
+
+std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std::shared_ptr<SSHConnectionEntry> connEntry, QString dir)
+{
+    LIBSSH2_SFTP_HANDLE *sftp_handle;
+    auto conn = connEntry->connection;
+    std::vector<std::shared_ptr<DirEntry>> entries;
+
+    if (conn->sftp == nullptr) {
+        while ((conn->sftp = libssh2_sftp_init(conn->session)) == nullptr &&
+                libssh2_session_last_error(conn->session,NULL,NULL,0) == LIBSSH2_ERROR_EAGAIN)  {
+            this->waitsocket(conn);
+        }
+
+        if (conn->sftp == nullptr) {
+            std::cerr << "Unable to init SFTP session" << libssh2_session_last_error(conn->session,NULL,NULL,0) << "\n";
+            return entries;
+        }
+    }
+
+    while ((sftp_handle = libssh2_sftp_opendir(conn->sftp, dir.toLatin1().data())) == nullptr &&
+            libssh2_session_last_error(conn->session,NULL,NULL,0) == LIBSSH2_ERROR_EAGAIN) {
+        this->waitsocket(conn);
+    }
+
+    if (sftp_handle == nullptr) {
+        std::cerr << "Failed to open directory" << dir.toLatin1().data() << "\n";
+        return entries;
+    }
+
+    do {
+        char mem[512];
+        char longentry[512];
+        LIBSSH2_SFTP_ATTRIBUTES attrs;
+        int rc;
+
+        while ((rc = libssh2_sftp_readdir_ex(sftp_handle, mem, sizeof(mem), longentry, sizeof(longentry), &attrs)) <= 0 &&
+                libssh2_session_last_error(conn->session,NULL,NULL,0) == LIBSSH2_ERROR_EAGAIN) {
+            std::cerr << "Waiting for socket..\n";
+            libssh2_session_set_last_error(conn->session, LIBSSH2_ERROR_NONE, "");
+            this->waitsocket(conn);
+        }
+
+        if (rc > 0) {
+            auto dirEntry = std::make_shared<DirEntry>();
+            dirEntry->setPath(dir);
+            dirEntry->setFilename(mem);
+
+            if (attrs.flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) {
+                dirEntry->setPermissions(attrs.permissions);
+            }
+
+            if (attrs.flags & LIBSSH2_SFTP_ATTR_UIDGID) {
+                dirEntry->setUid(attrs.uid);
+                dirEntry->setGid(attrs.gid);
+            }
+
+            if (attrs.flags & LIBSSH2_SFTP_ATTR_SIZE) {
+                dirEntry->setFilesize(attrs.filesize);
+            }
+
+            entries.push_back(dirEntry);
+        }
+        else {
+            break;
+        }
+    } while (1);
+
+    libssh2_sftp_closedir(sftp_handle);
+
+    return entries;
+}
+
 uint64_t SSHConnectionManager::generateRequestId()
 {
     this->requestIdMutex.lock();
@@ -228,7 +308,7 @@ int SSHConnectionManager::waitsocket(std::shared_ptr<SSHConnection> conn)
     fd_set *readfd = NULL;
     int dir;
  
-    timeout.tv_sec = 10;
+    timeout.tv_sec = 2;
     timeout.tv_usec = 0;
  
     FD_ZERO(&fd);

@@ -12,6 +12,7 @@ QT5_ADD_RESOURCES (ProgramResources
 add_executable(sshcommander
     main.cpp
     applets/AWSInfoApplet.cpp
+    applets/FileBrowserApplet.cpp
     applets/NotesEditor.cpp
     applets/MachineInfoApplet.cpp
     applets/PortsApplet.cpp
@@ -21,6 +22,7 @@ add_executable(sshcommander
     applets/ProcessesItemModel.cpp
     applets/RoutesApplet.cpp
     applets/RoutesItemModel.cpp
+    applets/SFTPFilesystemModel.cpp
     applets/SSHFilesystemApplet.cpp
     applets/SSHFilesystemItemModel.cpp
     applets/SSHFilesystemNewDialog.cpp
@@ -49,6 +51,7 @@ add_executable(sshcommander
     DetachedSessionWidget.cpp
     DetachedTerminalWindow.cpp
     DisabledWidget.cpp
+    DirEntry.cpp
     ImageDialog.cpp
     InactiveSessionWidget.cpp
     InstanceItemModel.cpp

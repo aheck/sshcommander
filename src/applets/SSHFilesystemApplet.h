@@ -10,6 +10,7 @@
 #include <QToolBar>
 #include <QItemSelection>
 
+#include "SSHConnectionManager.h"
 #include "SSHFilesystemManager.h"
 
 #include "SSHFilesystemItemModel.h"

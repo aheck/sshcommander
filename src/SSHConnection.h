@@ -14,6 +14,7 @@
 #define SSHCONNECTION_H
 
 #include <libssh2.h>
+#include <libssh2_sftp.h>
 
 class SSHConnection
 {
@@ -26,6 +27,8 @@ public:
 private:
     int socket_fd;
     LIBSSH2_SESSION *session;
+    LIBSSH2_SESSION *sftp_session;
+    LIBSSH2_SFTP *sftp;
 };
 
 #endif

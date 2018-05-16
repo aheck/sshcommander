@@ -261,6 +261,14 @@ std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std
         }
 
         if (rc > 0) {
+            if (strcmp(".", mem) == 0) {
+                continue;
+            }
+
+            if (strcmp("..", mem) == 0) {
+                continue;
+            }
+
             auto dirEntry = std::make_shared<DirEntry>();
             dirEntry->setPath(dir);
             dirEntry->setFilename(mem);

@@ -272,7 +272,7 @@ QVariant SFTPFilesystemModel::data(const QModelIndex &index, int role) const
             return QVariant("/");
         } else {
             QFileIconProvider iconProvider;
-            return QVariant(iconProvider.icon(QFileIconProvider::Drive));
+            return QVariant(iconProvider.icon(QFileIconProvider::Folder));
         }
     }
 
@@ -288,10 +288,16 @@ QVariant SFTPFilesystemModel::data(const QModelIndex &index, int role) const
     std::cerr << "dirEntries size: " << dirEntries.size() << "\n";
     auto dirEntry = dirEntries.at(index.row());
 
+    QFileIconProvider iconProvider;
     switch (index.column()) {
         case (static_cast<int>(SFTPColumns::Name)):
             if (role == Qt::DisplayRole) return dirEntry->getFilename();
-            return QVariant();
+
+            if (dirEntry->isDirectory()) {
+                return QVariant(iconProvider.icon(QFileIconProvider::Folder));
+            }
+
+            return QVariant(iconProvider.icon(QFileIconProvider::File));
         case (static_cast<int>(SFTPColumns::Size)):
             return QVariant();
         case (static_cast<int>(SFTPColumns::Type)):

@@ -72,8 +72,7 @@ QModelIndex SFTPFilesystemModel::parent(const QModelIndex &index) const
 
     std::cerr << "parent: path: " << path->toStdString() << "\n";
 
-    QFileInfo fileInfo(*path);
-    QString parentPath = fileInfo.dir().path();
+    QString parentPath = this->dirname(*path);
 
     std::cerr << "parent: parentPath: " << parentPath.toStdString() << "\n";
 
@@ -88,7 +87,7 @@ QModelIndex SFTPFilesystemModel::parent(const QModelIndex &index) const
 
         int i = 0;
         for (auto dirEntry : dirEntries) {
-            if (dirEntry->getFilename() == fileInfo.completeBaseName()) {
+            if (dirEntry->getFilename() == this->basename(*path)) {
                 row = i;
                 break;
             }
@@ -279,8 +278,7 @@ QVariant SFTPFilesystemModel::data(const QModelIndex &index, int role) const
         }
     }
 
-    QFileInfo fileInfo(*path);
-    QString parentPath = fileInfo.dir().path();
+    QString parentPath = this->dirname(*path);
 
     if (this->dirCache.count(parentPath) != 1) {
         std::cerr << "dirEntries has no entry for " << parentPath.toStdString() << "\n";
@@ -366,4 +364,44 @@ void SFTPFilesystemModel::dumpPathStrings() const
     for (auto pair : this->pathStrings) {
         std::cerr << pair.second->toStdString() << "\n";
     }
+}
+
+QString SFTPFilesystemModel::dirname(QString path) const
+{
+    while (path.endsWith("/") && path != "/") {
+        path.chop(1);
+    }
+
+    if (path == "/") {
+        return path;
+    }
+
+    int pos = path.lastIndexOf("/");
+    if (pos == -1) {
+        return ".";
+    }
+
+    path.truncate(pos);
+    if (path.length() == 0) {
+        path = "/";
+    }
+    return path;
+}
+
+QString SFTPFilesystemModel::basename(QString path) const
+{
+    while (path.endsWith("/") && path != "/") {
+        path.chop(1);
+    }
+
+    if (path == "/") {
+        return path;
+    }
+
+    int pos = path.lastIndexOf("/");
+    if (pos == -1) {
+        return path;
+    }
+
+    return path.remove(0, pos + 1);
 }

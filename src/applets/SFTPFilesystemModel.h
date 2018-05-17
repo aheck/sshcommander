@@ -50,6 +50,8 @@ public:
 private:
     void addPathString(QString pathString);
     QString* getPathString(QString pathString) const;
+    QString dirname(QString path) const;
+    QString basename(QString path) const;
 
     // for debugging
     void dumpPathStrings() const;

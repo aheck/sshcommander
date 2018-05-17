@@ -21,7 +21,6 @@
 #include "SSHConnectionManager.h"
 
 enum class SFTPColumns {Name = 0, Size, Type, Modified, Count};
-bool compareDirEntries(std::shared_ptr<DirEntry> dirEntry1, std::shared_ptr<DirEntry> dirEntry2);
 
 class SFTPFilesystemModel : public QAbstractItemModel
 {
@@ -58,8 +57,17 @@ private:
     void dumpPathStrings() const;
 
     std::shared_ptr<SSHConnectionEntry> connEntry;
+
+    // maps a path string to a string pointer which we can use as
+    // the internalPointer value of a QModelIndex
     std::map<QString, QString*> pathStrings;
+
+    // keeps a vector of directory entries for each path we already
+    // retrieved via SFTP
     std::map<QString, std::vector<std::shared_ptr<DirEntry>>> dirCache;
+
+    // lookup table to find out if a path is a directory
+    std::map<QString, bool> pathIsDirTable;
 };
 
 #endif

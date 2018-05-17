@@ -146,7 +146,20 @@ Qt::ItemFlags SFTPFilesystemModel::flags(const QModelIndex &index) const
 
 bool SFTPFilesystemModel::hasChildren(const QModelIndex &parent) const
 {
-    return true;
+    if (!parent.isValid()) {
+        return true;
+    }
+
+    QString *path = static_cast<QString*>(parent.internalPointer());
+    if (path == nullptr) {
+        return false;
+    }
+
+    if (*path == "/") {
+        return true;
+    }
+
+    return this->pathIsDirTable.at(*path);
 }
 
 bool SFTPFilesystemModel::canFetchMore(const QModelIndex &parent) const
@@ -201,7 +214,6 @@ void SFTPFilesystemModel::fetchMore(const QModelIndex &parent)
         for (auto cur : entries) {
             if (cur->getFilename() == filename) {
                 isDir = cur->isDirectory();
-                break;
             }
         }
 
@@ -218,8 +230,10 @@ void SFTPFilesystemModel::fetchMore(const QModelIndex &parent)
     for (auto const &dirEntry : entries) {
         if (dirEntry->getPath() == "/") {
             this->addPathString(dirEntry->getPath() + dirEntry->getFilename());
+            this->pathIsDirTable[dirEntry->getPath() + dirEntry->getFilename()] = dirEntry->isDirectory();
         } else {
             this->addPathString(dirEntry->getPath() + "/" + dirEntry->getFilename());
+            this->pathIsDirTable[dirEntry->getPath() + "/" + dirEntry->getFilename()] = dirEntry->isDirectory();
         }
     }
 

@@ -21,6 +21,7 @@
 #include "SSHConnectionManager.h"
 
 enum class SFTPColumns {Name = 0, Size, Type, Modified, Count};
+bool compareDirEntries(std::shared_ptr<DirEntry> dirEntry1, std::shared_ptr<DirEntry> dirEntry2);
 
 class SFTPFilesystemModel : public QAbstractItemModel
 {

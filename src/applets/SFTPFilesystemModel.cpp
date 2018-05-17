@@ -1,5 +1,7 @@
 #include "SFTPFilesystemModel.h"
 
+bool compareDirEntries(std::shared_ptr<DirEntry> dirEntry1, std::shared_ptr<DirEntry> dirEntry2);
+
 SFTPFilesystemModel::SFTPFilesystemModel():
     QAbstractItemModel()
 {
@@ -210,6 +212,7 @@ void SFTPFilesystemModel::fetchMore(const QModelIndex &parent)
 
     std::cout << "Calling readDirectory for " << parentPath->toStdString() << "\n";
     auto entries = SSHConnectionManager::getInstance().readDirectory(this->connEntry, *parentPath);
+    std::sort(entries.begin(), entries.end(), compareDirEntries);
     this->dirCache[*parentPath] = entries;
 
     for (auto const &dirEntry : entries) {
@@ -404,4 +407,18 @@ QString SFTPFilesystemModel::basename(QString path) const
     }
 
     return path.remove(0, pos + 1);
+}
+
+bool compareDirEntries(std::shared_ptr<DirEntry> dirEntry1, std::shared_ptr<DirEntry> dirEntry2)
+{
+    // directories are always placed before files
+    if (dirEntry1->isDirectory() && !dirEntry2->isDirectory()) {
+        return true;
+    }
+
+    if (!dirEntry1->isDirectory() && dirEntry2->isDirectory()) {
+        return false;
+    }
+
+    return dirEntry1->getFilename() < dirEntry2->getFilename();
 }

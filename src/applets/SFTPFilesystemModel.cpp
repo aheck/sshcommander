@@ -185,8 +185,11 @@ void SFTPFilesystemModel::fetchMore(const QModelIndex &parent)
         return;
     }
 
+    // check if parentPath is a directory
     if (*parentPath != "/") {
-        QStringList components = parentPath->split("/");
+        QString str = *parentPath;
+        str.remove(0, 1); // remove leading /
+        QStringList components = str.split("/");
         QString filename = components.last();
         components.removeLast();
         QString dirPath = "/" + components.join("/");

@@ -262,6 +262,11 @@ void TerminalViewWidget::updateTab()
 {
     TabbedTerminalWidget *tabs = static_cast<TabbedTerminalWidget *>(this->terminalStack->currentWidget());
     TerminalContainer *container = static_cast<TerminalContainer*>(tabs->widget(tabs->currentIndex()));
+
+    if (container == nullptr) {
+        return;
+    }
+
     this->toggleWindowButton->setChecked(container->isDetached());
 
     if (container->isDetached()) {

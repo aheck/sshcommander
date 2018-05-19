@@ -225,6 +225,8 @@ std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std
     auto conn = connEntry->connection;
     std::vector<std::shared_ptr<DirEntry>> entries;
 
+    // FIXME: Try to create connection if conn == nullptr
+
     if (conn->sftp == nullptr) {
         while ((conn->sftp = libssh2_sftp_init(conn->session)) == nullptr &&
                 libssh2_session_last_error(conn->session,NULL,NULL,0) == LIBSSH2_ERROR_EAGAIN)  {
@@ -284,6 +286,11 @@ std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std
 
             if (attrs.flags & LIBSSH2_SFTP_ATTR_SIZE) {
                 dirEntry->setFilesize(attrs.filesize);
+            }
+
+            if (attrs.flags & LIBSSH2_SFTP_ATTR_ACMODTIME) {
+                dirEntry->setAtime(attrs.atime);
+                dirEntry->setMtime(attrs.mtime);
             }
 
             entries.push_back(dirEntry);

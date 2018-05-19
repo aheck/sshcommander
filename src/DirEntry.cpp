@@ -167,7 +167,7 @@ bool DirEntry::hasMtime()
 void DirEntry::setMtime(uint64_t mtime)
 {
     this->hMtime = true;
-    this->mtime = true;
+    this->mtime = mtime;
 }
 
 uint64_t DirEntry::getMtime()

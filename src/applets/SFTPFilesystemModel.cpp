@@ -278,10 +278,6 @@ QVariant SFTPFilesystemModel::data(const QModelIndex &index, int role) const
 
     QString *path = static_cast<QString*>(index.internalPointer());
 
-    std::cerr << "path: " << path << "\n";
-    std::cerr << "path: " << path->toStdString() << "\n";
-    std::cerr << "row: " << index.row() << "\n";
-
     if (*path == "/") {
         if (index.column() != 0) {
             return QVariant();
@@ -339,7 +335,14 @@ QVariant SFTPFilesystemModel::data(const QModelIndex &index, int role) const
             }
             return QVariant();
         case (static_cast<int>(SFTPColumns::Modified)):
-            return QVariant("");
+            if (!dirEntry->hasMtime()) {
+                return QVariant();
+            }
+
+            QDateTime dateTime;
+            dateTime.setTime_t(dirEntry->getMtime());
+
+            return dateTime;
     }
 
     return QVariant();

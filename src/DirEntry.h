@@ -22,7 +22,13 @@ public:
     void setPermissions(uint64_t permissions);
     QString getPermissionsString();
 
+    bool isSymLink();
+    bool isRegularFile();
     bool isDirectory();
+    bool isCharacterDevice();
+    bool isBlockDevice();
+    bool isFIFO();
+    bool isSocket();
 
     bool hasUid();
     void setUid(uint64_t uid);

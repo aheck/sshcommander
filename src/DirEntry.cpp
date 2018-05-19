@@ -76,9 +76,39 @@ QString DirEntry::getPermissionsString()
     return s;
 }
 
+bool DirEntry::isSymLink()
+{
+    return LIBSSH2_SFTP_S_ISLNK(this->permissions);
+}
+
+bool DirEntry::isRegularFile()
+{
+    return LIBSSH2_SFTP_S_ISREG(this->permissions);
+}
+
 bool DirEntry::isDirectory()
 {
     return LIBSSH2_SFTP_S_ISDIR(this->permissions);
+}
+
+bool DirEntry::isCharacterDevice()
+{
+    return LIBSSH2_SFTP_S_ISCHR(this->permissions);
+}
+
+bool DirEntry::isBlockDevice()
+{
+    return LIBSSH2_SFTP_S_ISBLK(this->permissions);
+}
+
+bool DirEntry::isFIFO()
+{
+    return LIBSSH2_SFTP_S_ISFIFO(this->permissions);
+}
+
+bool DirEntry::isSocket()
+{
+    return LIBSSH2_SFTP_S_ISSOCK(this->permissions);
 }
 
 bool DirEntry::hasUid()

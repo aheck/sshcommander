@@ -21,6 +21,7 @@ class FileBrowserApplet : public Applet
 
 public:
     FileBrowserApplet();
+    ~FileBrowserApplet();
 
     // the Applet interface
     virtual const QString getDisplayName() override;
@@ -28,7 +29,11 @@ public:
     virtual void init(std::shared_ptr<SSHConnectionEntry> connEntry) override;
     virtual void onShow() override;
 
+protected slots:
+    void toggleLocalFileBrowser();
+
 private:
+    QAction *showLocalAction;
     QSplitter *splitter;
     QTreeView *localFileBrowser;
     QTreeView *remoteFileBrowser;

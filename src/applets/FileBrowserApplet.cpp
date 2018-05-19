@@ -8,12 +8,16 @@ FileBrowserApplet::FileBrowserApplet()
     this->toolBar->setOrientation(Qt::Vertical);
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
             "Reload", this, SLOT(reloadData()));
+    this->toolBar->addSeparator();
+    this->showLocalAction = this->toolBar->addAction(QIcon(":/images/drive-harddisk.svg"),
+            tr("Show Local File Browser"), this, SLOT(toggleLocalFileBrowser()));
+    this->showLocalAction->setCheckable(true);
 
     this->setLayout(new QHBoxLayout());
     this->layout()->setContentsMargins(0, 0, 0, 0);
     this->layout()->addWidget(this->toolBar);
 
-    this->localFileBrowser = new QTreeView(this);
+    this->localFileBrowser = new QTreeView();
     this->localFileSystemModel = new QFileSystemModel();
     this->localFileSystemModel->setRootPath(QDir::homePath());
     std::cout << "Home dir: " << QDir::homePath().toStdString() << "\n";
@@ -24,10 +28,16 @@ FileBrowserApplet::FileBrowserApplet()
     this->remoteFileBrowser->setModel(this->remoteFileSystemModel);
 
     this->splitter = new QSplitter(this);
-    this->splitter->addWidget(this->localFileBrowser);
     this->splitter->addWidget(this->remoteFileBrowser);
 
     this->layout()->addWidget(this->splitter);
+}
+
+FileBrowserApplet::~FileBrowserApplet()
+{
+    if (this->localFileBrowser->parentWidget() == nullptr) {
+        delete this->localFileBrowser;
+    }
 }
 
 const QString FileBrowserApplet::getDisplayName()
@@ -53,4 +63,15 @@ void FileBrowserApplet::onShow()
 
     this->firstShow = false;
     this->remoteFileSystemModel->setConnEntry(connEntry);
+}
+
+void FileBrowserApplet::toggleLocalFileBrowser()
+{
+    if (!this->showLocalAction->isChecked()) {
+        this->showLocalAction->setToolTip(tr("Show Local File Browser"));
+        this->localFileBrowser->setParent(nullptr);
+    } else {
+        this->showLocalAction->setToolTip(tr("Hide Local File Browser"));
+        this->splitter->insertWidget(0, this->localFileBrowser);
+    }
 }

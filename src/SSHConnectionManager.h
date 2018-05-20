@@ -71,7 +71,7 @@ public:
 
     uint64_t executeRemoteCmd(std::shared_ptr<SSHConnectionEntry> connEntry,
             QString cmd, QObject *slotObject, const char *slot);
-    std::vector<std::shared_ptr<DirEntry>> readDirectory(std::shared_ptr<SSHConnectionEntry>, QString dir);
+    std::vector<std::shared_ptr<DirEntry>> readDirectory(std::shared_ptr<SSHConnectionEntry>, QString dir, bool onlyDirs);
 
 private:
     SSHConnectionManager();
@@ -80,7 +80,7 @@ private:
     uint64_t generateRequestId();
     std::shared_ptr<RemoteCmdResult> doExecuteRemoteCmd(std::shared_ptr<SSHConnection>, QString cmd);
     int waitsocket(std::shared_ptr<SSHConnection> conn);
-    std::vector<std::shared_ptr<DirEntry>> doReadDirectory(std::shared_ptr<SSHConnectionEntry> connEntry, QString dir);
+    std::vector<std::shared_ptr<DirEntry>> doReadDirectory(std::shared_ptr<SSHConnectionEntry> connEntry, QString dir, bool onlyDirs);
 
     std::mutex requestIdMutex;
     uint64_t nextRequestId;

@@ -5,6 +5,7 @@ bool compareDirEntries(std::shared_ptr<DirEntry> dirEntry1, std::shared_ptr<DirE
 SFTPFilesystemModel::SFTPFilesystemModel():
     QAbstractItemModel()
 {
+    this->showOnlyDirs = false;
     this->addPathString(QString("/"));
 }
 
@@ -223,7 +224,7 @@ void SFTPFilesystemModel::fetchMore(const QModelIndex &parent)
     }
 
     std::cout << "Calling readDirectory for " << parentPath->toStdString() << "\n";
-    auto entries = SSHConnectionManager::getInstance().readDirectory(this->connEntry, *parentPath);
+    auto entries = SSHConnectionManager::getInstance().readDirectory(this->connEntry, *parentPath, this->showOnlyDirs);
     std::sort(entries.begin(), entries.end(), compareDirEntries);
     this->dirCache[*parentPath] = entries;
 
@@ -474,6 +475,11 @@ double SFTPFilesystemModel::roundBytesUp(double numBytes) const
     // we display the byte value to the first position after the decimal point
     // and we always want to round the bytes to the next higher value
     return numBytes + 0.04;
+}
+
+void SFTPFilesystemModel::setShowOnlyDirs(bool showOnlyDirs)
+{
+    this->showOnlyDirs = showOnlyDirs;
 }
 
 bool compareDirEntries(std::shared_ptr<DirEntry> dirEntry1, std::shared_ptr<DirEntry> dirEntry2)

@@ -3,7 +3,12 @@
 SSHFilesystemNewDialog::SSHFilesystemNewDialog(QWidget *parent)
     : QDialog(parent)
 {
-    this->setWindowTitle(tr("New SSH Tunnel..."));
+    this->setMinimumWidth(500);
+    this->setMinimumHeight(180);
+    this->setMaximumHeight(180);
+    this->connEntry = nullptr;
+
+    this->setWindowTitle(tr("Mount remote SFTP directory..."));
     this->setWindowIcon(QIcon(":/images/applications-internet.svg"));
 
     this->localDirLineEdit = new QLineEdit();
@@ -17,9 +22,16 @@ SSHFilesystemNewDialog::SSHFilesystemNewDialog(QWidget *parent)
     connect(localDirButton, SIGNAL(clicked()), this, SLOT(selectLocalDir()));
     localDirLayout->addWidget(localDirButton);
 
+    QHBoxLayout *remoteDirLayout = new QHBoxLayout();
+    remoteDirLayout->addWidget(this->remoteDirLineEdit);
+    QToolButton *remoteDirButton = new QToolButton();
+    remoteDirButton->setText("...");
+    connect(remoteDirButton, SIGNAL(clicked()), this, SLOT(selectRemoteDir()));
+    remoteDirLayout->addWidget(remoteDirButton);
+
     this->formLayout = new QFormLayout;
     this->formLayout->addRow(tr("Local Directory:"), localDirLayout);
-    this->formLayout->addRow(tr("Remote Directory:"), this->remoteDirLineEdit);
+    this->formLayout->addRow(tr("Remote Directory:"), remoteDirLayout);
     this->formLayout->addRow(tr("Short Description:"), this->shortDescriptionLineEdit);
 
     QPushButton *connectButton = new QPushButton(tr("Connect"));
@@ -38,8 +50,11 @@ SSHFilesystemNewDialog::SSHFilesystemNewDialog(QWidget *parent)
     mainLayout->addLayout(this->formLayout);
     mainLayout->addLayout(buttonsLayout);
     setLayout(mainLayout);
+}
 
-    this->layout()->setSizeConstraint(QLayout::SetFixedSize);
+void SSHFilesystemNewDialog::setConnEntry(std::shared_ptr<SSHConnectionEntry> connEntry)
+{
+    this->connEntry = connEntry;
 }
 
 void SSHFilesystemNewDialog::acceptDialog()
@@ -82,5 +97,15 @@ void SSHFilesystemNewDialog::selectLocalDir()
     if (dialog.exec()) {
         QStringList filenames = dialog.selectedFiles();
         this->localDirLineEdit->setText(filenames.first());
+    }
+}
+
+void SSHFilesystemNewDialog::selectRemoteDir()
+{
+    SFTPDirectoryDialog dialog(this);
+    dialog.setConnEntry(this->connEntry);
+
+    if (dialog.exec()) {
+        this->remoteDirLineEdit->setText(dialog.getSelectedPath());
     }
 }

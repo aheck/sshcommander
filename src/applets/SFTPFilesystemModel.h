@@ -46,6 +46,7 @@ public:
 
     void setConnEntry(std::shared_ptr<SSHConnectionEntry> connEntry);
     void reloadData();
+    void setShowOnlyDirs(bool showOnlyDirs);
 
 private:
     void addPathString(QString pathString);
@@ -58,6 +59,7 @@ private:
     // for debugging
     void dumpPathStrings() const;
 
+    bool showOnlyDirs;
     std::shared_ptr<SSHConnectionEntry> connEntry;
 
     // maps a path string to a string pointer which we can use as

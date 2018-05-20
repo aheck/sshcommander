@@ -26,6 +26,8 @@ FileBrowserApplet::FileBrowserApplet()
     this->remoteFileBrowser = new QTreeView(this);
     this->remoteFileSystemModel = new SFTPFilesystemModel();
     this->remoteFileBrowser->setModel(this->remoteFileSystemModel);
+    this->remoteFileBrowser->setAllColumnsShowFocus(true);
+    this->remoteFileBrowser->setColumnWidth(1, 500);
 
     this->splitter = new QSplitter(this);
     this->splitter->addWidget(this->remoteFileBrowser);

@@ -63,6 +63,7 @@ QIcon SSHFilesystemApplet::getIcon()
 void SSHFilesystemApplet::init(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
     Applet::init(connEntry);
+    this->newDialog->setConnEntry(connEntry);
 
     this->model->setConnectionStrings(this->connEntry->username, this->connEntry->hostname);
 }

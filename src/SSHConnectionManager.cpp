@@ -210,16 +210,16 @@ std::shared_ptr<RemoteCmdResult> SSHConnectionManager::doExecuteRemoteCmd(std::s
     return result;
 }
 
-std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::readDirectory(std::shared_ptr<SSHConnectionEntry> connEntry, QString dir)
+std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::readDirectory(std::shared_ptr<SSHConnectionEntry> connEntry, QString dir, bool onlyDirs)
 {
     connEntry->connectionMutex.lock();
-    auto entries = this->doReadDirectory(connEntry, dir);
+    auto entries = this->doReadDirectory(connEntry, dir, onlyDirs);
     connEntry->connectionMutex.unlock();
 
     return entries;
 }
 
-std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std::shared_ptr<SSHConnectionEntry> connEntry, QString dir)
+std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std::shared_ptr<SSHConnectionEntry> connEntry, QString dir, bool onlyDirs)
 {
     LIBSSH2_SFTP_HANDLE *sftp_handle;
     auto conn = connEntry->connection;
@@ -269,6 +269,12 @@ std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std
 
             if (strcmp("..", mem) == 0) {
                 continue;
+            }
+
+            if (onlyDirs) {
+                if (attrs.flags & LIBSSH2_SFTP_ATTR_PERMISSIONS && !LIBSSH2_SFTP_S_ISDIR(attrs.permissions)) {
+                    continue;
+                }
             }
 
             auto dirEntry = std::make_shared<DirEntry>();

@@ -22,6 +22,7 @@ add_executable(sshcommander
     applets/ProcessesItemModel.cpp
     applets/RoutesApplet.cpp
     applets/RoutesItemModel.cpp
+    applets/SFTPDirectoryDialog.cpp
     applets/SFTPFilesystemModel.cpp
     applets/SSHFilesystemApplet.cpp
     applets/SSHFilesystemItemModel.cpp

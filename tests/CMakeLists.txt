@@ -16,6 +16,7 @@ add_executable(tests main.cpp
     ../src/applets/ProcessesItemModel.cpp
     ../src/applets/RoutesApplet.cpp
     ../src/applets/RoutesItemModel.cpp
+    ../src/applets/SFTPDirectoryDialog.cpp
     ../src/applets/SFTPFilesystemModel.cpp
     ../src/applets/SSHFilesystemApplet.cpp
     ../src/applets/SSHFilesystemItemModel.cpp

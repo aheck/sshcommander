@@ -11,6 +11,7 @@
 #include <QMessageBox>
 #include <QToolButton>
 
+#include "SFTPDirectoryDialog.h"
 #include "SSHFilesystemManager.h"
 
 class SSHFilesystemNewDialog : public QDialog
@@ -24,14 +25,17 @@ public:
     const QString getRemoteDir();
     const QString getShortDescription();
     void clear();
+    void setConnEntry(std::shared_ptr<SSHConnectionEntry> connEntry);
 
 public slots:
     void acceptDialog();
 
 protected slots:
     void selectLocalDir();
+    void selectRemoteDir();
 
 private:
+    std::shared_ptr<SSHConnectionEntry> connEntry;
     QFormLayout *formLayout;
     QLineEdit *localDirLineEdit;
     QLineEdit *remoteDirLineEdit;

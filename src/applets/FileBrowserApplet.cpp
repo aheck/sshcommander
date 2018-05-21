@@ -23,22 +23,34 @@ FileBrowserApplet::FileBrowserApplet()
     std::cout << "Home dir: " << QDir::homePath().toStdString() << "\n";
     this->localFileBrowser->setModel(this->localFileSystemModel);
 
+    this->localFileBrowserWidget = new QWidget();
+    this->localFileBrowserWidget->setLayout(new QVBoxLayout());
+    QLabel *localLabel = new QLabel(tr("Local") + ": " + QHostInfo::localHostName());
+    this->localFileBrowserWidget->layout()->addWidget(localLabel);
+    this->localFileBrowserWidget->layout()->addWidget(this->localFileBrowser);
+
     this->remoteFileBrowser = new QTreeView(this);
     this->remoteFileSystemModel = new SFTPFilesystemModel();
     this->remoteFileBrowser->setModel(this->remoteFileSystemModel);
     this->remoteFileBrowser->setAllColumnsShowFocus(true);
     this->remoteFileBrowser->setColumnWidth(1, 500);
 
+    QWidget *remoteFileBrowserWidget = new QWidget();
+    remoteFileBrowserWidget->setLayout(new QVBoxLayout());
+    this->remoteHostnameLabel = new QLabel(tr("Remote"));
+    remoteFileBrowserWidget->layout()->addWidget(this->remoteHostnameLabel);
+    remoteFileBrowserWidget->layout()->addWidget(this->remoteFileBrowser);
+
     this->splitter = new QSplitter(this);
-    this->splitter->addWidget(this->remoteFileBrowser);
+    this->splitter->addWidget(remoteFileBrowserWidget);
 
     this->layout()->addWidget(this->splitter);
 }
 
 FileBrowserApplet::~FileBrowserApplet()
 {
-    if (this->localFileBrowser->parentWidget() == nullptr) {
-        delete this->localFileBrowser;
+    if (this->localFileBrowserWidget->parentWidget() == nullptr) {
+        delete this->localFileBrowserWidget;
     }
 }
 
@@ -55,6 +67,8 @@ QIcon FileBrowserApplet::getIcon()
 void FileBrowserApplet::init(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
     Applet::init(connEntry);
+
+    this->remoteHostnameLabel->setText(tr("Remote") + ": " + connEntry->hostname);
 }
 
 void FileBrowserApplet::onShow()
@@ -71,9 +85,9 @@ void FileBrowserApplet::toggleLocalFileBrowser()
 {
     if (!this->showLocalAction->isChecked()) {
         this->showLocalAction->setToolTip(tr("Show Local File Browser"));
-        this->localFileBrowser->setParent(nullptr);
+        this->localFileBrowserWidget->setParent(nullptr);
     } else {
         this->showLocalAction->setToolTip(tr("Hide Local File Browser"));
-        this->splitter->insertWidget(0, this->localFileBrowser);
+        this->splitter->insertWidget(0, this->localFileBrowserWidget);
     }
 }

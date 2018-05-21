@@ -6,6 +6,7 @@
 
 #include <QDir>
 #include <QFileSystemModel>
+#include <QHostInfo>
 #include <QSplitter>
 #include <QTreeView>
 #include <QToolBar>
@@ -35,8 +36,10 @@ protected slots:
 private:
     QAction *showLocalAction;
     QSplitter *splitter;
+    QWidget *localFileBrowserWidget;
     QTreeView *localFileBrowser;
     QTreeView *remoteFileBrowser;
+    QLabel *remoteHostnameLabel;
     QFileSystemModel *localFileSystemModel;
     SFTPFilesystemModel *remoteFileSystemModel;
     QToolBar *toolBar;

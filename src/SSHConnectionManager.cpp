@@ -226,6 +226,9 @@ std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std
     std::vector<std::shared_ptr<DirEntry>> entries;
 
     // FIXME: Try to create connection if conn == nullptr
+    if (conn == nullptr) {
+        return entries;
+    }
 
     if (conn->sftp == nullptr) {
         while ((conn->sftp = libssh2_sftp_init(conn->session)) == nullptr &&

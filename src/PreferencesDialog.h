@@ -11,12 +11,15 @@
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLineEdit>
+#include <QListWidget>
 #include <QPalette>
 #include <QPushButton>
 #include <QMessageBox>
 #include <QVBoxLayout>
+#include <QStackedWidget>
 #include <QTabWidget>
 
+#include "PreferencesListWidget.h"
 #include "qtermwidget.h"
 
 class PreferencesDialog : public QDialog
@@ -38,8 +41,12 @@ public:
 public slots:
     void selectFont();
 
+private slots:
+    void pageSelectionChanged();
+
 private:
-    QTabWidget *tabs;
+    PreferencesListWidget *pageList;
+    QStackedWidget *pages;
     QFont terminalFont;
     QPushButton *fontButton;
     QString accessKey;

@@ -54,6 +54,7 @@ add_executable(tests main.cpp
     ../src/NewDialog.cpp
     ../src/Preferences.cpp
     ../src/PreferencesDialog.cpp
+    ../src/PreferencesListWidget.cpp
     ../src/RichTextDelegate.cpp
     ../src/RouteTableViewWidget.cpp
     ../src/SecurityGroupsDialog.cpp

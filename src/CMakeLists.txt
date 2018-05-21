@@ -60,6 +60,7 @@ add_executable(sshcommander
     NewDialog.cpp
     Preferences.cpp
     PreferencesDialog.cpp
+    PreferencesListWidget.cpp
     RichTextDelegate.cpp
     RouteTableViewWidget.cpp
     SecurityGroupsDialog.cpp

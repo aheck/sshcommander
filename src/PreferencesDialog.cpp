@@ -8,7 +8,34 @@ PreferencesDialog::PreferencesDialog()
     this->setWindowIcon(QIcon(":/images/preferences-system.svg"));
     QVBoxLayout *layout = new QVBoxLayout();
 
-    this->tabs = new QTabWidget();
+    this->pageList = new PreferencesListWidget();
+    this->pageList->setWrapping(false);
+    this->pageList->setUniformItemSizes(true);
+    this->pageList->setMovement(QListView::Static);
+    this->pageList->setFlow(QListView::LeftToRight);
+    this->pageList->setSelectionRectVisible(true);
+    this->pageList->setIconSize(QSize(64, 64));
+    this->pageList->setSelectionBehavior(QAbstractItemView::SelectItems);
+    this->pageList->setSelectionMode(QAbstractItemView::SingleSelection	);
+    this->pageList->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    connect(this->pageList, SIGNAL(itemSelectionChanged()), this, SLOT(pageSelectionChanged()));
+
+    QListWidgetItem *terminalItem = new QListWidgetItem("Terminal");
+    terminalItem->setIcon(QIcon(":/images/utilities-terminal.svg"));
+    terminalItem->setSizeHint(QSize(64, 64));
+    terminalItem->setToolTip(tr("Terminal"));
+    this->pageList->addItem(terminalItem);
+    QListWidgetItem *awsItem = new QListWidgetItem("Amazon Web Services");
+    awsItem->setIcon(QIcon(":/images/connection-type-aws.svg"));
+    awsItem->setSizeHint(QSize(64, 64));
+    awsItem->setToolTip(tr("Amazon Web Services"));
+    this->pageList->addItem(awsItem);
+
+    this->pages = new QStackedWidget();
+
+    // set focus on first icon
+    this->pageList->setCurrentItem(terminalItem);
 
     // Terminal tab
     QWidget *terminalPage = new QWidget();
@@ -23,7 +50,7 @@ PreferencesDialog::PreferencesDialog()
     terminalLayout->addRow(tr("Color Scheme:"), this->colorSchemeComboBox);
 
     terminalPage->setLayout(terminalLayout);
-    this->tabs->addTab(terminalPage, tr("Terminal"));
+    this->pages->addWidget(terminalPage);
 
     // AWS tab
     QWidget *awsPage = new QWidget();
@@ -36,7 +63,7 @@ PreferencesDialog::PreferencesDialog()
     awsLayout->addRow(tr("Secret Key:"), this->secretKeyLineEdit);
 
     awsPage->setLayout(awsLayout);
-    this->tabs->addTab(awsPage, tr("AWS"));
+    this->pages->addWidget(awsPage);
 
     // General dialog layout
     QHBoxLayout *buttonLayout = new QHBoxLayout();
@@ -47,8 +74,10 @@ PreferencesDialog::PreferencesDialog()
     QObject::connect(cancelButton, SIGNAL (clicked()), this, SLOT (reject()));
     buttonLayout->addWidget(cancelButton);
 
-    layout->addWidget(this->tabs);
+    layout->addWidget(pageList);
+    layout->addWidget(this->pages);
     layout->addLayout(buttonLayout);
+
     this->setLayout(layout);
 }
 
@@ -106,4 +135,9 @@ const QString PreferencesDialog::getColorScheme()
 void PreferencesDialog::setColorScheme(const QString colorScheme)
 {
     this->colorSchemeComboBox->setCurrentText(colorScheme);
+}
+
+void PreferencesDialog::pageSelectionChanged()
+{
+    this->pages->setCurrentIndex(this->pageList->currentRow());
 }

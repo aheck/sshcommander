@@ -69,7 +69,7 @@ MachineInfoApplet::MachineInfoApplet()
     QGroupBox *sshGroup = new QGroupBox(tr("SSH"));
     sshGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
-    sshLayout->addRow(tr("SSH Command:"), this->valueSSHCommand);
+    sshLayout->addRow(tr("SSH Connect:"), this->valueSSHCommand);
     sshLayout->addRow(tr("Copy File Command:"), this->valueSCPCommand);
     sshLayout->addRow(tr("Copy Dir Command:"), this->valueSCPDirCommand);
 
@@ -158,14 +158,18 @@ void MachineInfoApplet::updateKnownHostsData()
     this->valueKnownHostsFile->setText(this->knownHostsFilePath);
     if (QFile::exists(this->knownHostsFilePath)) {
         this->valueFileExists->setText(tr("Yes"));
+        this->valueFileExists->setStyleSheet("QLabel { font-weight: bold; color: green;}");
     } else {
         this->valueFileExists->setText(tr("No"));
+        this->valueFileExists->setStyleSheet("QLabel { font-weight: bold; color: goldenrod;}");
     }
     if (this->isHostInKnownHostsFile()) {
         this->valueKnownHostsEntryExists->setText(tr("Yes"));
+        this->valueKnownHostsEntryExists->setStyleSheet("QLabel { font-weight: bold; color: green;}");
         this->removeHostButton->setEnabled(true);
     } else {
         this->valueKnownHostsEntryExists->setText(tr("No"));
+        this->valueKnownHostsEntryExists->setStyleSheet("QLabel { font-weight: bold; color: goldenrod;}");
         this->removeHostButton->setEnabled(false);
     }
 }

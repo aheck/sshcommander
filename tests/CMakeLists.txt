@@ -47,6 +47,7 @@ add_executable(tests main.cpp
     ../src/DetachedTerminalWindow.cpp
     ../src/DisabledWidget.cpp
     ../src/DirEntry.cpp
+    ../src/FileTransferJob.cpp
     ../src/ImageDialog.cpp
     ../src/InactiveSessionWidget.cpp
     ../src/InstanceItemModel.cpp

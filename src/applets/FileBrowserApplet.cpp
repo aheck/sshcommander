@@ -22,6 +22,7 @@ FileBrowserApplet::FileBrowserApplet()
     this->localFileSystemModel->setRootPath(QDir::homePath());
     std::cout << "Home dir: " << QDir::homePath().toStdString() << "\n";
     this->localFileBrowser->setModel(this->localFileSystemModel);
+    this->localFileBrowser->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     this->localFileBrowserWidget = new QWidget();
     this->localFileBrowserWidget->setLayout(new QVBoxLayout());
@@ -34,6 +35,8 @@ FileBrowserApplet::FileBrowserApplet()
     this->remoteFileBrowser->setModel(this->remoteFileSystemModel);
     this->remoteFileBrowser->setAllColumnsShowFocus(true);
     this->remoteFileBrowser->setColumnWidth(1, 500);
+    this->remoteFileBrowser->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    this->remoteFileBrowser->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 
     QWidget *remoteFileBrowserWidget = new QWidget();
     remoteFileBrowserWidget->setLayout(new QVBoxLayout());

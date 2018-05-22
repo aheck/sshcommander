@@ -14,6 +14,7 @@ SFTPDirectoryDialog::SFTPDirectoryDialog(QWidget *parent)
     this->remoteFileSystemModel->setShowOnlyDirs(true);
     this->remoteFileBrowser->setModel(this->remoteFileSystemModel);
     this->remoteFileBrowser->setAllColumnsShowFocus(true);
+    this->remoteFileBrowser->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *okButton = new QPushButton(tr("OK"));

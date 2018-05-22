@@ -13,6 +13,7 @@
 #include <QComboBox>
 #include <QDialog>
 #include <QFontDialog>
+#include <QHeaderView>
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QMessageBox>

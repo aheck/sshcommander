@@ -6,6 +6,7 @@
 
 #include <QDir>
 #include <QFileSystemModel>
+#include <QHeaderView>
 #include <QHostInfo>
 #include <QSplitter>
 #include <QTreeView>

@@ -10,12 +10,16 @@ SSHConnection::SSHConnection()
 
 SSHConnection::~SSHConnection()
 {
-    if (session == nullptr) {
-        return;
+    if (this->session != nullptr) {
+        libssh2_session_disconnect(this->session, "Normal disconnect of SSH Commander");
+        libssh2_session_free(this->session);
     }
 
-    libssh2_session_disconnect(this->session, "Normal disconnect of SSH Commander");
-    libssh2_session_free(this->session);
-    libssh2_sftp_shutdown(this->sftp);
-    libssh2_session_free(this->sftp_session);
+    if (this->sftp != nullptr) {
+        libssh2_sftp_shutdown(this->sftp);
+    }
+
+    if (this->sftp_session != nullptr) {
+        libssh2_session_free(this->sftp_session);
+    }
 }

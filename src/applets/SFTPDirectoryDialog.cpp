@@ -35,6 +35,8 @@ void SFTPDirectoryDialog::setConnEntry(std::shared_ptr<SSHConnectionEntry> connE
 {
     this->connEntry = connEntry;
     this->remoteFileSystemModel->setConnEntry(connEntry);
+
+    this->setWindowTitle("Select remote directory on " + connEntry->hostname);
 }
 
 QString SFTPDirectoryDialog::getSelectedPath()

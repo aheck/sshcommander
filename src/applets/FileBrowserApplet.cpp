@@ -29,6 +29,7 @@ FileBrowserApplet::FileBrowserApplet()
     QLabel *localLabel = new QLabel(tr("Local") + ": " + QHostInfo::localHostName());
     this->localFileBrowserWidget->layout()->addWidget(localLabel);
     this->localFileBrowserWidget->layout()->addWidget(this->localFileBrowser);
+    this->localFileBrowser->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 
     this->remoteFileBrowser = new QTreeView(this);
     this->remoteFileSystemModel = new SFTPFilesystemModel();

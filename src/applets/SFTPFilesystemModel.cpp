@@ -261,6 +261,10 @@ QVariant SFTPFilesystemModel::headerData(int section, Qt::Orientation orientatio
                 return QVariant(tr("Type"));
         case static_cast<int>(SFTPColumns::Modified):
             return QVariant(tr("Date Modified"));
+        case static_cast<int>(SFTPColumns::Permissions):
+            return QVariant(tr("Permissions"));
+        case static_cast<int>(SFTPColumns::User):
+            return QVariant(tr("User"));
     }
 
     return QVariant();
@@ -304,6 +308,8 @@ QVariant SFTPFilesystemModel::data(const QModelIndex &index, int role) const
     auto dirEntry = dirEntries.at(index.row());
 
     QFileIconProvider iconProvider;
+    QDateTime dateTime;
+
     switch (index.column()) {
         case (static_cast<int>(SFTPColumns::Name)):
             if (role == Qt::DisplayRole) return dirEntry->getFilename();
@@ -340,10 +346,13 @@ QVariant SFTPFilesystemModel::data(const QModelIndex &index, int role) const
                 return QVariant();
             }
 
-            QDateTime dateTime;
             dateTime.setTime_t(dirEntry->getMtime());
 
             return dateTime;
+        case (static_cast<int>(SFTPColumns::Permissions)):
+            return dirEntry->getPermissionsString();
+        case (static_cast<int>(SFTPColumns::User)):
+            return dirEntry->getUser();
     }
 
     return QVariant();

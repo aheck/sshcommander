@@ -20,7 +20,7 @@
 
 #include "SSHConnectionManager.h"
 
-enum class SFTPColumns {Name = 0, Size, Type, Modified, Count};
+enum class SFTPColumns {Name = 0, Size, Type, Modified, Permissions, User, Count};
 
 class SFTPFilesystemModel : public QAbstractItemModel
 {

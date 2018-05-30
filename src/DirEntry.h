@@ -5,6 +5,8 @@
  ****************************************************************************/
 
 #include <QString>
+#include <QStringList>
+#include <QRegExp>
 
 #include <libssh2_sftp.h>
 
@@ -12,6 +14,9 @@ class DirEntry
 {
 public:
     DirEntry();
+
+    void setLongEntry(QString longEntry);
+    QString getUser();
 
     QString getFilename();
     void setFilename(QString filename);
@@ -50,6 +55,8 @@ public:
     uint64_t getFilesize();
 
 private:
+    QString longEntry;
+    QString user;
     QString filename;
     QString path;
 

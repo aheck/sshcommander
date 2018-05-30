@@ -284,6 +284,8 @@ std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std
             dirEntry->setPath(dir);
             dirEntry->setFilename(mem);
 
+            dirEntry->setLongEntry(longentry);
+
             if (attrs.flags & LIBSSH2_SFTP_ATTR_PERMISSIONS) {
                 dirEntry->setPermissions(attrs.permissions);
             }

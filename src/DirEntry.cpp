@@ -18,6 +18,24 @@ DirEntry::DirEntry()
     this->mtime = 0;
 }
 
+void DirEntry::setLongEntry(QString longEntry)
+{
+    this->longEntry = longEntry;
+
+    QRegExp space("\\s+");
+    QStringList fields = longEntry.split(space);
+    if (fields.length() < 3) {
+        return;
+    }
+
+    this->user = fields.at(2);
+}
+
+QString DirEntry::getUser()
+{
+    return this->user;
+}
+
 QString DirEntry::getFilename()
 {
     return this->filename;
@@ -53,12 +71,12 @@ QString DirEntry::getPermissionsString()
 {
     QString s;
 
-    if (LIBSSH2_SFTP_S_ISLNK(this->permissions)) s.append("p");
+    if (LIBSSH2_SFTP_S_ISLNK(this->permissions)) s.append("l");
     if (LIBSSH2_SFTP_S_ISCHR(this->permissions)) s.append("c");
     if (LIBSSH2_SFTP_S_ISDIR(this->permissions)) s.append("d");
     if (LIBSSH2_SFTP_S_ISBLK(this->permissions)) s.append("b");
     if (LIBSSH2_SFTP_S_ISREG(this->permissions)) s.append("-");
-    if (LIBSSH2_SFTP_S_ISLNK(this->permissions)) s.append("l");
+    if (LIBSSH2_SFTP_S_ISFIFO(this->permissions)) s.append("f");
     if (LIBSSH2_SFTP_S_ISSOCK(this->permissions)) s.append("s");
 
     if (this->permissions & LIBSSH2_SFTP_S_IRUSR) s.append("r"); else s.append("-");

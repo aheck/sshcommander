@@ -17,6 +17,7 @@ public:
 
     void setLongEntry(QString longEntry);
     QString getUser();
+    QString getGroup();
 
     QString getFilename();
     void setFilename(QString filename);
@@ -57,6 +58,7 @@ public:
 private:
     QString longEntry;
     QString user;
+    QString group;
     QString filename;
     QString path;
 

@@ -265,6 +265,8 @@ QVariant SFTPFilesystemModel::headerData(int section, Qt::Orientation orientatio
             return QVariant(tr("Permissions"));
         case static_cast<int>(SFTPColumns::User):
             return QVariant(tr("User"));
+        case static_cast<int>(SFTPColumns::Group):
+            return QVariant(tr("Group"));
     }
 
     return QVariant();
@@ -353,6 +355,8 @@ QVariant SFTPFilesystemModel::data(const QModelIndex &index, int role) const
             return dirEntry->getPermissionsString();
         case (static_cast<int>(SFTPColumns::User)):
             return dirEntry->getUser();
+        case (static_cast<int>(SFTPColumns::Group)):
+            return dirEntry->getGroup();
     }
 
     return QVariant();

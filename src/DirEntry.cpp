@@ -29,11 +29,22 @@ void DirEntry::setLongEntry(QString longEntry)
     }
 
     this->user = fields.at(2);
+
+    if (fields.length() < 4) {
+        return;
+    }
+
+    this->group = fields.at(3);
 }
 
 QString DirEntry::getUser()
 {
     return this->user;
+}
+
+QString DirEntry::getGroup()
+{
+    return this->group;
 }
 
 QString DirEntry::getFilename()

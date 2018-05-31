@@ -28,7 +28,6 @@ QModelIndex SFTPFilesystemModel::index(int row, int column, const QModelIndex &p
         str = this->getPathString("/");
     } else {
         QString *parentPath = static_cast<QString*>(parent.internalPointer());
-        std::cerr << "index parent path: " << parentPath->toStdString() << "\n";
 
         if (this->dirCache.count(*parentPath) != 1) {
             return QModelIndex();
@@ -43,10 +42,6 @@ QModelIndex SFTPFilesystemModel::index(int row, int column, const QModelIndex &p
         }
         pathStr += dirEntry->getFilename();
         str = this->getPathString(pathStr);
-
-        std::cerr << "index pathStr: " << pathStr.toStdString() << "\n";
-        std::cerr << "index str: " << str << "\n";
-        std::cerr << "index str: " << str->toStdString() << "\n";
     }
 
     return this->createIndex(row, column, static_cast<void*>(str));
@@ -73,11 +68,7 @@ QModelIndex SFTPFilesystemModel::parent(const QModelIndex &index) const
         return QModelIndex();
     }
 
-    std::cerr << "parent: path: " << path->toStdString() << "\n";
-
     QString parentPath = this->dirname(*path);
-
-    std::cerr << "parent: parentPath: " << parentPath.toStdString() << "\n";
 
     if (parentPath == "/") {
         row = 0;
@@ -210,7 +201,6 @@ void SFTPFilesystemModel::fetchMore(const QModelIndex &parent)
         QString dirPath = "/" + components.join("/");
 
         bool isDir = false;
-        std::cerr << "dirPath: " << dirPath.toStdString() << "\n";
         auto entries = this->dirCache.at(dirPath);
         for (auto cur : entries) {
             if (cur->getFilename() == filename) {
@@ -223,12 +213,18 @@ void SFTPFilesystemModel::fetchMore(const QModelIndex &parent)
         }
     }
 
-    std::cout << "Calling readDirectory for " << parentPath->toStdString() << "\n";
-    auto entries = SSHConnectionManager::getInstance().readDirectory(this->connEntry, *parentPath, this->showOnlyDirs);
+    this->loadDirectory(*parentPath);
+}
+
+int SFTPFilesystemModel::loadDirectory(QString path)
+{
+    std::cout << "Calling readDirectory for " << path.toStdString() << "\n";
+    auto entries = SSHConnectionManager::getInstance().readDirectory(this->connEntry, path, this->showOnlyDirs);
     std::sort(entries.begin(), entries.end(), compareDirEntries);
-    this->dirCache[*parentPath] = entries;
+    this->dirCache[path] = entries;
 
     for (auto const &dirEntry : entries) {
+        std::cerr << "loaded path: " << dirEntry->getPath().toStdString() << "\n";
         if (dirEntry->getPath() == "/") {
             this->addPathString(dirEntry->getPath() + dirEntry->getFilename());
             this->pathIsDirTable[dirEntry->getPath() + dirEntry->getFilename()] = dirEntry->isDirectory();
@@ -238,8 +234,9 @@ void SFTPFilesystemModel::fetchMore(const QModelIndex &parent)
         }
     }
 
-    std::cout << "Finished readDirectory for " << parentPath->toStdString() << "\n";
-    this->dumpPathStrings();
+    std::cout << "Finished readDirectory for " << path.toStdString() << "\n";
+
+    return entries.size();
 }
 
 QVariant SFTPFilesystemModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -306,7 +303,6 @@ QVariant SFTPFilesystemModel::data(const QModelIndex &index, int role) const
     }
 
     auto dirEntries = this->dirCache.at(parentPath);
-    std::cerr << "dirEntries size: " << dirEntries.size() << "\n";
     auto dirEntry = dirEntries.at(index.row());
 
     QFileIconProvider iconProvider;
@@ -369,10 +365,6 @@ void SFTPFilesystemModel::clear()
     emit layoutChanged();
 }
 
-void SFTPFilesystemModel::updateData(QString data)
-{
-}
-
 void SFTPFilesystemModel::sort(int column, Qt::SortOrder order)
 {
 }
@@ -386,10 +378,17 @@ void SFTPFilesystemModel::setConnEntry(std::shared_ptr<SSHConnectionEntry> connE
     endResetModel();
 }
 
-void SFTPFilesystemModel::reloadData()
+void SFTPFilesystemModel::sendReloadNotification(const QModelIndex &parent, int numRowsBefore, int numRowsAfter)
 {
-    this->beginResetModel();
-    this->endResetModel();
+    if (numRowsBefore > 0) {
+        this->beginRemoveRows(parent, 0, numRowsBefore);
+        this->endRemoveRows();
+    }
+
+    if (numRowsAfter > 0) {
+        this->beginInsertRows(parent, 0, numRowsAfter);
+        this->endInsertRows();
+    }
 }
 
 void SFTPFilesystemModel::addPathString(QString pathString)

@@ -38,6 +38,7 @@ FileBrowserApplet::FileBrowserApplet()
     this->remoteFileBrowser->setColumnWidth(1, 500);
     this->remoteFileBrowser->setSelectionMode(QAbstractItemView::ExtendedSelection);
     this->remoteFileBrowser->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    connect(this->remoteFileBrowser, SIGNAL(expanded(QModelIndex)), this, SLOT(expanded(QModelIndex)));
 
     QWidget *remoteFileBrowserWidget = new QWidget();
     remoteFileBrowserWidget->setLayout(new QVBoxLayout());
@@ -83,6 +84,33 @@ void FileBrowserApplet::onShow()
 
     this->firstShow = false;
     this->remoteFileSystemModel->setConnEntry(connEntry);
+}
+
+void FileBrowserApplet::expanded(const QModelIndex &index)
+{
+    std::cerr << "\nexpanded was called!!!\n\n";
+    this->lastIndexExpanded = index;
+}
+
+void FileBrowserApplet::reloadData()
+{
+    QString path;
+
+    if (!this->lastIndexExpanded.isValid()) {
+        return;
+    } else {
+        QString *pathPtr = static_cast<QString*>(this->lastIndexExpanded.internalPointer());
+        if (pathPtr == nullptr) {
+            return;
+        }
+
+        path = *pathPtr;
+    }
+
+    int numRowsBefore = this->remoteFileSystemModel->rowCount(this->lastIndexExpanded);
+
+    int numRowsAfter = this->remoteFileSystemModel->loadDirectory(path);
+    this->remoteFileSystemModel->sendReloadNotification(this->lastIndexExpanded, numRowsBefore, numRowsAfter);
 }
 
 void FileBrowserApplet::toggleLocalFileBrowser()

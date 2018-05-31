@@ -32,6 +32,8 @@ public:
     virtual void onShow() override;
 
 protected slots:
+    void expanded(const QModelIndex &index);
+    void reloadData();
     void toggleLocalFileBrowser();
 
 private:
@@ -44,6 +46,7 @@ private:
     QFileSystemModel *localFileSystemModel;
     SFTPFilesystemModel *remoteFileSystemModel;
     QToolBar *toolBar;
+    QModelIndex lastIndexExpanded;
     bool firstShow;
 };
 

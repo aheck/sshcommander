@@ -37,15 +37,15 @@ public:
     bool hasChildren(const QModelIndex &parent) const override;
     bool canFetchMore(const QModelIndex &parent) const override;
     void fetchMore(const QModelIndex &parent) override;
+    int loadDirectory(QString path);
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     void clear();
 
-    void updateData(QString data);
     void sort(int column, Qt::SortOrder order) override;
 
     void setConnEntry(std::shared_ptr<SSHConnectionEntry> connEntry);
-    void reloadData();
+    void sendReloadNotification(const QModelIndex &parent, int numRowsBefore, int numRowsAfter);
     void setShowOnlyDirs(bool showOnlyDirs);
 
 private:

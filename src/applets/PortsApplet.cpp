@@ -97,11 +97,13 @@ void PortsApplet::showContextMenu(QPoint pos)
         //std::shared_ptr<AWSInstance> instance = this->getSelectedInstance();
         menu.addAction(tr("Tunnel this port to local machine"), this, SLOT(showNewTunnelDialog()));
 
+        /*
         menu.addSeparator();
 
         QMenu *openWithProgramActions = menu.addMenu(tr("Open with..."));
 
         QAction *pgOpenAction = openWithProgramActions->addAction(tr("..."), this, SLOT(startInstance()));
+        */
 
         menu.exec(globalPos);
     }

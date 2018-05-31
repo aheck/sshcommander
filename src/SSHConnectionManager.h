@@ -37,13 +37,13 @@
 
 #include <QHostInfo>
 #include <QMetaObject>
+#include <QMetaType>
 #include <QString>
 
 #include "DirEntry.h"
 #include "SSHConnection.h"
 #include "SSHConnectionEntry.h"
-
-#include <QMetaType>
+#include "Util.h"
 
 class RemoteCmdResult
 {
@@ -72,6 +72,8 @@ public:
     uint64_t executeRemoteCmd(std::shared_ptr<SSHConnectionEntry> connEntry,
             QString cmd, QObject *slotObject, const char *slot);
     std::vector<std::shared_ptr<DirEntry>> readDirectory(std::shared_ptr<SSHConnectionEntry>, QString dir, bool onlyDirs);
+    void copyFileFromRemote(std::shared_ptr<SSHConnectionEntry> connEntry, QString remotePath, QString localDir);
+    void copyFileToRemote(std::shared_ptr<SSHConnectionEntry> connEntry, QString localPath, QString remoteDir);
 
 private:
     SSHConnectionManager();

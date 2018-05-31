@@ -78,6 +78,7 @@ add_executable(sshcommander
     TagsDialog.cpp
     TagsViewWidget.cpp
     TunnelManager.cpp
+    Util.cpp
     VpcDialog.cpp
     ${ProgramResources}
 )

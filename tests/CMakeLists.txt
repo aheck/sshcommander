@@ -72,6 +72,7 @@ add_executable(tests main.cpp
     ../src/TagsDialog.cpp
     ../src/TagsViewWidget.cpp
     ../src/TunnelManager.cpp
+    ../src/Util.cpp
     ../src/VpcDialog.cpp
 )
 

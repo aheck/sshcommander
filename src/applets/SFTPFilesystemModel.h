@@ -19,6 +19,7 @@
 #include <QModelIndex>
 
 #include "SSHConnectionManager.h"
+#include "Util.h"
 
 enum class SFTPColumns {Name = 0, Size, Type, Modified, Permissions, User, Group, Count};
 
@@ -51,8 +52,6 @@ public:
 private:
     void addPathString(QString pathString);
     QString* getPathString(QString pathString) const;
-    QString dirname(QString path) const;
-    QString basename(QString path) const;
     QString formatBytes(uint64_t numBytes) const;
     double roundBytesUp(double numBytes) const;
 

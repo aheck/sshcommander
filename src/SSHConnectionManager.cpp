@@ -219,6 +219,136 @@ std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::readDirectory(std::
     return entries;
 }
 
+void SSHConnectionManager::copyFileFromRemote(std::shared_ptr<SSHConnectionEntry> connEntry, QString remotePath, QString localDir)
+{
+    int rc = 0;
+    int nread = 0;
+    char *ptr = NULL;
+    FILE *fp = NULL;
+    char buffer[1024*4];
+    LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
+    auto conn = connEntry->connection;
+    uint64_t total = 0;
+
+    if (conn == nullptr) {
+        return;
+    }
+
+    if (conn == nullptr) {
+        return;
+    }
+
+    QString localFilename = localDir + "/" + Util::basename(remotePath);
+
+    fp = fopen(localFilename.toLatin1().data(), "w");
+    if (!fp) {
+        fprintf(stderr, "Can't open local file %s\n", localFilename.toLatin1().data());
+        return;
+    }
+
+    do {
+        sftp_handle = libssh2_sftp_open(conn->sftp, remotePath.toLatin1().data(),
+                LIBSSH2_FXF_READ, 0);
+
+        if (!sftp_handle &&
+                (libssh2_session_last_errno(conn->sftp_session) != LIBSSH2_ERROR_EAGAIN)) {
+
+            fprintf(stderr, "Unable to open file with SFTP\n");
+            goto shutdown;
+        }
+    } while (!sftp_handle);
+
+    do {
+        while ((nread = libssh2_sftp_write(sftp_handle, buffer, sizeof(buffer))) ==
+                LIBSSH2_ERROR_EAGAIN) {
+            this->waitsocket(conn);
+        }
+
+        if (nread <= 0) {
+            /* end of file */
+            break;
+        }
+
+        ptr = buffer;
+        total += nread;
+
+        do {
+            rc = fwrite(ptr, 1, nread, fp);
+            ptr += rc;
+            nread -= rc;
+
+        } while (nread);
+    } while (rc > 0);
+
+shutdown:
+    libssh2_sftp_close(sftp_handle);
+}
+
+void SSHConnectionManager::copyFileToRemote(std::shared_ptr<SSHConnectionEntry> connEntry, QString localPath, QString remoteDir)
+{
+    int rc = 0;
+    int nread = 0;
+    char *ptr = NULL;
+    FILE *fp = NULL;
+    char buffer[1024*4];
+    LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
+    auto conn = connEntry->connection;
+    uint64_t total = 0;
+
+    if (conn == nullptr) {
+        return;
+    }
+
+    fp = fopen(localPath.toLatin1().data(), "rb");
+    if (!fp) {
+        fprintf(stderr, "Can't open local file %s\n", localPath.toLatin1().data());
+        return;
+    }
+
+    QString remoteFilename = remoteDir + "/" + Util::basename(localPath);
+
+    do {
+        sftp_handle = libssh2_sftp_open(conn->sftp, remoteFilename.toLatin1().data(),
+                LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC,
+                LIBSSH2_SFTP_S_IRUSR|LIBSSH2_SFTP_S_IWUSR|
+                LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IROTH);
+
+        if (!sftp_handle &&
+                (libssh2_session_last_errno(conn->sftp_session) != LIBSSH2_ERROR_EAGAIN)) {
+
+            fprintf(stderr, "Unable to open file with SFTP\n");
+            goto shutdown;
+        }
+    } while (!sftp_handle);
+
+    do {
+        nread = fread(buffer, 1, sizeof(buffer), fp);
+        if (nread <= 0) {
+            /* end of file */
+            break;
+        }
+        ptr = buffer;
+
+        total += nread;
+
+        do {
+            /* write data in a loop until we block */
+            while ((rc = libssh2_sftp_write(sftp_handle, ptr, nread)) ==
+                    LIBSSH2_ERROR_EAGAIN) {
+                this->waitsocket(conn);
+            }
+            if(rc < 0)
+                break;
+            ptr += rc;
+            nread -= rc;
+
+        } while (nread);
+    } while (rc > 0);
+
+shutdown:
+    libssh2_sftp_close(sftp_handle);
+}
+
 std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std::shared_ptr<SSHConnectionEntry> connEntry, QString dir, bool onlyDirs)
 {
     LIBSSH2_SFTP_HANDLE *sftp_handle;

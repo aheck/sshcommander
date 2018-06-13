@@ -7,6 +7,8 @@ AppletWidget::AppletWidget(std::shared_ptr<SSHConnectionEntry> connEntry, QWidge
     // create the connection applets
     this->applets.append(new MachineInfoApplet());
     this->applets.append(new NotesEditor());
+    this->applets.append(new FileBrowserApplet());
+    this->applets.append(new FileTransfersApplet());
     if (connEntry->isAwsInstance) {
         this->applets.append(new AWSInfoApplet());
     }
@@ -15,7 +17,6 @@ AppletWidget::AppletWidget(std::shared_ptr<SSHConnectionEntry> connEntry, QWidge
     this->applets.append(new RoutesApplet());
     this->applets.append(new ProcessesApplet());
     this->applets.append(new SSHFilesystemApplet());
-    this->applets.append(new FileBrowserApplet());
 
     // create the tab where the applets reside
     this->appletTab = new QTabWidget();

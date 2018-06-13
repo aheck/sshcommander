@@ -206,3 +206,8 @@ const QString SSHConnectionEntry::decodePassword(const QString &cipherText) cons
     QByteArray password = QByteArray::fromBase64(cipherText.toLatin1());
     return QString::fromUtf8(password);
 }
+
+QString SSHConnectionEntry::getIdentifier() const
+{
+    return this->username + "@" + this->hostname;
+}

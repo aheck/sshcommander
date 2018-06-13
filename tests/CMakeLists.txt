@@ -7,6 +7,8 @@ add_executable(tests main.cpp
 
     ../src/applets/AWSInfoApplet.cpp
     ../src/applets/FileBrowserApplet.cpp
+    ../src/applets/FileTransfersApplet.cpp
+    ../src/applets/FileTransfersItemModel.cpp
     ../src/applets/NotesEditor.cpp
     ../src/applets/MachineInfoApplet.cpp
     ../src/applets/PortsApplet.cpp
@@ -48,6 +50,7 @@ add_executable(tests main.cpp
     ../src/DisabledWidget.cpp
     ../src/DirEntry.cpp
     ../src/FileTransferJob.cpp
+    ../src/FileTransferWorker.cpp
     ../src/ImageDialog.cpp
     ../src/InactiveSessionWidget.cpp
     ../src/InstanceItemModel.cpp

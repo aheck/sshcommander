@@ -13,6 +13,7 @@
 
 #include "applets/AWSInfoApplet.h"
 #include "applets/FileBrowserApplet.h"
+#include "applets/FileTransfersApplet.h"
 #include "applets/MachineInfoApplet.h"
 #include "applets/NotesEditor.h"
 #include "applets/PortsApplet.h"

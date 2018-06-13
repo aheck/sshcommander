@@ -13,6 +13,8 @@ add_executable(sshcommander
     main.cpp
     applets/AWSInfoApplet.cpp
     applets/FileBrowserApplet.cpp
+    applets/FileTransfersApplet.cpp
+    applets/FileTransfersItemModel.cpp
     applets/NotesEditor.cpp
     applets/MachineInfoApplet.cpp
     applets/PortsApplet.cpp
@@ -54,6 +56,7 @@ add_executable(sshcommander
     DisabledWidget.cpp
     DirEntry.cpp
     FileTransferJob.cpp
+    FileTransferWorker.cpp
     ImageDialog.cpp
     InactiveSessionWidget.cpp
     InstanceItemModel.cpp

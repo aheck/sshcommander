@@ -1,5 +1,5 @@
-#ifndef FILEBROWSERAPPLET_H
-#define FILEBROWSERAPPLET_H
+#ifndef FILETRANSFERSAPPLET_H
+#define FILETRANSFERSAPPLET_H
 
 #include <iostream>
 #include <memory>
@@ -9,22 +9,24 @@
 #include <QHeaderView>
 #include <QHostInfo>
 #include <QSplitter>
+#include <QTableView>
 #include <QTreeView>
 #include <QToolBar>
 
 #include "FileTransferJob.h"
+#include "FileTransfersItemModel.h"
 #include "SSHConnectionManager.h"
 #include "SFTPFilesystemModel.h"
 
 #include "Applet.h"
 
-class FileBrowserApplet : public Applet
+class FileTransfersApplet : public Applet
 {
     Q_OBJECT
 
 public:
-    FileBrowserApplet();
-    ~FileBrowserApplet();
+    FileTransfersApplet();
+    ~FileTransfersApplet();
 
     // the Applet interface
     virtual const QString getDisplayName() override;
@@ -33,23 +35,12 @@ public:
     virtual void onShow() override;
 
 protected slots:
-    void expanded(const QModelIndex &index);
     void reloadData();
-    void toggleLocalFileBrowser();
-    void startDownload();
-    void startUpload();
 
 private:
-    QAction *showLocalAction;
-    QSplitter *splitter;
-    QWidget *localFileBrowserWidget;
-    QTreeView *localFileBrowser;
-    QTreeView *remoteFileBrowser;
-    QLabel *remoteHostnameLabel;
-    QFileSystemModel *localFileSystemModel;
-    SFTPFilesystemModel *remoteFileSystemModel;
+    QTableView *table;
+    FileTransfersItemModel *model;
     QToolBar *toolBar;
-    QModelIndex lastIndexExpanded;
     bool firstShow;
 };
 

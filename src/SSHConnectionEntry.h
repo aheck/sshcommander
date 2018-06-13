@@ -42,6 +42,7 @@ public:
     QString generateSCPCommand(QString src, QString dest, bool dir = false);
     const QString encodePassword(const QString &password) const;
     const QString decodePassword(const QString &cipherText) const;
+    QString getIdentifier() const;
 
     QString name;
     QString shortDescription;

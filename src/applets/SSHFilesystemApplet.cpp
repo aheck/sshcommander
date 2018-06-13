@@ -57,7 +57,7 @@ const QString SSHFilesystemApplet::getDisplayName()
 
 QIcon SSHFilesystemApplet::getIcon()
 {
-    return QIcon(":/images/drive-harddisk.svg");
+    return QIcon(":/images/folder-remote.svg");
 }
 
 void SSHFilesystemApplet::init(std::shared_ptr<SSHConnectionEntry> connEntry)

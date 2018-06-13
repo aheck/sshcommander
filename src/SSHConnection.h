@@ -18,16 +18,16 @@
 
 class SSHConnection
 {
-    friend class SSHConnectionManager;
-
 public:
+    friend class SSHConnectionManager;
+    friend class FileTransferWorker;
+
     SSHConnection();
     ~SSHConnection();
 
 private:
     int socket_fd;
     LIBSSH2_SESSION *session;
-    LIBSSH2_SESSION *sftp_session;
     LIBSSH2_SFTP *sftp;
 };
 

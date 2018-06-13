@@ -1,9 +1,24 @@
+/*****************************************************************************
+ *
+ * FileTransferJob represents a single file transfer.
+ *
+ * A file transfer job can be a download or an upload and it can be
+ * responsible for transfering an arbitrary number of files and directory
+ * trees.
+ *
+ ****************************************************************************/
+
 #ifndef FILETRANSFERJOB_H
 #define FILETRANSFERJOB_H
 
+#include <atomic>
+
+#include <QMutex>
 #include <QString>
 #include <QStringList>
 #include <QThread>
+
+#include "SSHConnectionEntry.h"
 
 enum class FileTransferType : unsigned char
 {
@@ -13,40 +28,49 @@ enum class FileTransferType : unsigned char
 
 enum class FileTransferState : unsigned char
 {
-    New = 0,
-    Preparing,
+    Preparing = 0,
+    Connecting,
     Running,
+    FailedConnect,
     Failed,
     Canceled,
-    Succeeded
+    Completed
 };
 
-class FileTransferJob
+class FileTransferJob : public QObject
 {
-public:
-    FileTransferJob(FileTransferType type);
+    Q_OBJECT
 
+public:
+    FileTransferJob(std::shared_ptr<SSHConnectionEntry> connEntry, FileTransferType type, QString targetDir);
+
+    std::shared_ptr<SSHConnectionEntry> getConnEntry() const;
+    void setConnEntry(std::shared_ptr<SSHConnectionEntry> connEntry);
     FileTransferType getType() const;
     FileTransferState getState() const;
-    QString getTargetDirectory() const;
+    void setState(FileTransferState state);
+    void addFileToCopy(QString filename);
+    QString getTargetDir() const;
     QStringList getFilesToCopy() const;
     QString getErrorMessage() const;
     QThread* getThread() const;
+    void setThread(QThread *thread);
     uint64_t getBytesPerSecond() const;
     uint64_t getBytesTransferred() const;
 
 private:
+    std::shared_ptr<SSHConnectionEntry> connEntry;
     FileTransferType type;
-    FileTransferState state;
-    QString targetDirectory;
+    std::atomic<FileTransferState> state;
+    QString targetDir;
 
     // list of files and directories to transfer
     QStringList filesToCopy;
 
     QString errorMessage;
     QThread *thread;
-    uint64_t bytesPerSecond;
-    uint64_t bytesTransferred;
+    std::atomic<uint64_t> bytesPerSecond;
+    std::atomic<uint64_t> bytesTransferred;
 };
 
 #endif

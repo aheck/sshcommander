@@ -12,6 +12,10 @@ FileBrowserApplet::FileBrowserApplet()
     this->showLocalAction = this->toolBar->addAction(QIcon(":/images/drive-harddisk.svg"),
             tr("Show Local File Browser"), this, SLOT(toggleLocalFileBrowser()));
     this->showLocalAction->setCheckable(true);
+    this->toolBar->addAction(QIcon(":/images/drive-harddisk.svg"),
+            tr("Start Download"), this, SLOT(startDownload()));
+    this->toolBar->addAction(QIcon(":/images/drive-harddisk.svg"),
+            tr("Start Upload"), this, SLOT(startUpload()));
 
     this->setLayout(new QHBoxLayout());
     this->layout()->setContentsMargins(0, 0, 0, 0);
@@ -66,7 +70,7 @@ const QString FileBrowserApplet::getDisplayName()
 
 QIcon FileBrowserApplet::getIcon()
 {
-    return QIcon(":/images/drive-harddisk.svg");
+    return QIcon(":/images/folder-open.svg");
 }
 
 void FileBrowserApplet::init(std::shared_ptr<SSHConnectionEntry> connEntry)
@@ -88,7 +92,6 @@ void FileBrowserApplet::onShow()
 
 void FileBrowserApplet::expanded(const QModelIndex &index)
 {
-    std::cerr << "\nexpanded was called!!!\n\n";
     this->lastIndexExpanded = index;
 }
 
@@ -122,4 +125,20 @@ void FileBrowserApplet::toggleLocalFileBrowser()
         this->showLocalAction->setToolTip(tr("Hide Local File Browser"));
         this->splitter->insertWidget(0, this->localFileBrowserWidget);
     }
+}
+
+void FileBrowserApplet::startDownload()
+{
+    auto transferJob = std::make_shared<FileTransferJob>(this->connEntry, FileTransferType::Download, "/tmp");
+    transferJob->addFileToCopy("/home/ahe/download_test_file");
+
+    SSHConnectionManager::getInstance().addFileTransferJob(transferJob);
+}
+
+void FileBrowserApplet::startUpload()
+{
+    auto transferJob = std::make_shared<FileTransferJob>(this->connEntry, FileTransferType::Upload, "/tmp");
+    transferJob->addFileToCopy("/home/aheck/SSHConnectionManager.h");
+
+    SSHConnectionManager::getInstance().addFileTransferJob(transferJob);
 }

@@ -41,6 +41,8 @@
 #include <QString>
 
 #include "DirEntry.h"
+#include "FileTransferJob.h"
+#include "FileTransferWorker.h"
 #include "SSHConnection.h"
 #include "SSHConnectionEntry.h"
 #include "Util.h"
@@ -63,6 +65,8 @@ Q_DECLARE_METATYPE(std::shared_ptr<RemoteCmdResult>)
 class SSHConnectionManager
 {
 public:
+    friend class FileTransferWorker;
+
     ~SSHConnectionManager();
     SSHConnectionManager(SSHConnectionManager const &other) = delete;
     void operator=(SSHConnectionManager const &) = delete;
@@ -72,8 +76,9 @@ public:
     uint64_t executeRemoteCmd(std::shared_ptr<SSHConnectionEntry> connEntry,
             QString cmd, QObject *slotObject, const char *slot);
     std::vector<std::shared_ptr<DirEntry>> readDirectory(std::shared_ptr<SSHConnectionEntry>, QString dir, bool onlyDirs);
-    void copyFileFromRemote(std::shared_ptr<SSHConnectionEntry> connEntry, QString remotePath, QString localDir);
-    void copyFileToRemote(std::shared_ptr<SSHConnectionEntry> connEntry, QString localPath, QString remoteDir);
+    void addFileTransferJob(std::shared_ptr<FileTransferJob> job);
+
+    static int waitsocket(std::shared_ptr<SSHConnection> conn);
 
 private:
     SSHConnectionManager();
@@ -81,9 +86,10 @@ private:
     std::shared_ptr<SSHConnection> createSSHConnection(std::shared_ptr<SSHConnectionEntry> connEntry);
     uint64_t generateRequestId();
     std::shared_ptr<RemoteCmdResult> doExecuteRemoteCmd(std::shared_ptr<SSHConnection>, QString cmd);
-    int waitsocket(std::shared_ptr<SSHConnection> conn);
     std::vector<std::shared_ptr<DirEntry>> doReadDirectory(std::shared_ptr<SSHConnectionEntry> connEntry, QString dir, bool onlyDirs);
+    void executeFileTransfer(std::shared_ptr<FileTransferJob> job);
 
+    std::map<QString, std::vector<std::shared_ptr<FileTransferJob>>> fileTransferJobs;
     std::mutex requestIdMutex;
     uint64_t nextRequestId;
 };

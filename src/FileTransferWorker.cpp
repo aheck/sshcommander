@@ -17,6 +17,10 @@ void FileTransferWorker::process()
     auto connEntry = this->job->getConnEntry();
     this->conn = SSHConnectionManager::getInstance().createSSHConnection(connEntry);
 
+    if (this->conn == nullptr) {
+        return;
+    }
+
     if (conn->sftp == nullptr) {
         while ((conn->sftp = libssh2_sftp_init(conn->session)) == nullptr &&
                 libssh2_session_last_error(conn->session,NULL,NULL,0) == LIBSSH2_ERROR_EAGAIN)  {
@@ -39,14 +43,116 @@ void FileTransferWorker::process()
 
     for (QString const &filename : job->getFilesToCopy()) {
         if (job->getType() == FileTransferType::Download) {
-            this->copyFileFromRemote(filename, job->getTargetDir());
+            this->copyFileFromRemoteRecursively(filename, job->getTargetDir());
         } else {
-            this->copyFileToRemote(filename, job->getTargetDir());
+            this->copyFileToRemoteRecursively(filename, job->getTargetDir());
         }
     }
 
     this->job->setState(FileTransferState::Completed);
     emit finished();
+}
+
+void FileTransferWorker::copyFileFromRemoteRecursively(QString remotePath, QString localDir)
+{
+    int rc;
+    LIBSSH2_SFTP_ATTRIBUTES attrs;
+
+    if (this->conn == nullptr) {
+        return;
+    }
+
+    while ((rc = libssh2_sftp_realpath(this->conn->sftp,
+                    remotePath.toLatin1().data(), this->buffer, sizeof(this->buffer))) == LIBSSH2_ERROR_EAGAIN) {
+        SSHConnectionManager::waitsocket(this->conn);
+    }
+
+    if (rc <= 0) {
+        std::cerr << "Failed to resolve realpath for: " << remotePath.toStdString() << "\n";
+        return;
+    }
+
+    std::cerr << "realpath: " << this->buffer << "\n";
+
+    while ((rc = libssh2_sftp_stat(this->conn->sftp, this->buffer, &attrs)) == LIBSSH2_ERROR_EAGAIN) {
+        SSHConnectionManager::waitsocket(this->conn);
+    }
+
+    if (rc < 0) {
+        std::cerr << "Failed stat over SFTP: " << remotePath.toStdString() << "\n";
+        return;
+    }
+
+    if (LIBSSH2_SFTP_S_ISREG(attrs.permissions)) {
+        std::cerr << "Is regular file: " << remotePath.toStdString() << "\n";
+        this->copyFileFromRemote(remotePath, localDir);
+    } else if (LIBSSH2_SFTP_S_ISDIR(attrs.permissions)) {
+        std::cerr << "Is directory: " << remotePath.toStdString() << "\n";
+        QString basename = Util::basename(remotePath);
+
+        QDir dir(localDir);
+        dir.mkdir(basename);
+        localDir += "/" + basename;
+
+        auto entries = SSHConnectionManager::getInstance().doReadDirectory(this->conn, remotePath, false);
+        for (auto const &entry : entries) {
+            QString newBasename = "";
+            QString newRemotePath = remotePath + "/" + entry->getFilename();
+
+            if (entry->isDirectory() || entry->isSymLink()) {
+                this->copyFileFromRemoteRecursively(newRemotePath, localDir);
+            } else if (entry->isRegularFile()) {
+                this->copyFileFromRemote(newRemotePath, localDir);
+            }
+        }
+    } else {
+        // Ignore
+        std::cerr << "Ignoring file '" << remotePath.toStdString() << "' of unknown type" << "\n";
+    }
+}
+
+void FileTransferWorker::copyFileToRemoteRecursively(QString localPath, QString remoteDir)
+{
+    if (this->conn == nullptr) {
+        return;
+    }
+
+    std::cerr << "Copy file recursively: " << localPath.toStdString() << " to " << remoteDir.toStdString() << "\n";
+    QFileInfo fileInfo(localPath);
+
+    if (fileInfo.isDir()) {
+        QString basename = Util::basename(localPath);
+        QString newRemoteDir = remoteDir + "/" + basename;
+
+        while (libssh2_sftp_mkdir(this->conn->sftp, newRemoteDir.toLatin1().data(),
+                    LIBSSH2_SFTP_S_IRWXU|
+                    LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IXGRP|
+                    LIBSSH2_SFTP_S_IROTH|LIBSSH2_SFTP_S_IXOTH)
+                == LIBSSH2_ERROR_EAGAIN);
+
+        //remoteDir += "/" + basename;
+
+        QDir dir(localPath);
+        QStringList fileList = dir.entryList();
+        for (auto const &filename : fileList) {
+            if (filename == "." || filename == "..") {
+                continue;
+            }
+
+            QString newLocalPath = localPath + "/" + filename;
+            //QString newRemoteDir = remoteDir + "/" + filename;
+
+            QFileInfo curFileInfo(localPath + "/" + filename);
+
+            if (curFileInfo.isDir()) {
+                this->copyFileToRemoteRecursively(newLocalPath, newRemoteDir);
+            } else if (curFileInfo.isFile()) {
+                this->copyFileToRemote(newLocalPath, newRemoteDir);
+            }
+        }
+    } else if (fileInfo.isFile()) {
+        this->copyFileToRemote(localPath, remoteDir);
+    }
 }
 
 void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir)
@@ -55,7 +161,7 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
     int nread = 0;
     char *ptr = NULL;
     FILE *fp = NULL;
-    char buffer[1024*4];
+    char buffer[1024 * 4];
     LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
     uint64_t total = 0;
 
@@ -68,7 +174,6 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
     QString localFilename = localDir + "/" + Util::basename(remotePath);
 
     do {
-        std::cerr << "Trying to open file '" << remotePath.toStdString() << "' via SFTP...\n";
         sftp_handle = libssh2_sftp_open(this->conn->sftp, remotePath.toLatin1().data(),
                 LIBSSH2_FXF_READ, 0);
 

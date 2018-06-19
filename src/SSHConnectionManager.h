@@ -86,7 +86,7 @@ private:
     std::shared_ptr<SSHConnection> createSSHConnection(std::shared_ptr<SSHConnectionEntry> connEntry);
     uint64_t generateRequestId();
     std::shared_ptr<RemoteCmdResult> doExecuteRemoteCmd(std::shared_ptr<SSHConnection>, QString cmd);
-    std::vector<std::shared_ptr<DirEntry>> doReadDirectory(std::shared_ptr<SSHConnectionEntry> connEntry, QString dir, bool onlyDirs);
+    std::vector<std::shared_ptr<DirEntry>> doReadDirectory(std::shared_ptr<SSHConnection> conn, QString dir, bool onlyDirs);
     void executeFileTransfer(std::shared_ptr<FileTransferJob> job);
 
     std::map<QString, std::vector<std::shared_ptr<FileTransferJob>>> fileTransferJobs;

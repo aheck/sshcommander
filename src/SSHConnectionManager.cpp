@@ -214,7 +214,7 @@ std::shared_ptr<RemoteCmdResult> SSHConnectionManager::doExecuteRemoteCmd(std::s
 std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::readDirectory(std::shared_ptr<SSHConnectionEntry> connEntry, QString dir, bool onlyDirs)
 {
     connEntry->connectionMutex.lock();
-    auto entries = this->doReadDirectory(connEntry, dir, onlyDirs);
+    auto entries = this->doReadDirectory(connEntry->connection, dir, onlyDirs);
     connEntry->connectionMutex.unlock();
 
     return entries;
@@ -244,10 +244,9 @@ void SSHConnectionManager::executeFileTransfer(std::shared_ptr<FileTransferJob> 
     thread->start();
 }
 
-std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std::shared_ptr<SSHConnectionEntry> connEntry, QString dir, bool onlyDirs)
+std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std::shared_ptr<SSHConnection> conn, QString dir, bool onlyDirs)
 {
     LIBSSH2_SFTP_HANDLE *sftp_handle;
-    auto conn = connEntry->connection;
     std::vector<std::shared_ptr<DirEntry>> entries;
 
     // FIXME: Try to create connection if conn == nullptr

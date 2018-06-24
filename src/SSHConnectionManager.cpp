@@ -77,7 +77,7 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
     sin.sin_family = AF_INET;
     sin.sin_port = htons(connEntry->port);
     sin.sin_addr.s_addr = htonl(address.toIPv4Address());
-    if (connect(sock, (struct sockaddr*)(&sin),
+    if (::connect(sock, (struct sockaddr*)(&sin),
                 sizeof(struct sockaddr_in)) != 0) {
         std::cerr << "SSHConnectionManager: Failed to connect to "
             << hostname.toStdString() << "(" << address.toString().toStdString() << ")" << std::endl;
@@ -235,11 +235,13 @@ void SSHConnectionManager::executeFileTransfer(std::shared_ptr<FileTransferJob> 
     FileTransferWorker *worker = new FileTransferWorker(job);
     worker->moveToThread(thread);
 
-    //connect(worker, SIGNAL(error(QString)), this, SLOT (errorString(QString)));
-    thread->connect(thread, SIGNAL(started()), worker, SLOT (process()));
-    thread->connect(worker, SIGNAL(finished()), thread, SLOT (quit()));
-    thread->connect(worker, SIGNAL(finished()), worker, SLOT (deleteLater()));
-    thread->connect(thread, SIGNAL(finished()), thread, SLOT (deleteLater()));
+    // connect slots for message box handling in the main thread
+    thread->connect(worker, SIGNAL(askToOverwriteFile(QString, QString, QString)), this, SLOT(askToOverwriteFile(QString, QString, QString)));
+
+    thread->connect(thread, SIGNAL(started()), worker, SLOT(process()));
+    thread->connect(worker, SIGNAL(finished()), thread, SLOT(quit()));
+    thread->connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
+    thread->connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
 
     thread->start();
 }
@@ -378,4 +380,27 @@ int SSHConnectionManager::waitsocket(std::shared_ptr<SSHConnection> conn)
     retval = select(conn->socket_fd + 1, readfd, writefd, NULL, &timeout);
  
     return retval;
+}
+
+void SSHConnectionManager::askToOverwriteFile(QString title, QString message, QString infoText)
+{
+    FileTransferWorker *worker = qobject_cast<FileTransferWorker*>(sender());
+
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(title);
+    msgBox.setText(message);
+    msgBox.setInformativeText(infoText);
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::YesToAll | QMessageBox::NoToAll);
+    msgBox.setDefaultButton(QMessageBox::No);
+    int ret = msgBox.exec();
+
+    if (ret == QMessageBox::Yes) {
+        worker->setFileOverwriteAnswerAndNotify(FileOverwriteAnswer::Yes);
+    } else if (ret == QMessageBox::No) {
+        worker->setFileOverwriteAnswerAndNotify(FileOverwriteAnswer::No);
+    } else if (ret == QMessageBox::YesToAll) {
+        worker->setFileOverwriteAnswerAndNotify(FileOverwriteAnswer::YesToAll);
+    } else if (ret == QMessageBox::NoToAll) {
+        worker->setFileOverwriteAnswerAndNotify(FileOverwriteAnswer::NoToAll);
+    }
 }

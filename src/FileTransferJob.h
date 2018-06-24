@@ -13,7 +13,6 @@
 
 #include <atomic>
 
-#include <QMutex>
 #include <QString>
 #include <QStringList>
 #include <QThread>
@@ -52,6 +51,7 @@ public:
     void addFileToCopy(QString filename);
     QString getTargetDir() const;
     QStringList getFilesToCopy() const;
+    QString setErrorMessage(QString message);
     QString getErrorMessage() const;
     QThread* getThread() const;
     void setThread(QThread *thread);

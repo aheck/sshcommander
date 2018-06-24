@@ -51,6 +51,11 @@ QStringList FileTransferJob::getFilesToCopy() const
     return this->filesToCopy;
 }
 
+QString FileTransferJob::setErrorMessage(QString message)
+{
+    this->errorMessage = message;
+}
+
 QString FileTransferJob::getErrorMessage() const
 {
     return this->errorMessage;

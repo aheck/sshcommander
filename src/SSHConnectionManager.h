@@ -36,6 +36,7 @@
 #include <libssh2_sftp.h>
 
 #include <QHostInfo>
+#include <QMessageBox>
 #include <QMetaObject>
 #include <QMetaType>
 #include <QString>
@@ -62,8 +63,9 @@ public:
 Q_DECLARE_SMART_POINTER_METATYPE(std::shared_ptr)
 Q_DECLARE_METATYPE(std::shared_ptr<RemoteCmdResult>)
 
-class SSHConnectionManager
+class SSHConnectionManager : QObject
 {
+    Q_OBJECT
 public:
     friend class FileTransferWorker;
 
@@ -79,6 +81,12 @@ public:
     void addFileTransferJob(std::shared_ptr<FileTransferJob> job);
 
     static int waitsocket(std::shared_ptr<SSHConnection> conn);
+
+public slots:
+    // these slots are used by FileTransferWorkers (which run in separate
+    // threads) to communicate with the user by creating message boxes in the
+    // main thread
+    void askToOverwriteFile(QString title, QString message, QString infoText);
 
 private:
     SSHConnectionManager();

@@ -79,6 +79,7 @@ signals:
     void askToOverwriteFile(QString title, QString message, QString infoText);
 private:
     void waitUntilFileOverwriteAnswerChanged(QString title, QString message, QString infoText);
+    bool sftpFileExists(QString filename);
 
     std::shared_ptr<FileTransferJob> job;
     std::shared_ptr<SSHConnection> conn;

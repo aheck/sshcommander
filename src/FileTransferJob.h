@@ -51,7 +51,7 @@ public:
     void addFileToCopy(QString filename);
     QString getTargetDir() const;
     QStringList getFilesToCopy() const;
-    QString setErrorMessage(QString message);
+    void setErrorMessage(QString message);
     QString getErrorMessage() const;
     QThread* getThread() const;
     void setThread(QThread *thread);

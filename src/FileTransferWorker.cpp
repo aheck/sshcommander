@@ -309,6 +309,9 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
     LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
     uint64_t total = 0;
     QString errorToThrow;
+    struct stat statbuf;
+    QFile file(localPath);
+    LIBSSH2_SFTP_ATTRIBUTES attrs;
 
     if (this->conn == nullptr) {
         throw FileTransferException("No connection");
@@ -324,6 +327,24 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
     }
 
     QString remoteFilename = remoteDir + "/" + Util::basename(localPath);
+
+    if (this->fileOverwriteAnswer != FileOverwriteAnswer::YesToAll) {
+        if (this->sftpFileExists(remoteFilename)) {
+            if (this->fileOverwriteAnswer == FileOverwriteAnswer::NoToAll) {
+                goto shutdown;
+            }
+
+            this->waitUntilFileOverwriteAnswerChanged("Upload to "
+                    + this->job->getConnEntry()->getIdentifier(),
+                    "Remote file '" + remoteFilename + "' already exists!",
+                    "Do you want to overwrite this file?");
+
+            if (this->fileOverwriteAnswer != FileOverwriteAnswer::Yes
+                    && this->fileOverwriteAnswer != FileOverwriteAnswer::YesToAll) {
+                goto shutdown;
+            }
+        }
+    }
 
     do {
         sftp_handle = libssh2_sftp_open(this->conn->sftp, remoteFilename.toLatin1().data(),
@@ -364,10 +385,6 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
     } while (rc > 0);
 
     // set file permissions
-    struct stat statbuf;
-    QFile file(localPath);
-    LIBSSH2_SFTP_ATTRIBUTES attrs;
-
     if (stat(localPath.toLatin1().data(), &statbuf) != 0) {
         errorToThrow = "Failed stat for file: " + localPath;
         std::cerr << errorToThrow.toStdString() << "\n";
@@ -438,4 +455,27 @@ void FileTransferWorker::waitUntilFileOverwriteAnswerChanged(QString title, QStr
     }
 
     this->mutex.unlock();
+}
+
+bool FileTransferWorker::sftpFileExists(QString filename)
+{
+    int rc;
+    LIBSSH2_SFTP_ATTRIBUTES attrs;
+
+    while ((rc = libssh2_sftp_stat(this->conn->sftp, filename.toLatin1().data(), &attrs)) == LIBSSH2_ERROR_EAGAIN) {
+        SSHConnectionManager::waitsocket(this->conn);
+    }
+
+    if (rc != 0) {
+        int err = libssh2_sftp_last_error(this->conn->sftp);
+        if (err == LIBSSH2_FX_NO_SUCH_FILE) {
+            return false;
+        }
+
+        QString error = "Failed stat for sftpFileExists: " + filename;
+        std::cerr << error.toStdString() << "\n";
+        throw FileTransferException(error);
+    }
+
+    return true;
 }

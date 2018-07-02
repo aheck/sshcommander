@@ -382,6 +382,20 @@ int SSHConnectionManager::waitsocket(std::shared_ptr<SSHConnection> conn)
     return retval;
 }
 
+int SSHConnectionManager::countFileTransferJobs(QString connectionId)
+{
+    return this->fileTransferJobs[connectionId].size();
+}
+
+std::shared_ptr<FileTransferJob> SSHConnectionManager::getFileTransferJob(QString connectionId, int row)
+{
+    if (row < 0 || row > this->fileTransferJobs[connectionId].size() - 1) {
+        return nullptr;
+    }
+
+    return this->fileTransferJobs[connectionId][row];
+}
+
 void SSHConnectionManager::askToOverwriteFile(QString title, QString message, QString infoText)
 {
     FileTransferWorker *worker = qobject_cast<FileTransferWorker*>(sender());

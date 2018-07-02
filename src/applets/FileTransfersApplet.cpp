@@ -38,6 +38,8 @@ QIcon FileTransfersApplet::getIcon()
 void FileTransfersApplet::init(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
     Applet::init(connEntry);
+
+    this->model->setConnectionId(this->connEntry->getIdentifier());
 }
 
 void FileTransfersApplet::onShow()
@@ -51,4 +53,5 @@ void FileTransfersApplet::onShow()
 
 void FileTransfersApplet::reloadData()
 {
+    this->model->reloadData();
 }

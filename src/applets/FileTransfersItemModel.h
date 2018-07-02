@@ -8,6 +8,8 @@
 #include <QIcon>
 #include <QModelIndex>
 
+#include "SSHConnectionManager.h"
+
 enum class FileTransferColumns {TransferType = 0, Source, Destination, Transferred, Speed, Count};
 
 class FileTransfersItemModel : public QAbstractItemModel
@@ -21,6 +23,12 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     virtual Qt::ItemFlags flags(const QModelIndex & index) const override;
+
+    void setConnectionId(const QString &connectionId);
+    void reloadData();
+
+private:
+    QString connectionId;
 };
 
 #endif

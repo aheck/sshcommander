@@ -12,7 +12,11 @@ QModelIndex FileTransfersItemModel::parent(const QModelIndex &index) const
 
 int FileTransfersItemModel::rowCount(const QModelIndex &parent) const
 {
-    return 0;
+    if (this->connectionId.isEmpty()) {
+        return 0;
+    }
+
+    return SSHConnectionManager::getInstance().countFileTransferJobs(this->connectionId);
 }
 
 int FileTransfersItemModel::columnCount(const QModelIndex &parent) const
@@ -52,10 +56,59 @@ QVariant FileTransfersItemModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
+    if (this->connectionId.isEmpty()) {
+        return QVariant();
+    }
+
+    std::shared_ptr<FileTransferJob> job = SSHConnectionManager::getInstance().getFileTransferJob(connectionId, index.row());
+    if (job == nullptr) {
+        return QVariant();
+    }
+
+    switch (index.column()) {
+        case (static_cast<int>(FileTransferColumns::TransferType)):
+            if (job->getType() == FileTransferType::Upload) {
+                return QVariant("Upload");
+            }
+
+            return QVariant("Download");
+        case (static_cast<int>(FileTransferColumns::Source)):
+            return QVariant("test");
+        case (static_cast<int>(FileTransferColumns::Destination)):
+            return QVariant("test2");
+        case (static_cast<int>(FileTransferColumns::Transferred)):
+            return QVariant((unsigned long long) job->bytesTransferred);
+        case (static_cast<int>(FileTransferColumns::Speed)):
+            return QVariant((unsigned long long) job->bytesPerSecond);
+            /*
+        case (static_cast<int>(FileTransferColumns::Connected)):
+            if (role== Qt::DecorationRole) {
+                if (tunnel->isConnected()) {
+                    return QIcon(":/images/green-light.svg");
+                } else {
+                    return QIcon(":/images/red-light.svg");
+                }
+            }
+
+            return QVariant("");
+            */
+    }
+
     return QVariant();
 }
 
 Qt::ItemFlags FileTransfersItemModel::flags(const QModelIndex &index) const
 {
     return QAbstractItemModel::flags(index);
+}
+
+void FileTransfersItemModel::setConnectionId(const QString &connectionId)
+{
+    this->connectionId = connectionId;
+}
+
+void FileTransfersItemModel::reloadData()
+{
+    emit layoutAboutToBeChanged();
+    emit layoutChanged();
 }

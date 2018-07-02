@@ -55,8 +55,10 @@ public:
     QString getErrorMessage() const;
     QThread* getThread() const;
     void setThread(QThread *thread);
-    uint64_t getBytesPerSecond() const;
-    uint64_t getBytesTransferred() const;
+
+    std::atomic<bool> cancelationRequested;
+    std::atomic<uint64_t> bytesPerSecond;
+    std::atomic<uint64_t> bytesTransferred;
 
 private:
     std::shared_ptr<SSHConnectionEntry> connEntry;
@@ -69,8 +71,6 @@ private:
 
     QString errorMessage;
     QThread *thread;
-    std::atomic<uint64_t> bytesPerSecond;
-    std::atomic<uint64_t> bytesTransferred;
 };
 
 #endif

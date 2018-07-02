@@ -59,7 +59,7 @@ QVariant TunnelsItemModel::data(const QModelIndex &index, int role) const
     std::shared_ptr<TunnelEntry> tunnel = TunnelManager::getInstance().getTunnel(this->username, this->hostname, index.row());
 
     if (tunnel == nullptr) {
-        return QVariant("");
+        return QVariant();
     }
 
     switch (index.column()) {

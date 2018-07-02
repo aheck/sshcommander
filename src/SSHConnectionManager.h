@@ -82,6 +82,10 @@ public:
 
     static int waitsocket(std::shared_ptr<SSHConnection> conn);
 
+    // access methods for file transfer jobs
+    int countFileTransferJobs(QString connectionId);
+    std::shared_ptr<FileTransferJob> getFileTransferJob(QString connectionId, int row);
+
 public slots:
     // these slots are used by FileTransferWorkers (which run in separate
     // threads) to communicate with the user by creating message boxes in the

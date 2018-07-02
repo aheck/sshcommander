@@ -13,7 +13,7 @@ void FileTransferException::raise() const
 FileTransferException* FileTransferException::clone() const
 {
     return new FileTransferException(*this);
-};
+}
 
 QString FileTransferException::getMessage() const
 {
@@ -198,7 +198,6 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
     FILE *fp = NULL;
     char buffer[1024 * 4];
     LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
-    uint64_t total = 0;
     QString errorToThrow;
     LIBSSH2_SFTP_ATTRIBUTES attrs;
 
@@ -261,12 +260,13 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
         }
 
         ptr = buffer;
-        total += nread;
 
         do {
             rc = fwrite(ptr, 1, nread, fp);
             ptr += rc;
             nread -= rc;
+
+            this->job->bytesTransferred += rc;
         } while (nread);
     } while (rc > 0);
 
@@ -307,7 +307,6 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
     FILE *fp = NULL;
     char buffer[1024*4];
     LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
-    uint64_t total = 0;
     QString errorToThrow;
     struct stat statbuf;
     QFile file(localPath);
@@ -369,7 +368,6 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
         }
 
         ptr = buffer;
-        total += nread;
 
         do {
             /* write data in a loop until we block */
@@ -381,6 +379,7 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
                 break;
             ptr += rc;
             nread -= rc;
+            this->job->bytesTransferred += rc;
         } while (nread);
     } while (rc > 0);
 

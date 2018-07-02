@@ -70,13 +70,3 @@ void FileTransferJob::setThread(QThread *thread)
 {
     this->thread = thread;
 }
-
-uint64_t FileTransferJob::getBytesPerSecond() const
-{
-    return this->bytesPerSecond;
-}
-
-uint64_t FileTransferJob::getBytesTransferred() const
-{
-    return this->bytesTransferred;
-}

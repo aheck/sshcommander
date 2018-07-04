@@ -9,6 +9,7 @@
 #include <QModelIndex>
 
 #include "SSHConnectionManager.h"
+#include "Util.h"
 
 enum class FileTransferColumns {TransferType = 0, Source, Destination, Transferred, Speed, Count};
 

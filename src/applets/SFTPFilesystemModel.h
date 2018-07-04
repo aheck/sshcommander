@@ -52,8 +52,6 @@ public:
 private:
     void addPathString(QString pathString);
     QString* getPathString(QString pathString) const;
-    QString formatBytes(uint64_t numBytes) const;
-    double roundBytesUp(double numBytes) const;
 
     // for debugging
     void dumpPathStrings() const;

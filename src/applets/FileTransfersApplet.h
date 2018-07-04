@@ -13,12 +13,11 @@
 #include <QTreeView>
 #include <QToolBar>
 
+#include "Applet.h"
 #include "FileTransferJob.h"
 #include "FileTransfersItemModel.h"
 #include "SSHConnectionManager.h"
 #include "SFTPFilesystemModel.h"
-
-#include "Applet.h"
 
 class FileTransfersApplet : public Applet
 {

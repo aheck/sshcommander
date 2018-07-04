@@ -77,7 +77,7 @@ QVariant FileTransfersItemModel::data(const QModelIndex &index, int role) const
         case (static_cast<int>(FileTransferColumns::Destination)):
             return QVariant("test2");
         case (static_cast<int>(FileTransferColumns::Transferred)):
-            return QVariant((unsigned long long) job->bytesTransferred);
+            return QVariant(Util::formatBytes(job->bytesTransferred));
         case (static_cast<int>(FileTransferColumns::Speed)):
             return QVariant((unsigned long long) job->bytesPerSecond);
             /*

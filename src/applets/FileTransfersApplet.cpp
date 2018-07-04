@@ -9,7 +9,6 @@ FileTransfersApplet::FileTransfersApplet()
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
             "Reload", this, SLOT(reloadData()));
 
-
     this->setLayout(new QHBoxLayout());
     this->layout()->setContentsMargins(0, 0, 0, 0);
     this->layout()->addWidget(this->toolBar);

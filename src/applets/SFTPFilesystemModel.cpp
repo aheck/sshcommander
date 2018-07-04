@@ -321,7 +321,7 @@ QVariant SFTPFilesystemModel::data(const QModelIndex &index, int role) const
             if (dirEntry->isDirectory()) {
                 return QVariant();
             }
-            return QVariant(this->formatBytes(dirEntry->getFilesize()));
+            return QVariant(Util::formatBytes(dirEntry->getFilesize()));
         case (static_cast<int>(SFTPColumns::Type)):
             if (dirEntry->isDirectory()) {
                 return QVariant("Folder");
@@ -415,38 +415,6 @@ void SFTPFilesystemModel::dumpPathStrings() const
     for (auto pair : this->pathStrings) {
         std::cerr << pair.second->toStdString() << "\n";
     }
-}
-
-QString SFTPFilesystemModel::formatBytes(uint64_t numBytes) const
-{
-    double gb = 1024 * 1024 * 1024;
-    double mb = 1024 * 1024;
-    double kb = 1024;
-    double result;
-
-    if (numBytes >= gb) {
-        result = this->roundBytesUp(numBytes / gb);
-        return QString::number(result, 'g', 1) + " GB";
-    }
-
-    if (numBytes >= mb) {
-        result = this->roundBytesUp(numBytes / mb);
-        return QString::number(result, 'g', 1) + " MB";
-    }
-
-    if (numBytes >= kb) {
-        result = this->roundBytesUp(numBytes / kb);
-        return QString::number(result, 'f', 1) + " KB";
-    }
-
-    return QString::number(numBytes) + " bytes";
-}
-
-double SFTPFilesystemModel::roundBytesUp(double numBytes) const
-{
-    // we display the byte value to the first position after the decimal point
-    // and we always want to round the bytes to the next higher value
-    return numBytes + 0.04;
 }
 
 void SFTPFilesystemModel::setShowOnlyDirs(bool showOnlyDirs)

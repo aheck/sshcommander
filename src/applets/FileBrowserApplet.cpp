@@ -130,7 +130,7 @@ void FileBrowserApplet::toggleLocalFileBrowser()
 void FileBrowserApplet::startDownload()
 {
     auto transferJob = std::make_shared<FileTransferJob>(this->connEntry, FileTransferType::Download, "/tmp");
-    transferJob->addFileToCopy("/home/ahe/download_test_file");
+    transferJob->addFileToCopy("/home/ahe/recdir");
 
     SSHConnectionManager::getInstance().addFileTransferJob(transferJob);
 }
@@ -138,7 +138,7 @@ void FileBrowserApplet::startDownload()
 void FileBrowserApplet::startUpload()
 {
     auto transferJob = std::make_shared<FileTransferJob>(this->connEntry, FileTransferType::Upload, "/tmp");
-    transferJob->addFileToCopy("/home/aheck/SSHConnectionManager.h");
+    transferJob->addFileToCopy("/home/aheck/recdir2");
 
     SSHConnectionManager::getInstance().addFileTransferJob(transferJob);
 }

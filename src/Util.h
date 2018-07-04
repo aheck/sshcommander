@@ -8,6 +8,8 @@ class Util
 public:
     static QString dirname(QString path);
     static QString basename(QString path);
+    static double roundBytesUp(double numBytes);
+    static QString formatBytes(uint64_t numBytes);
 };
 
 #endif

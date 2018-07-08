@@ -24,6 +24,8 @@ FileTransferWorker::FileTransferWorker(std::shared_ptr<FileTransferJob> job)
 {
     this->job = job;
     this->fileOverwriteAnswer = FileOverwriteAnswer::None;
+    this->lastTransferTime = 0;
+    this->accumulatedByteDiff = 0;
 }
 
 FileTransferWorker::~FileTransferWorker()
@@ -40,6 +42,7 @@ void FileTransferWorker::process()
 
     if (this->conn == nullptr) {
         this->job->setState(FileTransferState::Failed);
+
         emit finished();
         return;
     }
@@ -47,7 +50,9 @@ void FileTransferWorker::process()
     if (conn->sftp == nullptr) {
         while ((conn->sftp = libssh2_sftp_init(conn->session)) == nullptr &&
                 libssh2_session_last_error(conn->session,NULL,NULL,0) == LIBSSH2_ERROR_EAGAIN)  {
-            SSHConnectionManager::waitsocket(conn);
+            CHECK_CANCEL();
+            QThread::msleep(this->sleeptime);
+            CHECK_CANCEL();
         }
 
         if (conn->sftp == nullptr) {
@@ -56,6 +61,7 @@ void FileTransferWorker::process()
             std::cerr << error.toStdString() << "\n";
             this->job->setErrorMessage(error);
             this->job->setState(FileTransferState::FailedConnect);
+
             emit finished();
             return;
         }
@@ -67,26 +73,27 @@ void FileTransferWorker::process()
         return;
     }
 
+    this->transferTimer.start();
+    this->lastTransferTime = this->transferTimer.elapsed();
     this->job->setState(FileTransferState::Running);
 
-    bool success = true;
     try {
         for (QString const &filename : job->getFilesToCopy()) {
+            CHECK_CANCEL();
             if (job->getType() == FileTransferType::Download) {
                 this->copyFileFromRemoteRecursively(filename, job->getTargetDir());
             } else {
                 this->copyFileToRemoteRecursively(filename, job->getTargetDir());
             }
+            CHECK_CANCEL();
         }
+
+        this->job->setState(FileTransferState::Completed);
     } catch (const FileTransferException e) {
         this->job->setErrorMessage(e.getMessage());
         this->job->setState(FileTransferState::Failed);
-        success = false;
     }
 
-    if (success) {
-        this->job->setState(FileTransferState::Completed);
-    }
     emit finished();
 }
 
@@ -101,7 +108,9 @@ void FileTransferWorker::copyFileFromRemoteRecursively(QString remotePath, QStri
 
     while ((rc = libssh2_sftp_realpath(this->conn->sftp,
                     remotePath.toLatin1().data(), this->buffer, sizeof(this->buffer))) == LIBSSH2_ERROR_EAGAIN) {
-        SSHConnectionManager::waitsocket(this->conn);
+        CHECK_CANCEL();
+        QThread::msleep(this->sleeptime);
+        CHECK_CANCEL();
     }
 
     if (rc <= 0) {
@@ -113,7 +122,9 @@ void FileTransferWorker::copyFileFromRemoteRecursively(QString remotePath, QStri
     std::cerr << "realpath: " << this->buffer << "\n";
 
     while ((rc = libssh2_sftp_stat(this->conn->sftp, this->buffer, &attrs)) == LIBSSH2_ERROR_EAGAIN) {
-        SSHConnectionManager::waitsocket(this->conn);
+        CHECK_CANCEL();
+        QThread::msleep(this->sleeptime);
+        CHECK_CANCEL();
     }
 
     if (rc < 0) {
@@ -139,9 +150,13 @@ void FileTransferWorker::copyFileFromRemoteRecursively(QString remotePath, QStri
             QString newRemotePath = remotePath + "/" + entry->getFilename();
 
             if (entry->isDirectory() || entry->isSymLink()) {
+                CHECK_CANCEL();
                 this->copyFileFromRemoteRecursively(newRemotePath, localDir);
+                CHECK_CANCEL();
             } else if (entry->isRegularFile()) {
+                CHECK_CANCEL();
                 this->copyFileFromRemote(newRemotePath, localDir);
+                CHECK_CANCEL();
             }
         }
     } else {
@@ -180,13 +195,19 @@ void FileTransferWorker::copyFileToRemoteRecursively(QString localPath, QString 
             QFileInfo curFileInfo(newLocalPath);
 
             if (curFileInfo.isDir()) {
+                CHECK_CANCEL();
                 this->copyFileToRemoteRecursively(newLocalPath, newRemoteDir);
+                CHECK_CANCEL();
             } else if (curFileInfo.isFile()) {
+                CHECK_CANCEL();
                 this->copyFileToRemote(newLocalPath, newRemoteDir);
+                CHECK_CANCEL();
             }
         }
     } else if (fileInfo.isFile()) {
+        CHECK_CANCEL();
         this->copyFileToRemote(localPath, remoteDir);
+        CHECK_CANCEL();
     }
 }
 
@@ -211,6 +232,7 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
     QString localFilename = localDir + "/" + Util::basename(remotePath);
 
     do {
+        CHECK_CANCEL();
         sftp_handle = libssh2_sftp_open(this->conn->sftp, remotePath.toLatin1().data(),
                 LIBSSH2_FXF_READ, 0);
 
@@ -219,6 +241,7 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
             std::cerr << error.toStdString() << "\n";
             throw FileTransferException(error);
         }
+        CHECK_CANCEL();
     } while (!sftp_handle);
 
     if (this->fileOverwriteAnswer != FileOverwriteAnswer::YesToAll) {
@@ -229,10 +252,12 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
                 goto shutdown;
             }
 
+            CHECK_CANCEL();
             this->waitUntilFileOverwriteAnswerChanged("Download from "
                     + this->job->getConnEntry()->getIdentifier(),
                     "Local file '" + localFilename + "' already exists!",
                     "Do you want to overwrite this file?");
+            CHECK_CANCEL();
 
             if (this->fileOverwriteAnswer != FileOverwriteAnswer::Yes
                     && this->fileOverwriteAnswer != FileOverwriteAnswer::YesToAll) {
@@ -241,6 +266,7 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
         }
     }
 
+    CHECK_CANCEL();
     fp = fopen(localFilename.toLatin1().data(), "w");
     if (!fp) {
         errorToThrow = "Can't open local file: " + localFilename;
@@ -251,7 +277,9 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
     do {
         while ((nread = libssh2_sftp_read(sftp_handle, buffer, sizeof(buffer))) ==
                 LIBSSH2_ERROR_EAGAIN) {
-            SSHConnectionManager::waitsocket(this->conn);
+            CHECK_CANCEL();
+            QThread::msleep(this->sleeptime);
+            CHECK_CANCEL();
         }
 
         if (nread <= 0) {
@@ -260,6 +288,7 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
         }
 
         ptr = buffer;
+        this->updateTransferSpeed(nread);
 
         do {
             rc = fwrite(ptr, 1, nread, fp);
@@ -268,13 +297,17 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
 
             this->job->bytesTransferred += rc;
         } while (nread);
+
+        CHECK_CANCEL();
     } while (rc > 0);
 
     fclose(fp);
 
     // set file permissions
     while ((rc = libssh2_sftp_fstat(sftp_handle, &attrs)) == LIBSSH2_ERROR_EAGAIN) {
-        SSHConnectionManager::waitsocket(this->conn);
+        CHECK_CANCEL();
+        QThread::msleep(this->sleeptime);
+        CHECK_CANCEL();
     }
 
     if (rc != 0) {
@@ -328,11 +361,13 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
     QString remoteFilename = remoteDir + "/" + Util::basename(localPath);
 
     if (this->fileOverwriteAnswer != FileOverwriteAnswer::YesToAll) {
+        CHECK_CANCEL();
         if (this->sftpFileExists(remoteFilename)) {
             if (this->fileOverwriteAnswer == FileOverwriteAnswer::NoToAll) {
                 goto shutdown;
             }
 
+            CHECK_CANCEL();
             this->waitUntilFileOverwriteAnswerChanged("Upload to "
                     + this->job->getConnEntry()->getIdentifier(),
                     "Remote file '" + remoteFilename + "' already exists!",
@@ -346,10 +381,12 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
     }
 
     do {
+        CHECK_CANCEL();
         sftp_handle = libssh2_sftp_open(this->conn->sftp, remoteFilename.toLatin1().data(),
                 LIBSSH2_FXF_WRITE|LIBSSH2_FXF_CREAT|LIBSSH2_FXF_TRUNC,
                 LIBSSH2_SFTP_S_IRUSR|LIBSSH2_SFTP_S_IWUSR|
                 LIBSSH2_SFTP_S_IRGRP|LIBSSH2_SFTP_S_IROTH);
+        CHECK_CANCEL();
 
         if (!sftp_handle &&
                 (libssh2_session_last_errno(this->conn->session) != LIBSSH2_ERROR_EAGAIN)) {
@@ -368,12 +405,15 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
         }
 
         ptr = buffer;
+        this->updateTransferSpeed(nread);
 
         do {
             /* write data in a loop until we block */
             while ((rc = libssh2_sftp_write(sftp_handle, ptr, nread)) ==
                     LIBSSH2_ERROR_EAGAIN) {
-                SSHConnectionManager::waitsocket(this->conn);
+                CHECK_CANCEL();
+                QThread::msleep(this->sleeptime);
+                CHECK_CANCEL();
             }
             if(rc < 0)
                 break;
@@ -381,6 +421,8 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
             nread -= rc;
             this->job->bytesTransferred += rc;
         } while (nread);
+
+        CHECK_CANCEL();
     } while (rc > 0);
 
     // set file permissions
@@ -391,7 +433,9 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
     }
 
     while ((rc = libssh2_sftp_fstat(sftp_handle, &attrs)) == LIBSSH2_ERROR_EAGAIN) {
-        SSHConnectionManager::waitsocket(this->conn);
+        CHECK_CANCEL();
+        QThread::msleep(this->sleeptime);
+        CHECK_CANCEL();
     }
 
     if (rc != 0) {
@@ -403,7 +447,9 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
     attrs.permissions = statbuf.st_mode;
 
     while ((libssh2_sftp_fsetstat(sftp_handle, &attrs)) == LIBSSH2_ERROR_EAGAIN) {
-        SSHConnectionManager::waitsocket(this->conn);
+        CHECK_CANCEL();
+        QThread::msleep(this->sleeptime);
+        CHECK_CANCEL();
     }
 
     if (rc != 0) {
@@ -477,4 +523,22 @@ bool FileTransferWorker::sftpFileExists(QString filename)
     }
 
     return true;
+}
+
+void FileTransferWorker::updateTransferSpeed(uint64_t bytediff)
+{
+    qint64 elapsed = this->transferTimer.elapsed();
+    qint64 timediff = elapsed - this->lastTransferTime;
+
+    this->accumulatedByteDiff += bytediff;
+
+    if (timediff < 1000) {
+        return;
+    }
+
+    uint64_t bytesPerSecond = (1000.0 / timediff) * this->accumulatedByteDiff;
+
+    this->job->bytesPerSecond = bytesPerSecond;
+    this->accumulatedByteDiff = 0;
+    this->lastTransferTime = elapsed;
 }

@@ -79,7 +79,7 @@ QVariant FileTransfersItemModel::data(const QModelIndex &index, int role) const
         case (static_cast<int>(FileTransferColumns::Transferred)):
             return QVariant(Util::formatBytes(job->bytesTransferred));
         case (static_cast<int>(FileTransferColumns::Speed)):
-            return QVariant((unsigned long long) job->bytesPerSecond);
+            return QVariant(Util::formatBytes(job->bytesPerSecond) + "/s");
             /*
         case (static_cast<int>(FileTransferColumns::Connected)):
             if (role== Qt::DecorationRole) {

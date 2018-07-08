@@ -18,6 +18,7 @@
 #include <memory>
 
 #include <QDir>
+#include <QElapsedTimer>
 #include <QException>
 #include <QFile>
 #include <QFileInfo>
@@ -34,6 +35,8 @@
 #include "SSHConnectionEntry.h"
 #include "SSHConnectionManager.h"
 #include "Util.h"
+
+#define CHECK_CANCEL() if (this->job->cancelationRequested) {this->job->setState(FileTransferState::Canceled); return;}
 
 enum class FileOverwriteAnswer : unsigned char
 {
@@ -80,9 +83,12 @@ signals:
 private:
     void waitUntilFileOverwriteAnswerChanged(QString title, QString message, QString infoText);
     bool sftpFileExists(QString filename);
+    void updateTransferSpeed(uint64_t bytediff);
 
     std::shared_ptr<FileTransferJob> job;
     std::shared_ptr<SSHConnection> conn;
+
+    const int sleeptime = 20;
 
     // buffer for libssh2_sftp_realpath
     char buffer[1024 * 4];
@@ -90,6 +96,10 @@ private:
     std::atomic<FileOverwriteAnswer> fileOverwriteAnswer;
     QWaitCondition fileOverwriteAnswerConditionVar;
     QMutex mutex;
+
+    QElapsedTimer transferTimer; // used to calculate download speed
+    qint64 lastTransferTime;
+    qint64 accumulatedByteDiff;
 };
 
 #endif

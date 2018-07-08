@@ -9,6 +9,7 @@ FileTransferJob::FileTransferJob(std::shared_ptr<SSHConnectionEntry> connEntry, 
     this->thread = nullptr;
     this->bytesPerSecond = 0;
     this->bytesTransferred = 0;
+    this->cancelationRequested = false;
 }
 
 std::shared_ptr<SSHConnectionEntry> FileTransferJob::getConnEntry() const

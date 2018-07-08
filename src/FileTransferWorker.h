@@ -37,6 +37,7 @@
 #include "Util.h"
 
 #define CHECK_CANCEL() if (this->job->cancelationRequested) {this->job->setState(FileTransferState::Canceled); return;}
+#define TRANSFER_BUFFER_SIZE 1024 * 64
 
 enum class FileOverwriteAnswer : unsigned char
 {
@@ -91,7 +92,8 @@ private:
     const int sleeptime = 20;
 
     // buffer for libssh2_sftp_realpath
-    char buffer[1024 * 4];
+    char realPathBuffer[1024 * 4];
+    char transferBuffer[TRANSFER_BUFFER_SIZE];
 
     std::atomic<FileOverwriteAnswer> fileOverwriteAnswer;
     QWaitCondition fileOverwriteAnswerConditionVar;

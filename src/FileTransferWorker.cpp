@@ -107,7 +107,7 @@ void FileTransferWorker::copyFileFromRemoteRecursively(QString remotePath, QStri
     }
 
     while ((rc = libssh2_sftp_realpath(this->conn->sftp,
-                    remotePath.toLatin1().data(), this->buffer, sizeof(this->buffer))) == LIBSSH2_ERROR_EAGAIN) {
+                    remotePath.toLatin1().data(), this->realPathBuffer, sizeof(this->realPathBuffer))) == LIBSSH2_ERROR_EAGAIN) {
         CHECK_CANCEL();
         QThread::msleep(this->sleeptime);
         CHECK_CANCEL();
@@ -119,9 +119,7 @@ void FileTransferWorker::copyFileFromRemoteRecursively(QString remotePath, QStri
         throw FileTransferException(error);
     }
 
-    std::cerr << "realpath: " << this->buffer << "\n";
-
-    while ((rc = libssh2_sftp_stat(this->conn->sftp, this->buffer, &attrs)) == LIBSSH2_ERROR_EAGAIN) {
+    while ((rc = libssh2_sftp_stat(this->conn->sftp, this->realPathBuffer, &attrs)) == LIBSSH2_ERROR_EAGAIN) {
         CHECK_CANCEL();
         QThread::msleep(this->sleeptime);
         CHECK_CANCEL();
@@ -217,7 +215,6 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
     int nread = 0;
     char *ptr = NULL;
     FILE *fp = NULL;
-    char buffer[1024 * 4];
     LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
     QString errorToThrow;
     LIBSSH2_SFTP_ATTRIBUTES attrs;
@@ -275,7 +272,7 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
     }
 
     do {
-        while ((nread = libssh2_sftp_read(sftp_handle, buffer, sizeof(buffer))) ==
+        while ((nread = libssh2_sftp_read(sftp_handle, this->transferBuffer, sizeof(this->transferBuffer))) ==
                 LIBSSH2_ERROR_EAGAIN) {
             CHECK_CANCEL();
             QThread::msleep(this->sleeptime);
@@ -287,7 +284,7 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
             break;
         }
 
-        ptr = buffer;
+        ptr = this->transferBuffer;
         this->updateTransferSpeed(nread);
 
         do {
@@ -338,7 +335,6 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
     int nread = 0;
     char *ptr = NULL;
     FILE *fp = NULL;
-    char buffer[1024*4];
     LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
     QString errorToThrow;
     struct stat statbuf;
@@ -398,13 +394,13 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
     } while (!sftp_handle);
 
     do {
-        nread = fread(buffer, 1, sizeof(buffer), fp);
+        nread = fread(this->transferBuffer, 1, sizeof(this->transferBuffer), fp);
         if (nread <= 0) {
             /* end of file */
             break;
         }
 
-        ptr = buffer;
+        ptr = this->transferBuffer;
         this->updateTransferSpeed(nread);
 
         do {

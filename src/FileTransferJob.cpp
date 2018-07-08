@@ -71,3 +71,18 @@ void FileTransferJob::setThread(QThread *thread)
 {
     this->thread = thread;
 }
+
+QString FileTransferJob::fileTransferStateToString(FileTransferState value)
+{
+    static QStringList strings = {
+        "Preparing",
+        "Connecting",
+        "Running",
+        "Failed Connect",
+        "Failed",
+        "Canceled",
+        "Completed"
+    };
+
+    return strings.at(static_cast<int>(value));
+}

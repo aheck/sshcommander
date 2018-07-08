@@ -45,6 +45,8 @@ QVariant FileTransfersItemModel::headerData(int section, Qt::Orientation orienta
             return QVariant(tr("Transferred"));
         case static_cast<int>(FileTransferColumns::Speed):
             return QVariant(tr("Speed"));
+        case static_cast<int>(FileTransferColumns::State):
+            return QVariant(tr("State"));
     }
 
     return QVariant();
@@ -80,6 +82,8 @@ QVariant FileTransfersItemModel::data(const QModelIndex &index, int role) const
             return QVariant(Util::formatBytes(job->bytesTransferred));
         case (static_cast<int>(FileTransferColumns::Speed)):
             return QVariant(Util::formatBytes(job->bytesPerSecond) + "/s");
+        case (static_cast<int>(FileTransferColumns::State)):
+            return QVariant(FileTransferJob::fileTransferStateToString(job->getState()));
             /*
         case (static_cast<int>(FileTransferColumns::Connected)):
             if (role== Qt::DecorationRole) {

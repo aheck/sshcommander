@@ -60,6 +60,8 @@ public:
     std::atomic<uint64_t> bytesPerSecond;
     std::atomic<uint64_t> bytesTransferred;
 
+    static QString fileTransferStateToString(FileTransferState value);
+
 private:
     std::shared_ptr<SSHConnectionEntry> connEntry;
     FileTransferType type;

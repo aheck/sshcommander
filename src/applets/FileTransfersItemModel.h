@@ -8,10 +8,11 @@
 #include <QIcon>
 #include <QModelIndex>
 
+#include "FileTransferJob.h"
 #include "SSHConnectionManager.h"
 #include "Util.h"
 
-enum class FileTransferColumns {TransferType = 0, Source, Destination, Transferred, Speed, Count};
+enum class FileTransferColumns {TransferType = 0, Source, Destination, Transferred, Speed, State, Count};
 
 class FileTransfersItemModel : public QAbstractItemModel
 {

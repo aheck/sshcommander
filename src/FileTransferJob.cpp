@@ -77,7 +77,7 @@ QString FileTransferJob::fileTransferStateToString(FileTransferState value)
     static QStringList strings = {
         "Preparing",
         "Connecting",
-        "Running",
+        "In Progress",
         "Failed Connect",
         "Failed",
         "Canceled",

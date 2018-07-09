@@ -30,7 +30,7 @@ enum class FileTransferState : unsigned char
 {
     Preparing = 0,
     Connecting,
-    Running,
+    InProgress,
     FailedConnect,
     Failed,
     Canceled,

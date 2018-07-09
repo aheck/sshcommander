@@ -46,7 +46,7 @@ QVariant FileTransfersItemModel::headerData(int section, Qt::Orientation orienta
         case static_cast<int>(FileTransferColumns::Speed):
             return QVariant(tr("Speed"));
         case static_cast<int>(FileTransferColumns::State):
-            return QVariant(tr("State"));
+            return QVariant(tr("Status"));
     }
 
     return QVariant();
@@ -54,7 +54,7 @@ QVariant FileTransfersItemModel::headerData(int section, Qt::Orientation orienta
 
 QVariant FileTransfersItemModel::data(const QModelIndex &index, int role) const
 {
-    if (role != Qt::DisplayRole && role != Qt::EditRole) {
+    if (role != Qt::DisplayRole && role != Qt::EditRole && role != Qt::DecorationRole) {
         return QVariant();
     }
 
@@ -81,27 +81,27 @@ QVariant FileTransfersItemModel::data(const QModelIndex &index, int role) const
                 extension = ", ...";
             }
 
-            return QVariant(job->getSourceHostname() + ":" + job->getFilesToCopy().first() + extension);
+            return job->getSourceHostname() + ":" + job->getFilesToCopy().first() + extension;
         case (static_cast<int>(FileTransferColumns::Destination)):
-            return QVariant(job->getTargetHostname() + ":" + job->getTargetDir());
+            return job->getTargetHostname() + ":" + job->getTargetDir();
         case (static_cast<int>(FileTransferColumns::Transferred)):
-            return QVariant(Util::formatBytes(job->bytesTransferred));
+            return Util::formatBytes(job->bytesTransferred);
         case (static_cast<int>(FileTransferColumns::Speed)):
-            return QVariant(Util::formatBytes(job->bytesPerSecond) + "/s");
+            return Util::formatBytes(job->bytesPerSecond) + "/s";
         case (static_cast<int>(FileTransferColumns::State)):
-            return QVariant(FileTransferJob::fileTransferStateToString(job->getState()));
-            /*
-        case (static_cast<int>(FileTransferColumns::Connected)):
-            if (role== Qt::DecorationRole) {
-                if (tunnel->isConnected()) {
+            if (role == Qt::DecorationRole) {
+                if (job->getState() == FileTransferState::InProgress) {
                     return QIcon(":/images/green-light.svg");
-                } else {
+                } else if (job->getState() == FileTransferState::FailedConnect
+                        || job->getState() == FileTransferState::Failed
+                        || job->getState() == FileTransferState::Canceled) {
                     return QIcon(":/images/red-light.svg");
+                } else {
+                    return QIcon(":/images/yellow-light.svg");
                 }
             }
 
-            return QVariant("");
-            */
+            return FileTransferJob::fileTransferStateToString(job->getState());
     }
 
     return QVariant();

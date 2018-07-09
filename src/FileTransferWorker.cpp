@@ -75,7 +75,7 @@ void FileTransferWorker::process()
 
     this->transferTimer.start();
     this->lastTransferTime = this->transferTimer.elapsed();
-    this->job->setState(FileTransferState::Running);
+    this->job->setState(FileTransferState::InProgress);
 
     try {
         for (QString const &filename : job->getFilesToCopy()) {

@@ -90,7 +90,7 @@ QVariant FileTransfersItemModel::data(const QModelIndex &index, int role) const
             return Util::formatBytes(job->bytesPerSecond) + "/s";
         case (static_cast<int>(FileTransferColumns::State)):
             if (role == Qt::DecorationRole) {
-                if (job->getState() == FileTransferState::InProgress) {
+                if (job->getState() == FileTransferState::Completed) {
                     return QIcon(":/images/green-light.svg");
                 } else if (job->getState() == FileTransferState::FailedConnect
                         || job->getState() == FileTransferState::Failed

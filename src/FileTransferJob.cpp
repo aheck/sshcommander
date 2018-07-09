@@ -86,3 +86,21 @@ QString FileTransferJob::fileTransferStateToString(FileTransferState value)
 
     return strings.at(static_cast<int>(value));
 }
+
+QString FileTransferJob::getSourceHostname()
+{
+    if (this->type == FileTransferType::Upload) {
+        return QHostInfo::localHostName();
+    }
+
+    return this->connEntry->hostname;
+}
+
+QString FileTransferJob::getTargetHostname()
+{
+    if (this->type == FileTransferType::Upload) {
+        return this->connEntry->hostname;
+    }
+
+    return QHostInfo::localHostName();
+}

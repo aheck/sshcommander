@@ -67,6 +67,8 @@ QVariant FileTransfersItemModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
+    QString extension;
+
     switch (index.column()) {
         case (static_cast<int>(FileTransferColumns::TransferType)):
             if (job->getType() == FileTransferType::Upload) {
@@ -75,9 +77,13 @@ QVariant FileTransfersItemModel::data(const QModelIndex &index, int role) const
 
             return QVariant("Download");
         case (static_cast<int>(FileTransferColumns::Source)):
-            return QVariant("test");
+            if (job->getFilesToCopy().length() > 1) {
+                extension = ", ...";
+            }
+
+            return QVariant(job->getSourceHostname() + ":" + job->getFilesToCopy().first() + extension);
         case (static_cast<int>(FileTransferColumns::Destination)):
-            return QVariant("test2");
+            return QVariant(job->getTargetHostname() + ":" + job->getTargetDir());
         case (static_cast<int>(FileTransferColumns::Transferred)):
             return QVariant(Util::formatBytes(job->bytesTransferred));
         case (static_cast<int>(FileTransferColumns::Speed)):

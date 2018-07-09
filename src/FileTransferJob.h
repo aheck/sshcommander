@@ -13,6 +13,7 @@
 
 #include <atomic>
 
+#include <QHostInfo>
 #include <QString>
 #include <QStringList>
 #include <QThread>
@@ -55,6 +56,8 @@ public:
     QString getErrorMessage() const;
     QThread* getThread() const;
     void setThread(QThread *thread);
+    QString getSourceHostname();
+    QString getTargetHostname();
 
     std::atomic<bool> cancelationRequested;
     std::atomic<uint64_t> bytesPerSecond;

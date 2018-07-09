@@ -44,6 +44,7 @@ add_executable(tests main.cpp
     ../src/AWSWidget.cpp
     ../src/ConnectionListView.cpp
     ../src/ConnectionListWidget.cpp
+    ../src/CResourceDestructor.cpp
     ../src/CustomTabBar.cpp
     ../src/DetachedSessionWidget.cpp
     ../src/DetachedTerminalWindow.cpp

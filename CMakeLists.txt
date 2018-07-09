@@ -4,7 +4,7 @@ project(sshcommander)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_FLAGS "-O1 -ggdb -std=c++14 -Wall -pthread")
+set(CMAKE_CXX_FLAGS "-O0 -ggdb -std=c++14 -Wall -pthread")
 
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Network REQUIRED)

@@ -30,6 +30,7 @@
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
+#include "CResourceDestructor.h"
 #include "FileTransferJob.h"
 #include "SSHConnection.h"
 #include "SSHConnectionEntry.h"

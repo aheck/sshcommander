@@ -216,7 +216,7 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
     char *ptr = NULL;
     FILE *fp = NULL;
     LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
-    QString errorToThrow;
+    QString errorString;
     LIBSSH2_SFTP_ATTRIBUTES attrs;
 
     std::cerr << "Downloading file " << remotePath.toStdString() << "\n";
@@ -241,12 +241,16 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
         CHECK_CANCEL();
     } while (!sftp_handle);
 
+    CResourceDestructor sftpHandleDestructor([sftp_handle]() {
+            libssh2_sftp_close(sftp_handle);
+    });
+
     if (this->fileOverwriteAnswer != FileOverwriteAnswer::YesToAll) {
         QFileInfo fileInfo(localFilename);
 
         if (fileInfo.exists()) {
             if (this->fileOverwriteAnswer == FileOverwriteAnswer::NoToAll) {
-                goto shutdown;
+                return;
             }
 
             CHECK_CANCEL();
@@ -258,7 +262,7 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
 
             if (this->fileOverwriteAnswer != FileOverwriteAnswer::Yes
                     && this->fileOverwriteAnswer != FileOverwriteAnswer::YesToAll) {
-                goto shutdown;
+                return;
             }
         }
     }
@@ -266,9 +270,9 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
     CHECK_CANCEL();
     fp = fopen(localFilename.toLatin1().data(), "w");
     if (!fp) {
-        errorToThrow = "Can't open local file: " + localFilename;
-        std::cerr << errorToThrow.toStdString() << "\n";
-        goto shutdown;
+        errorString = "Can't open local file: " + localFilename;
+        std::cerr << errorString.toStdString() << "\n";
+        throw FileTransferException(errorString);
     }
 
     do {
@@ -308,25 +312,18 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
     }
 
     if (rc != 0) {
-        errorToThrow = "Failed stat over SFTP: " + remotePath;
-        std::cerr << errorToThrow.toStdString() << "\n";
-        goto shutdown;
+        errorString = "Failed stat over SFTP: " + remotePath;
+        std::cerr << errorString.toStdString() << "\n";
+        throw FileTransferException(errorString);
     }
 
     if (chmod(localFilename.toLatin1().data(), attrs.permissions) != 0) {
-        errorToThrow = "Failed chmod for file: " + localFilename;
-        std::cerr << errorToThrow.toStdString() << "\n";
-        goto shutdown;
+        errorString = "Failed chmod for file: " + localFilename;
+        std::cerr << errorString.toStdString() << "\n";
+        throw FileTransferException(errorString);
     }
 
     std::cerr << "Finished downloading file " << remotePath.toStdString() << "\n";
-
-shutdown:
-    libssh2_sftp_close(sftp_handle);
-
-    if (!errorToThrow.isEmpty()) {
-        throw FileTransferException(errorToThrow);
-    }
 }
 
 void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
@@ -336,7 +333,7 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
     char *ptr = NULL;
     FILE *fp = NULL;
     LIBSSH2_SFTP_HANDLE *sftp_handle = NULL;
-    QString errorToThrow;
+    QString errorString;
     struct stat statbuf;
     QFile file(localPath);
     LIBSSH2_SFTP_ATTRIBUTES attrs;
@@ -360,7 +357,7 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
         CHECK_CANCEL();
         if (this->sftpFileExists(remoteFilename)) {
             if (this->fileOverwriteAnswer == FileOverwriteAnswer::NoToAll) {
-                goto shutdown;
+                return;
             }
 
             CHECK_CANCEL();
@@ -371,7 +368,7 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
 
             if (this->fileOverwriteAnswer != FileOverwriteAnswer::Yes
                     && this->fileOverwriteAnswer != FileOverwriteAnswer::YesToAll) {
-                goto shutdown;
+                return;
             }
         }
     }
@@ -392,6 +389,10 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
             throw FileTransferException(error);
         }
     } while (!sftp_handle);
+
+    CResourceDestructor sftpHandleDestructor([sftp_handle]() {
+            libssh2_sftp_close(sftp_handle);
+    });
 
     do {
         nread = fread(this->transferBuffer, 1, sizeof(this->transferBuffer), fp);
@@ -423,9 +424,9 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
 
     // set file permissions
     if (stat(localPath.toLatin1().data(), &statbuf) != 0) {
-        errorToThrow = "Failed stat for file: " + localPath;
-        std::cerr << errorToThrow.toStdString() << "\n";
-        goto shutdown;
+        errorString = "Failed stat for file: " + localPath;
+        std::cerr << errorString.toStdString() << "\n";
+        throw FileTransferException(errorString);
     }
 
     while ((rc = libssh2_sftp_fstat(sftp_handle, &attrs)) == LIBSSH2_ERROR_EAGAIN) {
@@ -435,9 +436,9 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
     }
 
     if (rc != 0) {
-        errorToThrow = "Failed stat over SFTP: " + remoteFilename;
-        std::cerr << errorToThrow.toStdString() << "\n";
-        goto shutdown;
+        errorString = "Failed stat over SFTP: " + remoteFilename;
+        std::cerr << errorString.toStdString() << "\n";
+        throw FileTransferException(errorString);
     }
 
     attrs.permissions = statbuf.st_mode;
@@ -449,16 +450,9 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
     }
 
     if (rc != 0) {
-        errorToThrow = "Failed change permissions over SFTP: " + remoteFilename;
-        std::cerr << errorToThrow.toStdString() << "\n";
-        goto shutdown;
-    }
-
-shutdown:
-    libssh2_sftp_close(sftp_handle);
-
-    if (!errorToThrow.isEmpty()) {
-        throw FileTransferException(errorToThrow);
+        errorString = "Failed change permissions over SFTP: " + remoteFilename;
+        std::cerr << errorString.toStdString() << "\n";
+        throw FileTransferException(errorString);
     }
 
     std::cerr << "Finished uploading file " << localPath.toStdString() << "\n";

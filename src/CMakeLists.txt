@@ -50,6 +50,7 @@ add_executable(sshcommander
     AWSWidget.cpp
     ConnectionListView.cpp
     ConnectionListWidget.cpp
+    CResourceDestructor.cpp
     CustomTabBar.cpp
     DetachedSessionWidget.cpp
     DetachedTerminalWindow.cpp

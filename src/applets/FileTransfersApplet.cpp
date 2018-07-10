@@ -54,3 +54,8 @@ void FileTransfersApplet::reloadData()
 {
     this->model->reloadData();
 }
+
+void FileTransfersApplet::jobDataChanged(QUuid uuid)
+{
+    this->model->jobDataChanged(uuid);
+}

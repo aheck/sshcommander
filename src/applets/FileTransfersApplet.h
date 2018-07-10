@@ -12,6 +12,7 @@
 #include <QTableView>
 #include <QTreeView>
 #include <QToolBar>
+#include <QUuid>
 
 #include "Applet.h"
 #include "FileTransferJob.h"
@@ -33,7 +34,8 @@ public:
     virtual void init(std::shared_ptr<SSHConnectionEntry> connEntry) override;
     virtual void onShow() override;
 
-protected slots:
+public slots:
+    void jobDataChanged(QUuid uuid);
     void reloadData();
 
 private:

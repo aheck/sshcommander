@@ -2,6 +2,7 @@
 
 FileTransferJob::FileTransferJob(std::shared_ptr<SSHConnectionEntry> connEntry, FileTransferType type, QString targetDir)
 {
+    this->uuid = QUuid::createUuid();
     this->connEntry = connEntry;
     this->type = type;
     this->state = FileTransferState::Preparing;
@@ -10,6 +11,11 @@ FileTransferJob::FileTransferJob(std::shared_ptr<SSHConnectionEntry> connEntry, 
     this->bytesPerSecond = 0;
     this->bytesTransferred = 0;
     this->cancelationRequested = false;
+}
+
+QUuid FileTransferJob::getUuid() const
+{
+    return this->uuid;
 }
 
 std::shared_ptr<SSHConnectionEntry> FileTransferJob::getConnEntry() const
@@ -35,6 +41,7 @@ FileTransferState FileTransferJob::getState() const
 void FileTransferJob::setState(FileTransferState state)
 {
     this->state = state;
+    emit dataChanged(this->getUuid());
 }
 
 void FileTransferJob::addFileToCopy(QString filename)
@@ -103,4 +110,16 @@ QString FileTransferJob::getTargetHostname()
     }
 
     return QHostInfo::localHostName();
+}
+
+void FileTransferJob::setBytesPerSecond(uint64_t bytesPerSecond)
+{
+    this->bytesPerSecond = bytesPerSecond;
+
+    emit dataChanged(this->getUuid());
+}
+
+uint64_t FileTransferJob::getBytesPerSecond()
+{
+    return this->bytesPerSecond;
 }

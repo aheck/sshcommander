@@ -17,6 +17,7 @@
 #include <QString>
 #include <QStringList>
 #include <QThread>
+#include <QUuid>
 
 #include "SSHConnectionEntry.h"
 
@@ -44,6 +45,7 @@ class FileTransferJob : public QObject
 public:
     FileTransferJob(std::shared_ptr<SSHConnectionEntry> connEntry, FileTransferType type, QString targetDir);
 
+    QUuid getUuid() const;
     std::shared_ptr<SSHConnectionEntry> getConnEntry() const;
     void setConnEntry(std::shared_ptr<SSHConnectionEntry> connEntry);
     FileTransferType getType() const;
@@ -58,14 +60,19 @@ public:
     void setThread(QThread *thread);
     QString getSourceHostname();
     QString getTargetHostname();
+    void setBytesPerSecond(uint64_t bytesPerSecond);
+    uint64_t getBytesPerSecond();
 
     std::atomic<bool> cancelationRequested;
-    std::atomic<uint64_t> bytesPerSecond;
     std::atomic<uint64_t> bytesTransferred;
 
     static QString fileTransferStateToString(FileTransferState value);
 
+signals:
+    void dataChanged(QUuid uuid);
+
 private:
+    QUuid uuid;
     std::shared_ptr<SSHConnectionEntry> connEntry;
     FileTransferType type;
     std::atomic<FileTransferState> state;
@@ -76,6 +83,8 @@ private:
 
     QString errorMessage;
     QThread *thread;
+
+    std::atomic<uint64_t> bytesPerSecond;
 };
 
 #endif

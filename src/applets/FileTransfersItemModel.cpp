@@ -87,7 +87,7 @@ QVariant FileTransfersItemModel::data(const QModelIndex &index, int role) const
         case (static_cast<int>(FileTransferColumns::Transferred)):
             return Util::formatBytes(job->bytesTransferred);
         case (static_cast<int>(FileTransferColumns::Speed)):
-            return Util::formatBytes(job->bytesPerSecond) + "/s";
+            return Util::formatBytes(job->getBytesPerSecond()) + "/s";
         case (static_cast<int>(FileTransferColumns::State)):
             if (role == Qt::DecorationRole) {
                 if (job->getState() == FileTransferState::Completed) {
@@ -121,4 +121,16 @@ void FileTransfersItemModel::reloadData()
 {
     emit layoutAboutToBeChanged();
     emit layoutChanged();
+}
+
+void FileTransfersItemModel::jobDataChanged(QUuid jobUuid)
+{
+    int row = SSHConnectionManager::getInstance().getFileTransferJobRowByUuid(connectionId, jobUuid);
+
+    if (row < 0) {
+        return;
+    }
+
+    this->dataChanged(this->index(row, 0, QModelIndex()),
+            this->index(row, this->columnCount(QModelIndex()), QModelIndex()));
 }

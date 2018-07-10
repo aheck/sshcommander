@@ -90,6 +90,11 @@ void FileBrowserApplet::onShow()
     this->remoteFileSystemModel->setConnEntry(connEntry);
 }
 
+void FileBrowserApplet::setFileTransfersApplet(FileTransfersApplet *applet)
+{
+    this->fileTransfersApplet = applet;
+}
+
 void FileBrowserApplet::expanded(const QModelIndex &index)
 {
     this->lastIndexExpanded = index;
@@ -130,15 +135,22 @@ void FileBrowserApplet::toggleLocalFileBrowser()
 void FileBrowserApplet::startDownload()
 {
     auto transferJob = std::make_shared<FileTransferJob>(this->connEntry, FileTransferType::Download, "/tmp");
+    connect(transferJob.get(), SIGNAL(dataChanged(QUuid)), this->fileTransfersApplet, SLOT(jobDataChanged(QUuid)));
     transferJob->addFileToCopy("/home/ahe/recdir");
+    //transferJob->addFileToCopy("/home/ahe/ubuntu-16.04.1-server-amd64.iso");
 
     SSHConnectionManager::getInstance().addFileTransferJob(transferJob);
+
+    this->fileTransfersApplet->reloadData();
 }
 
 void FileBrowserApplet::startUpload()
 {
     auto transferJob = std::make_shared<FileTransferJob>(this->connEntry, FileTransferType::Upload, "/tmp");
+    connect(transferJob.get(), SIGNAL(dataChanged(QUuid)), this->fileTransfersApplet, SLOT(jobDataChanged(QUuid)));
     transferJob->addFileToCopy("/home/aheck/recdir2");
 
     SSHConnectionManager::getInstance().addFileTransferJob(transferJob);
+
+    this->fileTransfersApplet->reloadData();
 }

@@ -396,6 +396,20 @@ std::shared_ptr<FileTransferJob> SSHConnectionManager::getFileTransferJob(QStrin
     return this->fileTransferJobs[connectionId][row];
 }
 
+int SSHConnectionManager::getFileTransferJobRowByUuid(QString connectionId, QUuid uuid)
+{
+    int i = 0;
+    for (auto job : this->fileTransferJobs[connectionId]) {
+        if (job->getUuid() == uuid) {
+            return i;
+        }
+
+        i++;
+    }
+
+    return -1;
+}
+
 void SSHConnectionManager::askToOverwriteFile(QString title, QString message, QString infoText)
 {
     FileTransferWorker *worker = qobject_cast<FileTransferWorker*>(sender());

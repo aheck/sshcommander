@@ -40,6 +40,7 @@
 #include <QMetaObject>
 #include <QMetaType>
 #include <QString>
+#include <QUuid>
 
 #include "DirEntry.h"
 #include "FileTransferJob.h"
@@ -85,6 +86,7 @@ public:
     // access methods for file transfer jobs
     int countFileTransferJobs(QString connectionId);
     std::shared_ptr<FileTransferJob> getFileTransferJob(QString connectionId, int row);
+    int getFileTransferJobRowByUuid(QString connectionId, QUuid uuid);
 
 public slots:
     // these slots are used by FileTransferWorkers (which run in separate

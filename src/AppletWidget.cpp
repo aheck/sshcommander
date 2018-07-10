@@ -7,8 +7,13 @@ AppletWidget::AppletWidget(std::shared_ptr<SSHConnectionEntry> connEntry, QWidge
     // create the connection applets
     this->applets.append(new MachineInfoApplet());
     this->applets.append(new NotesEditor());
-    this->applets.append(new FileBrowserApplet());
-    this->applets.append(new FileTransfersApplet());
+
+    FileBrowserApplet *fileBrowserApplet = new FileBrowserApplet();
+    FileTransfersApplet *fileTransfersApplet = new FileTransfersApplet();
+    fileBrowserApplet->setFileTransfersApplet(fileTransfersApplet);
+
+    this->applets.append(fileBrowserApplet);
+    this->applets.append(fileTransfersApplet);
     if (connEntry->isAwsInstance) {
         this->applets.append(new AWSInfoApplet());
     }

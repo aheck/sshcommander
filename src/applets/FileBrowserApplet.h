@@ -13,6 +13,7 @@
 #include <QToolBar>
 
 #include "FileTransferJob.h"
+#include "FileTransfersApplet.h"
 #include "SSHConnectionManager.h"
 #include "SFTPFilesystemModel.h"
 
@@ -32,6 +33,9 @@ public:
     virtual void init(std::shared_ptr<SSHConnectionEntry> connEntry) override;
     virtual void onShow() override;
 
+    // this applet needs to know the FileTransfersApplet
+    void setFileTransfersApplet(FileTransfersApplet *applet);
+
 protected slots:
     void expanded(const QModelIndex &index);
     void reloadData();
@@ -50,6 +54,7 @@ private:
     SFTPFilesystemModel *remoteFileSystemModel;
     QToolBar *toolBar;
     QModelIndex lastIndexExpanded;
+    FileTransfersApplet *fileTransfersApplet;
     bool firstShow;
 };
 

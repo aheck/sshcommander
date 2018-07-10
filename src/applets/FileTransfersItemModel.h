@@ -7,6 +7,7 @@
 #include <QColor>
 #include <QIcon>
 #include <QModelIndex>
+#include <QUuid>
 
 #include "FileTransferJob.h"
 #include "SSHConnectionManager.h"
@@ -28,6 +29,9 @@ public:
 
     void setConnectionId(const QString &connectionId);
     void reloadData();
+
+public slots:
+    void jobDataChanged(QUuid jobUuid);
 
 private:
     QString connectionId;

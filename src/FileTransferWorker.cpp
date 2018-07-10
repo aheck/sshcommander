@@ -531,7 +531,7 @@ void FileTransferWorker::updateTransferSpeed(uint64_t bytediff)
 
     uint64_t bytesPerSecond = (1000.0 / timediff) * this->accumulatedByteDiff;
 
-    this->job->bytesPerSecond = bytesPerSecond;
     this->accumulatedByteDiff = 0;
     this->lastTransferTime = elapsed;
+    this->job->setBytesPerSecond(bytesPerSecond);
 }

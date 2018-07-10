@@ -92,6 +92,8 @@ void FileTransferWorker::process()
     } catch (const FileTransferException e) {
         this->job->setErrorMessage(e.getMessage());
         this->job->setState(FileTransferState::Failed);
+    } catch (const FileTransferCancelException) {
+        this->job->setState(FileTransferState::Canceled);
     }
 
     emit finished();
@@ -103,6 +105,7 @@ void FileTransferWorker::copyFileFromRemoteRecursively(QString remotePath, QStri
     LIBSSH2_SFTP_ATTRIBUTES attrs;
 
     if (this->conn == nullptr) {
+        this->job->setState(FileTransferState::FailedConnect);
         return;
     }
 

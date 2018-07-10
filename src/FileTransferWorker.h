@@ -37,7 +37,7 @@
 #include "SSHConnectionManager.h"
 #include "Util.h"
 
-#define CHECK_CANCEL() if (this->job->cancelationRequested) {this->job->setState(FileTransferState::Canceled); return;}
+#define CHECK_CANCEL() if (this->job->cancelationRequested) {throw FileTransferCancelException();}
 #define TRANSFER_BUFFER_SIZE 1024 * 64
 
 enum class FileOverwriteAnswer : unsigned char
@@ -60,6 +60,11 @@ public:
 
 private:
     QString message;
+};
+
+class FileTransferCancelException : public QException
+{
+    void raise() const {throw *this;};
 };
 
 class FileTransferWorker : public QObject {

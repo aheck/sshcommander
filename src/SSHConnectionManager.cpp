@@ -19,6 +19,34 @@ SSHConnectionManager::SSHConnectionManager()
 
 SSHConnectionManager::~SSHConnectionManager()
 {
+    QStringList keysToRemove;
+
+    // tell all file transfer jobs they are canceled
+    for (auto const& jobs : this->fileTransferJobs) {
+        for (auto const& job : jobs.second) {
+            job->cancelationRequested = true;
+        }
+    }
+
+    // wait for all file transfer jobs to terminate
+    for (auto const& jobs : this->fileTransferJobs) {
+        for (auto const& job : jobs.second) {
+            while (job->getState() != FileTransferState::Completed
+                    && job->getState() != FileTransferState::Canceled
+                    && job->getState() != FileTransferState::FailedConnect
+                    && job->getState() != FileTransferState::Failed) {
+                QThread::msleep(50);
+            }
+        }
+
+        keysToRemove.append(jobs.first);
+    }
+
+    // remove all file transfer jobs from the std::map this->fileTransferJobs
+    for (QString const& key : keysToRemove) {
+        this->fileTransferJobs.erase(key);
+    }
+
     libssh2_exit();
 }
 

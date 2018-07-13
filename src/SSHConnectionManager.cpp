@@ -31,10 +31,7 @@ SSHConnectionManager::~SSHConnectionManager()
     // wait for all file transfer jobs to terminate
     for (auto const& jobs : this->fileTransferJobs) {
         for (auto const& job : jobs.second) {
-            while (job->getState() != FileTransferState::Completed
-                    && job->getState() != FileTransferState::Canceled
-                    && job->getState() != FileTransferState::FailedConnect
-                    && job->getState() != FileTransferState::Failed) {
+            while (!job->isDone()) {
                 QThread::msleep(50);
             }
         }
@@ -422,6 +419,21 @@ std::shared_ptr<FileTransferJob> SSHConnectionManager::getFileTransferJob(QStrin
     }
 
     return this->fileTransferJobs[connectionId][row];
+}
+
+bool SSHConnectionManager::removeFileTransferJob(QString connectionId, int row)
+{
+    if (this->fileTransferJobs.count(connectionId) == 0) {
+        return false;
+    }
+
+    if (this->fileTransferJobs[connectionId].size() < (row + 1)) {
+        return false;
+    }
+
+    this->fileTransferJobs[connectionId][row]->cancelationRequested = true;
+    this->fileTransferJobs[connectionId].erase(this->fileTransferJobs[connectionId].begin() + row);
+    return true;
 }
 
 int SSHConnectionManager::getFileTransferJobRowByUuid(QString connectionId, QUuid uuid)

@@ -123,3 +123,11 @@ uint64_t FileTransferJob::getBytesPerSecond()
 {
     return this->bytesPerSecond;
 }
+
+bool FileTransferJob::isDone()
+{
+    return this->state == FileTransferState::Completed
+                    || this->state == FileTransferState::Canceled
+                    || this->state != FileTransferState::FailedConnect
+                    || this->state != FileTransferState::Failed;
+}

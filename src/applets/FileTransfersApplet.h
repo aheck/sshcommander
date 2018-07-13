@@ -37,8 +37,12 @@ public:
 public slots:
     void jobDataChanged(QUuid uuid);
     void reloadData();
+    void cancelFileTransfer();
+    void removeFileTransfer();
 
 private:
+    int getSelectedRow();
+
     QTableView *table;
     FileTransfersItemModel *model;
     QToolBar *toolBar;

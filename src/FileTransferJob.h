@@ -62,6 +62,7 @@ public:
     QString getTargetHostname();
     void setBytesPerSecond(uint64_t bytesPerSecond);
     uint64_t getBytesPerSecond();
+    bool isDone();
 
     std::atomic<bool> cancelationRequested;
     std::atomic<uint64_t> bytesTransferred;

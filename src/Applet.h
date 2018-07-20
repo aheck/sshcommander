@@ -28,6 +28,9 @@ public:
     virtual void init(std::shared_ptr<SSHConnectionEntry> connEntry);
     virtual void onShow();
 
+signals:
+    void changed();
+
 protected:
     std::shared_ptr<SSHConnectionEntry> connEntry;
 

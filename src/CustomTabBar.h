@@ -12,17 +12,10 @@ class CustomTabBar : public QTabBar
 
 public:
     CustomTabBar(QWidget *parent = 0);
-    void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void setTabChanged(int index);
 
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
-
-signals:
-    void tabDetachRequested(int index);
-
-private:
-    QPoint startPos;
-    bool dragging;
+private slots:
+    void currentChanged(int index);
 };
 
 #endif

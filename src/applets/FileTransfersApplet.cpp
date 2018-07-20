@@ -68,6 +68,8 @@ int FileTransfersApplet::getSelectedRow()
 void FileTransfersApplet::reloadData()
 {
     this->model->reloadData();
+
+    emit changed();
 }
 
 void FileTransfersApplet::jobDataChanged(QUuid uuid)

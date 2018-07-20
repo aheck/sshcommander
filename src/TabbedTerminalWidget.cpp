@@ -11,7 +11,7 @@ TerminalSessionEntry::TerminalSessionEntry()
 TabbedTerminalWidget::TabbedTerminalWidget(std::weak_ptr<SSHConnectionEntry> connEntry, QWidget *parent) :
         QTabWidget(parent)
 {
-    CustomTabBar* tabBar = new CustomTabBar();
+    SessionTabBar* tabBar = new SessionTabBar();
 
     this->connEntryWeak = connEntry;
     this->setTabBar(tabBar);

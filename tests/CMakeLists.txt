@@ -63,6 +63,7 @@ add_executable(tests main.cpp
     ../src/RichTextDelegate.cpp
     ../src/RouteTableViewWidget.cpp
     ../src/SecurityGroupsDialog.cpp
+    ../src/SessionTabBar.cpp
     ../src/SSHConnection.cpp
     ../src/SSHConnectionEntry.cpp
     ../src/SSHConnectionItemModel.cpp

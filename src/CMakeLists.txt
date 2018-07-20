@@ -69,6 +69,7 @@ add_executable(sshcommander
     RichTextDelegate.cpp
     RouteTableViewWidget.cpp
     SecurityGroupsDialog.cpp
+    SessionTabBar.cpp
     SSHConnection.cpp
     SSHConnectionEntry.cpp
     SSHConnectionItemModel.cpp

@@ -1,52 +1,19 @@
 #include "CustomTabBar.h"
 
-#include <QInputDialog>
-
 CustomTabBar::CustomTabBar(QWidget *parent) :
     QTabBar(parent)
 {
-    this->dragging = false;
-}
- 
-void CustomTabBar::mouseDoubleClickEvent(QMouseEvent *event)
-{
-    int tabIndex = this->currentIndex();
-    bool success = true;
-
-    QString name = QInputDialog::getText(this, tr("Change Session Name"),
-                tr("Enter new Session Name"), QLineEdit::Normal,
-                this->tabText(tabIndex), &success);
- 
-    if (success) {
-        QString newName = name.trimmed();
-        if (!newName.isEmpty()) {
-            setTabText(tabIndex, newName);
-        }
-    }
+    connect(this, SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
 }
 
-void CustomTabBar::mousePressEvent(QMouseEvent *event)
+void CustomTabBar::setTabChanged(int index)
 {
-    if (event->button() == Qt::LeftButton) {
-        this->startPos = event->pos();
-        this->dragging = true;
-    }
-
-    QTabBar::mousePressEvent(event);
+    QColor color("#0000ff");
+    this->setTabTextColor(index, color);
 }
 
-void CustomTabBar::mouseReleaseEvent(QMouseEvent *event)
+void CustomTabBar::currentChanged(int index)
 {
-    if (event->button() == Qt::LeftButton) {
-        if (this->dragging) {
-            if (qAbs(this->startPos.y() - event->pos().y()) >= 50) {
-                emit tabDetachRequested(this->currentIndex());
-            }
-        }
-
-        this->startPos = QPoint();
-        this->dragging = false;
-    }
-
-    QTabBar::mouseReleaseEvent(event);
+    QColor color("#000000");
+    this->setTabTextColor(index, color);
 }

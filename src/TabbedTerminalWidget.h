@@ -19,7 +19,7 @@
 
 #include "qtermwidget.h"
 
-#include "CustomTabBar.h"
+#include "SessionTabBar.h"
 #include "DetachedSessionWidget.h"
 #include "DetachedTerminalWindow.h"
 #include "InactiveSessionWidget.h"

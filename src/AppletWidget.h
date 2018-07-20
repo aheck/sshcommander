@@ -8,6 +8,7 @@
 #ifndef APPLETWIDGET_H
 #define APPLETWIDGET_H
 
+#include <QHash>
 #include <QHBoxLayout>
 #include <QTabWidget>
 
@@ -21,11 +22,13 @@
 #include "applets/RoutesApplet.h"
 #include "applets/SSHFilesystemApplet.h"
 #include "applets/TunnelsApplet.h"
+
+#include "CustomTabBar.h"
 #include "InactiveSessionWidget.h"
 #include "Preferences.h"
 #include "SSHConnectionEntry.h"
 
-class AppletWidget : public QWidget
+class AppletWidget : public QTabWidget
 {
     Q_OBJECT
 
@@ -36,9 +39,13 @@ public:
 public slots:
     void appletChanged(int index);
 
+private slots:
+    void appletContentChanged();
+
 private:
     QList<Applet*> applets;
-    QTabWidget *appletTab;
+    QHash<QWidget*, int> appletToIndex;
+    CustomTabBar *tabBar;
 };
 
 #endif

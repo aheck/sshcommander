@@ -52,6 +52,7 @@ public:
 private:
     void addPathString(QString pathString);
     QString* getPathString(QString pathString) const;
+    bool isDirectory(const QModelIndex &index) const;
 
     // for debugging
     void dumpPathStrings() const;

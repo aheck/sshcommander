@@ -41,6 +41,8 @@ FileBrowserApplet::FileBrowserApplet()
     this->remoteFileBrowser->setAllColumnsShowFocus(true);
     this->remoteFileBrowser->setColumnWidth(1, 500);
     this->remoteFileBrowser->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    this->remoteFileBrowser->setDragDropMode(QAbstractItemView::DragDrop);
+    this->remoteFileBrowser->setDropIndicatorShown(true);
     this->remoteFileBrowser->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     connect(this->remoteFileBrowser, SIGNAL(expanded(QModelIndex)), this, SLOT(expanded(QModelIndex)));
 

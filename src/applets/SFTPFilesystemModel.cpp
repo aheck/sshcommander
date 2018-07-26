@@ -30,10 +30,15 @@ QModelIndex SFTPFilesystemModel::index(int row, int column, const QModelIndex &p
         QString *parentPath = static_cast<QString*>(parent.internalPointer());
 
         if (this->dirCache.count(*parentPath) != 1) {
+            std::cerr << "index(): Parent Path '" << parentPath->toStdString() << "' does not exist" << "\n";
             return QModelIndex();
         }
 
         auto dirEntries = this->dirCache.at(*parentPath);
+        if (dirEntries.size() < (row + 1)) {
+            std::cerr << "index(): Row does not exist\n";
+            return QModelIndex();
+        }
         auto dirEntry = dirEntries.at(row);
         QString pathStr = *parentPath;
 
@@ -50,10 +55,6 @@ QModelIndex SFTPFilesystemModel::index(int row, int column, const QModelIndex &p
 QModelIndex SFTPFilesystemModel::parent(const QModelIndex &index) const
 {
     if (!index.isValid()) {
-        return QModelIndex();
-    }
-
-    if (index.column() != 0) {
         return QModelIndex();
     }
 
@@ -129,29 +130,22 @@ int SFTPFilesystemModel::columnCount(const QModelIndex &parent) const
 
 Qt::ItemFlags SFTPFilesystemModel::flags(const QModelIndex &index) const
 {
+    Qt::ItemFlags flags = QAbstractItemModel::flags(index);
+
     if (!index.isValid()) {
-        return 0;
+        return flags;
     }
 
-    return QAbstractItemModel::flags(index);
+    if (this->isDirectory(index)) {
+        return flags | Qt::ItemIsDragEnabled;
+    }
+
+    return flags | Qt::ItemIsDragEnabled | Qt::ItemNeverHasChildren;
 }
 
 bool SFTPFilesystemModel::hasChildren(const QModelIndex &parent) const
 {
-    if (!parent.isValid()) {
-        return true;
-    }
-
-    QString *path = static_cast<QString*>(parent.internalPointer());
-    if (path == nullptr) {
-        return false;
-    }
-
-    if (*path == "/") {
-        return true;
-    }
-
-    return this->pathIsDirTable.at(*path);
+    return this->isDirectory(parent);
 }
 
 bool SFTPFilesystemModel::canFetchMore(const QModelIndex &parent) const
@@ -434,4 +428,22 @@ bool compareDirEntries(std::shared_ptr<DirEntry> dirEntry1, std::shared_ptr<DirE
     }
 
     return dirEntry1->getFilename() < dirEntry2->getFilename();
+}
+
+bool SFTPFilesystemModel::isDirectory(const QModelIndex &index) const
+{
+    if (!index.isValid()) {
+        return true;
+    }
+
+    QString *path = static_cast<QString*>(index.internalPointer());
+    if (path == nullptr) {
+        return false;
+    }
+
+    if (*path == "/") {
+        return true;
+    }
+
+    return this->pathIsDirTable.at(*path);
 }

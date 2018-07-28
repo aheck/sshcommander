@@ -7,6 +7,7 @@ add_executable(tests main.cpp
 
     ../src/applets/AWSInfoApplet.cpp
     ../src/applets/FileBrowserApplet.cpp
+    ../src/applets/FileSystemModel.cpp
     ../src/applets/FileTransfersApplet.cpp
     ../src/applets/FileTransfersItemModel.cpp
     ../src/applets/NotesEditor.cpp

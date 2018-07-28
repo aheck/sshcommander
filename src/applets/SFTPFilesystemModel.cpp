@@ -18,7 +18,7 @@ SFTPFilesystemModel::~SFTPFilesystemModel()
 
 QModelIndex SFTPFilesystemModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (row < 0 || column < 0 || column >= columnCount(parent)) {// || row >= rowCount(parent) ) {
+    if (row < 0 || column < 0 || column >= columnCount(parent) || row >= rowCount(parent)) {
         return QModelIndex();
     }
 
@@ -110,7 +110,6 @@ int SFTPFilesystemModel::rowCount(const QModelIndex &parent) const
     }
 
     QString *parentPath = static_cast<QString*>(parent.internalPointer());
-    std::cerr << "rowCount parentPath: " << parentPath->toStdString() << "\n";
 
     if (this->dirCache.count(*parentPath) == 1) {
         try {
@@ -133,14 +132,14 @@ Qt::ItemFlags SFTPFilesystemModel::flags(const QModelIndex &index) const
     Qt::ItemFlags flags = QAbstractItemModel::flags(index);
 
     if (!index.isValid()) {
-        return flags;
+        return flags | Qt::ItemIsDropEnabled;
     }
 
     if (this->isDirectory(index)) {
-        return flags | Qt::ItemIsDragEnabled;
+        return flags | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
     }
 
-    return flags | Qt::ItemIsDragEnabled | Qt::ItemNeverHasChildren;
+    return flags | Qt::ItemIsDragEnabled | Qt::ItemNeverHasChildren | Qt::ItemIsDropEnabled;
 }
 
 bool SFTPFilesystemModel::hasChildren(const QModelIndex &parent) const
@@ -218,7 +217,6 @@ int SFTPFilesystemModel::loadDirectory(QString path)
     this->dirCache[path] = entries;
 
     for (auto const &dirEntry : entries) {
-        std::cerr << "loaded path: " << dirEntry->getPath().toStdString() << "\n";
         if (dirEntry->getPath() == "/") {
             this->addPathString(dirEntry->getPath() + dirEntry->getFilename());
             this->pathIsDirTable[dirEntry->getPath() + dirEntry->getFilename()] = dirEntry->isDirectory();
@@ -446,4 +444,73 @@ bool SFTPFilesystemModel::isDirectory(const QModelIndex &index) const
     }
 
     return this->pathIsDirTable.at(*path);
+}
+
+QStringList SFTPFilesystemModel::mimeTypes() const
+{
+    QStringList mimeTypes;
+    mimeTypes.append("text/uri-list");
+
+    return mimeTypes;
+}
+
+QMimeData* SFTPFilesystemModel::mimeData(const QModelIndexList &indexes) const
+{
+    QList<QUrl> urls;
+    std::cerr << "mimeData called!!!\n";
+    std::cerr << "Num Indexes: " << indexes.count() << "\n";
+    QString lastFilename;
+
+    for (const QModelIndex &index : indexes) {
+        QString *path = static_cast<QString*>(index.internalPointer());
+        if (path == nullptr) {
+            continue;
+        }
+
+        if (*path == lastFilename) {
+            continue;
+        }
+
+        urls.append(QUrl("file://" + *path));
+        lastFilename = *path;
+        std::cerr << "Remote file: " << path->toStdString() << "\n";
+    }
+
+    QMimeData *data = new QMimeData();
+    data->setUrls(urls);
+    std::cerr << "Num Urls: " << urls.count() << "\n";
+
+    return data;
+}
+
+bool SFTPFilesystemModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+    QStringList filenames;
+
+    if (action != Qt::CopyAction) {
+        return false;
+    }
+
+    if (data == nullptr) {
+        return false;
+    }
+
+    QString *parentPath = static_cast<QString*>(parent.internalPointer());
+    if (parentPath == nullptr) {
+        return false;
+    }
+
+    for (QUrl const& url: data->urls()) {
+        std::cout << url.toString().toStdString() << "\n";
+        filenames.append(url.path());
+    }
+
+    emit fileUploadRequested(filenames, *parentPath);
+
+    return true;
+}
+
+Qt::DropActions SFTPFilesystemModel::supportedDropActions() const
+{
+    return Qt::CopyAction;
 }

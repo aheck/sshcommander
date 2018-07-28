@@ -12,21 +12,19 @@ FileBrowserApplet::FileBrowserApplet()
     this->showLocalAction = this->toolBar->addAction(QIcon(":/images/drive-harddisk.svg"),
             tr("Show Local File Browser"), this, SLOT(toggleLocalFileBrowser()));
     this->showLocalAction->setCheckable(true);
-    this->toolBar->addAction(QIcon(":/images/drive-harddisk.svg"),
-            tr("Start Download"), this, SLOT(startDownload()));
-    this->toolBar->addAction(QIcon(":/images/drive-harddisk.svg"),
-            tr("Start Upload"), this, SLOT(startUpload()));
 
     this->setLayout(new QHBoxLayout());
     this->layout()->setContentsMargins(0, 0, 0, 0);
     this->layout()->addWidget(this->toolBar);
 
     this->localFileBrowser = new QTreeView();
-    this->localFileSystemModel = new QFileSystemModel();
+    this->localFileSystemModel = new FileSystemModel();
     this->localFileSystemModel->setRootPath(QDir::homePath());
     std::cout << "Home dir: " << QDir::homePath().toStdString() << "\n";
     this->localFileBrowser->setModel(this->localFileSystemModel);
     this->localFileBrowser->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    connect(this->localFileSystemModel, SIGNAL(fileDownloadRequested(QStringList, QString)),
+            this, SLOT(fileDownloadRequested(QStringList, QString)));
 
     this->localFileBrowserWidget = new QWidget();
     this->localFileBrowserWidget->setLayout(new QVBoxLayout());
@@ -34,6 +32,8 @@ FileBrowserApplet::FileBrowserApplet()
     this->localFileBrowserWidget->layout()->addWidget(localLabel);
     this->localFileBrowserWidget->layout()->addWidget(this->localFileBrowser);
     this->localFileBrowser->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    this->localFileBrowser->setDragDropMode(QAbstractItemView::DragDrop);
+    this->localFileBrowser->setDropIndicatorShown(true);
 
     this->remoteFileBrowser = new QTreeView(this);
     this->remoteFileSystemModel = new SFTPFilesystemModel();
@@ -45,6 +45,8 @@ FileBrowserApplet::FileBrowserApplet()
     this->remoteFileBrowser->setDropIndicatorShown(true);
     this->remoteFileBrowser->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     connect(this->remoteFileBrowser, SIGNAL(expanded(QModelIndex)), this, SLOT(expanded(QModelIndex)));
+    connect(this->remoteFileSystemModel, SIGNAL(fileUploadRequested(QStringList, QString)),
+            this, SLOT(fileUploadRequested(QStringList, QString)));
 
     QWidget *remoteFileBrowserWidget = new QWidget();
     remoteFileBrowserWidget->setLayout(new QVBoxLayout());
@@ -134,23 +136,28 @@ void FileBrowserApplet::toggleLocalFileBrowser()
     }
 }
 
-void FileBrowserApplet::startDownload()
+void FileBrowserApplet::fileUploadRequested(QStringList files, QString targetPath)
 {
-    auto transferJob = std::make_shared<FileTransferJob>(this->connEntry, FileTransferType::Download, "/tmp");
+    auto transferJob = std::make_shared<FileTransferJob>(this->connEntry, FileTransferType::Upload, targetPath);
     connect(transferJob.get(), SIGNAL(dataChanged(QUuid)), this->fileTransfersApplet, SLOT(jobDataChanged(QUuid)));
-    transferJob->addFileToCopy("/home/ahe/recdir");
-    //transferJob->addFileToCopy("/home/ahe/ubuntu-16.04.1-server-amd64.iso");
+
+    for (const QString &filename : files) {
+        transferJob->addFileToCopy(filename);
+    }
 
     SSHConnectionManager::getInstance().addFileTransferJob(transferJob);
 
     this->fileTransfersApplet->reloadData();
 }
 
-void FileBrowserApplet::startUpload()
+void FileBrowserApplet::fileDownloadRequested(QStringList files, QString targetPath)
 {
-    auto transferJob = std::make_shared<FileTransferJob>(this->connEntry, FileTransferType::Upload, "/tmp");
+    auto transferJob = std::make_shared<FileTransferJob>(this->connEntry, FileTransferType::Download, targetPath);
     connect(transferJob.get(), SIGNAL(dataChanged(QUuid)), this->fileTransfersApplet, SLOT(jobDataChanged(QUuid)));
-    transferJob->addFileToCopy("/home/aheck/recdir2");
+
+    for (const QString &filename : files) {
+        transferJob->addFileToCopy(filename);
+    }
 
     SSHConnectionManager::getInstance().addFileTransferJob(transferJob);
 

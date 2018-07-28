@@ -5,19 +5,19 @@
 #include <memory>
 
 #include <QDir>
-#include <QFileSystemModel>
 #include <QHeaderView>
 #include <QHostInfo>
 #include <QSplitter>
 #include <QTreeView>
 #include <QToolBar>
 
+#include "../Applet.h"
+
+#include "FileSystemModel.h"
 #include "FileTransferJob.h"
 #include "FileTransfersApplet.h"
 #include "SSHConnectionManager.h"
 #include "SFTPFilesystemModel.h"
-
-#include "Applet.h"
 
 class FileBrowserApplet : public Applet
 {
@@ -36,12 +36,14 @@ public:
     // this applet needs to know the FileTransfersApplet
     void setFileTransfersApplet(FileTransfersApplet *applet);
 
+public slots:
+    void fileUploadRequested(QStringList files, QString targetPath);
+    void fileDownloadRequested(QStringList files, QString targetPath);
+
 protected slots:
     void expanded(const QModelIndex &index);
     void reloadData();
     void toggleLocalFileBrowser();
-    void startDownload();
-    void startUpload();
 
 private:
     QAction *showLocalAction;
@@ -50,7 +52,7 @@ private:
     QTreeView *localFileBrowser;
     QTreeView *remoteFileBrowser;
     QLabel *remoteHostnameLabel;
-    QFileSystemModel *localFileSystemModel;
+    FileSystemModel *localFileSystemModel;
     SFTPFilesystemModel *remoteFileSystemModel;
     QToolBar *toolBar;
     QModelIndex lastIndexExpanded;

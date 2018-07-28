@@ -13,6 +13,8 @@ add_executable(sshcommander
     main.cpp
     applets/AWSInfoApplet.cpp
     applets/FileBrowserApplet.cpp
+    applets/FileSystemModel.cpp
+    applets/FileTransfersApplet.cpp
     applets/FileTransfersApplet.cpp
     applets/FileTransfersItemModel.cpp
     applets/NotesEditor.cpp

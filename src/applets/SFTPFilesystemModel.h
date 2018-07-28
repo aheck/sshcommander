@@ -16,6 +16,7 @@
 #include <QFileIconProvider>
 #include <QFileInfo>
 #include <QIcon>
+#include <QMimeData>
 #include <QModelIndex>
 
 #include "SSHConnectionManager.h"
@@ -48,6 +49,15 @@ public:
     void setConnEntry(std::shared_ptr<SSHConnectionEntry> connEntry);
     void sendReloadNotification(const QModelIndex &parent, int numRowsBefore, int numRowsAfter);
     void setShowOnlyDirs(bool showOnlyDirs);
+
+    // drag and drop
+    QMimeData* mimeData(const QModelIndexList &indexes) const override;
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
+    Qt::DropActions supportedDropActions() const override;
+    QStringList mimeTypes() const override;
+
+signals:
+    void fileUploadRequested(QStringList files, QString targetPath);
 
 private:
     void addPathString(QString pathString);

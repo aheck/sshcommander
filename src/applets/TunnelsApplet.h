@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * TunnelsApplet is an applet which allows to user to create and manage SSH
+ * tunnels to the remote machine.
+ *
+ ****************************************************************************/
+
 #ifndef TUNNELSAPPLET_H
 #define TUNNELSAPPLET_H
 

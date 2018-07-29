@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * PortsApplet is an applet which shows all listening TCP ports on the remote
+ * machine and also allows to create SSH tunnels to those services.
+ *
+ ****************************************************************************/
+
 #ifndef PORTSAPPLET_H
 #define PORTSAPPLET_H
 

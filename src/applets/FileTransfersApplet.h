@@ -1,3 +1,12 @@
+/*****************************************************************************
+ *
+ * FileTransfersApplet is the applet which allows the user to view and
+ * manage all file transfers.
+ *
+ * The file transfers are managed by the singleton SSHConnectionManager.
+ *
+ ****************************************************************************/
+
 #ifndef FILETRANSFERSAPPLET_H
 #define FILETRANSFERSAPPLET_H
 

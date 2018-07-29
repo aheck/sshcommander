@@ -1,3 +1,13 @@
+/*****************************************************************************
+ *
+ * DetachedSessionWidget is the widget which is shown where the ssh terminal
+ * was if the user detaches it.
+ *
+ * It tells the user that this session was detached to its own window and
+ * provides a button to show the window.
+ *
+ ****************************************************************************/
+
 #ifndef DETACHEDSESSIONWIDGET_H
 #define DETACHEDSESSIONWIDGET_H
 

@@ -1,3 +1,9 @@
+/*****************************************************************************
+ *
+ * SubnetDialog is the dialog used to show AWS subnets.
+ *
+ ****************************************************************************/
+
 #ifndef SUBNETDIALOG_H
 #define SUBNETDIALOG_H
 

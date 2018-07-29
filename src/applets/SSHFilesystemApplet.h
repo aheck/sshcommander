@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * SSHFilesystemApplet is an applet which allows to mount directories on a
+ * remote machine via sshfs such that they appear like local directories.
+ *
+ ****************************************************************************/
+
 #ifndef SSHFILESYSTEMAPPLET_H
 #define SSHFILESYSTEMAPPLET_H
 

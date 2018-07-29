@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * NotesEditor is an applet which allows the user to take some notes for an
+ * SSH connection.
+ *
+ ****************************************************************************/
+
 #ifndef NOTESEDITOR_H
 #define NOTESEDITOR_H
 

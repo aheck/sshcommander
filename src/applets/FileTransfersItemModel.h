@@ -1,3 +1,11 @@
+/*****************************************************************************
+ *
+ * FileTransfersItemModel is the model used by FileTransfersApplet to show
+ * a table of all file transfers for the current connection as managed by
+ * SSHConnectionManager.
+ *
+ ****************************************************************************/
+
 #ifndef FILETRANSFERSITEMMODEL_H
 #define FILETRANSFERSITEMMODEL_H
 

@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * SSHFilesystemNewDialog is a dialog used by SSHFilesystemApplet to create
+ * a new sshfs mount.
+ *
+ ****************************************************************************/
+
 #ifndef SSHFILESYSTEMNEWDIALOG_H
 #define SSHFILESYSTEMNEWDIALOG_H
 

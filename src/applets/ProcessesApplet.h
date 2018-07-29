@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * ProcessesApplet is an applet which shows a table of the processes running
+ * on the remote machine.
+ *
+ ****************************************************************************/
+
 #ifndef PROCESSESAPPLET_H
 #define PROCESSESAPPLET_H
 

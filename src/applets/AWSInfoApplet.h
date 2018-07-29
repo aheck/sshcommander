@@ -1,3 +1,11 @@
+/*****************************************************************************
+ *
+ * AWSInfoApplet is an applet which is only loaded if the remote machine is
+ * an AWS instance and it provides the user with AWS specific information to
+ * his machine like instance ID, region, image, subnet and so on.
+ *
+ ****************************************************************************/
+
 #ifndef AWSINFOAPPLET_H
 #define AWSINFOAPPLET_H
 

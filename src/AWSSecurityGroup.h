@@ -1,3 +1,9 @@
+/*****************************************************************************
+ *
+ * AWSSecurityGroup represents a security group in AWS.
+ *
+ ****************************************************************************/
+
 #ifndef AWSSECURITYGROUP_H
 #define AWSSECURITYGROUP_H
 

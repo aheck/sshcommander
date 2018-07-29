@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * MainWindow implements the main window of the UI which holds everything
+ * together.
+ *
+ ****************************************************************************/
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 

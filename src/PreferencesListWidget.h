@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * PreferencesListWidget is the widget used to show the list of clickable
+ * category icons in the preferences dialog.
+ *
+ ****************************************************************************/
+
 #ifndef PREFERENCESLISTWIDGET_H
 #define PREFERENCESLISTWIDGET_H
 

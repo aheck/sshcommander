@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * Util is a collection of generic static methods which can be useful in
+ * different places in the code.
+ *
+ ****************************************************************************/
+
 #ifndef UTIL_H
 #define UTIL_H
 

@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * MachineInfoApplet is the applet which shows OS and hardware information
+ * for the current SSH connection.
+ *
+ ****************************************************************************/
+
 #ifndef MACHINEINFOAPPLET_H
 #define MACHINEINFOAPPLET_H
 

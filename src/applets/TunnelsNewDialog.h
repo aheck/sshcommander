@@ -1,3 +1,9 @@
+/*****************************************************************************
+ *
+ * TunnelsNewDialog is a dialog used by TunnelsApplet to create new tunnels.
+ *
+ ****************************************************************************/
+
 #ifndef TUNNELSNEWDIALOG_H
 #define TUNNELSNEWDIALOG_H
 

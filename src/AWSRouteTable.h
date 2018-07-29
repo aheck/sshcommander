@@ -1,3 +1,9 @@
+/*****************************************************************************
+ *
+ * AWSRouteTable represents a route table in AWS.
+ *
+ ****************************************************************************/
+
 #ifndef AWSROUTETABLE_H
 #define AWSROUTETABLE_H
 

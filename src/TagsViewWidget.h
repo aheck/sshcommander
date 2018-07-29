@@ -1,3 +1,9 @@
+/*****************************************************************************
+ *
+ * TagsViewWidget is the widget used to show AWS tags.
+ *
+ ****************************************************************************/
+
 #ifndef TAGSVIEWWIDGET_H
 #define TAGSVIEWWIDGET_H
 

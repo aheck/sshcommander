@@ -1,3 +1,13 @@
+/*****************************************************************************
+ *
+ * NewDialog is the dialog which is shown when the user wants to create a
+ * new SSH connection.
+ *
+ * If the connection is created successfully it is added to the list on the
+ * left-hand side of the UI.
+ *
+ ****************************************************************************/
+
 #ifndef NEWDIALOG_H
 #define NEWDIALOG_H
 

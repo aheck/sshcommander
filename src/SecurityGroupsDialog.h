@@ -1,3 +1,9 @@
+/*****************************************************************************
+ *
+ * SecurityGroupsDialog is the dialog used to show AWS security groups.
+ *
+ ****************************************************************************/
+
 #ifndef SECURITYGROUPSDIALOG_H
 #define SECURITYGROUPSDIALOG_H
 

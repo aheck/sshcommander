@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * RoutesApplet is an applet showing the routes configured on the remote
+ * machine.
+ *
+ ****************************************************************************/
+
 #ifndef ROUTESAPPLET_H
 #define ROUTESAPPLET_H
 

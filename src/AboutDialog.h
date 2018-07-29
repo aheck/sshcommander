@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * AboutDialog implements the dialog that is shown when you go to
+ * "Help/About" in the program menu.
+ *
+ ****************************************************************************/
+
 #ifndef ABOUTDIALOG_H
 #define ABOUTDIALOG_H
 

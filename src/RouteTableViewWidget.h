@@ -1,3 +1,9 @@
+/*****************************************************************************
+ *
+ * RouteTableViewWidget is the widget used to show AWS route tables.
+ *
+ ****************************************************************************/
+
 #ifndef ROUTETABLEVIEWWIDGET_H
 #define ROUTETABLEVIEWWIDGET_H
 

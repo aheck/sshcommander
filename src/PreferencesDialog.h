@@ -1,3 +1,15 @@
+/*****************************************************************************
+ *
+ * PreferencesDialog is the dialog shown when going to "Edit/Preferences" in
+ * the UI.
+ *
+ * It allows the user to configure the following things:
+ *
+ * - AWS credentials
+ * - Terminal fonts
+ *
+ ****************************************************************************/
+
 #ifndef PREFERENCESDIALOG_H
 #define PREFERENCESDIALOG_H
 

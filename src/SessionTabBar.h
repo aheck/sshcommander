@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * SessionTabBar is a specialization of CustomTabBar which provides a
+ * mechanism to detach a tab by drag and drop.
+ *
+ ****************************************************************************/
+
 #ifndef SESSIONTABBAR_H
 #define SESSIONTABBAR_H
 

@@ -1,3 +1,13 @@
+/*****************************************************************************
+ *
+ * InactiveSessionWidget is the widget which is shown instead of a terminal
+ * if the terminal session is not connected, yet.
+ *
+ * It shows a message informing the user about the current state of this
+ * session and it provides a button to connect the session.
+ *
+ ****************************************************************************/
+
 #ifndef INACTIVESESSIONWIDGET_H
 #define INACTIVESESSIONWIDGET_H
 

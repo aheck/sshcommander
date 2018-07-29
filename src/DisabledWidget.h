@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * DisabledWidget is the widget which is shown on the right-hand side if
+ * the user has not created any SSH connections, yet.
+ *
+ ****************************************************************************/
+
 #ifndef DISABLEDWIDGET_H
 #define DISABLEDWIDGET_H
 

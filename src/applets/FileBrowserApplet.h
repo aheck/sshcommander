@@ -1,3 +1,13 @@
+/*****************************************************************************
+ *
+ * FileBrowserApplet is an SFTP file browser allowing the user to browse the
+ * filesystem of the remote machine.
+ *
+ * It also provides a toggleable local file browser and file transfers can
+ * be started by drag and drop.
+ *
+ ****************************************************************************/
+
 #ifndef FILEBROWSERAPPLET_H
 #define FILEBROWSERAPPLET_H
 

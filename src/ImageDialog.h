@@ -1,3 +1,9 @@
+/*****************************************************************************
+ *
+ * ImageDialog is the dialog used to show details about an AWS image.
+ *
+ ****************************************************************************/
+
 #ifndef IMAGEDIALOG_H
 #define IMAGEDIALOG_H
 

@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * PortsNewTunnelDialog is a dialog used by PortsApplet to create an SSH
+ * tunnel to a remote service.
+ *
+ ****************************************************************************/
+
 #ifndef PORTSNEWTUNNELDIALOG_H
 #define PORTSNEWTUNNELDIALOG_H
 

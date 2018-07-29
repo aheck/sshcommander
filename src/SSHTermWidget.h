@@ -1,3 +1,10 @@
+/*****************************************************************************
+ *
+ * SSHTermWidget is a specialization of QTermWidget which provides automatic
+ * password authentication.
+ *
+ ****************************************************************************/
+
 #ifndef SSHTERMWIDGET_H
 #define SSHTERMWIDGET_H
 

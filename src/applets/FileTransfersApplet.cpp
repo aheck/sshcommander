@@ -19,6 +19,8 @@ FileTransfersApplet::FileTransfersApplet()
     this->layout()->addWidget(this->toolBar);
 
     this->table = new QTableView(this);
+    this->table->setSelectionBehavior(QAbstractItemView::SelectRows);
+    this->table->setSelectionMode(QAbstractItemView::SingleSelection);
     this->model = new FileTransfersItemModel();
     this->table->setModel(this->model);
 

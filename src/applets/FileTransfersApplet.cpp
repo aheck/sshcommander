@@ -88,7 +88,7 @@ void FileTransfersApplet::cancelFileTransfer()
     }
 
     auto job = SSHConnectionManager::getInstance().getFileTransferJob(this->connEntry->getIdentifier(), row);
-    if (job == nullptr) {
+    if (job != nullptr) {
         job->cancelationRequested = true;
     }
 }

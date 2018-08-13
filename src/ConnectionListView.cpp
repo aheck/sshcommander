@@ -6,8 +6,6 @@ ConnectionListView::ConnectionListView()
     this->setSelectionMode(QAbstractItemView::SingleSelection);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     this->setDragEnabled(true);
-    this->setAcceptDrops(true);
-    this->viewport()->setAcceptDrops(true);
     this->setDropIndicatorShown(true);
     this->setDragDropMode(QAbstractItemView::InternalMove);
     this->setDefaultDropAction(Qt::MoveAction);
@@ -108,6 +106,7 @@ void ConnectionListView::dragMoveEvent(QDragMoveEvent *event)
 {
     event->setDropAction(Qt::MoveAction);
     event->accept();
+    QListView::dragMoveEvent(event);
 }
 
 void ConnectionListView::dropEvent(QDropEvent *event)

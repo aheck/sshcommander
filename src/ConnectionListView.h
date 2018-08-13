@@ -16,6 +16,7 @@
 
 #include <QHelpEvent>
 #include <QListView>
+#include <QMimeData>
 #include <QToolTip>
 
 #include "SSHConnectionEntry.h"

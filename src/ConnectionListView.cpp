@@ -104,6 +104,11 @@ void ConnectionListView::dragEnterEvent(QDragEnterEvent *event)
 
 void ConnectionListView::dragMoveEvent(QDragMoveEvent *event)
 {
+    if (!event->mimeData()->hasFormat("application/x-qabstractitemmodeldatalist")) {
+        event->ignore();
+        return;
+    }
+
     event->setDropAction(Qt::MoveAction);
     event->accept();
     QListView::dragMoveEvent(event);
@@ -115,25 +120,34 @@ void ConnectionListView::dropEvent(QDropEvent *event)
     int originRow = this->draggedRow;
     int targetRow = index.row();
 
+    if (event->source() != this) {
+        event->ignore();
+        return;
+    }
+
     // append when targetRow < 0
     if (targetRow < 0) {
         targetRow = this->model()->rowCount() - 1;
     }
 
     if (originRow == targetRow) {
+        event->ignore();
         return;
     }
 
     if (originRow < 0) {
+        event->ignore();
         return;
     }
 
     if (originRow >= this->model()->rowCount() || targetRow >= this->model()->rowCount()) {
+        event->ignore();
         return;
     }
 
     static_cast<SSHConnectionItemModel*>(this->model())->moveConnectionEntry(originRow, targetRow);
 
     this->setCurrentIndex(this->model()->index(targetRow, 0));
+    event->accept();
     emit connectionMoved(originRow, targetRow);
 }

@@ -11,6 +11,7 @@
 #ifndef INACTIVESESSIONWIDGET_H
 #define INACTIVESESSIONWIDGET_H
 
+#include <QHBoxLayout>
 #include <QPushButton>
 #include <QLabel>
 #include <QUuid>

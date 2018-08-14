@@ -12,9 +12,14 @@ InactiveSessionWidget::InactiveSessionWidget(QUuid uuid)
     label->setStyleSheet("QLabel { color : grey; }");
     layout->addWidget(label);
 
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->setAlignment(Qt::AlignHCenter);
     QPushButton *connectButton = new QPushButton(tr("&Connect"));
+    connectButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     QObject::connect(connectButton, SIGNAL(clicked()), this, SLOT(createSessionSlot()));
-    layout->addWidget(connectButton);
+    buttonLayout->addWidget(connectButton);
+
+    layout->addLayout(buttonLayout);
 
     this->uuid = uuid;
     this->setLayout(layout);

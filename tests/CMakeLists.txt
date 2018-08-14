@@ -17,6 +17,7 @@ add_executable(tests main.cpp
     ../src/applets/PortsNewTunnelDialog.cpp
     ../src/applets/ProcessesApplet.cpp
     ../src/applets/ProcessesItemModel.cpp
+    ../src/applets/RemoteFileView.cpp
     ../src/applets/RoutesApplet.cpp
     ../src/applets/RoutesItemModel.cpp
     ../src/applets/SFTPDirectoryDialog.cpp

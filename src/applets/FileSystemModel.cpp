@@ -30,10 +30,21 @@ Qt::ItemFlags FileSystemModel::flags(const QModelIndex &index) const
     return defaultFlags;
 }
 
+bool FileSystemModel::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const
+{
+    if (data == nullptr) {
+        return false;
+    }
+
+    if (data->hasFormat("application/sftp-files")) {
+        return true;
+    }
+
+    return false;
+}
+
 bool FileSystemModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
-    QStringList filenames;
-
     if (action != Qt::CopyAction) {
         return false;
     }
@@ -42,12 +53,12 @@ bool FileSystemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
         return false;
     }
 
-    QString targetDir = this->filePath(parent);
-
-    for (QUrl const& url: data->urls()) {
-        std::cout << url.toString().toStdString() << "\n";
-        filenames.append(url.path());
+    if (!data->hasFormat("application/sftp-files")) {
+        return false;
     }
+
+    QString targetDir = this->filePath(parent);
+    QStringList filenames = QString::fromUtf8(data->data("application/sftp-files")).split("\n");
 
     emit fileDownloadRequested(filenames, targetDir);
 

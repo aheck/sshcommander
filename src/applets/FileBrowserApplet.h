@@ -26,6 +26,7 @@
 #include "FileSystemModel.h"
 #include "FileTransferJob.h"
 #include "FileTransfersApplet.h"
+#include "RemoteFileView.h"
 #include "SSHConnectionManager.h"
 #include "SFTPFilesystemModel.h"
 
@@ -60,7 +61,7 @@ private:
     QSplitter *splitter;
     QWidget *localFileBrowserWidget;
     QTreeView *localFileBrowser;
-    QTreeView *remoteFileBrowser;
+    RemoteFileView *remoteFileBrowser;
     QLabel *remoteHostnameLabel;
     FileSystemModel *localFileSystemModel;
     SFTPFilesystemModel *remoteFileSystemModel;

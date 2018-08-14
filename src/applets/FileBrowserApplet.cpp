@@ -7,7 +7,7 @@ FileBrowserApplet::FileBrowserApplet()
     this->toolBar = new QToolBar();
     this->toolBar->setOrientation(Qt::Vertical);
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
-            "Reload", this, SLOT(reloadData()));
+            tr("Reload remote directory"), this, SLOT(reloadData()));
     this->toolBar->addSeparator();
     this->showLocalAction = this->toolBar->addAction(QIcon(":/images/drive-harddisk.svg"),
             tr("Show Local File Browser"), this, SLOT(toggleLocalFileBrowser()));
@@ -35,7 +35,7 @@ FileBrowserApplet::FileBrowserApplet()
     this->localFileBrowser->setDragDropMode(QAbstractItemView::DragDrop);
     this->localFileBrowser->setDropIndicatorShown(true);
 
-    this->remoteFileBrowser = new QTreeView(this);
+    this->remoteFileBrowser = new RemoteFileView(this);
     this->remoteFileSystemModel = new SFTPFilesystemModel();
     this->remoteFileBrowser->setModel(this->remoteFileSystemModel);
     this->remoteFileBrowser->setAllColumnsShowFocus(true);

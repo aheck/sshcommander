@@ -450,13 +450,14 @@ QStringList SFTPFilesystemModel::mimeTypes() const
 {
     QStringList mimeTypes;
     mimeTypes.append("text/uri-list");
+    //mimeTypes.append("application/sftp-files");
 
     return mimeTypes;
 }
 
 QMimeData* SFTPFilesystemModel::mimeData(const QModelIndexList &indexes) const
 {
-    QList<QUrl> urls;
+    QStringList sftpFiles;
     std::cerr << "mimeData called!!!\n";
     std::cerr << "Num Indexes: " << indexes.count() << "\n";
     QString lastFilename;
@@ -471,21 +472,30 @@ QMimeData* SFTPFilesystemModel::mimeData(const QModelIndexList &indexes) const
             continue;
         }
 
-        urls.append(QUrl("file://" + *path));
+        sftpFiles.append(*path);
         lastFilename = *path;
-        std::cerr << "Remote file: " << path->toStdString() << "\n";
     }
 
     QMimeData *data = new QMimeData();
-    data->setUrls(urls);
-    std::cerr << "Num Urls: " << urls.count() << "\n";
+    std::cerr << "Num sftp files: " << sftpFiles.count() << "\n";
+    data->setData("application/sftp-files", sftpFiles.join("\n").toUtf8());
 
     return data;
+}
+
+bool SFTPFilesystemModel::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const
+{
+    if (data->hasFormat("text/uri-list")) {
+        return true;
+    }
+
+    return false;
 }
 
 bool SFTPFilesystemModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
     QStringList filenames;
+    std::cerr << "row: " << row << " column: " << column <<  "\n";
 
     if (action != Qt::CopyAction) {
         return false;

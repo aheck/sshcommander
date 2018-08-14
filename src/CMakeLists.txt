@@ -24,6 +24,7 @@ add_executable(sshcommander
     applets/PortsNewTunnelDialog.cpp
     applets/ProcessesApplet.cpp
     applets/ProcessesItemModel.cpp
+    applets/RemoteFileView.cpp
     applets/RoutesApplet.cpp
     applets/RoutesItemModel.cpp
     applets/SFTPDirectoryDialog.cpp

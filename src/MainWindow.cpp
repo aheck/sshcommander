@@ -245,8 +245,13 @@ void MainWindow::readSettings()
     QString filename = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("connections.json");
     QFile file(filename);
     if (!file.open(QFile::ReadOnly)) {
+        // on first start the file hasn't been created, yet
+        if (!file.exists(filename)) {
+            return;
+        }
+
         QMessageBox msgBox;
-        msgBox.setText("Can't load settings. Failed to open " + filename);
+        msgBox.setText("Can't load settings. Failed to open '" + filename + "' although the file exists.");
         msgBox.setIcon(QMessageBox::Critical);
         msgBox.exec();
         return;

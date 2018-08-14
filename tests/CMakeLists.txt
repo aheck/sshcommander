@@ -51,6 +51,7 @@ add_executable(tests main.cpp
     ../src/DetachedTerminalWindow.cpp
     ../src/DisabledWidget.cpp
     ../src/DirEntry.cpp
+    ../src/ExternalProgramFinder.cpp
     ../src/FileTransferJob.cpp
     ../src/FileTransferWorker.cpp
     ../src/ImageDialog.cpp

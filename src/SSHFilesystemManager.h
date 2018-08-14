@@ -28,6 +28,7 @@
 #include <QStandardPaths>
 #include <QString>
 
+#include "ExternalProgramFinder.h"
 #include "SSHConnectionEntry.h"
 
 

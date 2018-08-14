@@ -58,6 +58,7 @@ add_executable(sshcommander
     DetachedTerminalWindow.cpp
     DisabledWidget.cpp
     DirEntry.cpp
+    ExternalProgramFinder.cpp
     FileTransferJob.cpp
     FileTransferWorker.cpp
     ImageDialog.cpp

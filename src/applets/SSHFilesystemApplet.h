@@ -23,7 +23,9 @@
 #include "SSHFilesystemItemModel.h"
 #include "SSHFilesystemNewDialog.h"
 
-#include "Applet.h"
+#include "../Applet.h"
+#include "../ExternalProgramFinder.h"
+#include "../DisabledWidget.h"
 
 class SSHFilesystemApplet : public Applet
 {
@@ -56,6 +58,7 @@ protected:
     int getSelectedRow();
 
 private:
+    bool sshfsNotInstalled;
     SSHFilesystemNewDialog *newDialog;
     QToolBar *toolBar;
     QAction *openAction;

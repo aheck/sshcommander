@@ -21,9 +21,11 @@ public:
     DisabledWidget(QString text);
 
     void setText(QString text);
+    void setDescription(QString description);
 
 private:
     QLabel *disabledLabel;
+    QLabel *descriptionLabel;
 };
 
 #endif

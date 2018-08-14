@@ -2,7 +2,21 @@
 
 SSHFilesystemApplet::SSHFilesystemApplet()
 {
+    this->sshfsNotInstalled = false;
     this->firstShow = true;
+
+    this->setLayout(new QHBoxLayout());
+    this->layout()->setContentsMargins(0, 0, 0, 0);
+
+    // check if sshfs is installed
+    QString sshfsPath = ExternalProgramFinder::getSSHFSPath();
+    if (sshfsPath.isEmpty()) {
+        this->sshfsNotInstalled = true;
+        DisabledWidget *disabledWidget = new DisabledWidget("sshfs is not installed on your machine");
+        disabledWidget->setDescription("Install sshfs and restart SSH Commander to use this feature");
+        this->layout()->addWidget(disabledWidget);
+        return;
+    }
 
     this->newDialog = new SSHFilesystemNewDialog(this);
     connect(this->newDialog, SIGNAL(accepted()), this, SLOT(createNewMountEntry()));
@@ -27,8 +41,6 @@ SSHFilesystemApplet::SSHFilesystemApplet()
             "Delete Mount", this, SLOT(removeMountEntry()));
     this->deleteAction->setEnabled(false);
 
-    this->setLayout(new QHBoxLayout());
-    this->layout()->setContentsMargins(0, 0, 0, 0);
     this->layout()->addWidget(this->toolBar);
 
     this->table = new QTableView(this);
@@ -63,6 +75,11 @@ QIcon SSHFilesystemApplet::getIcon()
 void SSHFilesystemApplet::init(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
     Applet::init(connEntry);
+
+    if (this->sshfsNotInstalled) {
+        return;
+    }
+
     this->newDialog->setConnEntry(connEntry);
 
     this->model->setConnectionStrings(this->connEntry->username, this->connEntry->hostname);
@@ -70,6 +87,10 @@ void SSHFilesystemApplet::init(std::shared_ptr<SSHConnectionEntry> connEntry)
 
 void SSHFilesystemApplet::onShow()
 {
+    if (this->sshfsNotInstalled) {
+        return;
+    }
+
     this->reloadData();
 
     if (!this->firstShow) {

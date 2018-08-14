@@ -35,7 +35,7 @@ void SSHFSMountEntry::mount(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
     const QStringList args = connEntry->generateSSHFSArgs(localDir, remoteDir);
     SSHTermWidget *termWidget = new SSHTermWidget(&args, connEntry, 0);
-    termWidget->setShellProgram("/usr/bin/sshfs");
+    termWidget->setShellProgram(ExternalProgramFinder::getSSHFSPath());
     termWidget->startShellProgram();
     this->termWidget = termWidget;
 

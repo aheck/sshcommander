@@ -56,3 +56,10 @@ void SSHTermWidget::dataReceived(const QString &text)
                 this, SLOT(dataReceived(QString)));
     }
 }
+
+void SSHTermWidget::updateConsoleSettings(const QFont &font, const QString &colorScheme)
+{
+    this->setTerminalFont(font);
+    this->setColorScheme(colorScheme);
+    this->update();
+}

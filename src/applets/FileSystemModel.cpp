@@ -32,10 +32,6 @@ Qt::ItemFlags FileSystemModel::flags(const QModelIndex &index) const
 
 bool FileSystemModel::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const
 {
-    if (data == nullptr) {
-        return false;
-    }
-
     if (data->hasFormat("application/sftp-files")) {
         return true;
     }

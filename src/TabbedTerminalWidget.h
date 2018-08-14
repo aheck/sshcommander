@@ -58,6 +58,7 @@ public slots:
     void detachTab(int index);
     void reattachTab(QUuid uuid);
     void showDetachedWindow(QUuid uuid);
+    void updateConsoleSettings(const QFont &font, const QString &colorScheme);
 
 private slots:
     void closeTab(int tabIndex);
@@ -68,6 +69,7 @@ private:
 
 signals:
     void terminalAttachmentChanged();
+    void consoleSettingsUpdated(const QFont &font, const QString &colorScheme);
 };
 
 #endif

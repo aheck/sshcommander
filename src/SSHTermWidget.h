@@ -26,6 +26,7 @@ public:
 
 public slots:
     void dataReceived(const QString &text);
+    void updateConsoleSettings(const QFont &font, const QString &colorScheme);
 
 private:
     int passwordLineCounter;

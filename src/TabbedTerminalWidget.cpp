@@ -40,6 +40,7 @@ void TabbedTerminalWidget::addTerminalSession()
 
     QStringList args = connEntry->generateCliArgs();
     SSHTermWidget *console = new SSHTermWidget(&args, this->connEntryWeak, this);
+    connect(this, SIGNAL(consoleSettingsUpdated(QFont, QString)), console, SLOT(updateConsoleSettings(QFont, QString)));
 
     TerminalContainer *container = new TerminalContainer(terminalSession->uuid);
     container->setWidget(console);
@@ -102,6 +103,7 @@ void TabbedTerminalWidget::startInactiveSession(QUuid uuid)
 
     QStringList args = connEntry->generateCliArgs();
     SSHTermWidget *console = new SSHTermWidget(&args, this->connEntryWeak, this);
+    connect(this, SIGNAL(consoleSettingsUpdated(QFont, QString)), console, SLOT(updateConsoleSettings(QFont, QString)));
 
     if (!terminalEntry->detached) {
         oldWidget = container->getWidget();
@@ -242,4 +244,9 @@ void TabbedTerminalWidget::showDetachedWindow(QUuid uuid)
 
     terminalEntry->window->raise();
     terminalEntry->window->activateWindow();
+}
+
+void TabbedTerminalWidget::updateConsoleSettings(const QFont &font, const QString &colorScheme)
+{
+    emit consoleSettingsUpdated(font, colorScheme);
 }

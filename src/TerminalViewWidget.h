@@ -47,7 +47,7 @@ public:
     void setLastConnection();
     void setDisabledPageEnabled(bool enabled);
     void setFocusOnCurrentTerminal();
-    void updateConsoleSettings(const QFont &font, const QString colorScheme);
+    void updateConsoleSettings(const QFont &font, const QString &colorScheme);
     void showEvent(QShowEvent *event) override;
 
 signals:

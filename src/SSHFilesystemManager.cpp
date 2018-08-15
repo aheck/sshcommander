@@ -141,7 +141,7 @@ bool SSHFilesystemManager::saveToJson()
 
     jsonDoc.setObject(jsonObject);
 
-    QDir jsonDir = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+    QDir jsonDir = QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation));
 
     if (!jsonDir.exists()) {
         if (!jsonDir.mkpath(jsonDir.path())) {
@@ -179,7 +179,7 @@ bool SSHFilesystemManager::saveToJson()
 
 bool SSHFilesystemManager::restoreFromJson()
 {
-    QString filename = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("mounts.json");
+    QString filename = QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)).filePath("mounts.json");
     QFile file(filename);
     if (!file.open(QFile::ReadOnly)) {
         QMessageBox msgBox;

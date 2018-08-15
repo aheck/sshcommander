@@ -87,7 +87,7 @@ bool TunnelManager::saveToJson()
 
     jsonDoc.setObject(jsonObject);
 
-    QDir jsonDir = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+    QDir jsonDir = QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation));
 
     if (!jsonDir.exists()) {
         if (!jsonDir.mkpath(jsonDir.path())) {
@@ -125,7 +125,7 @@ bool TunnelManager::saveToJson()
 
 bool TunnelManager::restoreFromJson()
 {
-    QString filename = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("tunnels.json");
+    QString filename = QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)).filePath("tunnels.json");
     QFile file(filename);
     if (!file.open(QFile::ReadOnly)) {
         QMessageBox msgBox;

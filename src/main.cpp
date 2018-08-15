@@ -1,4 +1,7 @@
 #include <QApplication>
+#include <QDir>
+#include <QFile>
+#include <QLockFile>
 
 #include "MainWindow.h"
 #include "globals.h"
@@ -7,6 +10,27 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     app.setApplicationDisplayName(PROGRAM_NAME);
+
+    // application-wide settings for QSettings
+    QCoreApplication::setOrganizationName("aheck");
+    QCoreApplication::setOrganizationDomain("github.com/aheck");
+    QCoreApplication::setApplicationName("SSH Commander");
+
+    QLockFile lockFile(QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)).filePath("appRunning.lock"));
+    QFile notifyFile(QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)).filePath("appNotify"));
+
+    if (!lockFile.tryLock(100)) {
+        // signal other instance of SSH Commander to bring the MainWindow to the
+        // foreground
+        notifyFile.open(QIODevice::WriteOnly);
+        notifyFile.close();
+
+        return 1;
+    }
+
+    // initially create the notify file on normal startup
+    notifyFile.open(QIODevice::WriteOnly);
+    notifyFile.close();
 
     // style sheets
     app.setStyleSheet(
@@ -20,11 +44,6 @@ int main(int argc, char *argv[])
             "QGroupBox {border: 1px solid grey; margin-top: 0.5em; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 0.5, stop: 0 #f4f4f4, stop: 1 #fafafa);}"
             "QGroupBox::title {subcontrol-origin: margin; subcontrol-position: top left; padding: 0 3px; border: 1px solid grey;}"
     );
-
-    // application-wide settings for QSettings
-    QCoreApplication::setOrganizationName("aheck");
-    QCoreApplication::setOrganizationDomain("github.com/aheck");
-    QCoreApplication::setApplicationName("SSH Commander");
 
     MainWindow mainWindow;
     QObject::connect(&app, SIGNAL(aboutToQuit()), &mainWindow, SLOT(aboutToQuit()));

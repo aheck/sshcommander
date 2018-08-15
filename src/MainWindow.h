@@ -13,6 +13,7 @@
 #include <QApplication>
 #include <QDesktopServices>
 #include <QFileInfo>
+#include <QFileSystemWatcher>
 #include <QIcon>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -75,6 +76,7 @@ public slots:
     void showNewDialog();
     void connectionRemoved(std::shared_ptr<SSHConnectionEntry> connEntry);
     void toggleEnlargeWidget();
+    void bringToForeground();
 
 private slots:
     void toggleAwsConsole(bool show);
@@ -118,6 +120,12 @@ private:
     // we remove terminalView from and add it again to this container when
     // toggling enlarged view
     QWidget *terminalViewContainer;
+
+    // We use a QFileSystemWatcher to watch for changes of the notifyFile
+    // which is touched in main.cpp when the program determines on startup
+    // that another instance is already running. If the file is touched
+    // we bring the MainWindow to the foreground.
+    QFileSystemWatcher fileWatcher;
 };
 
 #endif

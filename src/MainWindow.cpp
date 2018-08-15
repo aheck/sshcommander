@@ -5,6 +5,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     this->setWindowIcon(QIcon(":/images/utilities-terminal.svg"));
 
+    this->fileWatcher.addPath(QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)).filePath("appNotify"));
+    connect(&this->fileWatcher, SIGNAL(fileChanged(QString)), this, SLOT(bringToForeground()));
+
     this->viewEnlarged = false;
     this->awsConsoleDetached = false;
 
@@ -242,7 +245,8 @@ void MainWindow::readSettings()
     this->awsWidget->setRegion(settings.value("selectedAwsRegion", AWSConnector::LOCATION_US_EAST_1).toString());
     settings.endGroup();
 
-    QString filename = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)).filePath("connections.json");
+    QString filename = QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)).filePath("connections.json");
+    std::cerr << "Filename: " << filename.toStdString() << "\n";
     QFile file(filename);
     if (!file.open(QFile::ReadOnly)) {
         // on first start the file hasn't been created, yet
@@ -322,7 +326,7 @@ void MainWindow::saveSettings()
     jsonObject["connections"] = connArray;
     jsonDoc.setObject(jsonObject);
 
-    QDir jsonDir = QDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
+    QDir jsonDir = QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation));
 
     if (!jsonDir.exists()) {
         if (!jsonDir.mkpath(jsonDir.path())) {
@@ -506,4 +510,11 @@ void MainWindow::toggleDetachAwsConsole(bool detach)
         this->connectionList->enableAWSConsoleButton();
         this->connectionList->setAWSConsoleButton();
     }
+}
+
+void MainWindow::bringToForeground()
+{
+    this->show();
+    this->raise();
+    this->activateWindow();
 }

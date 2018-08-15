@@ -80,6 +80,7 @@ add_executable(sshcommander
     SSHConnectionManager.cpp
     SSHFilesystemManager.cpp
     SSHTermWidget.cpp
+    SvgWidget.cpp
     SubnetDialog.cpp
     TabbedTerminalWidget.cpp
     TerminalContainer.cpp
@@ -93,11 +94,11 @@ add_executable(sshcommander
 )
 
 if(STATIC_BUILD)
-    target_link_libraries(sshcommander ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES}
-        -ldl libqtermwidget5.a libssh2.a libz.a libcrypt.a libcrypto.a libssl.a)
+    target_link_libraries(sshcommander ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES} 
+        ${Qt5Svg_LIBRARIES} -ldl libqtermwidget5.a libssh2.a libz.a libcrypt.a libcrypto.a libssl.a)
 else()
     target_link_libraries(sshcommander ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES}
-        ${QTERMWIDGET_LIBRARIES} ${LIBSSH2_LIBRARIES})
+        ${Qt5Svg_LIBRARIES} ${QTERMWIDGET_LIBRARIES} ${LIBSSH2_LIBRARIES})
 endif()
 
 add_dependencies(sshcommander update_git_commit_id)

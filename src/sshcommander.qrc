@@ -33,5 +33,7 @@
     <file>images/go-top.svg</file>
     <file>images/go-next.svg</file>
     <file>images/applications-system.svg</file>
+    <file>images/network-server.svg</file>
+    <file>images/tunnel-arrow.svg</file>
 </qresource>
 </RCC>

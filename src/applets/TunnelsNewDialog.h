@@ -10,13 +10,16 @@
 #include <memory>
 
 #include <QDialog>
-#include <QFormLayout>
+#include <QGridLayout>
+#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QMessageBox>
+#include <QSpinBox>
 #include <QToolButton>
 
-#include "TunnelManager.h"
+#include "../SvgWidget.h"
+#include "../TunnelManager.h"
 
 class TunnelsNewDialog : public QDialog
 {
@@ -36,9 +39,8 @@ public slots:
 private:
     int localPort;
     int remotePort;
-    QFormLayout *formLayout;
-    QLineEdit *localPortLineEdit;
-    QLineEdit *remotePortLineEdit;
+    QSpinBox *localPortLineEdit;
+    QSpinBox *remotePortLineEdit;
     QLineEdit *shortDescriptionLineEdit;
 };
 

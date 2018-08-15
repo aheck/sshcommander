@@ -8,6 +8,7 @@ set(CMAKE_CXX_FLAGS "-O0 -ggdb -std=c++14 -Wall -pthread")
 
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Network REQUIRED)
+find_package(Qt5Svg REQUIRED)
 find_package(qtermwidget5 REQUIRED)
 find_package(Qt5Test REQUIRED)
 
@@ -19,7 +20,8 @@ include_directories(
     ${LIBSSH2_INCLUDEDIR}
     ${Qt5Core_INCLUDE_DIRS}
     ${Qt5Widgets_INCLUDE_DIRS}
-    ${Qt5Network_INCLUDE_DIRS})
+    ${Qt5Network_INCLUDE_DIRS}
+    ${Qt5Svg_INCLUDE_DIRS})
 
 link_directories("/usr/local/lib")
 

@@ -14,7 +14,6 @@
 #include <QFile>
 #include <QFileSystemWatcher>
 #include <QFormLayout>
-#include <QGridLayout>
 #include <QGroupBox>
 #include <QLabel>
 #include <QScrollArea>

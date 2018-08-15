@@ -73,6 +73,7 @@ add_executable(tests main.cpp
     ../src/SSHConnectionManager.cpp
     ../src/SSHFilesystemManager.cpp
     ../src/SSHTermWidget.cpp
+    ../src/SvgWidget.cpp
     ../src/SubnetDialog.cpp
     ../src/TabbedTerminalWidget.cpp
     ../src/TerminalContainer.cpp
@@ -85,4 +86,4 @@ add_executable(tests main.cpp
 )
 
 target_link_libraries(tests ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES} ${Qt5Test_LIBRARIES}
-    ${QTERMWIDGET_LIBRARIES} ${LIBSSH2_LIBRARIES})
+    ${Qt5Svg_LIBRARIES} ${QTERMWIDGET_LIBRARIES} ${LIBSSH2_LIBRARIES})

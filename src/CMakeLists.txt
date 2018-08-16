@@ -67,6 +67,8 @@ add_executable(sshcommander
     InstanceItemModel.cpp
     MainWindow.cpp
     NewDialog.cpp
+    NotificationManager.cpp
+    NotificationPopup.cpp
     Preferences.cpp
     PreferencesDialog.cpp
     PreferencesListWidget.cpp

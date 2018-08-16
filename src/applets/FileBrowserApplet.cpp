@@ -147,6 +147,7 @@ void FileBrowserApplet::fileUploadRequested(QStringList files, QString targetPat
 
     SSHConnectionManager::getInstance().addFileTransferJob(transferJob);
 
+    NotificationManager::getInstance().addNotification(":/images/document-save.svg", "Upload started");
     this->fileTransfersApplet->reloadData();
 }
 
@@ -161,5 +162,6 @@ void FileBrowserApplet::fileDownloadRequested(QStringList files, QString targetP
 
     SSHConnectionManager::getInstance().addFileTransferJob(transferJob);
 
+    NotificationManager::getInstance().addNotification(":/images/document-save.svg", "Download started");
     this->fileTransfersApplet->reloadData();
 }

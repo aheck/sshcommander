@@ -22,6 +22,7 @@
 #include <QToolBar>
 
 #include "../Applet.h"
+#include "../NotificationManager.h"
 
 #include "FileSystemModel.h"
 #include "FileTransferJob.h"

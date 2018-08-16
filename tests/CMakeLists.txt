@@ -60,6 +60,8 @@ add_executable(tests main.cpp
     ../src/InstanceItemModel.cpp
     ../src/MainWindow.cpp
     ../src/NewDialog.cpp
+    ../src/NotificationManager.cpp
+    ../src/NotificationPopup.cpp
     ../src/Preferences.cpp
     ../src/PreferencesDialog.cpp
     ../src/PreferencesListWidget.cpp

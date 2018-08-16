@@ -50,6 +50,8 @@
 
 #include "globals.h"
 
+#include "NotificationManager.h"
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

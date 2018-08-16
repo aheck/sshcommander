@@ -114,6 +114,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->readSettings();
 
     this->awsWidget->loadData();
+
+    NotificationManager::init(this);
 }
 
 MainWindow::~MainWindow()

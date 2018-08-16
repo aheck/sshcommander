@@ -77,11 +77,7 @@ QVariant FileTransfersItemModel::data(const QModelIndex &index, int role) const
 
             return QVariant("Download");
         case (static_cast<int>(FileTransferColumns::Source)):
-            if (job->getFilesToCopy().length() > 1) {
-                extension = ", ...";
-            }
-
-            return job->getSourceHostname() + ":" + job->getFilesToCopy().first() + extension;
+            return job->getSourceHostname() + ":" + job->getLabel();
         case (static_cast<int>(FileTransferColumns::Destination)):
             return job->getTargetHostname() + ":" + job->getTargetDir();
         case (static_cast<int>(FileTransferColumns::Transferred)):

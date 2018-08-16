@@ -13,7 +13,7 @@ NotificationPopup::NotificationPopup(QWidget *parent)
     this->layout()->addWidget(this->svgWidget);
     this->layout()->addWidget(this->messageLabel);
     this->setMinimumWidth(300);
-    this->setMaximumWidth(300);
+    //this->setMaximumWidth(300);
     this->setMinimumHeight(50);
 }
 

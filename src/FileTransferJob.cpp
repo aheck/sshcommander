@@ -41,7 +41,31 @@ FileTransferState FileTransferJob::getState() const
 void FileTransferJob::setState(FileTransferState state)
 {
     this->state = state;
-    emit dataChanged(this->getUuid());
+    QMetaObject::invokeMethod(this, "emitDataChanged", Qt::QueuedConnection);
+
+    if (this->state == FileTransferState::Failed || this->state == FileTransferState::FailedConnect) {
+        QString icon = ":/images/process-stop.svg";
+        QString message;
+
+        if (this->type == FileTransferType::Upload) {
+            message = "Upload of " + this->getLabel() + " failed";
+        } else {
+            message = "Download of " + this->getLabel() + " failed";
+        }
+
+        QMetaObject::invokeMethod(this, "sendNotification", Qt::QueuedConnection, Q_ARG(QString, icon), Q_ARG(QString, message));
+    } else if (this->state == FileTransferState::Completed) {
+        QString icon = ":/images/green-light.svg";
+        QString message;
+
+        if (this->type == FileTransferType::Upload) {
+            message = "Upload of " + this->getLabel() + " was completed successfully";
+        } else {
+            message = "Download of " + this->getLabel() + " was completed successfully";
+        }
+
+        QMetaObject::invokeMethod(this, "sendNotification", Qt::QueuedConnection, Q_ARG(QString, icon), Q_ARG(QString, message));
+    }
 }
 
 void FileTransferJob::addFileToCopy(QString filename)
@@ -116,7 +140,7 @@ void FileTransferJob::setBytesPerSecond(uint64_t bytesPerSecond)
 {
     this->bytesPerSecond = bytesPerSecond;
 
-    emit dataChanged(this->getUuid());
+    QMetaObject::invokeMethod(this, "emitDataChanged", Qt::QueuedConnection);
 }
 
 uint64_t FileTransferJob::getBytesPerSecond()
@@ -130,4 +154,25 @@ bool FileTransferJob::isDone()
                     || this->state == FileTransferState::Canceled
                     || this->state != FileTransferState::FailedConnect
                     || this->state != FileTransferState::Failed;
+}
+
+void FileTransferJob::sendNotification(QString svgIconPath, QString message)
+{
+    NotificationManager::getInstance().addNotification(svgIconPath, message);
+}
+
+void FileTransferJob::emitDataChanged()
+{
+    emit dataChanged(this->getUuid());
+}
+
+QString FileTransferJob::getLabel()
+{
+    QString label = this->filesToCopy.first();
+
+    if (this->filesToCopy.length() > 1) {
+        label += ", ...";
+    }
+
+    return label;
 }

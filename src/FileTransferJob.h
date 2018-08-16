@@ -19,6 +19,7 @@
 #include <QThread>
 #include <QUuid>
 
+#include "NotificationManager.h"
 #include "SSHConnectionEntry.h"
 
 enum class FileTransferType : unsigned char
@@ -63,6 +64,7 @@ public:
     void setBytesPerSecond(uint64_t bytesPerSecond);
     uint64_t getBytesPerSecond();
     bool isDone();
+    QString getLabel();
 
     std::atomic<bool> cancelationRequested;
     std::atomic<uint64_t> bytesTransferred;
@@ -71,6 +73,10 @@ public:
 
 signals:
     void dataChanged(QUuid uuid);
+
+private slots:
+    void sendNotification(QString svgIconPath, QString message);
+    void emitDataChanged();
 
 private:
     QUuid uuid;

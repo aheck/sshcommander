@@ -79,6 +79,7 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
 {
     LIBSSH2_SESSION *session = NULL;
     struct sockaddr_in sin;
+    struct sockaddr_in6 sin6;
     int sock;
     int retval;
 
@@ -95,19 +96,35 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
 
     std::cout << "Trying to connect to " << address.toString().toStdString() << std::endl;
 
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-    conn->socket_fd = sock;
- 
-    // FIXME: IPv6 support
-    sin.sin_family = AF_INET;
-    sin.sin_port = htons(connEntry->port);
-    sin.sin_addr.s_addr = htonl(address.toIPv4Address());
-    if (::connect(sock, (struct sockaddr*)(&sin),
-                sizeof(struct sockaddr_in)) != 0) {
-        std::cerr << "SSHConnectionManager: Failed to connect to "
-            << hostname.toStdString() << "(" << address.toString().toStdString() << ")" << std::endl;
+    if (address.protocol() == QAbstractSocket::IPv4Protocol) {
+        sock = socket(AF_INET, SOCK_STREAM, 0);
+        sin.sin_family = AF_INET;
+        sin.sin_port = htons(connEntry->port);
+        sin.sin_addr.s_addr = htonl(address.toIPv4Address());
+        if (::connect(sock, (struct sockaddr*)(&sin),
+                    sizeof(struct sockaddr_in)) != 0) {
+            std::cerr << "SSHConnectionManager: Failed to connect to "
+                << hostname.toStdString() << "(" << address.toString().toStdString() << ")" << std::endl;
+            return nullptr;
+        }
+    } else if (address.protocol() == QAbstractSocket::IPv6Protocol) {
+        sock = socket(AF_INET6, SOCK_STREAM, 0);
+        sin6.sin6_family = AF_INET6;
+        sin6.sin6_port = htons(connEntry->port);
+        Q_IPV6ADDR ipv6 = address.toIPv6Address();
+        memcpy(&(sin6.sin6_addr), &ipv6, sizeof(ipv6));
+        if (::connect(sock, (struct sockaddr*)(&sin6),
+                    sizeof(struct sockaddr_in6)) != 0) {
+            std::cerr << "SSHConnectionManager: Failed to connect to "
+                << hostname.toStdString() << "(" << address.toString().toStdString() << ")" << std::endl;
+            return nullptr;
+        }
+    } else {
+        std::cerr << "createSSHConnection: Error, address is neither IPv4 nor IPv6!\n";
         return nullptr;
     }
+
+    conn->socket_fd = sock;
  
     session = libssh2_session_init();
     conn->session = session;

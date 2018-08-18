@@ -35,6 +35,7 @@
 #include <libssh2.h>
 #include <libssh2_sftp.h>
 
+#include <QCoreApplication>
 #include <QHostInfo>
 #include <QMessageBox>
 #include <QMetaObject>
@@ -81,7 +82,8 @@ public:
     std::vector<std::shared_ptr<DirEntry>> readDirectory(std::shared_ptr<SSHConnectionEntry>, QString dir, bool onlyDirs);
     void addFileTransferJob(std::shared_ptr<FileTransferJob> job);
 
-    static int waitsocket(std::shared_ptr<SSHConnection> conn);
+    static int waitsocket(std::shared_ptr<SSHConnection> conn, unsigned int timeoutMs = 2000);
+    static int waitsocketWrapper(std::shared_ptr<SSHConnection> conn, unsigned int timeoutSec = 2);
 
     // access methods for file transfer jobs
     int countFileTransferJobs(QString connectionId);

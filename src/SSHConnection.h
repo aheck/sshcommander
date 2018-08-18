@@ -25,7 +25,11 @@ public:
     SSHConnection();
     ~SSHConnection();
 
+    bool isAlive();
+    void declareDead();
+
 private:
+    bool alive;
     int socket_fd;
     LIBSSH2_SESSION *session;
     LIBSSH2_SFTP *sftp;

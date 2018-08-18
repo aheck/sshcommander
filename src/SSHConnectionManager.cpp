@@ -127,7 +127,6 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
     conn->socket_fd = sock;
  
     session = libssh2_session_init();
-    conn->session = session;
 
     if (!session) {
         return nullptr;
@@ -170,6 +169,9 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
 
     libssh2_session_set_blocking(session, 0);
 
+    conn->session = session;
+    conn->alive = true;
+
     return conn;
 }
 
@@ -185,9 +187,12 @@ std::shared_ptr<RemoteCmdResult> SSHConnectionManager::doExecuteRemoteCmd(std::s
     result->command = cmd;
     result->isSuccess = false;
 
-    while((channel = libssh2_channel_open_session(conn->session)) == NULL &&
+    while ((channel = libssh2_channel_open_session(conn->session)) == NULL &&
            libssh2_session_last_error(conn->session,NULL,NULL,0) == LIBSSH2_ERROR_EAGAIN) {
-        SSHConnectionManager::waitsocket(conn);
+        if (SSHConnectionManager::waitsocketWrapper(conn, 5) == 0) {
+            conn->declareDead();
+            return result;
+        }
     }
 
     if (channel == NULL) {
@@ -195,8 +200,12 @@ std::shared_ptr<RemoteCmdResult> SSHConnectionManager::doExecuteRemoteCmd(std::s
         return result;
     }
 
-    while((retval = libssh2_channel_exec(channel, cmd.toLatin1().data())) == LIBSSH2_ERROR_EAGAIN) {
-        SSHConnectionManager::waitsocket(conn);
+    while ((retval = libssh2_channel_exec(channel, cmd.toLatin1().data())) == LIBSSH2_ERROR_EAGAIN) {
+        if (SSHConnectionManager::waitsocketWrapper(conn, 5) == 0) {
+            conn->declareDead();
+            libssh2_channel_free(channel);
+            return result;
+        }
     }
 
     if (retval != 0) {
@@ -224,8 +233,11 @@ std::shared_ptr<RemoteCmdResult> SSHConnectionManager::doExecuteRemoteCmd(std::s
  
         /* this is due to blocking that would occur otherwise so we loop on
            this condition */ 
-        if( retval == LIBSSH2_ERROR_EAGAIN ) {
-            SSHConnectionManager::waitsocket(conn);
+        if(retval == LIBSSH2_ERROR_EAGAIN) {
+            if (SSHConnectionManager::waitsocketWrapper(conn, 5) == 0) {
+                conn->declareDead();
+                break;
+            }
         } else {
             break;
         }
@@ -260,6 +272,14 @@ std::shared_ptr<RemoteCmdResult> SSHConnectionManager::doExecuteRemoteCmd(std::s
 std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::readDirectory(std::shared_ptr<SSHConnectionEntry> connEntry, QString dir, bool onlyDirs)
 {
     connEntry->connectionMutex.lock();
+    if (connEntry->connection == nullptr) {
+        connEntry->connection = this->createSSHConnection(connEntry);
+    }
+
+    if (!connEntry->connection->isAlive()) {
+        connEntry->connection = this->createSSHConnection(connEntry);
+    }
+
     auto entries = this->doReadDirectory(connEntry->connection, dir, onlyDirs);
     connEntry->connectionMutex.unlock();
 
@@ -297,7 +317,6 @@ std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std
     LIBSSH2_SFTP_HANDLE *sftp_handle;
     std::vector<std::shared_ptr<DirEntry>> entries;
 
-    // FIXME: Try to create connection if conn == nullptr
     if (conn == nullptr) {
         return entries;
     }
@@ -305,7 +324,10 @@ std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std
     if (conn->sftp == nullptr) {
         while ((conn->sftp = libssh2_sftp_init(conn->session)) == nullptr &&
                 libssh2_session_last_error(conn->session,NULL,NULL,0) == LIBSSH2_ERROR_EAGAIN)  {
-            SSHConnectionManager::waitsocket(conn);
+            if (SSHConnectionManager::waitsocketWrapper(conn, 5) == 0) {
+                conn->declareDead();
+                return entries;
+            }
         }
 
         if (conn->sftp == nullptr) {
@@ -316,7 +338,10 @@ std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std
 
     while ((sftp_handle = libssh2_sftp_opendir(conn->sftp, dir.toLatin1().data())) == nullptr &&
             libssh2_session_last_error(conn->session,NULL,NULL,0) == LIBSSH2_ERROR_EAGAIN) {
-        waitsocket(conn);
+        if (SSHConnectionManager::waitsocketWrapper(conn, 5) == 0) {
+            conn->declareDead();
+            return entries;
+        }
     }
 
     if (sftp_handle == nullptr) {
@@ -335,6 +360,12 @@ std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std
             std::cerr << "Waiting for socket..\n";
             libssh2_session_set_last_error(conn->session, LIBSSH2_ERROR_NONE, "");
             SSHConnectionManager::waitsocket(conn);
+            if (SSHConnectionManager::waitsocketWrapper(conn, 5) == 0) {
+                conn->declareDead();
+                // break out of enclosing loops
+                rc = 0;
+                break;
+            }
         }
 
         if (rc > 0) {
@@ -397,7 +428,7 @@ uint64_t SSHConnectionManager::generateRequestId()
     return result;
 }
 
-int SSHConnectionManager::waitsocket(std::shared_ptr<SSHConnection> conn)
+int SSHConnectionManager::waitsocket(std::shared_ptr<SSHConnection> conn, unsigned int timeoutMs)
 {
     struct timeval timeout;
     int retval;
@@ -406,8 +437,8 @@ int SSHConnectionManager::waitsocket(std::shared_ptr<SSHConnection> conn)
     fd_set *readfd = NULL;
     int dir;
  
-    timeout.tv_sec = 2;
-    timeout.tv_usec = 0;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = timeoutMs * 1000;
  
     FD_ZERO(&fd);
  
@@ -426,6 +457,27 @@ int SSHConnectionManager::waitsocket(std::shared_ptr<SSHConnection> conn)
     retval = select(conn->socket_fd + 1, readfd, writefd, NULL, &timeout);
  
     return retval;
+}
+
+int SSHConnectionManager::waitsocketWrapper(std::shared_ptr<SSHConnection> conn, unsigned int timeoutSec)
+{
+    int i = 0;
+    unsigned int waitTimeout = 100;
+
+    while ((waitTimeout * i) < (timeoutSec * 1000)) {
+        int waitStatus = SSHConnectionManager::waitsocket(conn, waitTimeout);
+
+        if (waitStatus != 0) {
+            return waitStatus;
+        }
+
+        // don't block the event loop
+        QCoreApplication::processEvents();
+
+        i++;
+    }
+
+    return 0; // timeout
 }
 
 int SSHConnectionManager::countFileTransferJobs(QString connectionId)

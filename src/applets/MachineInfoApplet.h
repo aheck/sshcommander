@@ -67,6 +67,7 @@ private:
     QLabel *valueKnownHostsEntryExists;
     QPushButton *removeHostButton;
     bool firstShow;
+    bool dataLoaded;
     QString knownHostsFilePath;
     QFileSystemWatcher fileWatcher;
 };

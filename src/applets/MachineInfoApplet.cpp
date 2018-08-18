@@ -3,6 +3,7 @@
 MachineInfoApplet::MachineInfoApplet()
 {
     this->firstShow = true;
+    this->dataLoaded = false;
     connect(&this->fileWatcher, SIGNAL(fileChanged(QString)), this, SLOT(updateKnownHostsData()));
 
     this->page = new QWidget();
@@ -124,7 +125,7 @@ void MachineInfoApplet::onShow()
 {
     this->updateKnownHostsData();
 
-    if (!this->firstShow) {
+    if (!this->firstShow && this->dataLoaded) {
         return;
     }
 
@@ -241,6 +242,8 @@ void MachineInfoApplet::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdRe
 
         this->valueCpu->setText(cpu);
     }
+
+    this->dataLoaded = true;
 }
 
 QString MachineInfoApplet::getKnownHostsFilePath()

@@ -155,7 +155,11 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
             return nullptr;
         }
     } else {
-        QByteArray privateCertPath = connEntry->sshkey.toLatin1();
+        QString sshkey = connEntry->sshkey;
+        if (sshkey.isEmpty()) {
+            sshkey = QDir(QDir::home().filePath(".ssh")).filePath("id_rsa");
+        }
+        QByteArray privateCertPath = sshkey.toLatin1();
         while ((retval = libssh2_userauth_publickey_fromfile(session, username,
                         NULL, privateCertPath.data(), "")) == LIBSSH2_ERROR_EAGAIN);
         if (retval) {

@@ -88,6 +88,7 @@ public:
     // access methods for file transfer jobs
     int countFileTransferJobs(QString connectionId);
     std::shared_ptr<FileTransferJob> getFileTransferJob(QString connectionId, int row);
+    bool restartFileTransferJob(QString connectionId, int row);
     bool removeFileTransferJob(QString connectionId, int row);
     int getFileTransferJobRowByUuid(QString connectionId, QUuid uuid);
 

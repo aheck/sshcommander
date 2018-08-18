@@ -294,6 +294,18 @@ void SSHConnectionManager::addFileTransferJob(std::shared_ptr<FileTransferJob> j
     this->executeFileTransfer(job);
 }
 
+bool SSHConnectionManager::restartFileTransferJob(QString connectionId, int row)
+{
+    std::shared_ptr<FileTransferJob> job = getFileTransferJob(connectionId, row);
+
+    if (!job->isDone()) {
+        return false;
+    }
+
+    this->executeFileTransfer(job);
+    return true;
+}
+
 void SSHConnectionManager::executeFileTransfer(std::shared_ptr<FileTransferJob> job)
 {
     QThread *thread = new QThread();

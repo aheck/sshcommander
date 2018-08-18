@@ -11,6 +11,8 @@ FileTransfersApplet::FileTransfersApplet()
     this->toolBar->addSeparator();
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
             "Cancel File Transfer", this, SLOT(cancelFileTransfer()));
+    this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
+            "Restart File Transfer", this, SLOT(restartFileTransfer()));
     this->toolBar->addAction(QIcon(":/images/process-stop.svg"),
             "Remove File Transfer", this, SLOT(removeFileTransfer()));
 
@@ -91,6 +93,17 @@ void FileTransfersApplet::cancelFileTransfer()
     if (job != nullptr) {
         job->cancelationRequested = true;
     }
+}
+
+void FileTransfersApplet::restartFileTransfer()
+{
+    int row = this->getSelectedRow();
+
+    if (row < 0) {
+        return;
+    }
+
+    SSHConnectionManager::getInstance().restartFileTransferJob(this->connEntry->getIdentifier(), row);
 }
 
 void FileTransfersApplet::removeFileTransfer()

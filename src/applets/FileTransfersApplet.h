@@ -47,6 +47,7 @@ public slots:
     void jobDataChanged(QUuid uuid);
     void reloadData();
     void cancelFileTransfer();
+    void restartFileTransfer();
     void removeFileTransfer();
 
 private:

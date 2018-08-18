@@ -152,8 +152,8 @@ bool FileTransferJob::isDone()
 {
     return this->state == FileTransferState::Completed
                     || this->state == FileTransferState::Canceled
-                    || this->state != FileTransferState::FailedConnect
-                    || this->state != FileTransferState::Failed;
+                    || this->state == FileTransferState::FailedConnect
+                    || this->state == FileTransferState::Failed;
 }
 
 void FileTransferJob::sendNotification(QString svgIconPath, QString message)

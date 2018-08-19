@@ -65,6 +65,7 @@ add_executable(sshcommander
     ImageDialog.cpp
     InactiveSessionWidget.cpp
     InstanceItemModel.cpp
+    KnownHosts.cpp
     MainWindow.cpp
     NewDialog.cpp
     NotificationManager.cpp

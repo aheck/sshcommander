@@ -150,21 +150,20 @@ void MachineInfoApplet::updateData()
 
 void MachineInfoApplet::updateKnownHostsData()
 {
-    this->knownHostsFilePath = this->getKnownHostsFilePath();
     // With QFileSystemWatcher we can only add the path once so calling
     // it with each update makes sure it is always set, even when the
     // known hosts file gets deleted and recreated in the meantime
-    this->fileWatcher.addPath(this->knownHostsFilePath);
+    this->fileWatcher.addPath(KnownHosts::getKnownHostsFilePath());
 
-    this->valueKnownHostsFile->setText(this->knownHostsFilePath);
-    if (QFile::exists(this->knownHostsFilePath)) {
+    this->valueKnownHostsFile->setText(KnownHosts::getKnownHostsFilePath());
+    if (QFile::exists(KnownHosts::getKnownHostsFilePath())) {
         this->valueFileExists->setText(tr("Yes"));
         this->valueFileExists->setStyleSheet("QLabel { font-weight: bold; color: green;}");
     } else {
         this->valueFileExists->setText(tr("No"));
         this->valueFileExists->setStyleSheet("QLabel { font-weight: bold; color: goldenrod;}");
     }
-    if (this->isHostInKnownHostsFile()) {
+    if (KnownHosts::isHostInKnownHostsFile(this->connEntry->hostname)) {
         this->valueKnownHostsEntryExists->setText(tr("Yes"));
         this->valueKnownHostsEntryExists->setStyleSheet("QLabel { font-weight: bold; color: green;}");
         this->removeHostButton->setEnabled(true);
@@ -246,15 +245,6 @@ void MachineInfoApplet::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdRe
     this->dataLoaded = true;
 }
 
-QString MachineInfoApplet::getKnownHostsFilePath()
-{
-    QString path;
-
-    path = QDir::homePath() + "/.ssh/known_hosts";
-
-    return path;
-}
-
 void MachineInfoApplet::removeHostFromKnownHosts()
 {
     QMessageBox::StandardButton reply;
@@ -272,103 +262,15 @@ void MachineInfoApplet::removeHostFromKnownHosts()
         return;
     }
 
-    bool success = this->removeHostFromKnownHostsFile();
+    bool success = KnownHosts::removeHostFromKnownHostsFile(this->connEntry->hostname);
 
     if (!success) {
         QMessageBox msgBox;
         msgBox.setIcon(QMessageBox::Critical);
         msgBox.setText("Failed to remove host '" + this->connEntry->hostname +
-                "' from known hosts file '" + this->knownHostsFilePath + "'");
+                "' from known hosts file '" + KnownHosts::getKnownHostsFilePath() + "'");
         msgBox.exec();
     }
 
     this->updateKnownHostsData();
-}
-
-bool MachineInfoApplet::isHostInKnownHostLine(QString hostname, QString line)
-{
-    QStringList fields = line.split(" ");
-    if (fields.length() < 2) {
-        return false;
-    }
-
-    QString hostField = fields.at(0);
-
-    // SHA1 HMAC hashed hostnames?
-    if (hostField.startsWith("|1|")) {
-        hostField.remove(0, 3); // remove hash marker |1|
-        QStringList hashFields = hostField.split("|");
-        if (hashFields.length() != 2) {
-            return false;
-        }
-
-        QByteArray key = QByteArray::fromBase64(hashFields.at(0).toLatin1());
-        QByteArray hashedHostname = QByteArray::fromBase64(hashFields.at(1).toLatin1());
-
-        QByteArray hostnameHashed = QMessageAuthenticationCode::hash(hostname.toLatin1(), key, QCryptographicHash::Sha1);
-
-        if (hashedHostname == hostnameHashed) {
-            return true;
-        }
-    } else { // plain text hostnames
-        QStringList hostnames = hostField.split(",");
-
-        for (QString curHostname : hostnames) {
-            if (curHostname == hostname) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-bool MachineInfoApplet::isHostInKnownHostsFile()
-{
-    QFile file(this->knownHostsFilePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return false;
-    }
-
-    while (!file.atEnd()) {
-        QByteArray lineBytes = file.readLine();
-        QString line = QString::fromLatin1(lineBytes);
-
-        if (isHostInKnownHostLine(this->connEntry->hostname, line)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool MachineInfoApplet::removeHostFromKnownHostsFile()
-{
-    QStringList linesToWrite;
-
-    QFile file(this->knownHostsFilePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return false;
-    }
-
-    while (!file.atEnd()) {
-        QByteArray lineBytes = file.readLine();
-        QString line = QString::fromLatin1(lineBytes);
-
-        if (!isHostInKnownHostLine(this->connEntry->hostname, line)) {
-            linesToWrite.append(line);
-        }
-    }
-
-    file.close();
-
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        return false;
-    }
-
-    for (QString line : linesToWrite) {
-        file.write(line.toLatin1());
-    }
-
-    return true;
 }

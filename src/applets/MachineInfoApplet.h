@@ -20,9 +20,10 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include "Applet.h"
-#include "SSHConnectionManager.h"
-#include "SSHConnectionEntry.h"
+#include "../Applet.h"
+#include "../KnownHosts.h"
+#include "../SSHConnectionManager.h"
+#include "../SSHConnectionEntry.h"
 
 class MachineInfoApplet : public Applet
 {
@@ -47,11 +48,6 @@ private slots:
     void removeHostFromKnownHosts();
 
 private:
-    QString getKnownHostsFilePath();
-    bool isHostInKnownHostLine(QString hostname, QString line);
-    bool isHostInKnownHostsFile();
-    bool removeHostFromKnownHostsFile();
-
     QWidget *page;
     QLabel *valueHostname;
     QLabel *valueOperatingSystem;
@@ -68,7 +64,6 @@ private:
     QPushButton *removeHostButton;
     bool firstShow;
     bool dataLoaded;
-    QString knownHostsFilePath;
     QFileSystemWatcher fileWatcher;
 };
 

@@ -58,6 +58,7 @@ add_executable(tests main.cpp
     ../src/ImageDialog.cpp
     ../src/InactiveSessionWidget.cpp
     ../src/InstanceItemModel.cpp
+    ../src/KnownHosts.cpp
     ../src/MainWindow.cpp
     ../src/NewDialog.cpp
     ../src/NotificationManager.cpp

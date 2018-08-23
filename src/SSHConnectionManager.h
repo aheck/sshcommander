@@ -46,6 +46,7 @@
 #include "DirEntry.h"
 #include "FileTransferJob.h"
 #include "FileTransferWorker.h"
+#include "KnownHosts.h"
 #include "SSHConnection.h"
 #include "SSHConnectionEntry.h"
 #include "Util.h"
@@ -93,10 +94,14 @@ public:
     int getFileTransferJobRowByUuid(QString connectionId, QUuid uuid);
 
 public slots:
-    // these slots are used by FileTransferWorkers (which run in separate
-    // threads) to communicate with the user by creating message boxes in the
+    // this slot is used by FileTransferWorkers (which run in separate
+    // threads) to communicate with the user by creating a box in the
     // main thread
     void askToOverwriteFile(QString title, QString message, QString infoText);
+
+    // same for known host checking
+    void askToAddKey(QString fingerprint);
+    void askToReplaceKey(QString fingerprint);
 
 private:
     SSHConnectionManager();
@@ -110,6 +115,9 @@ private:
     std::map<QString, std::vector<std::shared_ptr<FileTransferJob>>> fileTransferJobs;
     std::mutex requestIdMutex;
     uint64_t nextRequestId;
+
+    std::atomic<int> addKeyAnswer;
+    std::atomic<int> replaceKeyAnswer;
 };
 
 #endif

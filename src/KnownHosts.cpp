@@ -5,13 +5,13 @@ const QString KnownHosts::getSSHClientConfigFilePath()
     return "/etc/ssh/ssh_config";
 }
 
-bool KnownHosts::isPasswordHashingEnabled()
+bool KnownHosts::isHostnameHashingEnabled()
 {
     QString filePath = KnownHosts::getSSHClientConfigFilePath();
     QFile file(filePath);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "Failed to open file: " << filePath << "\n";
+        qDebug() << "Failed to open file: " << filePath;
         return false;
     }
 
@@ -96,6 +96,40 @@ bool KnownHosts::isHostInKnownHostsFile(QString hostname)
     return false;
 }
 
+bool KnownHosts::addHostToKnownHostsFile(QString hostname, QString keyType, QString key)
+{
+    QString line;
+
+    if (KnownHosts::isHostnameHashingEnabled()) {
+        QString hashedHostname = "|1|";
+
+        //hashKey = ;
+
+        line = hashedHostname + " " + keyType + " " + key;
+    } else {
+        line = hostname + " " + keyType + " " + key;
+    }
+
+    QFile file(QDir::home().filePath(".ssh/known_hosts"));
+    if (!file.exists()) {
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Append)) {
+            return false;
+        }
+    } else {
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Append)) {
+            return false;
+        }
+    }
+
+    QTextStream stream(&file);
+    stream << ("\n");
+    stream << (line);
+
+    file.close();
+
+    return true;
+}
+
 bool KnownHosts::removeHostFromKnownHostsFile(QString hostname)
 {
     QStringList linesToWrite;
@@ -126,4 +160,37 @@ bool KnownHosts::removeHostFromKnownHostsFile(QString hostname)
     }
 
     return true;
+}
+
+bool KnownHosts::replaceHostInKnownHostsFile(QString hostname, QString keyType, QString key)
+{
+    if (KnownHosts::removeHostFromKnownHostsFile(hostname)) {
+        return KnownHosts::addHostToKnownHostsFile(hostname, keyType, key);
+    }
+
+    return false;
+}
+
+KnownHostsCheckResult KnownHosts::checkKey(QString hostname, QString key)
+{
+    QString filePath = KnownHosts::getKnownHostsFilePath();
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return KnownHostsCheckResult::NoMatch;
+    }
+
+    while (!file.atEnd()) {
+        QByteArray lineBytes = file.readLine();
+        QString line = QString::fromLatin1(lineBytes);
+
+        if (isHostInKnownHostLine(hostname, line)) {
+            if (line.endsWith(key)) {
+                return KnownHostsCheckResult::Match;
+            } else {
+                return KnownHostsCheckResult::Mismatch;
+            }
+        }
+    }
+
+    return KnownHostsCheckResult::NoMatch;
 }

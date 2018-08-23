@@ -140,7 +140,85 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
         return nullptr;
     }
 
-    // FIXME: Implement known host checking
+    // Known host checking
+    size_t keyLen = 0;
+    int keyTypeNum = 0;
+    const char *keyBytes = libssh2_session_hostkey(session, &keyLen, &keyTypeNum);
+
+    QString keyType;
+    QString keyBase64;
+    QString fingerprint;
+
+    if (keyBytes != nullptr) {
+        if (keyTypeNum == LIBSSH2_HOSTKEY_TYPE_UNKNOWN) {
+            keyType = "UNKNOWN";
+        } else if (keyTypeNum == LIBSSH2_HOSTKEY_TYPE_RSA) {
+            keyType = "ssh-rsa";
+        } else if (keyTypeNum == LIBSSH2_HOSTKEY_TYPE_DSS) {
+            keyType = "ssh-dss";
+        } else if (keyTypeNum == LIBSSH2_HOSTKEY_TYPE_ECDSA_256) {
+            keyType = "ecdsa-sha2-nistp256";
+        } else if (keyTypeNum == LIBSSH2_HOSTKEY_TYPE_ECDSA_384) {
+            keyType = "ecdsa-sha2-nistp384";
+        } else if (keyTypeNum == LIBSSH2_HOSTKEY_TYPE_ECDSA_521) {
+            keyType = "ecdsa-sha2-nistp521";
+        } else if (keyTypeNum == LIBSSH2_HOSTKEY_TYPE_ED25519) {
+            keyType = "ssh-ed25519";
+        }
+
+        QByteArray keyDataByteArray(keyBytes, keyLen);
+        std::cerr << "\nKey Type: " << keyType.toStdString() << "\n";
+        keyBase64 = keyDataByteArray.toBase64();
+        std::cerr << "Key: " << keyBase64.toStdString() << "\n";
+
+        const char *fingerprintData = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA256);
+        if (fingerprintData == nullptr) {
+            // FIXME
+        }
+        QByteArray fingerprintByteArray(fingerprintData, 32);
+        fingerprint = fingerprintByteArray.toBase64();
+
+        std::cerr << "\nfingerprint: " << fingerprint.toStdString() << "\n\n";
+    }
+
+    KnownHostsCheckResult checkResult = KnownHosts::checkKey(connEntry->hostname, keyBase64);
+    if (checkResult == KnownHostsCheckResult::NoMatch) {
+        // GUI thread?
+        if (QThread::currentThread() == qApp->thread()) {
+            this->askToAddKey(fingerprint);
+        } else {
+            this->addKeyAnswer = -1;
+            QMetaObject::invokeMethod(this, "askToAddKey", Qt::QueuedConnection, Q_ARG(QString, fingerprint));
+
+            while (this->addKeyAnswer == -1) {
+                QThread::msleep(10);
+            }
+        }
+
+        if (this->addKeyAnswer == 1) {
+            //KnownHosts::add(hostname, key);
+        } else {
+            return nullptr;
+        }
+    } else if (checkResult == KnownHostsCheckResult::Mismatch) {
+        // GUI thread?
+        if (QThread::currentThread() == qApp->thread()) {
+            this->askToReplaceKey(fingerprint);
+        } else {
+            this->replaceKeyAnswer = -1;
+            QMetaObject::invokeMethod(this, "askToReplaceKey", Qt::QueuedConnection, Q_ARG(QString, fingerprint));
+
+            while (this->replaceKeyAnswer == -1) {
+                QThread::msleep(10);
+            }
+        }
+
+        if (this->replaceKeyAnswer == 1) {
+            //KnownHosts::replace(hostname, key);
+        } else {
+            return nullptr;
+        }
+    }
 
     QByteArray username = connEntry->username.toLatin1();
     QByteArray password;
@@ -271,17 +349,26 @@ std::shared_ptr<RemoteCmdResult> SSHConnectionManager::doExecuteRemoteCmd(std::s
 
 std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::readDirectory(std::shared_ptr<SSHConnectionEntry> connEntry, QString dir, bool onlyDirs)
 {
-    connEntry->connectionMutex.lock();
+    std::vector<std::shared_ptr<DirEntry>> entries;
+    std::lock_guard<std::mutex> lock(connEntry->connectionMutex);
+
     if (connEntry->connection == nullptr) {
         connEntry->connection = this->createSSHConnection(connEntry);
+    }
+
+    if (connEntry->connection == nullptr) {
+        return entries;
     }
 
     if (!connEntry->connection->isAlive()) {
         connEntry->connection = this->createSSHConnection(connEntry);
     }
 
-    auto entries = this->doReadDirectory(connEntry->connection, dir, onlyDirs);
-    connEntry->connectionMutex.unlock();
+    if (connEntry->connection == nullptr) {
+        return entries;
+    }
+
+    entries = this->doReadDirectory(connEntry->connection, dir, onlyDirs);
 
     return entries;
 }
@@ -555,5 +642,39 @@ void SSHConnectionManager::askToOverwriteFile(QString title, QString message, QS
         worker->setFileOverwriteAnswerAndNotify(FileOverwriteAnswer::YesToAll);
     } else if (ret == QMessageBox::NoToAll) {
         worker->setFileOverwriteAnswerAndNotify(FileOverwriteAnswer::NoToAll);
+    }
+}
+
+void SSHConnectionManager::askToAddKey(QString fingerprint)
+{
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("SSH Host Unknown");
+    msgBox.setText("SSH key unknown. Fingerprint: " + fingerprint +
+            "\n\nAdd this key to your known hosts file and continue?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+    int ret = msgBox.exec();
+
+    if (ret == QMessageBox::Yes) {
+        this->addKeyAnswer = 1;
+    } else {
+        this->addKeyAnswer = 0;
+    }
+}
+
+void SSHConnectionManager::askToReplaceKey(QString fingerprint)
+{
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("SSH Host Key Mismatch");
+    msgBox.setText("New SSH Key Fingerprint: " + fingerprint +
+            "\n\nReplace the old key and continue?");
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+    int ret = msgBox.exec();
+
+    if (ret == QMessageBox::Yes) {
+        this->replaceKeyAnswer = 1;
+    } else {
+        this->replaceKeyAnswer = 0;
     }
 }

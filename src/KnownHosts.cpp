@@ -101,18 +101,27 @@ bool KnownHosts::addHostToKnownHostsFile(QString hostname, QString keyType, QStr
     QString line;
 
     if (KnownHosts::isHostnameHashingEnabled()) {
-        QString hashedHostname = "|1|";
+        QByteArray salt;
+        std::random_device rd;
+        std::uniform_int_distribution<int> dist(0, 255);
 
-        //hashKey = ;
+        for (int i = 0; i < 20; i++) {
+            char randomByte = dist(rd);
+            salt.append(randomByte);
+        }
 
-        line = hashedHostname + " " + keyType + " " + key;
+        QString saltBase64 = salt.toBase64();
+        QByteArray hashedHostname = QMessageAuthenticationCode::hash(hostname.toLatin1(), salt, QCryptographicHash::Sha1);
+
+        line = "|1|" + saltBase64 + "|" + hashedHostname.toBase64() + " " + keyType + " " + key;
     } else {
         line = hostname + " " + keyType + " " + key;
     }
 
     QFile file(QDir::home().filePath(".ssh/known_hosts"));
+
     if (!file.exists()) {
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Append)) {
+        if (!file.open(QIODevice::WriteOnly)) {
             return false;
         }
     } else {
@@ -122,8 +131,8 @@ bool KnownHosts::addHostToKnownHostsFile(QString hostname, QString keyType, QStr
     }
 
     QTextStream stream(&file);
-    stream << ("\n");
     stream << (line);
+    stream << ("\n");
 
     file.close();
 
@@ -182,6 +191,7 @@ KnownHostsCheckResult KnownHosts::checkKey(QString hostname, QString key)
     while (!file.atEnd()) {
         QByteArray lineBytes = file.readLine();
         QString line = QString::fromLatin1(lineBytes);
+        line = line.trimmed();
 
         if (isHostInKnownHostLine(hostname, line)) {
             if (line.endsWith(key)) {

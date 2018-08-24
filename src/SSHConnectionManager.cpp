@@ -167,18 +167,15 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
         }
 
         QByteArray keyDataByteArray(keyBytes, keyLen);
-        std::cerr << "\nKey Type: " << keyType.toStdString() << "\n";
         keyBase64 = keyDataByteArray.toBase64();
-        std::cerr << "Key: " << keyBase64.toStdString() << "\n";
 
         const char *fingerprintData = libssh2_hostkey_hash(session, LIBSSH2_HOSTKEY_HASH_SHA256);
         if (fingerprintData == nullptr) {
-            // FIXME
+            qDebug() << "Failed to retrieve fingerprint data for SSH key of host: " << connEntry->getIdentifier();
+            return nullptr;
         }
         QByteArray fingerprintByteArray(fingerprintData, 32);
         fingerprint = fingerprintByteArray.toBase64();
-
-        std::cerr << "\nfingerprint: " << fingerprint.toStdString() << "\n\n";
     }
 
     KnownHostsCheckResult checkResult = KnownHosts::checkKey(connEntry->hostname, keyBase64);
@@ -196,7 +193,7 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
         }
 
         if (this->addKeyAnswer == 1) {
-            //KnownHosts::add(hostname, key);
+            KnownHosts::addHostToKnownHostsFile(hostname, keyType, keyBase64);
         } else {
             return nullptr;
         }
@@ -214,7 +211,7 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
         }
 
         if (this->replaceKeyAnswer == 1) {
-            //KnownHosts::replace(hostname, key);
+            KnownHosts::replaceHostInKnownHostsFile(hostname, keyType, keyBase64);
         } else {
             return nullptr;
         }

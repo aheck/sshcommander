@@ -7,8 +7,12 @@
 #ifndef KNOWNHOSTS_H
 #define KNOWNHOSTS_H
 
-#include <QDebug>
+#include <iostream>
+#include <random>
+
+#include <QByteArray>
 #include <QCryptographicHash>
+#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QMessageAuthenticationCode>

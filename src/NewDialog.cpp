@@ -42,8 +42,8 @@ NewDialog::NewDialog(bool editDialog)
     this->formLayout = new QFormLayout;
     this->formLayout->addRow(tr("Hostname:"), this->hostnameLineEdit);
     this->formLayout->addRow(tr("Username:"), this->usernameLineEdit);
-    this->formLayout->addRow(tr("Short Description:"), this->shortDescriptionLineEdit);
     this->formLayout->addRow(tr("Password:"), this->passwordLineEdit);
+    this->formLayout->addRow(tr("Short Description:"), this->shortDescriptionLineEdit);
     this->formLayout->addRow(tr("SSH Key:"), fileLayout);
     this->formLayout->addRow(tr("Custom SSH Port:"), this->portCheckBox);
     this->formLayout->addRow(tr("SSH Port:"), this->portLineEdit);

@@ -16,7 +16,13 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("github.com/aheck");
     QCoreApplication::setApplicationName("SSH Commander");
 
-    QLockFile lockFile(QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)).filePath("appRunning.lock"));
+    QDir appConfigPath = QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation));
+    if (!appConfigPath.exists()) {
+        appConfigPath.mkpath(appConfigPath.absolutePath());
+    }
+
+    QString lockFilePath = appConfigPath.filePath("appRunning.lock");
+    QLockFile lockFile(lockFilePath);
     QFile notifyFile(QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)).filePath("appNotify"));
 
     if (!lockFile.tryLock(100)) {

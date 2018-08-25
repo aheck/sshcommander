@@ -40,6 +40,7 @@
 #include <QMessageBox>
 #include <QMetaObject>
 #include <QMetaType>
+#include <QMutex>
 #include <QString>
 #include <QUuid>
 
@@ -93,6 +94,8 @@ public:
     bool removeFileTransferJob(QString connectionId, int row);
     int getFileTransferJobRowByUuid(QString connectionId, QUuid uuid);
 
+    QByteArray getInteractiveAuthPassword();
+
 public slots:
     // this slot is used by FileTransferWorkers (which run in separate
     // threads) to communicate with the user by creating a box in the
@@ -115,6 +118,9 @@ private:
     std::map<QString, std::vector<std::shared_ptr<FileTransferJob>>> fileTransferJobs;
     std::mutex requestIdMutex;
     uint64_t nextRequestId;
+
+    QMutex interactiveAuthMutex;
+    QByteArray interactiveAuthPassword;
 
     std::atomic<int> addKeyAnswer;
     std::atomic<int> replaceKeyAnswer;

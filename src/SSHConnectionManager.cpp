@@ -1,5 +1,20 @@
 #include "SSHConnectionManager.h"
 
+// Callback function to fake interactive-keyboard authentication
+static void kbd_callback(const char *name, int name_len,
+             const char *instruction, int instruction_len, int num_prompts,
+             const LIBSSH2_USERAUTH_KBDINT_PROMPT *prompts,
+             LIBSSH2_USERAUTH_KBDINT_RESPONSE *responses,
+             void **abstract)
+{
+    QByteArray password = SSHConnectionManager::getInstance().getInteractiveAuthPassword();
+
+    for (int i = 0; i < num_prompts; i++) {
+        responses[i].text = strdup(password.data());
+        responses[i].length = password.size();
+    }
+}
+
 SSHConnectionManager& SSHConnectionManager::getInstance()
 {
     static SSHConnectionManager connectionManager;
@@ -218,15 +233,37 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
     }
 
     QByteArray username = connEntry->username.toLatin1();
-    QByteArray password;
 
     if (!connEntry->password.isEmpty()) {
+        QByteArray password;
         password = connEntry->password.toLatin1();
 
-        while ((retval = libssh2_userauth_password(session, username.data(), password.data())) == LIBSSH2_ERROR_EAGAIN);
-        if (retval) {
-            std::cerr << "SSHConnectionManager: Authentication by password failed." << std::endl;
+        char *userauthlist;
+        userauthlist = libssh2_userauth_list(session, username.data(), username.size());
+        if (userauthlist == nullptr) {
+            std::cerr << "SSHConnectionManager: Failed to get list of accepted auth methods from server\n";
             return nullptr;
+        }
+
+        QString authMethods(userauthlist);
+
+        if (authMethods.contains("password", Qt::CaseInsensitive)) {
+            retval = libssh2_userauth_password(session, username.data(), password.data());
+            if (retval != 0) {
+                std::cerr << "SSHConnectionManager: Authentication by password failed.\n";
+                return nullptr;
+            }
+        } else if (authMethods.contains("keyboard-interactive", Qt::CaseInsensitive)) {
+            this->interactiveAuthMutex.lock();
+            this->interactiveAuthPassword = password;
+            retval = libssh2_userauth_keyboard_interactive(session, username.data(), &kbd_callback);
+            if (retval != 0) {
+                std::cerr << "SSHConnectionManager: Authentication by password (fake keyboard-interactive) failed.\n";
+            }
+            this->interactiveAuthMutex.unlock();
+        } else {
+            std::cerr << "SSHConnectionManager: Authentication by password failed. "
+                "Neither password nor keyboard-interactie are supported by host\n";
         }
     } else {
         QString sshkey = connEntry->sshkey;
@@ -234,8 +271,7 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
             sshkey = QDir(QDir::home().filePath(".ssh")).filePath("id_rsa");
         }
         QByteArray privateCertPath = sshkey.toLatin1();
-        while ((retval = libssh2_userauth_publickey_fromfile(session, username,
-                        NULL, privateCertPath.data(), "")) == LIBSSH2_ERROR_EAGAIN);
+        retval = libssh2_userauth_publickey_fromfile(session, username.data(), NULL, privateCertPath.data(), "");
         if (retval) {
             std::cerr << "SSHConnectionManager: Authentication by public key failed" << std::endl;
             return nullptr;
@@ -674,4 +710,9 @@ void SSHConnectionManager::askToReplaceKey(QString fingerprint)
     } else {
         this->replaceKeyAnswer = 0;
     }
+}
+
+QByteArray SSHConnectionManager::getInteractiveAuthPassword()
+{
+    return this->interactiveAuthPassword;
 }

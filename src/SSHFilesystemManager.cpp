@@ -182,10 +182,6 @@ bool SSHFilesystemManager::restoreFromJson()
     QString filename = QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)).filePath("mounts.json");
     QFile file(filename);
     if (!file.open(QFile::ReadOnly)) {
-        QMessageBox msgBox;
-        msgBox.setText("Can't restore SSHFS mounts. Failed to open " + filename);
-        msgBox.setIcon(QMessageBox::Critical);
-        msgBox.exec();
         return false;
     }
 

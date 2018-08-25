@@ -128,10 +128,6 @@ bool TunnelManager::restoreFromJson()
     QString filename = QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)).filePath("tunnels.json");
     QFile file(filename);
     if (!file.open(QFile::ReadOnly)) {
-        QMessageBox msgBox;
-        msgBox.setText("Can't restore SSH tunnels. Failed to open " + filename);
-        msgBox.setIcon(QMessageBox::Critical);
-        msgBox.exec();
         return false;
     }
 

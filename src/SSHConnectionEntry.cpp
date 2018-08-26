@@ -7,6 +7,13 @@ SSHConnectionEntry::SSHConnectionEntry()
     this->tabNames = new QStringList();
     this->isAwsInstance = false;
     this->connection = nullptr;
+
+    this->osType = OSType::Unknown;
+    this->distroType = DistroType::Unknown;
+    this->osMajorVersion = 0;
+    this->osMinorVersion = 0;
+    this->kernelMajorVersion = 0;
+    this->kernelMinorVersion = 0;
 }
 
 SSHConnectionEntry::~SSHConnectionEntry()

@@ -15,7 +15,7 @@
 
 #include "SSHConnectionEntry.h"
 
-struct SSHConnectionEntry;
+class SSHConnectionEntry;
 
 class SSHTermWidget : public QTermWidget
 {

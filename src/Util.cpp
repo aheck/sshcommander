@@ -107,8 +107,8 @@ QString Util::encryptString(const QString &plaintext)
 
     // We don't set a real IV but instead we prepend a garbage IV block to the
     // data which we throw away when decrypting. This ensures that identical
-    // plaintexts encrypt to different cipher texts and it spares us the pain
-    // of having to return and store the IV alongside the cipher text.
+    // plaintexts encrypt to different ciphertexts and it spares us the pain
+    // of having to return and store the IV alongside the ciphertext.
     QByteArray iv = Util::generateRandomBytes(16);
     data.prepend(iv);
 

@@ -185,14 +185,25 @@ void MachineInfoApplet::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdRe
         QString os = cmdResult->resultString.trimmed();
         this->valueOperatingSystem->setText(os);
 
+        // parsing OS string
         if (os.startsWith("Linux ")) {
+            this->connEntry->osType = OSType::Linux;
+        } else if (os.startsWith("FreeBSD ")) {
+            this->connEntry->osType = OSType::FreeBSD;
+        } else if (os.startsWith("OpenBSD ")) {
+            this->connEntry->osType = OSType::OpenBSD;
+        } else if (os.startsWith("NetBSD ")) {
+            this->connEntry->osType = OSType::NetBSD;
+        } else if (os.startsWith("Darwin ")) {
+            this->connEntry->osType = OSType::macOS;
+        }
+
+        if (this->connEntry->osType == OSType::Linux) {
             SSHConnectionManager &connMgr = SSHConnectionManager::getInstance();
 
             connMgr.executeRemoteCmd(this->connEntry, "lsb_release -sd", this, "sshResultReceived");
             connMgr.executeRemoteCmd(this->connEntry, "grep 'model name' /proc/cpuinfo", this, "sshResultReceived");
             connMgr.executeRemoteCmd(this->connEntry, "grep MemTotal: /proc/meminfo", this, "sshResultReceived");
-        } else if (os.startsWith("FreeBSD")) {
-
         }
     } else if (cmdResult->command.startsWith("lsb_release ")) {
         this->valueDistro->setText(cmdResult->resultString.trimmed());

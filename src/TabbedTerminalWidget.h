@@ -28,7 +28,7 @@
 #include "SSHTermWidget.h"
 #include "TerminalContainer.h"
 
-struct SSHConnectionEntry;
+class SSHConnectionEntry;
 
 struct TerminalSessionEntry {
     QUuid uuid;

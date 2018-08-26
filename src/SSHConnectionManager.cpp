@@ -296,6 +296,7 @@ std::shared_ptr<RemoteCmdResult> SSHConnectionManager::doExecuteRemoteCmd(std::s
 
     auto result = std::make_shared<RemoteCmdResult>();
     result->command = cmd;
+    result->commandNotFound = false;
     result->isSuccess = false;
 
     while ((channel = libssh2_channel_open_session(conn->session)) == NULL &&
@@ -354,8 +355,8 @@ std::shared_ptr<RemoteCmdResult> SSHConnectionManager::doExecuteRemoteCmd(std::s
         }
     }
 
-    exitcode = 127;
-    while((retval = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN) {
+    exitcode = 0;
+    while ((retval = libssh2_channel_close(channel)) == LIBSSH2_ERROR_EAGAIN) {
         SSHConnectionManager::waitsocket(conn);
     }
  
@@ -372,9 +373,11 @@ std::shared_ptr<RemoteCmdResult> SSHConnectionManager::doExecuteRemoteCmd(std::s
  
     libssh2_channel_free(channel);
 
-    channel = NULL;
-
-    result->isSuccess = true;
+    if (exitcode == 127) {
+        result->commandNotFound = true;
+    } else {
+        result->isSuccess = true;
+    }
     result->statusCode = exitcode;
 
     return result;

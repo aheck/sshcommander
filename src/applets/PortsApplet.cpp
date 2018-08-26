@@ -62,6 +62,10 @@ void PortsApplet::updateData()
 {
     this->model->clear();
 
+    if (this->connEntry->osType != OSType::Linux) {
+        return;
+    }
+
     SSHConnectionManager &connMgr = SSHConnectionManager::getInstance();
     connMgr.executeRemoteCmd(this->connEntry, "netstat -lntu", this, "sshResultReceived");
 }
@@ -69,7 +73,16 @@ void PortsApplet::updateData()
 void PortsApplet::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult)
 {
     if (!cmdResult->isSuccess) {
-        std::cout << "ERROR: SSH remote command failed: " << cmdResult->errorString.toStdString() << std::endl;
+        if (cmdResult->commandNotFound) {
+            QMessageBox msgBox;
+            msgBox.setText("Failed to execute netstat command. Is package net-tools installed on " +
+                    this->connEntry->hostname + "?");
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.exec();
+            return;
+        }
+
+        std::cerr << "ERROR: SSH remote command failed: " << cmdResult->errorString.toStdString() << "\n";
         return;
     }
 

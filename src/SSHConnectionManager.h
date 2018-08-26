@@ -57,6 +57,7 @@ class RemoteCmdResult
 public:
     uint64_t requestId;
     bool isSuccess;
+    bool commandNotFound;
     QString errorString;
     int statusCode;
     QString command;

@@ -28,6 +28,7 @@ add_executable(tests main.cpp
     ../src/applets/TunnelsApplet.cpp
     ../src/applets/TunnelsItemModel.cpp
     ../src/applets/TunnelsNewDialog.cpp
+    ../src/libs/tinyaes/aes.c
     ../src/AboutDialog.cpp
     ../src/Applet.cpp
     ../src/AppletWidget.cpp

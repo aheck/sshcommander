@@ -35,6 +35,7 @@ add_executable(sshcommander
     applets/TunnelsApplet.cpp
     applets/TunnelsItemModel.cpp
     applets/TunnelsNewDialog.cpp
+    libs/tinyaes/aes.c
     AboutDialog.cpp
     Applet.cpp
     AppletWidget.cpp

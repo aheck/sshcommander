@@ -1,5 +1,8 @@
 #include "Util.h"
 
+#define PASSWORD_KEY "71A0D49A64D2D66F6D097BF78BD496BD1932827BBB454B76E944CC3452C7D099"
+#define PASSWORD_IV "E0A969498F62B7B79D5732622A2D5016"
+
 QString Util::dirname(QString path)
 {
     while (path.endsWith("/") && path != "/") {
@@ -73,4 +76,41 @@ QString Util::formatBytes(uint64_t numBytes)
     }
 
     return QString::number(numBytes) + " bytes";
+}
+
+QString Util::encryptString(const QString &plaintext)
+{
+    AES_ctx ctx;
+    QByteArray aesKey = QByteArray::fromHex(PASSWORD_KEY);
+    QByteArray aesIV = QByteArray::fromHex(PASSWORD_IV);
+    QByteArray data = plaintext.toUtf8();
+
+    // add padding
+    int modulo = data.size() % 16;
+    if (modulo != 0) {
+        int numMissingBytes = 16 - modulo;
+        data.append(numMissingBytes, '\0');
+    }
+
+    AES_init_ctx_iv(&ctx, reinterpret_cast<const uint8_t*>(aesKey.constData()),
+            reinterpret_cast<const uint8_t*>(aesIV.constData()));
+    AES_CBC_encrypt_buffer(&ctx, reinterpret_cast<uint8_t*>(data.data()), data.size());
+
+    return data.toBase64();
+}
+
+QString Util::decryptString(const QString &base64CipherText)
+{
+    AES_ctx ctx;
+    QByteArray aesKey = QByteArray::fromHex(PASSWORD_KEY);
+    QByteArray aesIV = QByteArray::fromHex(PASSWORD_IV);
+
+    QByteArray data = QByteArray::fromBase64(base64CipherText.toLatin1());
+
+    AES_init_ctx_iv(&ctx, reinterpret_cast<const uint8_t*>(aesKey.constData()),
+            reinterpret_cast<const uint8_t*>(aesIV.constData()));
+    AES_CBC_decrypt_buffer(&ctx, reinterpret_cast<uint8_t*>(data.data()), data.size());
+
+    QString plaintext = QString::fromUtf8(data);
+    return plaintext;
 }

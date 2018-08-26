@@ -8,6 +8,8 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <random>
+
 #include <QString>
 #include <QByteArray>
 
@@ -20,6 +22,7 @@ public:
     static QString basename(QString path);
     static double roundBytesUp(double numBytes);
     static QString formatBytes(uint64_t numBytes);
+    static QByteArray generateRandomBytes(unsigned int numBytes);
     static QString encryptString(const QString &password);
     static QString decryptString(const QString &base64CipherText);
 };

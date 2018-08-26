@@ -1,7 +1,6 @@
 #include "Util.h"
 
 #define PASSWORD_KEY "71A0D49A64D2D66F6D097BF78BD496BD1932827BBB454B76E944CC3452C7D099"
-#define PASSWORD_IV "E0A969498F62B7B79D5732622A2D5016"
 
 QString Util::dirname(QString path)
 {
@@ -78,11 +77,25 @@ QString Util::formatBytes(uint64_t numBytes)
     return QString::number(numBytes) + " bytes";
 }
 
+QByteArray Util::generateRandomBytes(unsigned int numBytes)
+{
+    QByteArray bytes;
+
+    std::random_device rd;
+    std::uniform_int_distribution<int> dist(0, 255);
+
+    for (int i = 0; i < numBytes; i++) {
+        char randomByte = dist(rd);
+        bytes.append(randomByte);
+    }
+
+    return bytes;
+}
+
 QString Util::encryptString(const QString &plaintext)
 {
     AES_ctx ctx;
     QByteArray aesKey = QByteArray::fromHex(PASSWORD_KEY);
-    QByteArray aesIV = QByteArray::fromHex(PASSWORD_IV);
     QByteArray data = plaintext.toUtf8();
 
     // add padding
@@ -92,8 +105,14 @@ QString Util::encryptString(const QString &plaintext)
         data.append(numMissingBytes, '\0');
     }
 
-    AES_init_ctx_iv(&ctx, reinterpret_cast<const uint8_t*>(aesKey.constData()),
-            reinterpret_cast<const uint8_t*>(aesIV.constData()));
+    // We don't set a real IV but instead we prepend a garbage IV block to the
+    // data which we throw away when decrypting. This ensures that identical
+    // plaintexts encrypt to different cipher texts and it spares us the pain
+    // of having to return and store the IV alongside the cipher text.
+    QByteArray iv = Util::generateRandomBytes(16);
+    data.prepend(iv);
+
+    AES_init_ctx(&ctx, reinterpret_cast<const uint8_t*>(aesKey.constData()));
     AES_CBC_encrypt_buffer(&ctx, reinterpret_cast<uint8_t*>(data.data()), data.size());
 
     return data.toBase64();
@@ -103,13 +122,14 @@ QString Util::decryptString(const QString &base64CipherText)
 {
     AES_ctx ctx;
     QByteArray aesKey = QByteArray::fromHex(PASSWORD_KEY);
-    QByteArray aesIV = QByteArray::fromHex(PASSWORD_IV);
 
     QByteArray data = QByteArray::fromBase64(base64CipherText.toLatin1());
 
-    AES_init_ctx_iv(&ctx, reinterpret_cast<const uint8_t*>(aesKey.constData()),
-            reinterpret_cast<const uint8_t*>(aesIV.constData()));
+    AES_init_ctx(&ctx, reinterpret_cast<const uint8_t*>(aesKey.constData()));
     AES_CBC_decrypt_buffer(&ctx, reinterpret_cast<uint8_t*>(data.data()), data.size());
+
+    // remove garbage IV block
+    data.remove(0, 16);
 
     QString plaintext = QString::fromUtf8(data);
     return plaintext;

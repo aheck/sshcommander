@@ -101,14 +101,7 @@ bool KnownHosts::addHostToKnownHostsFile(QString hostname, QString keyType, QStr
     QString line;
 
     if (KnownHosts::isHostnameHashingEnabled()) {
-        QByteArray salt;
-        std::random_device rd;
-        std::uniform_int_distribution<int> dist(0, 255);
-
-        for (int i = 0; i < 20; i++) {
-            char randomByte = dist(rd);
-            salt.append(randomByte);
-        }
+        QByteArray salt = Util::generateRandomBytes(20);
 
         QString saltBase64 = salt.toBase64();
         QByteArray hashedHostname = QMessageAuthenticationCode::hash(hostname.toLatin1(), salt, QCryptographicHash::Sha1);

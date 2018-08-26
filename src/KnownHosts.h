@@ -8,7 +8,6 @@
 #define KNOWNHOSTS_H
 
 #include <iostream>
-#include <random>
 
 #include <QByteArray>
 #include <QCryptographicHash>
@@ -18,6 +17,8 @@
 #include <QMessageAuthenticationCode>
 #include <QRegExp>
 #include <QString>
+
+#include "Util.h"
 
 enum class KnownHostsCheckResult
 {

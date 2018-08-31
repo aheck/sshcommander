@@ -197,6 +197,8 @@ void TunnelManager::createTunnel(std::shared_ptr<SSHConnectionEntry> connEntry, 
 
     const QStringList args = connEntry->generateTunnelArgs(localPort, remotePort);
     SSHTermWidget *termWidget = new SSHTermWidget(&args, connEntryWeak, 0);
+    termWidget->setAutoClose(true);
+    connect(termWidget, SIGNAL(finished(int)), this, SLOT(tunnelTerminated(int)));
     termWidget->startShellProgram();
 
     std::shared_ptr<TunnelEntry> tunnelEntry = std::make_shared<TunnelEntry>();
@@ -229,6 +231,8 @@ void TunnelManager::restartTunnel(std::shared_ptr<SSHConnectionEntry> connEntry,
 
     const QStringList args = connEntry->generateTunnelArgs(localPort, remotePort);
     tunnel->termWidget = new SSHTermWidget(&args, connEntryWeak, 0);
+    tunnel->termWidget->setAutoClose(true);
+    connect(tunnel->termWidget, SIGNAL(finished(int)), this, SLOT(tunnelTerminated(int)));
     tunnel->termWidget->startShellProgram();
 }
 
@@ -364,4 +368,30 @@ bool TunnelManager::isLocalPortInUse(int port)
     return false;
 #elif Q_OS_MACOS
 #endif
+}
+
+void TunnelManager::tunnelTerminated(int exitStatus)
+{
+    QObject *term = sender();
+    SSHTermWidget *termWidget = static_cast<SSHTermWidget*>(term);
+
+    QString tunnelIdentifier;
+
+    for (const auto& pair : this->tunnelsByConnection) {
+        for (const auto &tunnelEntry : pair.second) {
+            if (tunnelEntry == nullptr) {
+                continue;
+            }
+
+            if (tunnelEntry->termWidget == termWidget) {
+                tunnelIdentifier = " mapping port " + QString::number(tunnelEntry->remotePort) +
+                    " from " + pair.first + " to local port " + QString::number(tunnelEntry->localPort);
+            }
+        }
+    }
+
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Critical);
+    msgBox.setText("Tunnel" + tunnelIdentifier + " was terminated with exit status: " + QString::number(exitStatus));
+    msgBox.exec();
 }

@@ -73,6 +73,7 @@ public:
 
 public slots:
     void cleanup();
+    void tunnelTerminated(int exitStatus);
 
 private:
     TunnelManager();

@@ -164,6 +164,9 @@ void SSHFilesystemApplet::openDirectory()
     }
 
     auto mountEntry = SSHFilesystemManager::getInstance().getMountEntry(this->connEntry->username, this->connEntry->hostname, row);
+    if (mountEntry == nullptr) {
+        return;
+    }
 
     QDesktopServices::openUrl(QUrl("file://" + mountEntry->localDir));
 }

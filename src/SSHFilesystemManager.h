@@ -76,6 +76,7 @@ public:
 
 public slots:
     void cleanup();
+    void sshfsTerminated(int exitStatus);
 
 private:
     SSHFilesystemManager();

@@ -35,9 +35,11 @@ void SSHFSMountEntry::mount(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
     const QStringList args = connEntry->generateSSHFSArgs(localDir, remoteDir);
     SSHTermWidget *termWidget = new SSHTermWidget(&args, connEntry, 0);
+    termWidget->setAutoClose(true);
     termWidget->setShellProgram(ExternalProgramFinder::getSSHFSPath());
     termWidget->startShellProgram();
     this->termWidget = termWidget;
+    termWidget->connect(termWidget, SIGNAL(finished(int)), &SSHFilesystemManager::getInstance(), SLOT(sshfsTerminated(int)));
 
     std::cout << "SSHFS command: sshfs " << args.join(" ").toStdString() << "\n";
 }
@@ -298,4 +300,30 @@ void SSHFilesystemManager::cleanup()
     for (auto const& cur : this->mountsByConnection) {
         this->mountsByConnection[cur.first].clear();
     }
+}
+
+void SSHFilesystemManager::sshfsTerminated(int exitStatus)
+{
+    QObject *term = sender();
+    SSHTermWidget *termWidget = static_cast<SSHTermWidget*>(term);
+
+    QString mountIdentifier;
+
+    for (const auto& pair : this->mountsByConnection) {
+        for (const auto &mountEntry : pair.second) {
+            if (mountEntry == nullptr) {
+                continue;
+            }
+
+            if (mountEntry->termWidget == termWidget) {
+                mountIdentifier = " mounting " + mountEntry->remoteDir +
+                    " from " + pair.first + " to local directory " + mountEntry->localDir;
+            }
+        }
+    }
+
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Critical);
+    msgBox.setText("sshfs process" + mountIdentifier + " was terminated with exit status: " + QString::number(exitStatus));
+    msgBox.exec();
 }

@@ -193,6 +193,7 @@ void MainWindow::createNewConnection()
     this->connectionList->resetAWSConsoleButton();
 
     this->terminalView->setFocusOnCurrentTerminal();
+    this->saveSettings();
 }
 
 bool MainWindow::askToQuit()
@@ -408,6 +409,8 @@ void MainWindow::connectionRemoved(std::shared_ptr<SSHConnectionEntry> connEntry
         this->terminalView->setDisabledPageEnabled(true);
         this->setWindowTitle(PROGRAM_NAME);
     }
+
+    this->saveSettings();
 }
 
 void MainWindow::updateConnectionTabs()

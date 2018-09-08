@@ -50,13 +50,16 @@ void SSHFSMountEntry::unmount()
         return;
     }
 
-    int pid = this->termWidget->getShellPID();
+    pid_t pid = this->termWidget->getShellPID();
 
-    kill(pid, SIGTERM);
-    int status = 0;
-    std::cout << "Waiting for sshfs...\n";
-    waitpid(pid, &status, 0);
-    std::cout << "Finished waiting for sshfs\n";
+    int result = 0;
+    // We can't use waitpid here because the destructor of termWidget ultimately
+    // calls the destructor of QProcess which doesn't like when we collect the
+    // result of its child and then runs into a 30 second timeout.
+    while (result == 0) {
+        result = kill(pid, SIGTERM);
+        QThread::msleep(10);
+    }
 
     delete this->termWidget;
     this->termWidget = nullptr;

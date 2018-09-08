@@ -27,6 +27,7 @@
 #include <QJsonObject>
 #include <QStandardPaths>
 #include <QString>
+#include <QThread>
 
 #include "ExternalProgramFinder.h"
 #include "SSHConnectionEntry.h"

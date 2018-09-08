@@ -20,12 +20,15 @@
 #include <QPainter>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QRegularExpression>
 #include <QStackedWidget>
+#include <QStatusBar>
 #include <QTextEdit>
 #include <QToolBar>
 #include <QWidget>
 
 #include "Applet.h"
+#include "Util.h"
 
 class NotesEditor : public Applet
 {
@@ -55,11 +58,14 @@ private slots:
     void backgroundColorChanged(const QColor &color);
     void currentCharFormatChanged(const QTextCharFormat &format);
     void fontChanged(const QFont &font);
+    void save();
+    void statusBarChanged(QString message);
 
 private:
     void applyFormat(const QTextCharFormat &format);
 
     QTextEdit *editor;
+    QAction *actionSave;
     QFontComboBox *comboFont;
     QComboBox *comboSize;
     QAction *actionUndo;
@@ -69,6 +75,7 @@ private:
     QAction *actionTextUnderline;
     QAction *actionTextColor;
     QAction *actionTextBackgroundColor;
+    QStatusBar *statusBar;
 };
 
 #endif

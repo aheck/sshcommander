@@ -10,10 +10,12 @@
 
 #include <random>
 
-#include <QString>
 #include <QByteArray>
+#include <QString>
 
 #include <libs/tinyaes/aes.hpp>
+
+class MainWindow;
 
 class Util
 {
@@ -25,6 +27,10 @@ public:
     static QByteArray generateRandomBytes(unsigned int numBytes);
     static QString encryptString(const QString &password);
     static QString decryptString(const QString &base64CipherText);
+    static MainWindow* getMainWindow();
+
+private:
+    static QByteArray getAesKey();
 };
 
 #endif

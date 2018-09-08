@@ -1,6 +1,6 @@
 #include "Util.h"
 
-#define PASSWORD_KEY "71A0D49A64D2D66F6D097BF78BD496BD1932827BBB454B76E944CC3452C7D099"
+#include "MainWindow.h"
 
 QString Util::dirname(QString path)
 {
@@ -92,10 +92,50 @@ QByteArray Util::generateRandomBytes(unsigned int numBytes)
     return bytes;
 }
 
+QByteArray Util::getAesKey()
+{
+    QByteArray key;
+
+    key.append(0x71);
+    key.append(0xA0);
+    key.append(0xD4);
+    key.append(0x9A);
+    key.append(0x64);
+    key.append(0xD2);
+    key.append(0xD6);
+    key.append(0x6F);
+    key.append(0x6D);
+    key.append(0x09);
+    key.append(0x7B);
+    key.append(0xF7);
+    key.append(0x8B);
+    key.append(0xD4);
+    key.append(0x96);
+    key.append(0xBD);
+    key.append(0x19);
+    key.append(0x32);
+    key.append(0x82);
+    key.append(0x7B);
+    key.append(0xBB);
+    key.append(0x45);
+    key.append(0x4B);
+    key.append(0x76);
+    key.append(0xE9);
+    key.append(0x44);
+    key.append(0xCC);
+    key.append(0x34);
+    key.append(0x52);
+    key.append(0xC7);
+    key.append(0xD0);
+    key.append(0x99);
+
+    return key;
+}
+
 QString Util::encryptString(const QString &plaintext)
 {
     AES_ctx ctx;
-    QByteArray aesKey = QByteArray::fromHex(PASSWORD_KEY);
+    QByteArray aesKey = Util::getAesKey();
     QByteArray data = plaintext.toUtf8();
 
     // add padding
@@ -121,7 +161,7 @@ QString Util::encryptString(const QString &plaintext)
 QString Util::decryptString(const QString &base64CipherText)
 {
     AES_ctx ctx;
-    QByteArray aesKey = QByteArray::fromHex(PASSWORD_KEY);
+    QByteArray aesKey = Util::getAesKey();
 
     QByteArray data = QByteArray::fromBase64(base64CipherText.toLatin1());
 
@@ -133,4 +173,16 @@ QString Util::decryptString(const QString &base64CipherText)
 
     QString plaintext = QString::fromUtf8(data);
     return plaintext;
+}
+
+MainWindow* Util::getMainWindow()
+{
+    for (QWidget *widget : qApp->topLevelWidgets()) {
+        MainWindow* mainWindow = qobject_cast<MainWindow*>(widget);
+        if (mainWindow) {
+            return mainWindow;
+        }
+    }
+
+    return nullptr;
 }

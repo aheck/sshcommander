@@ -1,13 +1,23 @@
 #include "NotesEditor.h"
 
+#include "MainWindow.h"
+
 NotesEditor::NotesEditor()
 {
     QVBoxLayout *layout = new QVBoxLayout();
 
     this->editor = new QTextEdit();
+    this->editor->setTextColor(Qt::black);
+    this->editor->setTextBackgroundColor(Qt::white);
     QWidget *editorWidget = new QWidget();
 
     QToolBar *toolBar = new QToolBar();
+
+    this->actionSave = toolBar->addAction("", this, SLOT(save()));
+    this->actionSave->setIcon(QIcon(":/images/document-save.svg"));
+    this->actionSave->setToolTip("Save");
+
+    toolBar->addSeparator();
 
     this->comboFont = new QFontComboBox();
     toolBar->addWidget(this->comboFont);
@@ -19,8 +29,9 @@ NotesEditor::NotesEditor()
     this->comboSize->setEditable(true);
 
     const QList<int> standardSizes = QFontDatabase::standardSizes();
-    foreach (int size, standardSizes)
+    foreach (int size, standardSizes) {
         comboSize->addItem(QString::number(size));
+    }
     comboSize->setCurrentIndex(standardSizes.indexOf(QApplication::font().pointSize()));
 
     connect(comboSize, SIGNAL(currentTextChanged(QString)), this, SLOT(changeFontSize(QString)));
@@ -59,9 +70,16 @@ NotesEditor::NotesEditor()
     this->actionTextBackgroundColor = toolBar->addAction(QIcon(), tr("Background Color"), this,
             SLOT(selectBackgroundColor()));
     backgroundColorChanged(Qt::white);
+
+    this->statusBar = new QStatusBar();
+
     layout->addWidget(toolBar);
 
     layout->addWidget(this->editor);
+    layout->addWidget(this->statusBar);
+    this->statusBar->setHidden(true);
+    connect(this->statusBar, SIGNAL(messageChanged(QString)), this, SLOT(statusBarChanged(QString)));
+
     layout->setSpacing(0);
     layout->setMargin(0);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -100,7 +118,27 @@ void NotesEditor::init(std::shared_ptr<SSHConnectionEntry> connEntry)
 
 void NotesEditor::setHtml(const QString &text)
 {
-    this->editor->setHtml(text);
+    // QTextEditor forgets to save background color white with empty paragraphs
+    // which makes them become black (although the background is still displayed white)
+    //
+    // By adding the background color where it is missing we prevent the
+    // background color button from showing the wrong color.
+    QString processedText = text;
+    QRegularExpression regex("(\"-qt-paragraph-type:empty;((?!background-color)[^\"])*\")");
+
+    QRegularExpressionMatch match = regex.match(processedText);
+    while (match.hasMatch()) {
+        QString oldString = match.captured(1);
+        QString newString = oldString;
+
+        newString.chop(1); // remove the "
+        newString += " background-color: #ffffff;\"";
+
+        processedText.replace(oldString, newString);
+        match = regex.match(processedText);
+    }
+
+    this->editor->setHtml(processedText);
 }
 
 QString NotesEditor::toHtml() const
@@ -208,7 +246,14 @@ void NotesEditor::colorChanged(const QColor &color)
 
     pic.fill(color);
     QPainter painter(&pic);
-    painter.setPen(Qt::black);
+
+    // determine if we paint a black or white border
+    if (color.lightness() < 128) {
+        painter.setPen(Qt::white);
+    } else {
+        painter.setPen(Qt::black);
+    }
+
     painter.drawRect(0, 0, 15, 15);
     this->actionTextColor->setIcon(pic);
 }
@@ -223,7 +268,14 @@ void NotesEditor::backgroundColorChanged(const QColor &color)
 
     pic.fill(color);
     QPainter painter(&pic);
-    painter.setPen(Qt::black);
+
+    // determine if we paint a black or white border
+    if (color.lightness() < 128) {
+        painter.setPen(Qt::white);
+    } else {
+        painter.setPen(Qt::black);
+    }
+
     painter.drawRect(0, 0, 15, 15);
     this->actionTextBackgroundColor->setIcon(pic);
 }
@@ -244,4 +296,26 @@ void NotesEditor::fontChanged(const QFont &font)
     this->actionTextBold->setChecked(font.bold());
     this->actionTextItalic->setChecked(font.italic());
     this->actionTextUnderline->setChecked(font.underline());
+}
+
+void NotesEditor::save()
+{
+    MainWindow *mainWindow = Util::getMainWindow();
+
+    if (mainWindow == nullptr) {
+        this->statusBar->showMessage(tr("Failed to save"), 2000);
+        return;
+    }
+
+    mainWindow->saveSettings();
+    this->statusBar->showMessage(tr("Saved"), 2000);
+}
+
+void NotesEditor::statusBarChanged(QString message)
+{
+    if (message.isEmpty()) {
+        this->statusBar->setHidden(true);
+    } else {
+        this->statusBar->setHidden(false);
+    }
 }

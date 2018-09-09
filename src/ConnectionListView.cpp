@@ -125,11 +125,6 @@ void ConnectionListView::dropEvent(QDropEvent *event)
         return;
     }
 
-    // append when targetRow < 0
-    if (targetRow < 0) {
-        targetRow = this->model()->rowCount() - 1;
-    }
-
     if (originRow == targetRow) {
         event->ignore();
         return;
@@ -138,6 +133,21 @@ void ConnectionListView::dropEvent(QDropEvent *event)
     if (originRow < 0) {
         event->ignore();
         return;
+    }
+
+    if (this->dropIndicatorPosition() == QAbstractItemView::AboveItem) {
+        if (originRow < targetRow) {
+            targetRow--;
+        }
+    } else if (this->dropIndicatorPosition() == QAbstractItemView::BelowItem) {
+        if (originRow > targetRow) {
+            targetRow++;
+        }
+    }
+
+    // append when targetRow < 0
+    if (targetRow < 0) {
+        targetRow = this->model()->rowCount() - 1;
     }
 
     if (originRow >= this->model()->rowCount() || targetRow >= this->model()->rowCount()) {

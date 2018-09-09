@@ -34,6 +34,7 @@ FileBrowserApplet::FileBrowserApplet()
     this->localFileBrowser->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     this->localFileBrowser->setDragDropMode(QAbstractItemView::DragDrop);
     this->localFileBrowser->setDropIndicatorShown(true);
+    this->localFileBrowserWidget->setHidden(true);
 
     this->remoteFileBrowser = new RemoteFileView(this);
     this->remoteFileSystemModel = new SFTPFilesystemModel();
@@ -55,6 +56,7 @@ FileBrowserApplet::FileBrowserApplet()
     remoteFileBrowserWidget->layout()->addWidget(this->remoteFileBrowser);
 
     this->splitter = new QSplitter(this);
+    this->splitter->addWidget(localFileBrowserWidget);
     this->splitter->addWidget(remoteFileBrowserWidget);
 
     this->layout()->addWidget(this->splitter);
@@ -129,10 +131,10 @@ void FileBrowserApplet::toggleLocalFileBrowser()
 {
     if (!this->showLocalAction->isChecked()) {
         this->showLocalAction->setToolTip(tr("Show Local File Browser"));
-        this->localFileBrowserWidget->setParent(nullptr);
+        this->localFileBrowserWidget->setHidden(true);
     } else {
         this->showLocalAction->setToolTip(tr("Hide Local File Browser"));
-        this->splitter->insertWidget(0, this->localFileBrowserWidget);
+        this->localFileBrowserWidget->setHidden(false);
     }
 }
 

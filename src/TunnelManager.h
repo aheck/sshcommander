@@ -65,6 +65,7 @@ public:
 
     void createTunnel(std::shared_ptr<SSHConnectionEntry> connEntry, int localPort, int remoteport, QString shortDescription);
     void restartTunnel(std::shared_ptr<SSHConnectionEntry> connEntry, QString username, QString hostname, int localPort, int remotePort);
+    void shutdownTunnel(std::shared_ptr<SSHConnectionEntry> connEntry, QString username, QString hostname, int localPort, int remotePort);
     bool removeTunnel(QString username, QString hostname, int localPort, int remotePort);
 
     static bool isProcessOwnerOfSocketInode(int pid, int inode);

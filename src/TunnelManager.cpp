@@ -236,6 +236,21 @@ void TunnelManager::restartTunnel(std::shared_ptr<SSHConnectionEntry> connEntry,
     tunnel->termWidget->startShellProgram();
 }
 
+void TunnelManager::shutdownTunnel(std::shared_ptr<SSHConnectionEntry> connEntry, QString username, QString hostname, int localPort, int remotePort)
+{
+    auto tunnel = this->getTunnel(username, hostname, localPort, remotePort);
+    std::weak_ptr<SSHConnectionEntry> connEntryWeak = connEntry;
+
+    if (tunnel == nullptr) {
+        return;
+    }
+
+    if (tunnel->termWidget != nullptr) {
+        delete tunnel->termWidget;
+        tunnel->termWidget = nullptr;
+    }
+}
+
 bool TunnelManager::removeTunnel(QString username, QString hostname, int localPort, int remotePort)
 {
     const QString connection = username + "@" + hostname;

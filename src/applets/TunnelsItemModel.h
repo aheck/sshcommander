@@ -17,7 +17,7 @@
 
 #include "TunnelManager.h"
 
-enum class TunnelColumns {LocalPort = 0, RemotePort, ShortDescription, Connected, Controls, Count};
+enum class TunnelColumns {LocalPort = 0, RemotePort, ShortDescription, Connected, Count};
 
 class TunnelsItemModel : public QAbstractItemModel
 {

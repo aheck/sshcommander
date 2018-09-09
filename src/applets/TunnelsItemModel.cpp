@@ -43,8 +43,6 @@ QVariant TunnelsItemModel::headerData(int section, Qt::Orientation orientation, 
                 return QVariant(tr("Short Description"));
         case static_cast<int>(TunnelColumns::Connected):
             return QVariant(tr("Connected"));
-        case static_cast<int>(TunnelColumns::Controls):
-            return QVariant(tr("Controls"));
     }
 
     return QVariant();
@@ -78,8 +76,6 @@ QVariant TunnelsItemModel::data(const QModelIndex &index, int role) const
                 }
             }
 
-            return QVariant("");
-        case (static_cast<int>(TunnelColumns::Controls)):
             return QVariant("");
     }
 

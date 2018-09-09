@@ -12,6 +12,7 @@
 #include <memory>
 
 #include <QHeaderView>
+#include <QMenu>
 #include <QTableView>
 #include <QToolBar>
 
@@ -43,8 +44,10 @@ protected slots:
     void createTunnel();
     void reloadData();
     void restartTunnel();
+    void shutdownTunnel();
     void removeTunnel();
-    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void selectionChanged();
+    void showContextMenu(QPoint pos);
 
 protected:
     int getSelectedRow();
@@ -53,6 +56,7 @@ private:
     TunnelsNewDialog *newDialog;
     QToolBar *toolBar;
     QAction *restartAction;
+    QAction *shutdownAction;
     QAction *deleteAction;
     QTableView *table;
     TunnelsItemModel *model;

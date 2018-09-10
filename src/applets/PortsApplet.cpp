@@ -6,6 +6,11 @@ PortsApplet::PortsApplet()
     this->toolBar = new QToolBar();
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
             "Reload", this, SLOT(reloadData()));
+    this->toolBar->addSeparator();
+    this->tunnelPortAction = this->toolBar->addAction(
+            QIcon(":/images/network-wired.svg"), tr("Tunnel this port to local machine"),
+            this, SLOT(showNewTunnelDialog()));
+    this->tunnelPortAction->setEnabled(false);
     this->toolBar->setOrientation(Qt::Vertical);
 
     this->setLayout(new QHBoxLayout());
@@ -26,6 +31,9 @@ PortsApplet::PortsApplet()
     for (int i = 0; i < this->table->horizontalHeader()->count(); i++) {
         this->table->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Interactive);
     }
+
+    connect(this->table->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
+            this, SLOT(selectionChanged()));
 
     this->newDialog = new PortsNewTunnelDialog(this);
     connect(this->newDialog, SIGNAL(accepted()), this, SLOT(createTunnel()));
@@ -108,7 +116,7 @@ void PortsApplet::showContextMenu(QPoint pos)
         QMenu menu;
 
         //std::shared_ptr<AWSInstance> instance = this->getSelectedInstance();
-        menu.addAction(tr("Tunnel this port to local machine"), this, SLOT(showNewTunnelDialog()));
+        menu.addAction(this->tunnelPortAction);
 
         /*
         menu.addSeparator();
@@ -152,4 +160,17 @@ int PortsApplet::getSelectedRow()
     }
 
     return indexes.first().row();
+}
+
+void PortsApplet::selectionChanged()
+{
+    QModelIndexList indexes = this->table->selectionModel()->selectedIndexes();
+
+    if (indexes.size() == 0) {
+        this->tunnelPortAction->setEnabled(false);
+
+        return;
+    }
+
+    this->tunnelPortAction->setEnabled(true);
 }

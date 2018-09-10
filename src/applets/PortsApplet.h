@@ -47,10 +47,12 @@ protected slots:
     void showContextMenu(QPoint pos);
     void showNewTunnelDialog();
     void createTunnel();
+    void selectionChanged();
 
 private:
     QToolBar *toolBar;
     QTableView *table;
+    QAction *tunnelPortAction;
     PortsItemModel *model;
     PortsNewTunnelDialog *newDialog;
     bool firstShow;

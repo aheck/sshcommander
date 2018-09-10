@@ -32,7 +32,7 @@ void SessionTabBar::mousePressEvent(QMouseEvent *event)
         this->dragging = true;
     }
 
-    QTabBar::mousePressEvent(event);
+    CustomTabBar::mousePressEvent(event);
 }
 
 void SessionTabBar::mouseReleaseEvent(QMouseEvent *event)
@@ -48,5 +48,5 @@ void SessionTabBar::mouseReleaseEvent(QMouseEvent *event)
         this->dragging = false;
     }
 
-    QTabBar::mouseReleaseEvent(event);
+    CustomTabBar::mouseReleaseEvent(event);
 }

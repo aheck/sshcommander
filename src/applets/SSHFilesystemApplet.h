@@ -13,6 +13,7 @@
 
 #include <QHeaderView>
 #include <QDesktopServices>
+#include <QMenu>
 #include <QTableView>
 #include <QToolBar>
 #include <QItemSelection>
@@ -47,12 +48,13 @@ public slots:
     void showNewDialog();
 
 protected slots:
-    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void selectionChanged();
     void createNewMountEntry();
     void openDirectory();
     void mountMountEntry();
     void unmountMountEntry();
     void removeMountEntry();
+    void showContextMenu(QPoint pos);
 
 protected:
     int getSelectedRow();
@@ -63,7 +65,7 @@ private:
     QToolBar *toolBar;
     QAction *openAction;
     QAction *mountAction;
-    QAction *restartAction;
+    QAction *unmountAction;
     QAction *deleteAction;
     QTableView *table;
     SSHFilesystemItemModel *model;

@@ -17,7 +17,7 @@
 
 #include "SSHFilesystemManager.h"
 
-enum class SSHFSColumns {LocalDir = 0, RemoteDir, ShortDescription, Mounted, Controls, Count};
+enum class SSHFSColumns {LocalDir = 0, RemoteDir, ShortDescription, Mounted, Count};
 
 class SSHFilesystemItemModel : public QAbstractItemModel
 {

@@ -34,9 +34,9 @@ SSHFilesystemApplet::SSHFilesystemApplet()
     this->mountAction = this->toolBar->addAction(QIcon(":/images/go-next.svg"),
             "Mount", this, SLOT(mountMountEntry()));
     this->mountAction->setEnabled(false);
-    this->restartAction = this->toolBar->addAction(QIcon(":/images/go-top.svg"),
+    this->unmountAction = this->toolBar->addAction(QIcon(":/images/go-top.svg"),
             "Unmount", this, SLOT(unmountMountEntry()));
-    this->restartAction->setEnabled(false);
+    this->unmountAction->setEnabled(false);
     this->deleteAction = this->toolBar->addAction(QIcon(":/images/process-stop.svg"),
             "Delete Mount", this, SLOT(removeMountEntry()));
     this->deleteAction->setEnabled(false);
@@ -52,12 +52,15 @@ SSHFilesystemApplet::SSHFilesystemApplet()
     this->table->setSelectionMode(QAbstractItemView::SingleSelection);
     connect(this->table, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openDirectory()));
 
+    this->table->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this->table, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+
     for (int i = 0; i < this->table->horizontalHeader()->count(); i++) {
         this->table->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Interactive);
     }
 
     connect(this->table->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
-            this, SLOT(selectionChanged(QItemSelection, QItemSelection)));
+            this, SLOT(selectionChanged()));
 
     this->layout()->addWidget(this->table);
 }
@@ -127,15 +130,15 @@ int SSHFilesystemApplet::getSelectedRow()
     return indexes.first().row();
 }
 
-void SSHFilesystemApplet::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+void SSHFilesystemApplet::selectionChanged()
 {
-    QModelIndexList indexes = selected.indexes();
+    QModelIndexList indexes = this->table->selectionModel()->selectedIndexes();
 
     if (indexes.size() == 0) {
         this->openAction->setEnabled(false);
         this->mountAction->setEnabled(false);
         this->deleteAction->setEnabled(false);
-        this->restartAction->setEnabled(false);
+        this->unmountAction->setEnabled(false);
 
         return;
     }
@@ -143,7 +146,7 @@ void SSHFilesystemApplet::selectionChanged(const QItemSelection &selected, const
     this->openAction->setEnabled(true);
     this->mountAction->setEnabled(true);
     this->deleteAction->setEnabled(true);
-    this->restartAction->setEnabled(true);
+    this->unmountAction->setEnabled(true);
 }
 
 void SSHFilesystemApplet::createNewMountEntry()
@@ -227,4 +230,22 @@ void SSHFilesystemApplet::removeMountEntry()
 
     SSHFilesystemManager::getInstance().removeMountEntry(this->connEntry->username, this->connEntry->hostname, localDir, remoteDir);
     this->model->reloadData();
+    this->selectionChanged();
+}
+
+void SSHFilesystemApplet::showContextMenu(QPoint pos)
+{
+    if (!this->table->indexAt(pos).isValid()) {
+        return;
+    }
+
+    QMenu menu;
+    menu.addAction(this->openAction);
+    menu.addAction(this->mountAction);
+    menu.addAction(this->unmountAction);
+    menu.addSeparator();
+    menu.addAction(this->deleteAction);
+
+    QPoint globalPos = this->table->mapToGlobal(pos);
+    menu.exec(globalPos);
 }

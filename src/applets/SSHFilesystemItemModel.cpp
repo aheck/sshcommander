@@ -43,8 +43,6 @@ QVariant SSHFilesystemItemModel::headerData(int section, Qt::Orientation orienta
                 return QVariant(tr("Short Description"));
         case static_cast<int>(SSHFSColumns::Mounted):
             return QVariant(tr("Mounted"));
-        case static_cast<int>(SSHFSColumns::Controls):
-            return QVariant(tr("Controls"));
     }
 
     return QVariant();
@@ -78,8 +76,6 @@ QVariant SSHFilesystemItemModel::data(const QModelIndex &index, int role) const
                 }
             }
 
-            return QVariant("");
-        case (static_cast<int>(SSHFSColumns::Controls)):
             return QVariant("");
     }
 

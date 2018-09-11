@@ -31,6 +31,8 @@ public slots:
 private:
     int passwordLineCounter;
     std::weak_ptr<SSHConnectionEntry> connEntryWeak;
+    QRegExp passwordRegex1;
+    QRegExp passwordRegex2;
 };
 
 #endif

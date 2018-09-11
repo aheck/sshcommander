@@ -19,23 +19,30 @@ SSHTermWidget::SSHTermWidget(const QStringList *args, std::weak_ptr<SSHConnectio
 
     this->setColorScheme(preferences.getColorScheme());
     this->setScrollBarPosition(QTermWidget::ScrollBarRight);
+
+    this->passwordRegex1 = QRegExp("^.*( )?(p|P)assword:( )?$");
+    this->passwordRegex2 = QRegExp("^Password for \\S+@\\S+:");
 }
 
 void SSHTermWidget::dataReceived(const QString &text)
 {
     auto connEntry = this->connEntryWeak.lock();
 
-    if (!connEntry) {
+    if (connEntry == nullptr) {
         std::cerr << "Failed to acquire shared_ptr on connEntryWeak in " <<
             __FILE__ << ":" << __LINE__ << std::endl;
         return;
     }
 
-    if (connEntry == nullptr) {
+    if (connEntry->password.isEmpty()) {
+        disconnect(this, SIGNAL(receivedData(QString)),
+                this, SLOT(dataReceived(QString)));
         return;
     }
 
-    if (connEntry->password.isEmpty()) {
+    // Ignore single characters because they are user input sent back because of
+    // echo mode.
+    if (text.length() == 1) {
         return;
     }
 
@@ -48,7 +55,7 @@ void SSHTermWidget::dataReceived(const QString &text)
 
     std::cout << text.toStdString() << "\n";
 
-    if (QRegExp("^.*( )?(p|P)assword:( )?$").exactMatch(text) || QRegExp("Password for \\S+@\\S+:").exactMatch(text)) {
+    if (this->passwordRegex1.exactMatch(text) || this->passwordRegex2.exactMatch(text)) {
         std::cout << "Sending ssh password...\n";
         this->sendText(connEntry->password + "\n");
 

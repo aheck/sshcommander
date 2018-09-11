@@ -40,7 +40,7 @@ void NotificationManager::update(bool nonTimerCall)
         this->ticksSincePopupAppeared++;
     }
 
-    if (this->ticksSincePopupAppeared > 19) {
+    if (this->ticksSincePopupAppeared > 29) {
         this->popup->hide();
     }
 

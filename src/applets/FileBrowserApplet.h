@@ -70,6 +70,7 @@ private:
     QModelIndex lastIndexExpanded;
     FileTransfersApplet *fileTransfersApplet;
     bool firstShow;
+    bool localFileBrowserFirstShow;
 };
 
 #endif

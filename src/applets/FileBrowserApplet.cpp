@@ -3,6 +3,7 @@
 FileBrowserApplet::FileBrowserApplet()
 {
     this->firstShow = true;
+    this->localFileBrowserFirstShow = true;
 
     this->toolBar = new QToolBar();
     this->toolBar->setOrientation(Qt::Vertical);
@@ -19,12 +20,12 @@ FileBrowserApplet::FileBrowserApplet()
 
     this->localFileBrowser = new QTreeView();
     this->localFileSystemModel = new FileSystemModel();
-    this->localFileSystemModel->setRootPath(QDir::homePath());
-    std::cout << "Home dir: " << QDir::homePath().toStdString() << "\n";
+    this->localFileSystemModel->setRootPath("/");
     this->localFileBrowser->setModel(this->localFileSystemModel);
     this->localFileBrowser->setSelectionMode(QAbstractItemView::ExtendedSelection);
     connect(this->localFileSystemModel, SIGNAL(fileDownloadRequested(QStringList, QString)),
             this, SLOT(fileDownloadRequested(QStringList, QString)));
+    this->localFileBrowser->setSortingEnabled(true);
 
     this->localFileBrowserWidget = new QWidget();
     this->localFileBrowserWidget->setLayout(new QVBoxLayout());
@@ -135,6 +136,16 @@ void FileBrowserApplet::toggleLocalFileBrowser()
     } else {
         this->showLocalAction->setToolTip(tr("Hide Local File Browser"));
         this->localFileBrowserWidget->setHidden(false);
+
+        if (this->localFileBrowserFirstShow) {
+            // go to the home directory
+            QModelIndex homeIndex = this->localFileSystemModel->index(QDir::homePath());
+            this->localFileBrowser->scrollTo(homeIndex, QAbstractItemView::PositionAtTop);
+            this->localFileBrowser->expand(homeIndex);
+            this->localFileBrowser->selectionModel()->select(homeIndex, QItemSelectionModel::ClearAndSelect);
+
+            this->localFileBrowserFirstShow = false;
+        }
     }
 }
 

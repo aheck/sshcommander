@@ -22,6 +22,11 @@ SSHFilesystemApplet::SSHFilesystemApplet()
     connect(this->newDialog, SIGNAL(accepted()), this, SLOT(createNewMountEntry()));
 
     this->toolBar = new QToolBar();
+
+#ifdef Q_OS_MACOS
+    this->toolBar->setIconSize(QSize(MAC_ICON_SIZE, MAC_ICON_SIZE));
+#endif
+
     this->toolBar->setOrientation(Qt::Vertical);
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
             "Reload", this, SLOT(reloadData()));

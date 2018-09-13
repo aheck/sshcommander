@@ -90,6 +90,9 @@ AboutDialog::AboutDialog()
     layout->addWidget(versionsLabel);
 
     QFormLayout *formLayout = new QFormLayout();
+    formLayout->setFormAlignment(Qt::AlignLeft);
+    formLayout->setLabelAlignment(Qt::AlignLeft);
+
     QLabel *qtCompileLabel = new QLabel(QT_VERSION_STR, this);
     qtCompileLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
     QLabel *qtRuntimeLabel = new QLabel(qVersion(), this);

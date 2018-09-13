@@ -1,5 +1,10 @@
 #include "TunnelManager.h"
 
+#ifdef Q_OS_MACOS
+#include <stdlib.h>
+#include <libproc.h>
+#endif
+
 TunnelEntry::TunnelEntry()
 {
     this->termWidget = nullptr;
@@ -39,6 +44,7 @@ bool TunnelEntry::isConnected()
     }
 
     int pid = this->termWidget->getShellPID();
+#ifdef Q_OS_LINUX
     int inode = TunnelManager::findInodeListeningOnPort(this->localPort, "/proc/net/tcp");
 
     if (inode < 0) {
@@ -47,6 +53,43 @@ bool TunnelEntry::isConnected()
 
     bool isOwner = TunnelManager::isProcessOwnerOfSocketInode(pid, inode);
     return isOwner;
+
+#elif defined(Q_OS_MACOS)
+    struct socket_fdinfo si;
+    int maxFds = 64;
+    struct proc_fdinfo fdBuffer[maxFds];
+
+    int nb = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, &fdBuffer, maxFds);
+    int numFiles = (int)(nb / sizeof(struct proc_fdinfo));
+
+    for (int i = 0; i < numFiles; i++) {
+        if (fdBuffer[i].proc_fdtype != PROX_FDTYPE_SOCKET) {
+            continue;
+        }
+
+        nb = proc_pidfdinfo(pid, fdBuffer[i].proc_fd, PROC_PIDFDSOCKETINFO, &si, sizeof(si));
+        if (nb < sizeof(struct socket_fdinfo)) {
+            std::cerr << "ERROR: Call to proc_pidfdinfo failed\n";
+            return false;
+        }
+
+        if (si.psi.soi_kind != SOCKINFO_TCP) {
+            continue;
+        }
+
+        if (si.psi.soi_proto.pri_tcp.tcpsi_state != TSI_S_LISTEN) {
+            continue;
+        }
+
+        if (this->localPort == ntohs(si.psi.soi_proto.pri_tcp.tcpsi_ini.insi_lport)) {
+            return true;
+        }
+    }
+
+    return false;
+#else
+    return false;
+#endif
 }
 
 TunnelManager& TunnelManager::getInstance()
@@ -380,9 +423,9 @@ bool TunnelManager::isLocalPortInUse(int port)
         return true;
     }
 
-    return false;
-#elif Q_OS_MACOS
+#elseif Q_OS_MACOS
 #endif
+    return false;
 }
 
 void TunnelManager::tunnelTerminated(int exitStatus)

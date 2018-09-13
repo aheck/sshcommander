@@ -13,6 +13,10 @@ NotesEditor::NotesEditor()
 
     QToolBar *toolBar = new QToolBar();
 
+#ifdef Q_OS_MACOS
+    toolBar->setIconSize(QSize(MAC_ICON_SIZE, MAC_ICON_SIZE));
+#endif
+
     this->actionSave = toolBar->addAction("", this, SLOT(save()));
     this->actionSave->setIcon(QIcon(":/images/document-save.svg"));
     this->actionSave->setToolTip("Save");

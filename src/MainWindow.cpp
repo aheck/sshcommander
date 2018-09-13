@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMenuBar *menuBar = new QMenuBar(0);
 
     QMenu *connMenu = new QMenu(tr("Connection"));
-    QAction *newRole = connMenu->addAction(QIcon(":/images/applications-internet.svg"), tr("&New"), this, SLOT(showNewDialog()));
+    QAction *newRole = connMenu->addAction(QIcon(":/images/applications-internet.svg"), tr("&New..."), this, SLOT(showNewDialog()));
     newRole->setMenuRole(QAction::NoRole);
     connMenu->addSeparator();
     QAction *quitRole = connMenu->addAction(QIcon(":/images/system-log-out.svg"), tr("&Quit"), this, SLOT(quit()));
@@ -47,6 +47,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     menuBar->addMenu(connMenu);
     menuBar->addMenu(editMenu);
+#ifdef Q_OS_MACOS
+    editMenu->setHidden(true);
+#endif
     menuBar->addMenu(helpMenu);
 
     this->setMenuBar(menuBar);

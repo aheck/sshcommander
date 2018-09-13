@@ -6,4 +6,6 @@
 #define DEFAULT_SSH_PORT_NUMBER 22
 #define PROGRAM_NAME "SSH Commander"
 
+#define MAC_ICON_SIZE 24
+
 #endif

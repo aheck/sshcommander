@@ -12,6 +12,11 @@ TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
     this->widgetStack->addWidget(disabledPage);
 
     this->toolBar = new QToolBar(this);
+
+#ifdef Q_OS_MACOS
+    this->toolBar->setIconSize(QSize(MAC_ICON_SIZE, MAC_ICON_SIZE));
+#endif
+
     this->toolBar->addAction(QIcon(":/images/utilities-terminal.svg"), "New Session", this, SLOT(createNewSession()));
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"), "Restart Session", this, SLOT(restartCurrentSession()));
     this->toggleWindowButton = this->toolBar->addAction(QIcon(":/images/window-new.svg"),

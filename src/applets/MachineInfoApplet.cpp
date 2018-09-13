@@ -45,6 +45,8 @@ MachineInfoApplet::MachineInfoApplet()
     groupsLayout->addLayout(groupsRightLayout);
 
     QFormLayout *generalLayout = new QFormLayout();
+    generalLayout->setFormAlignment(Qt::AlignLeft);
+    generalLayout->setLabelAlignment(Qt::AlignLeft);
     QGroupBox *generalGroup = new QGroupBox(tr("General"));
     generalGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
@@ -55,6 +57,8 @@ MachineInfoApplet::MachineInfoApplet()
     groupsLeftLayout->addWidget(generalGroup);
 
     QFormLayout *systemLayout = new QFormLayout();
+    systemLayout->setFormAlignment(Qt::AlignLeft);
+    systemLayout->setLabelAlignment(Qt::AlignLeft);
     QGroupBox *systemGroup = new QGroupBox(tr("System"));
     systemGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
@@ -67,6 +71,8 @@ MachineInfoApplet::MachineInfoApplet()
     groupsLeftLayout->addWidget(systemGroup);
 
     QFormLayout *sshLayout = new QFormLayout();
+    sshLayout->setFormAlignment(Qt::AlignLeft);
+    sshLayout->setLabelAlignment(Qt::AlignLeft);
     QGroupBox *sshGroup = new QGroupBox(tr("SSH"));
     sshGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
@@ -78,6 +84,8 @@ MachineInfoApplet::MachineInfoApplet()
     groupsRightLayout->addWidget(sshGroup);
 
     QFormLayout *knownHostsLayout = new QFormLayout();
+    knownHostsLayout->setFormAlignment(Qt::AlignLeft);
+    knownHostsLayout->setLabelAlignment(Qt::AlignLeft);
     QGroupBox *knownHostsGroup = new QGroupBox(tr("Local Known Hosts"));
     knownHostsGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 

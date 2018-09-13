@@ -1,5 +1,9 @@
 #include "SSHFilesystemManager.h"
 
+#ifdef Q_OS_MACOS
+#include <sys/mount.h>
+#endif
+
 SSHFSMountEntry::SSHFSMountEntry()
 {
     this->termWidget = nullptr;
@@ -67,6 +71,8 @@ void SSHFSMountEntry::unmount()
 
 bool SSHFSMountEntry::isMounted()
 {
+    QString remote = this->username + "@" + this->hostname + ":" + remoteDir;
+#ifdef Q_OS_LINUX
     QFile file("/proc/mounts");
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -75,7 +81,6 @@ bool SSHFSMountEntry::isMounted()
 
     QRegExp spaceCode("\\\\040");
 
-    QString remote = this->username + "@" + this->hostname + ":" + remoteDir;
     char lineBuffer[4096];
 
     while ((file.readLine(lineBuffer, sizeof(lineBuffer))) > 0) {
@@ -104,7 +109,33 @@ bool SSHFSMountEntry::isMounted()
             return true;
         }
     }
+#elif defined(Q_OS_MACOS)
+    struct statfs *buf = NULL;
 
+    int count = getmntinfo(&buf, 0);
+    if (count == 0) {
+        return false;
+    }
+
+    for (int i = 0; i < count; i++) {
+        QString fstype = buf[i].f_fstypename;
+        if (fstype != "osxfuse") {
+            continue;
+        }
+
+        QString localDir = buf[i].f_mntonname;
+
+        if (localDir != this->localDirCanonical) {
+            continue;
+        }
+
+        QString curRemote = buf[i].f_mntfromname;
+
+        if (remote == curRemote) {
+            return true;
+        }
+    }
+#endif
     return false;
 }
 

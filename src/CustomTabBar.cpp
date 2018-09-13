@@ -4,6 +4,10 @@ CustomTabBar::CustomTabBar(QWidget *parent) :
     QTabBar(parent)
 {
     connect(this, SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
+
+#ifdef Q_OS_MACOS
+    this->setDocumentMode(true);
+#endif
 }
 
 void CustomTabBar::setTabChanged(int index)

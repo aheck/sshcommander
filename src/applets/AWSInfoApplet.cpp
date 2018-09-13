@@ -15,6 +15,11 @@ AWSInfoApplet::AWSInfoApplet()
     this->awsContent->setObjectName("scrollAreaContent");
 
     this->toolBar = new QToolBar();
+
+#ifdef Q_OS_MACOS
+    this->toolBar->setIconSize(QSize(MAC_ICON_SIZE, MAC_ICON_SIZE));
+#endif
+
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
             "Reload", this, SLOT(reloadInstanceData()));
     this->toolBar->setOrientation(Qt::Vertical);

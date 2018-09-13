@@ -16,6 +16,10 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationDomain("github.com/aheck");
     QCoreApplication::setApplicationName("SSH Commander");
 
+#ifdef Q_OS_MACOS
+    app.setStyle("macintosh");
+#endif
+
     QDir appConfigPath = QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation));
     if (!appConfigPath.exists()) {
         appConfigPath.mkpath(appConfigPath.absolutePath());

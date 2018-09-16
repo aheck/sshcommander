@@ -423,7 +423,7 @@ bool TunnelManager::isLocalPortInUse(int port)
         return true;
     }
 
-#elseif Q_OS_MACOS
+#elif defined(Q_OS_MACOS)
 #endif
     return false;
 }

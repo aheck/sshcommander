@@ -55,6 +55,7 @@ int main(int argc, char *argv[])
             "QGroupBox::title {subcontrol-origin: margin; subcontrol-position: top left; padding: 0 3px; border: 1px solid grey;}"
 #ifdef Q_OS_MACOS
             "QToolBar {background-color: transparent; border: 0; padding-left: 3px; padding-top: 5px; padding-bottom: 5px;}"
+            "QToolBar:vertical {padding-left: 0; padding-right: 0; }"
 #endif
     );
 

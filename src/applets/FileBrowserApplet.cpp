@@ -34,6 +34,9 @@ FileBrowserApplet::FileBrowserApplet()
 
     this->localFileBrowserWidget = new QWidget();
     this->localFileBrowserWidget->setLayout(new QVBoxLayout());
+#ifdef Q_OS_MACOS
+    this->localFileBrowserWidget->layout()->setContentsMargins(0, 0, 0, 0);
+#endif
     QLabel *localLabel = new QLabel(tr("Local") + ": " + QHostInfo::localHostName());
     this->localFileBrowserWidget->layout()->addWidget(localLabel);
     this->localFileBrowserWidget->layout()->addWidget(this->localFileBrowser);
@@ -57,6 +60,9 @@ FileBrowserApplet::FileBrowserApplet()
 
     QWidget *remoteFileBrowserWidget = new QWidget();
     remoteFileBrowserWidget->setLayout(new QVBoxLayout());
+#ifdef Q_OS_MACOS
+    remoteFileBrowserWidget->layout()->setContentsMargins(0, 0, 0, 0);
+#endif
     this->remoteHostnameLabel = new QLabel(tr("Remote"));
     remoteFileBrowserWidget->layout()->addWidget(this->remoteHostnameLabel);
     remoteFileBrowserWidget->layout()->addWidget(this->remoteFileBrowser);

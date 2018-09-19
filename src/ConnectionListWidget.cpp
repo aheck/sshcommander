@@ -19,7 +19,6 @@ ConnectionListWidget::ConnectionListWidget(SSHConnectionItemModel *model)
     this->toolBar->setIconSize(QSize(MAC_ICON_SIZE, MAC_ICON_SIZE));
 #endif
 
-    this->toolBar->setAttribute(Qt::WA_MacSmallSize);
     toolBar->addAction(QIcon(":/images/applications-internet.svg"), "New Connection",
             this, SIGNAL(newDialogRequested()));
     this->editAction = toolBar->addAction(QIcon(":/images/preferences-system.svg"), "Edit Connection",

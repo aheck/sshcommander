@@ -53,6 +53,9 @@ int main(int argc, char *argv[])
             "QSplitter#terminalSplitter::handle   {height: 1em; background: #303030}"
             "QGroupBox {border: 1px solid grey; margin-top: 0.5em; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 0.5, stop: 0 #f4f4f4, stop: 1 #fafafa);}"
             "QGroupBox::title {subcontrol-origin: margin; subcontrol-position: top left; padding: 0 3px; border: 1px solid grey;}"
+#ifdef Q_OS_MACOS
+            "QToolBar {background-color: transparent; border: 0; padding-left: 3px; padding-top: 5px; padding-bottom: 5px;}"
+#endif
     );
 
     MainWindow mainWindow;

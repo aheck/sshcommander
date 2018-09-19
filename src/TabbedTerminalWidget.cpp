@@ -21,6 +21,10 @@ TabbedTerminalWidget::TabbedTerminalWidget(std::weak_ptr<SSHConnectionEntry> con
 
     connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
     connect(tabBar, SIGNAL(tabDetachRequested(int)), this, SLOT(detachTab(int)), Qt::QueuedConnection);
+
+#ifdef Q_OS_MACOS
+    this->setStyleSheet("background-color: white;");
+#endif
 }
 
 TabbedTerminalWidget::~TabbedTerminalWidget()

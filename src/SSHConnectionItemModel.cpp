@@ -25,7 +25,9 @@ QVariant SSHConnectionItemModel::data(const QModelIndex &index, int role) const
     if (role == Qt::FontRole) {
         QFont font;
         font.setFamily("Verdana");
-        font.setPointSize(9);
+#ifdef Q_OS_MACOS
+        font.setPointSize(11);
+#endif
 
         return QVariant::fromValue<QFont>(font);
     } else if (role == Qt::DecorationRole) {

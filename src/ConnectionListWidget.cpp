@@ -5,6 +5,7 @@ ConnectionListWidget::ConnectionListWidget(SSHConnectionItemModel *model)
     this->model = model;
 
     this->listView = new ConnectionListView();
+    this->listView->setIconSize(QSize(24, 24));
     this->listView->setModel(this->model);
     connect(this->listView, SIGNAL(connectionMoved(int, int)), this, SLOT(moveConnection(int, int)));
 

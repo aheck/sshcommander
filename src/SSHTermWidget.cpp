@@ -27,6 +27,19 @@ SSHTermWidget::SSHTermWidget(const QStringList *args, std::weak_ptr<SSHConnectio
 void SSHTermWidget::dataReceived(const QString &text)
 {
     auto connEntry = this->connEntryWeak.lock();
+#ifdef Q_OS_MACOS
+    // Workaround for macOS paint problem where the terminal is redrawn
+    // incompletely when a session is started from an existing session tab.
+    // Unfortunately, calling repaint on the console as well as the MainWindow
+    // didn't fix the problem.
+    static bool first = true;
+
+    if (first == true) {
+        this->setHidden(true);
+        this->setHidden(false);
+        first = false;
+    }
+#endif
 
     if (connEntry == nullptr) {
         std::cerr << "Failed to acquire shared_ptr on connEntryWeak in " <<

@@ -11,6 +11,7 @@
 #include <random>
 
 #include <QByteArray>
+#include <QMainWindow>
 #include <QString>
 
 #include <libs/tinyaes/aes.hpp>
@@ -27,6 +28,7 @@ public:
     static QByteArray generateRandomBytes(unsigned int numBytes);
     static QString encryptString(const QString &password);
     static QString decryptString(const QString &base64CipherText);
+    static QMainWindow* getQMainWindow();
     static MainWindow* getMainWindow();
 
 private:

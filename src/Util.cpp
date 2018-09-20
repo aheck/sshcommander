@@ -175,14 +175,20 @@ QString Util::decryptString(const QString &base64CipherText)
     return plaintext;
 }
 
-MainWindow* Util::getMainWindow()
+QMainWindow* Util::getQMainWindow()
 {
     for (QWidget *widget : qApp->topLevelWidgets()) {
-        MainWindow* mainWindow = qobject_cast<MainWindow*>(widget);
+        QMainWindow* mainWindow = qobject_cast<MainWindow*>(widget);
         if (mainWindow) {
             return mainWindow;
         }
     }
 
     return nullptr;
+}
+
+MainWindow* Util::getMainWindow()
+{
+    QMainWindow *widget = Util::getQMainWindow();
+    return qobject_cast<MainWindow*>(widget);
 }

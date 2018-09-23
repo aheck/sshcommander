@@ -43,8 +43,9 @@ SSHFilesystemNewDialog::SSHFilesystemNewDialog(QWidget *parent)
     cancelButton->setDefault(false);
 
     QHBoxLayout *buttonsLayout = new QHBoxLayout();
-    buttonsLayout->addWidget(connectButton);
+    buttonsLayout->addStretch(1);
     buttonsLayout->addWidget(cancelButton);
+    buttonsLayout->addWidget(connectButton);
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
     mainLayout->addLayout(this->formLayout);

@@ -35,8 +35,10 @@ void SSHTermWidget::dataReceived(const QString &text)
     static bool first = true;
 
     if (first == true) {
-        this->setHidden(true);
-        this->setHidden(false);
+        if (this->parent() != nullptr) {
+            this->setHidden(true);
+            this->setHidden(false);
+        }
         first = false;
     }
 #endif

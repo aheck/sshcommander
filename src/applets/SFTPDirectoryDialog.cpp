@@ -16,14 +16,15 @@ SFTPDirectoryDialog::SFTPDirectoryDialog(QWidget *parent)
     this->remoteFileBrowser->setAllColumnsShowFocus(true);
     this->remoteFileBrowser->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 
-    QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *okButton = new QPushButton(tr("OK"));
     connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
     QPushButton *cancelButton = new QPushButton(tr("Cancel"));
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 
-    buttonLayout->addWidget(okButton);
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addStretch(1);
     buttonLayout->addWidget(cancelButton);
+    buttonLayout->addWidget(okButton);
 
     layout->addWidget(this->remoteFileBrowser);
     layout->addLayout(buttonLayout);

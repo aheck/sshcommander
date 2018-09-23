@@ -10,6 +10,9 @@ PortsNewTunnelDialog::PortsNewTunnelDialog(QWidget *parent)
     this->shortDescriptionLineEdit = new QLineEdit();
 
     this->formLayout = new QFormLayout;
+#ifdef Q_OS_MACOS
+    this->formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+#endif
     this->formLayout->addRow(tr("Local Port:"), this->localPortLineEdit);
     this->formLayout->addRow(tr("Short Description:"), this->shortDescriptionLineEdit);
 

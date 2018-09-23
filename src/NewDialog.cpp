@@ -40,6 +40,9 @@ NewDialog::NewDialog(bool editDialog)
     QObject::connect(this->hopCheckBox, SIGNAL (clicked(bool)), this, SLOT (hopCheckBoxStateChanged(bool)));
 
     this->formLayout = new QFormLayout;
+#ifdef Q_OS_MACOS
+    this->formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+#endif
     this->formLayout->addRow(tr("Hostname:"), this->hostnameLineEdit);
     this->formLayout->addRow(tr("Username:"), this->usernameLineEdit);
     this->formLayout->addRow(tr("Password:"), this->passwordLineEdit);

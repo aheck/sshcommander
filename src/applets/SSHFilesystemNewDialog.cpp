@@ -30,6 +30,9 @@ SSHFilesystemNewDialog::SSHFilesystemNewDialog(QWidget *parent)
     remoteDirLayout->addWidget(remoteDirButton);
 
     this->formLayout = new QFormLayout;
+#ifdef Q_OS_MACOS
+    this->formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+#endif
     this->formLayout->addRow(tr("Local Directory:"), localDirLayout);
     this->formLayout->addRow(tr("Remote Directory:"), remoteDirLayout);
     this->formLayout->addRow(tr("Short Description:"), this->shortDescriptionLineEdit);

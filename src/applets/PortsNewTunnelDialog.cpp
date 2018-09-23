@@ -3,18 +3,21 @@
 PortsNewTunnelDialog::PortsNewTunnelDialog(QWidget *parent)
     : QDialog(parent)
 {
+    this->remotePort = 0;
+
     this->setWindowTitle(tr("New SSH Tunnel..."));
     this->setWindowIcon(QIcon(":/images/applications-internet.svg"));
 
-    this->localPortLineEdit = new QLineEdit();
-    this->shortDescriptionLineEdit = new QLineEdit();
+    this->localPortEdit = new QSpinBox();
+    this->localPortEdit->setRange(1024, 65535);
+    this->shortDescriptionEdit = new QLineEdit();
 
     this->formLayout = new QFormLayout;
 #ifdef Q_OS_MACOS
     this->formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 #endif
-    this->formLayout->addRow(tr("Local Port:"), this->localPortLineEdit);
-    this->formLayout->addRow(tr("Short Description:"), this->shortDescriptionLineEdit);
+    this->formLayout->addRow(tr("Local Port:"), this->localPortEdit);
+    this->formLayout->addRow(tr("Short Description:"), this->shortDescriptionEdit);
 
     QPushButton *connectButton = new QPushButton(tr("Connect"));
     QObject::connect(connectButton, SIGNAL (clicked()), this, SLOT (acceptDialog()));
@@ -41,41 +44,23 @@ PortsNewTunnelDialog::PortsNewTunnelDialog(QWidget *parent)
 
 void PortsNewTunnelDialog::acceptDialog()
 {
-    QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Warning);
-
-    bool ok;
-    this->localPort = this->localPortLineEdit->text().toInt(&ok, 10);
-
-    if (!ok) {
-        msgBox.setText(tr("Local Port must be a number!"));
-        msgBox.exec();
-
-        return;
-    } else if (this->localPort < 1 || this->localPort > 65535) {
-        msgBox.setText(tr("Local Port must be between 1 and 65535"));
-        msgBox.exec();
-
-        return;
-    }
-
     this->accept();
 }
 
 const int PortsNewTunnelDialog::getLocalPort()
 {
-    return this->localPort;
+    return this->localPortEdit->value();
 }
 
 const QString PortsNewTunnelDialog::getShortDescription()
 {
-    return this->shortDescriptionLineEdit->text();
+    return this->shortDescriptionEdit->text();
 }
 
 void PortsNewTunnelDialog::clear()
 {
-    this->localPortLineEdit->clear();
-    this->shortDescriptionLineEdit->clear();
+    this->localPortEdit->clear();
+    this->shortDescriptionEdit->clear();
 }
 
 void PortsNewTunnelDialog::setRemotePort(int remotePort)
@@ -90,8 +75,8 @@ void PortsNewTunnelDialog::setRemoteHostname(QString remoteHostname)
 
 void PortsNewTunnelDialog::update()
 {
-    this->descriptionLabel->setText("Create a tunnel from a port on your local machine '" +
-            QHostInfo::localHostName() + "' to port " + QString::number(this->remotePort) +
+    this->descriptionLabel->setText("Create a tunnel from your local machine '" +
+            QHostInfo::localHostName() + "' \nto port " + QString::number(this->remotePort) +
             " on the remote host '" + this->remoteHostname + "':");
 }
 

@@ -15,7 +15,7 @@
 #include <QHostInfo>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QMessageBox>
+#include <QSpinBox>
 #include <QToolButton>
 
 #include "TunnelManager.h"
@@ -39,13 +39,12 @@ public slots:
     void acceptDialog();
 
 private:
-    int localPort;
     int remotePort;
     QString remoteHostname;
     QFormLayout *formLayout;
     QLabel *descriptionLabel;
-    QLineEdit *localPortLineEdit;
-    QLineEdit *shortDescriptionLineEdit;
+    QSpinBox *localPortEdit;
+    QLineEdit *shortDescriptionEdit;
 };
 
 #endif

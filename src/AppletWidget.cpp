@@ -3,6 +3,8 @@
 AppletWidget::AppletWidget(std::shared_ptr<SSHConnectionEntry> connEntry, QWidget *parent)
 {
     this->tabBar = new CustomTabBar();
+    this->tabBar->setUsesScrollButtons(true);
+    this->setUsesScrollButtons(true);
     this->setTabBar(tabBar);
 
     // create the connection applets

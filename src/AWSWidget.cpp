@@ -1,5 +1,7 @@
 #include "AWSWidget.h"
 
+#include "globals.h"
+
 AWSWidget::AWSWidget()
 {
     this->updatingVpcs = false;
@@ -19,17 +21,36 @@ AWSWidget::AWSWidget()
     this->accessKeyLineEdit = new QLineEdit(this->loginWidget);
     this->secretKeyLineEdit = new QLineEdit(this->loginWidget);
     this->awsLoginButton = new QPushButton(tr("Login"), this->loginWidget);
+    QVBoxLayout *loginLayout = new QVBoxLayout();
+    loginLayout->setAlignment(Qt::AlignTop);
+    QLabel *awsLoginLabel = new QLabel("Login to AWS");
+    QFont font = awsLoginLabel->font();
+    font.setPointSize(24);
+    font.setBold(true);
+    awsLoginLabel->setFont(font);
+    loginLayout->addWidget(awsLoginLabel);
     QFormLayout *awsFormLayout = new QFormLayout;
+#ifdef Q_OS_MACOS
+    awsFormLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+#endif
     awsFormLayout->addRow(tr("AWS Access Key:"), accessKeyLineEdit);
     awsFormLayout->addRow(tr("AWS Secret Key:"), secretKeyLineEdit);
     awsFormLayout->addRow("", this->awsLoginButton);
-    this->loginWidget->setLayout(awsFormLayout);
+
+    loginLayout->addLayout(awsFormLayout);
+    this->loginWidget->setLayout(loginLayout);
+
     QObject::connect(this->awsLoginButton, SIGNAL(clicked()), this, SLOT(connectToAWS()));
 
     // build the mainWidget
     this->mainWidget = new QWidget();
     this->mainWidget->setLayout(new QVBoxLayout(this->mainWidget));
     this->toolBar = new QToolBar("toolBar", this->mainWidget);
+
+#ifdef Q_OS_MACOS
+    this->toolBar->setIconSize(QSize(MAC_ICON_SIZE, MAC_ICON_SIZE));
+#endif
+
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"), "Refresh", this, SLOT(loadData()));
     this->connectButton = this->toolBar->addAction(QIcon(":/images/applications-internet.svg"),
             "Connect to Instance", this, SLOT(connectToPublicIP()));

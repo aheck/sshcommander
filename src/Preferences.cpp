@@ -35,6 +35,11 @@ void Preferences::read()
         terminalFont.fromString(terminalFontStr);
     }
 
+    QFontInfo fi(terminalFont);
+    if (!fi.fixedPitch()) {
+        terminalFont = QFont("Courier", 12);
+    }
+
     this->setTerminalFont(terminalFont);
 
     this->setColorScheme(settings.value("colorScheme", "Linux").toString());

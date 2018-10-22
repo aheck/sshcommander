@@ -1,4 +1,5 @@
 #include "PreferencesDialog.h"
+#include <QDebug>
 
 PreferencesDialog::PreferencesDialog()
 {
@@ -86,6 +87,12 @@ void PreferencesDialog::selectFont()
     bool ok;
     QFont font = QFontDialog::getFont(&ok, this->terminalFont, this,
             tr("Select a terminal font..."), QFontDialog::MonospacedFonts);
+
+    qDebug() << "Font: " << font;
+    QFontInfo fi(font);
+    if (ok == true && !fi.fixedPitch()) {
+        font = QFont("Courier", 12);
+    }
 
     if (ok) {
         this->setFont(font);

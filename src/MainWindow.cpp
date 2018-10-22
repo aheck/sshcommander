@@ -35,38 +35,33 @@ MainWindow::MainWindow(QWidget *parent) :
     connMenu->addAction(newRole);
     connMenu->addSeparator();
 #ifdef Q_OS_MACOS
-    QAction *quitRole = connMenu->addAction(tr("&Quit"), this, SLOT(quit()));
+    connMenu->addAction(tr("&Quit"), this, SLOT(quit()));
 #else
-    QAction *quitRole = connMenu->addAction(QIcon(":/images/system-log-out.svg"), tr("&Quit"), this, SLOT(quit()));
+    connMenu->addAction(QIcon(":/images/system-log-out.svg"), tr("&Quit"), this, SLOT(quit()));
 #endif
-    //quitRole->setMenuRole(QAction::QuitRole);
 
     QMenu *editMenu = new QMenu(tr("Edit"));
 #ifdef Q_OS_MACOS
-    QAction *preferencesAction = editMenu->addAction(tr("Preferences"), this, SLOT(showPreferencesDialog()));
+    editMenu->addAction(tr("Preferences"), this, SLOT(showPreferencesDialog()));
 #else
-    QAction *preferencesAction = editMenu->addAction(QIcon(":/images/preferences-system.svg"),
+    editMenu->addAction(QIcon(":/images/preferences-system.svg"),
                 tr("Preferences"), this, SLOT(showPreferencesDialog()));
 #endif
-    //preferencesAction->setMenuRole(QAction::PreferencesRole);
-
     QMenu *helpMenu = new QMenu(tr("Help"));
 
 #ifdef Q_OS_MACOS
-    QAction *websiteAction = helpMenu->addAction(tr("Website..."), this, SLOT(openWebsite()));
+    helpMenu->addAction(tr("Website..."), this, SLOT(openWebsite()));
 #else
-    QAction *websiteAction = helpMenu->addAction(QIcon(":/images/go-home.svg"),
+    helpMenu->addAction(QIcon(":/images/go-home.svg"),
             tr("Website"), this, SLOT(openWebsite()));
 #endif
-    //websiteAction->setMenuRole(QAction::NoRole);
     helpMenu->addSeparator();
 #ifdef Q_OS_MACOS
-    QAction *aboutAction = helpMenu->addAction(tr("About"), this->aboutDialog, SLOT(exec()));
+    helpMenu->addAction(tr("About"), this->aboutDialog, SLOT(exec()));
 #else
-    QAction *aboutAction = helpMenu->addAction(QIcon(":/images/help-browser.svg"),
+    helpMenu->addAction(QIcon(":/images/help-browser.svg"),
             tr("About"), this->aboutDialog, SLOT(exec()));
 #endif
-    //aboutAction->setMenuRole(QAction::ApplicationSpecificRole);
 
     menuBar->addMenu(connMenu);
     menuBar->addMenu(editMenu);

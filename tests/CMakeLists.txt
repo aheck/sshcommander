@@ -32,18 +32,18 @@ add_executable(tests main.cpp
     ../src/AboutDialog.cpp
     ../src/Applet.cpp
     ../src/AppletWidget.cpp
-    ../src/AWSCache.cpp
-    ../src/AWSConnector.cpp
+    ../src/AWS/AWSCache.cpp
+    ../src/AWS/AWSConnector.cpp
+    ../src/AWS/AWSImage.cpp
+    ../src/AWS/AWSInstance.cpp
+    ../src/AWS/AWSRoute.cpp
+    ../src/AWS/AWSRouteTable.cpp
+    ../src/AWS/AWSTag.cpp
+    ../src/AWS/AWSResponseParsers.cpp
+    ../src/AWS/AWSSecurityGroup.cpp
+    ../src/AWS/AWSSubnet.cpp
+    ../src/AWS/AWSVpc.cpp
     ../src/AWSConsoleWindow.cpp
-    ../src/AWSImage.cpp
-    ../src/AWSInstance.cpp
-    ../src/AWSRoute.cpp
-    ../src/AWSRouteTable.cpp
-    ../src/AWSTag.cpp
-    ../src/AWSResponseParsers.cpp
-    ../src/AWSSecurityGroup.cpp
-    ../src/AWSSubnet.cpp
-    ../src/AWSVpc.cpp
     ../src/AWSWidget.cpp
     ../src/ConnectionListView.cpp
     ../src/ConnectionListWidget.cpp
@@ -67,6 +67,7 @@ add_executable(tests main.cpp
     ../src/Preferences.cpp
     ../src/PreferencesDialog.cpp
     ../src/PreferencesListWidget.cpp
+    ../src/PseudoTerminal.cpp
     ../src/RichTextDelegate.cpp
     ../src/RouteTableViewWidget.cpp
     ../src/SecurityGroupsDialog.cpp

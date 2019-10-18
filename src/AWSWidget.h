@@ -27,8 +27,8 @@
 #include <QToolBar>
 #include <QWidget>
 
-#include "AWSConnector.h"
-#include "AWSResponseParsers.h"
+#include "AWS/AWSConnector.h"
+#include "AWS/AWSResponseParsers.h"
 #include "InstanceItemModel.h"
 #include "Preferences.h"
 #include "SecurityGroupsDialog.h"

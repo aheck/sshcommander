@@ -15,7 +15,7 @@
 #include <QVBoxLayout>
 #include <QVector>
 
-#include "AWSInstance.h"
+#include "AWS/AWSInstance.h"
 #include "TagsViewWidget.h"
 
 class TagsDialog : public QDialog

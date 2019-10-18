@@ -16,7 +16,7 @@
 #include <QTableWidget>
 #include <QVBoxLayout>
 
-#include "AWSTag.h"
+#include "AWS/AWSTag.h"
 
 class TagsViewWidget : public QWidget
 {

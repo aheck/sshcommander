@@ -16,9 +16,9 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-#include "AWSConnector.h"
-#include "AWSInstance.h"
-#include "AWSVpc.h"
+#include "AWS/AWSConnector.h"
+#include "AWS/AWSInstance.h"
+#include "AWS/AWSVpc.h"
 #include "TagsViewWidget.h"
 
 class VpcDialog : public QDialog

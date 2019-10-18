@@ -18,7 +18,7 @@
 #include <QTableWidget>
 #include <QVBoxLayout>
 
-#include "AWSRouteTable.h"
+#include "AWS/AWSRouteTable.h"
 
 class RouteTableViewWidget : public QWidget
 {

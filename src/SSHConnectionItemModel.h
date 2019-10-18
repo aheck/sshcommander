@@ -17,7 +17,7 @@
 #include <QModelIndex>
 #include <QList>
 
-#include "AWSCache.h"
+#include "AWS/AWSCache.h"
 #include "SSHConnectionEntry.h"
 
 class SSHConnectionItemModel : public QAbstractItemModel

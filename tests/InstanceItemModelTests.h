@@ -4,7 +4,7 @@
 
 #include <memory>
 
-#include "AWSInstance.h"
+#include "AWS/AWSInstance.h"
 #include "InstanceItemModel.h"
 
 class InstanceItemModelTests : public QObject

@@ -11,7 +11,7 @@
 
 #include <QWidget>
 
-#include "AWSInstance.h"
+#include "AWS/AWSInstance.h"
 #include "SSHConnectionEntry.h"
 
 class Applet : public QWidget

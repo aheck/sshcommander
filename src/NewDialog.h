@@ -24,7 +24,7 @@
 #include <QMessageBox>
 #include <QToolButton>
 
-#include "AWSConnector.h"
+#include "AWS/AWSConnector.h"
 #include "globals.h"
 
 class NewDialog : public QDialog

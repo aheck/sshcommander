@@ -15,9 +15,9 @@
 #include <QTableWidget>
 #include <QVBoxLayout>
 
-#include "AWSConnector.h"
-#include "AWSInstance.h"
-#include "AWSSecurityGroup.h"
+#include "AWS/AWSConnector.h"
+#include "AWS/AWSInstance.h"
+#include "AWS/AWSSecurityGroup.h"
 
 class SecurityGroupsDialog : public QDialog
 {

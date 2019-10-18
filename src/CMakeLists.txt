@@ -39,18 +39,18 @@ add_executable(sshcommander
     AboutDialog.cpp
     Applet.cpp
     AppletWidget.cpp
-    AWSCache.cpp
-    AWSConnector.cpp
+    AWS/AWSCache.cpp
+    AWS/AWSConnector.cpp
+    AWS/AWSImage.cpp
+    AWS/AWSInstance.cpp
+    AWS/AWSRoute.cpp
+    AWS/AWSRouteTable.cpp
+    AWS/AWSTag.cpp
+    AWS/AWSResponseParsers.cpp
+    AWS/AWSSecurityGroup.cpp
+    AWS/AWSSubnet.cpp
+    AWS/AWSVpc.cpp
     AWSConsoleWindow.cpp
-    AWSImage.cpp
-    AWSInstance.cpp
-    AWSRoute.cpp
-    AWSRouteTable.cpp
-    AWSTag.cpp
-    AWSResponseParsers.cpp
-    AWSSecurityGroup.cpp
-    AWSSubnet.cpp
-    AWSVpc.cpp
     AWSWidget.cpp
     ConnectionListView.cpp
     ConnectionListWidget.cpp
@@ -74,6 +74,7 @@ add_executable(sshcommander
     Preferences.cpp
     PreferencesDialog.cpp
     PreferencesListWidget.cpp
+    PseudoTerminal.cpp
     RichTextDelegate.cpp
     RouteTableViewWidget.cpp
     SecurityGroupsDialog.cpp

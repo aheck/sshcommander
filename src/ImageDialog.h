@@ -16,9 +16,9 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-#include "AWSConnector.h"
-#include "AWSInstance.h"
-#include "AWSImage.h"
+#include "AWS/AWSConnector.h"
+#include "AWS/AWSInstance.h"
+#include "AWS/AWSImage.h"
 #include "TagsViewWidget.h"
 
 class ImageDialog : public QDialog

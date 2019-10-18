@@ -18,8 +18,8 @@
 #include <QJsonObject>
 #include <QStringList>
 
-#include "AWSConnector.h"
-#include "AWSInstance.h"
+#include "AWS/AWSConnector.h"
+#include "AWS/AWSInstance.h"
 #include "SSHConnection.h"
 #include "TabbedTerminalWidget.h"
 

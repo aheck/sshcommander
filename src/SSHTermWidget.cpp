@@ -68,8 +68,6 @@ void SSHTermWidget::dataReceived(const QString &text)
                 this, SLOT(dataReceived(QString)));
     }
 
-    std::cout << text.toStdString() << "\n";
-
     if (this->passwordRegex1.exactMatch(text) || this->passwordRegex2.exactMatch(text)) {
         std::cout << "Sending ssh password...\n";
         this->sendText(connEntry->password + "\n");

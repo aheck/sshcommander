@@ -1,6 +1,7 @@
 #include "SubnetDialog.h"
 
-SubnetDialog::SubnetDialog()
+SubnetDialog::SubnetDialog(QWidget *parent)
+    : QDialog(parent)
 {
     this->setMinimumWidth(500);
     QVBoxLayout *layout = new QVBoxLayout();

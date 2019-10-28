@@ -1,6 +1,7 @@
 #include "ImageDialog.h"
 
-ImageDialog::ImageDialog()
+ImageDialog::ImageDialog(QWidget *parent)
+    : QDialog(parent)
 {
     this->setMinimumWidth(500);
     QVBoxLayout *layout = new QVBoxLayout();

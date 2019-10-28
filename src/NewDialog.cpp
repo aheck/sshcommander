@@ -1,6 +1,7 @@
 #include "NewDialog.h"
 
-NewDialog::NewDialog(bool editDialog)
+NewDialog::NewDialog(QWidget *parent, bool editDialog)
+    : QDialog(parent)
 {
     this->setWindowTitle(tr("New SSH Connection..."));
     this->setWindowIcon(QIcon(":/images/applications-internet.svg"));

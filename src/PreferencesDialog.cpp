@@ -1,7 +1,8 @@
 #include "PreferencesDialog.h"
 #include <QDebug>
 
-PreferencesDialog::PreferencesDialog()
+PreferencesDialog::PreferencesDialog(QWidget *parent)
+    : QDialog(parent)
 {
     this->setMinimumWidth(400);
     this->setMinimumHeight(300);

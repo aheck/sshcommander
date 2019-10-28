@@ -12,9 +12,9 @@ AWSWidget::AWSWidget()
     this->awsConnector = new AWSConnector();
     QObject::connect(this->awsConnector, SIGNAL(awsReplyReceived(AWSResult*)), this, SLOT(handleAWSResult(AWSResult*)));
 
-    this->securityGroupsDialog = new SecurityGroupsDialog();
-    this->tagsDialog = new TagsDialog();
-    this->vpcDialog = new VpcDialog();
+    this->securityGroupsDialog = new SecurityGroupsDialog(this);
+    this->tagsDialog = new TagsDialog(this);
+    this->vpcDialog = new VpcDialog(this);
 
     // build the loginWidget
     this->loginWidget = new QWidget();

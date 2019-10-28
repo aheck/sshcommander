@@ -24,7 +24,7 @@ class SecurityGroupsDialog : public QDialog
     Q_OBJECT
 
 public:
-    SecurityGroupsDialog();
+    SecurityGroupsDialog(QWidget *parent = nullptr);
 
     void showDialog(AWSConnector *connector, std::shared_ptr<AWSInstance> instance);
     void updateData(std::vector<std::shared_ptr<AWSSecurityGroup>> securityGroups);

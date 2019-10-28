@@ -26,7 +26,7 @@ class ImageDialog : public QDialog
     Q_OBJECT
 
 public:
-    ImageDialog();
+    ImageDialog(QWidget *parent = nullptr);
 
     void showDialog(AWSConnector *connector, std::shared_ptr<AWSInstance> instance);
     void updateData(std::vector<std::shared_ptr<AWSImage>> image);

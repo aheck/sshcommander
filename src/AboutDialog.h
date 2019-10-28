@@ -25,7 +25,7 @@ class AboutDialog : public QDialog
     Q_OBJECT
 
 public:
-    AboutDialog();
+    AboutDialog(QWidget *parent = nullptr);
 };
 
 #endif

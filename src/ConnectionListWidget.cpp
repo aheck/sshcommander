@@ -33,7 +33,7 @@ ConnectionListWidget::ConnectionListWidget(SSHConnectionItemModel *model)
     this->awsConsoleAction->setCheckable(true);
     connect(this->awsConsoleAction, SIGNAL(toggled(bool)), this, SLOT(awsConsoleToggled(bool)));
 
-    this->editDialog = new NewDialog(true);
+    this->editDialog = new NewDialog(this, true);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);
@@ -48,7 +48,6 @@ ConnectionListWidget::ConnectionListWidget(SSHConnectionItemModel *model)
 
 ConnectionListWidget::~ConnectionListWidget()
 {
-    delete this->editDialog;
 }
 
 void ConnectionListWidget::showContextMenu(QPoint pos)

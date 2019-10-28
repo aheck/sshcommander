@@ -32,7 +32,7 @@ class NewDialog : public QDialog
     Q_OBJECT
 
 public:
-    NewDialog(bool editDialog = false);
+    NewDialog(QWidget* parent = nullptr, bool editDialog = false);
 
     const QString getHostname();
     void setHostname(const QString hostname);

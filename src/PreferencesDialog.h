@@ -39,7 +39,7 @@ class PreferencesDialog : public QDialog
     Q_OBJECT
 
 public:
-    PreferencesDialog();
+    PreferencesDialog(QWidget *parent = nullptr);
 
     QFont getFont();
     void setFont(const QFont &font);

@@ -1,6 +1,7 @@
 #include "VpcDialog.h"
 
-VpcDialog::VpcDialog()
+VpcDialog::VpcDialog(QWidget *parent)
+    : QDialog(parent)
 {
     this->setMinimumWidth(500);
     QVBoxLayout *layout = new QVBoxLayout();

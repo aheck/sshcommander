@@ -23,7 +23,7 @@ class TagsDialog : public QDialog
     Q_OBJECT
 
 public:
-    TagsDialog();
+    TagsDialog(QWidget *parent = nullptr);
 
     void showDialog(std::shared_ptr<AWSInstance> instance);
 

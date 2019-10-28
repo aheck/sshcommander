@@ -2,10 +2,10 @@
 
 AWSInfoApplet::AWSInfoApplet()
 {
-    this->securityGroupsDialog = new SecurityGroupsDialog();
-    this->imageDialog = new ImageDialog();
-    this->subnetDialog = new SubnetDialog();
-    this->vpcDialog = new VpcDialog();
+    this->securityGroupsDialog = new SecurityGroupsDialog(this);
+    this->imageDialog = new ImageDialog(this);
+    this->subnetDialog = new SubnetDialog(this);
+    this->vpcDialog = new VpcDialog(this);
 
     this->awsConnector = new AWSConnector();
     QObject::connect(this->awsConnector, SIGNAL(awsReplyReceived(AWSResult*)), this, SLOT(handleAWSResult(AWSResult*)));
@@ -144,7 +144,6 @@ AWSInfoApplet::AWSInfoApplet()
 
 AWSInfoApplet::~AWSInfoApplet()
 {
-    delete this->securityGroupsDialog;
     delete this->awsConnector;
 }
 

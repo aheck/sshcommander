@@ -1,6 +1,7 @@
 #include "TagsDialog.h"
 
-TagsDialog::TagsDialog()
+TagsDialog::TagsDialog(QWidget *parent)
+    : QDialog(parent)
 {
     this->setMinimumWidth(500);
     this->setMinimumHeight(300);

@@ -28,7 +28,7 @@ class SubnetDialog : public QDialog
     Q_OBJECT
 
 public:
-    SubnetDialog();
+    SubnetDialog(QWidget *parent = nullptr);
 
     void showDialog(AWSConnector *connector, std::shared_ptr<AWSInstance> instance);
     void updateData(std::vector<std::shared_ptr<AWSSubnet>> subnets);

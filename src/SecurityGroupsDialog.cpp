@@ -1,6 +1,7 @@
 #include "SecurityGroupsDialog.h"
 
-SecurityGroupsDialog::SecurityGroupsDialog()
+SecurityGroupsDialog::SecurityGroupsDialog(QWidget *parent)
+    : QDialog(parent)
 {
     this->setMinimumWidth(650);
     this->setMinimumHeight(500);

@@ -42,7 +42,8 @@ const char *thirdPartyText = "<h3>libssh2</h3>\n"
 "USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY<br>"
 "OF SUCH DAMAGE.";
 
-AboutDialog::AboutDialog()
+AboutDialog::AboutDialog(QWidget *parent)
+    : QDialog(parent)
 {
     this->setWindowTitle("About SSH Commander");
     this->setWindowIcon(QIcon(":/images/help-browser.svg"));

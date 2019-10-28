@@ -26,7 +26,7 @@ class VpcDialog : public QDialog
     Q_OBJECT
 
 public:
-    VpcDialog();
+    VpcDialog(QWidget *parent = nullptr);
 
     void showDialog(AWSConnector *connector, const QString vpcId, const QString vpcName);
     void showDialog(AWSConnector *connector, std::shared_ptr<AWSInstance> instance);

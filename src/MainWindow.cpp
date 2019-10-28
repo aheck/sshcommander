@@ -16,9 +16,9 @@ MainWindow::MainWindow(QWidget *parent) :
     preferences.read();
 
     // dialogs
-    this->aboutDialog = new AboutDialog();
-    this->newDialog = new NewDialog();
-    this->preferencesDialog = new PreferencesDialog();
+    this->aboutDialog = new AboutDialog(this);
+    this->newDialog = new NewDialog(this);
+    this->preferencesDialog = new PreferencesDialog(this);
     connect(newDialog, SIGNAL (accepted()), this, SLOT (createNewConnection()));
 
     // build the menu bar

@@ -1,0 +1,54 @@
+/*****************************************************************************
+ *
+ * PseudoTerminal allows to run and control terminal-based programs in
+ * headless mode.
+ *
+ ****************************************************************************/
+
+#ifndef PSEUDOTERMINAL_H
+#define PSEUDOTERMINAL_H
+
+#include <QList>
+#include <QSocketNotifier>
+#include <QString>
+#include <QThread>
+
+#include <termios.h>
+#include <iostream>
+
+class PseudoTerminal : public QObject
+{
+    Q_OBJECT
+
+public:
+    PseudoTerminal();
+    ~PseudoTerminal();
+
+    void start(const QString &command, const QStringList &args = QStringList());
+    bool isRunning();
+    void sendData(const QString &data);
+    void terminate(int secsToForce = 10);
+    int statusCode();
+
+signals:
+    void finished(int exitCode);
+    void dataReceived(const QString &data);
+
+public slots:
+    void readReady(int fd);
+
+private:
+    pid_t childPid;
+    int masterFd;
+    int slaveFd;
+    int _statusCode;
+    QString command;
+    QStringList args;
+    QSocketNotifier *fdWatcher;
+
+    int ptyMasterOpen(char *slaveName, size_t snLen);
+    pid_t ptyFork(int *masterFd, char *slaveName, size_t snLen,
+            const struct termios *slaveTermios, const struct winsize *slaveWS);
+};
+
+#endif

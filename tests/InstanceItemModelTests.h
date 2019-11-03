@@ -1,3 +1,6 @@
+#ifndef INSTANCEITEMMODELTESTS_H
+#define INSTANCEITEMMODELTESTS_H
+
 #include <QObject>
 
 #include <QtTest/QtTest>
@@ -15,3 +18,5 @@ private slots:
     void testSortingManyInstances();
     void testComparatorOrdering();
 };
+
+#endif

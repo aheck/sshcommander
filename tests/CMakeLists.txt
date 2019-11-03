@@ -4,6 +4,7 @@ include_directories("../src")
 
 add_executable(tests main.cpp
     InstanceItemModelTests.cpp
+    PseudoTerminalTests.cpp
 
     ../src/applets/AWSInfoApplet.cpp
     ../src/applets/FileBrowserApplet.cpp

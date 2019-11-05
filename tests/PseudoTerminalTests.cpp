@@ -29,6 +29,26 @@ void PseudoTerminalTests::testBasicOperation()
     QCOMPARE(arguments.at(0).toString(), QString("exit 5\r\nexit\r\n"));
 }
 
+void PseudoTerminalTests::testTerminate()
+{
+    PseudoTerminal term;
+
+    QSignalSpy finishedSpy(&term, SIGNAL(finished(int)));
+
+    term.start("/bin/bash");
+    QTest::qWait(500);
+    QVERIFY(term.isRunning());
+
+    QCOMPARE(finishedSpy.count(), 0);
+    term.terminate();
+    QTest::qWait(500);
+
+    QCOMPARE(finishedSpy.count(), 1);
+    QList<QVariant> arguments = finishedSpy.takeFirst();
+    QCOMPARE(arguments.at(0).toInt(), 0);
+    QCOMPARE(term.statusCode(), 0);
+}
+
 void PseudoTerminalTests::dataReceived(const QString &data)
 {
     std::cout << "New data:\n";

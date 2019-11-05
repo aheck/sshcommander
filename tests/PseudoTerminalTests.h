@@ -19,6 +19,7 @@ public slots:
     void dataReceived(const QString &data);
 private slots:
     void testBasicOperation();
+    void testTerminate();
 };
 
 #endif

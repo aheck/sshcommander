@@ -16,7 +16,7 @@ class PseudoTerminalTests : public QObject
     Q_OBJECT
 
 public slots:
-    void dataReceived(const QString &data);
+    void lineReceived(const QString &data);
 private slots:
     void testBasicOperation();
     void testTerminate();

@@ -32,7 +32,8 @@ public:
 
 signals:
     void finished(int exitCode);
-    void dataReceived(const QString &data);
+    void dataReceived(const QString data);
+    void lineReceived(const QString line);
 
 public slots:
     void readReady(int fd);
@@ -42,6 +43,7 @@ private:
     int masterFd;
     int slaveFd;
     int _statusCode;
+    QString buffer;
     QString command;
     QStringList args;
     QSocketNotifier *fdWatcher;

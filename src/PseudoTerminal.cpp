@@ -106,6 +106,18 @@ void PseudoTerminal::readReady(int fd)
 
     buf[numRead] = '\0';
     emit(dataReceived(QString(buf)));
+
+    this->buffer.append(buf);
+    int pos;
+    while (1) {
+        pos = this->buffer.indexOf('\n');
+        if (pos == -1) {
+            break;
+        }
+        QString line = this->buffer.left(pos + 1);
+        this->buffer.remove(0, pos + 1);
+        emit lineReceived(line);
+    };
 }
 
 bool PseudoTerminal::isRunning()

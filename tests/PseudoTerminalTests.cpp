@@ -4,8 +4,8 @@ void PseudoTerminalTests::testBasicOperation()
 {
     PseudoTerminal term;
 
-    connect(&term, &PseudoTerminal::dataReceived, this, &PseudoTerminalTests::dataReceived);
-    QSignalSpy dataSpy(&term, SIGNAL(dataReceived(QString)));
+    connect(&term, &PseudoTerminal::lineReceived, this, &PseudoTerminalTests::lineReceived);
+    QSignalSpy dataSpy(&term, SIGNAL(lineReceived(QString)));
     QSignalSpy finishedSpy(&term, SIGNAL(finished(int)));
 
     term.start("/bin/bash");
@@ -22,11 +22,15 @@ void PseudoTerminalTests::testBasicOperation()
     QCOMPARE(arguments.at(0).toInt(), 5);
     QCOMPARE(term.statusCode(), 5);
 
-    QCOMPARE(dataSpy.count(), 3);
+    QCOMPARE(dataSpy.count(), 4);
+    arguments = dataSpy.at(0);
+    QVERIFY(arguments.at(0).toString().endsWith(QString("echo \"Hello World\"\r\n")));
     arguments = dataSpy.at(1);
-    QVERIFY(arguments.at(0).toString().startsWith(QString("echo \"Hello World\"\r\nHello World\r\n")));
+    QCOMPARE(arguments.at(0).toString(), QString("Hello World\r\n"));
     arguments = dataSpy.at(2);
-    QCOMPARE(arguments.at(0).toString(), QString("exit 5\r\nexit\r\n"));
+    QVERIFY(arguments.at(0).toString().endsWith(QString("exit 5\r\n")));
+    arguments = dataSpy.at(3);
+    QCOMPARE(arguments.at(0).toString(), QString("exit\r\n"));
 }
 
 void PseudoTerminalTests::testTerminate()
@@ -49,7 +53,7 @@ void PseudoTerminalTests::testTerminate()
     QCOMPARE(term.statusCode(), 0);
 }
 
-void PseudoTerminalTests::dataReceived(const QString &data)
+void PseudoTerminalTests::lineReceived(const QString &data)
 {
     std::cout << "New data:\n";
     std::cout << data.toStdString() << "\n";

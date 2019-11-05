@@ -89,9 +89,12 @@ void PseudoTerminal::readReady(int fd)
 
     if (numRead <= 0) {
         if (numRead == -1) {
-            this->fdWatcher->setEnabled(0);
-        } else {
-            perror("PseudoTerminal.cpp: ");
+            if (errno == EIO) {
+                this->fdWatcher->setEnabled(0);
+            }
+            else {
+                perror("PseudoTerminal.cpp: ");
+            }
         }
 
         int result;

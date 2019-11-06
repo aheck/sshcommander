@@ -33,6 +33,59 @@ void PseudoTerminalTests::testBasicOperation()
     QCOMPARE(arguments.at(0).toString(), QString("exit\r\n"));
 }
 
+void PseudoTerminalTests::testArgZero()
+{
+    PseudoTerminal term;
+
+    QSignalSpy dataSpy(&term, SIGNAL(lineReceived(QString)));
+
+    term.start("/bin/bash");
+    QTest::qWait(500);
+
+    term.sendData("echo $0\n");
+    QTest::qWait(500);
+
+    QCOMPARE(dataSpy.count(), 2);
+    QList<QVariant> arguments = dataSpy.at(1);
+    QCOMPARE(arguments.at(0).toString(), QString("/bin/bash\r\n"));
+}
+
+void PseudoTerminalTests::testArgs()
+{
+    PseudoTerminal term;
+
+    QSignalSpy dataSpy(&term, SIGNAL(lineReceived(QString)));
+    QSignalSpy finishedSpy(&term, SIGNAL(finished(int)));
+
+    term.start("/bin/bash", QStringList("/tmp"));
+    QTest::qWait(500);
+
+    QCOMPARE(finishedSpy.count(), 1);
+    QList<QVariant> arguments = finishedSpy.takeFirst();
+    QCOMPARE(arguments.at(0).toInt(), 126);
+
+    QCOMPARE(dataSpy.count(), 1);
+    arguments = dataSpy.at(0);
+    QVERIFY(arguments.at(0).toString().startsWith("/tmp: /tmp: "));
+}
+
+void PseudoTerminalTests::testDataReceived()
+{
+    PseudoTerminal term;
+
+    QSignalSpy dataSpy(&term, SIGNAL(lineReceived(QString)));
+
+    term.start("/bin/bash");
+    QTest::qWait(500);
+
+    term.sendData("exit 5\n");
+    QTest::qWait(500);
+
+    QCOMPARE(dataSpy.count(), 2);
+    QList <QVariant> arguments = dataSpy.at(1);
+    QCOMPARE(arguments.at(0).toString(), QString("exit\r\n"));
+}
+
 void PseudoTerminalTests::testTerminate()
 {
     PseudoTerminal term;

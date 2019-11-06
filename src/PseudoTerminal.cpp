@@ -34,7 +34,7 @@ void PseudoTerminal::start(const QString &command, const QStringList &args)
 {
     char slaveName[MAX_SNAME];
     struct winsize ws;
-    char ** arglist;
+    const char **arglist;
 
     this->command = command;
     this->args = args;
@@ -60,11 +60,11 @@ void PseudoTerminal::start(const QString &command, const QStringList &args)
     if (this->childPid == 0) {
         // Child
         int size = args.length() + 2;
-        arglist = new char*[size];
-        arglist[0] = (char *) command.constData();
+        arglist = new const char*[size];
+        arglist[0] = command.toStdString().c_str();
         int i = 1;
         for (const QString &arg: args) {
-            arglist[i] = (char*) arg.constData();
+            arglist[i] = arg.toStdString().c_str();
             i++;
         }
 
@@ -175,6 +175,10 @@ void PseudoTerminal::terminate(int secsToForce)
         if (pid == this->childPid) {
             this->_statusCode = WEXITSTATUS(result);
             emit finished(this->_statusCode);
+            return;
+        }
+
+        if (!this->isRunning()) {
             return;
         }
     }

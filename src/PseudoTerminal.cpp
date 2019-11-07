@@ -42,19 +42,19 @@ void PseudoTerminal::start(const QString &command, const QStringList &args)
 
     // save original terminal attributes
     if (tcgetattr(STDIN_FILENO, &ttyOrig) == -1) {
-        fprintf(stderr, "Failed to save original terminal attributes\n");
+        std::cerr << "Failed to save original terminal attributes\n";
         return;
     }
 
     // get winsize
     if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws)) {
-        fprintf(stderr, "Failed to get terminal winsize\n");
+        std::cerr << "Failed to get terminal winsize\n";
         return;
     }
 
     this->childPid = ptyFork(&this->masterFd, slaveName, MAX_SNAME, &ttyOrig, &ws);
     if (this->childPid == -1) {
-        fprintf(stderr, "Failed to fork child\n");
+        std::cerr << "Failed to fork child\n";
         return;
     }
 
@@ -73,7 +73,7 @@ void PseudoTerminal::start(const QString &command, const QStringList &args)
 
         execv(command.toLatin1().data(), (char* const*) arglist);
 
-        fprintf(stderr, "Failed to start shell\n");
+        std::cerr << "Failed to start shell\n";
         exit(0);
     }
 
@@ -276,7 +276,7 @@ pid_t PseudoTerminal::ptyFork(int *masterFd, char *slaveName, size_t snLen,
 
     // Child
     if (setsid() == -1) {
-        fprintf(stderr, "Failed setsid\n");
+        std::cerr << "Failed setsid\n";
         return -1;
     }
 
@@ -284,44 +284,44 @@ pid_t PseudoTerminal::ptyFork(int *masterFd, char *slaveName, size_t snLen,
 
     this->slaveFd = open(slname, O_RDWR);
     if (this->slaveFd == -1) {
-        fprintf(stderr, "Failed to open slave\n");
+        std::cerr << "Failed to open slave\n";
         return -1;
     }
 
 #ifdef TIOSCSCTTY
     if (ioctl(this->slaveFd, TIOCSCTTY, 0) == -1) {
-        fprintf(stderr, "Failed TIOCSCTTY on slave\n");
+        std::cerr << "Failed TIOCSCTTY on slave\n";
         return -1;
     }
 #endif
 
     if (slaveTermios != NULL) {
         if (tcsetattr(this->slaveFd, TCSANOW, slaveTermios) == -1) {
-            fprintf(stderr, "Failed TCSANOW on slave\n");
+            std::cerr << "Failed TCSANOW on slave\n";
             return -1;
         }
     }
 
     if (slaveWS != NULL) {
         if (ioctl(this->slaveFd, TIOCSWINSZ, slaveWS) == -1) {
-            fprintf(stderr, "Failed TIOCSWINSZ on slave\n");
+            std::cerr << "Failed TIOCSWINSZ on slave\n";
             return -1;
         }
     }
 
     // Duplicate pty slave fd to be child's stdin, stdout and stderr
     if (dup2(this->slaveFd, STDIN_FILENO) != STDIN_FILENO) {
-        fprintf(stderr, "Failed dup of STDIN\n");
+        std::cerr << "Failed dup of STDIN\n";
         return -1;
     }
 
     if (dup2(this->slaveFd, STDOUT_FILENO) != STDOUT_FILENO) {
-        fprintf(stderr, "Failed dup of STDOUT\n");
+        std::cerr << "Failed dup of STDOUT\n";
         return -1;
     }
 
     if (dup2(this->slaveFd, STDERR_FILENO) != STDERR_FILENO) {
-        fprintf(stderr, "Failed dup of STDERR\n");
+        std::cerr << "Failed dup of STDERR\n";
         return -1;
     }
 

@@ -28,6 +28,7 @@ PseudoTerminal::PseudoTerminal()
 
 PseudoTerminal::~PseudoTerminal()
 {
+    this->terminate();
 }
 
 void PseudoTerminal::start(const QString &command, const QStringList &args)
@@ -101,9 +102,9 @@ void PseudoTerminal::readReady(int fd)
         pid_t pid = waitpid(this->childPid, &result, WNOHANG);
         if (pid > 0) {
             this->_statusCode = WEXITSTATUS(result);
-            std::cout << "statusCode: " << this->_statusCode << "\n";
             emit finished(this->_statusCode);
         }
+
         return;
     }
 
@@ -134,6 +135,9 @@ bool PseudoTerminal::isRunning()
     pid_t pid = waitpid(this->childPid, &result, WNOHANG);
     if (pid > 0) {
         // child has terminated
+        return false;
+    } else if (pid == -1) {
+        // ERROR
         return false;
     }
 

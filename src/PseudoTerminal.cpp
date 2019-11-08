@@ -42,19 +42,19 @@ void PseudoTerminal::start(const QString &command, const QStringList &args)
 
     // save original terminal attributes
     if (tcgetattr(STDIN_FILENO, &ttyOrig) == -1) {
-        std::cerr << "Failed to save original terminal attributes\n";
+        emit errorOccured(QProcess::FailedToStart, "QProcess::FailedToStart: Failed to save original terminal attributes");
         return;
     }
 
     // get winsize
     if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws)) {
-        std::cerr << "Failed to get terminal winsize\n";
+        emit errorOccured(QProcess::FailedToStart, "QProcess::FailedToStart: Failed to get terminal winsize");
         return;
     }
 
     this->childPid = ptyFork(&this->masterFd, slaveName, MAX_SNAME, &ttyOrig, &ws);
     if (this->childPid == -1) {
-        std::cerr << "Failed to fork child\n";
+        emit errorOccured(QProcess::FailedToStart, "QProcess::FailedToStart: Failed to fork child");
         return;
     }
 
@@ -73,7 +73,7 @@ void PseudoTerminal::start(const QString &command, const QStringList &args)
 
         execv(command.toLatin1().data(), (char* const*) arglist);
 
-        std::cerr << "Failed to start shell\n";
+        emit errorOccured(QProcess::FailedToStart, "QProcess::FailedToStart: Failed to start shell");
         exit(0);
     }
 
@@ -300,7 +300,7 @@ pid_t PseudoTerminal::ptyFork(int *masterFd, char *slaveName, size_t snLen,
 
     // Child
     if (setsid() == -1) {
-        std::cerr << "Failed setsid\n";
+        emit errorOccured(QProcess::FailedToStart, "QProcess::FailedToStart: Failed setsid");
         return -1;
     }
 
@@ -308,44 +308,44 @@ pid_t PseudoTerminal::ptyFork(int *masterFd, char *slaveName, size_t snLen,
 
     this->slaveFd = open(slname, O_RDWR);
     if (this->slaveFd == -1) {
-        std::cerr << "Failed to open slave\n";
+        emit errorOccured(QProcess::FailedToStart, "QProcess::FailedToStart: Failed to open slave");
         return -1;
     }
 
 #ifdef TIOSCSCTTY
     if (ioctl(this->slaveFd, TIOCSCTTY, 0) == -1) {
-        std::cerr << "Failed TIOCSCTTY on slave\n";
+        emit errorOccured(QProcess::FailedToStart, "QProcess::FailedToStart: Failed TIOCSCTTY on slave");
         return -1;
     }
 #endif
 
     if (slaveTermios != NULL) {
         if (tcsetattr(this->slaveFd, TCSANOW, slaveTermios) == -1) {
-            std::cerr << "Failed TCSANOW on slave\n";
+            emit errorOccured(QProcess::FailedToStart, "QProcess::FailedToStart: Failed TCSANOW on slave");
             return -1;
         }
     }
 
     if (slaveWS != NULL) {
         if (ioctl(this->slaveFd, TIOCSWINSZ, slaveWS) == -1) {
-            std::cerr << "Failed TIOCSWINSZ on slave\n";
+            emit errorOccured(QProcess::FailedToStart, "QProcess::FailedToStart: Failed TIOCSWINSZ on slave");
             return -1;
         }
     }
 
     // Duplicate pty slave fd to be child's stdin, stdout and stderr
     if (dup2(this->slaveFd, STDIN_FILENO) != STDIN_FILENO) {
-        std::cerr << "Failed dup of STDIN\n";
+        emit errorOccured(QProcess::FailedToStart, "QProcess::FailedToStart: Failed dup of STDIN");
         return -1;
     }
 
     if (dup2(this->slaveFd, STDOUT_FILENO) != STDOUT_FILENO) {
-        std::cerr << "Failed dup of STDOUT\n";
+        emit errorOccured(QProcess::FailedToStart, "QProcess::FailedToStart: Failed dup of STDOUT");
         return -1;
     }
 
     if (dup2(this->slaveFd, STDERR_FILENO) != STDERR_FILENO) {
-        std::cerr << "Failed dup of STDERR\n";
+        emit errorOccured(QProcess::FailedToStart, "QProcess::FailedToStart: Failed dup of STDERR");
         return -1;
     }
 

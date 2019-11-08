@@ -9,6 +9,7 @@
 #define PSEUDOTERMINAL_H
 
 #include <QList>
+#include <QProcess>
 #include <QSocketNotifier>
 #include <QString>
 #include <QThread>
@@ -34,6 +35,7 @@ signals:
     void finished(int exitCode);
     void dataReceived(const QString data);
     void lineReceived(const QString line);
+    void errorOccured(QProcess::ProcessError, QString message);
 
 public slots:
     void readReady(int fd);

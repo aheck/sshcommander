@@ -16,7 +16,8 @@ class PseudoTerminalTests : public QObject
     Q_OBJECT
 
 public slots:
-    void lineReceived(const QString &data);
+    void lineReceived(QString data);
+    void errorOccured(QProcess::ProcessError error, QString message);
 private slots:
     void testBasicOperation();
     void testArgZero();

@@ -5,6 +5,8 @@ void PseudoTerminalTests::testBasicOperation()
     PseudoTerminal term;
 
     connect(&term, &PseudoTerminal::lineReceived, this, &PseudoTerminalTests::lineReceived);
+    connect(&term, &PseudoTerminal::errorOccured, this, &PseudoTerminalTests::errorOccured);
+
     QSignalSpy dataSpy(&term, SIGNAL(lineReceived(QString)));
     QSignalSpy finishedSpy(&term, SIGNAL(finished(int)));
 
@@ -38,6 +40,8 @@ void PseudoTerminalTests::testArgZero()
 {
     PseudoTerminal term;
 
+    connect(&term, &PseudoTerminal::errorOccured, this, &PseudoTerminalTests::errorOccured);
+
     QSignalSpy dataSpy(&term, SIGNAL(lineReceived(QString)));
 
     term.start("/bin/bash");
@@ -54,6 +58,8 @@ void PseudoTerminalTests::testArgZero()
 void PseudoTerminalTests::testArgs()
 {
     PseudoTerminal term;
+
+    connect(&term, &PseudoTerminal::errorOccured, this, &PseudoTerminalTests::errorOccured);
 
     QSignalSpy dataSpy(&term, SIGNAL(lineReceived(QString)));
     QSignalSpy finishedSpy(&term, SIGNAL(finished(int)));
@@ -74,6 +80,8 @@ void PseudoTerminalTests::testDataReceived()
 {
     PseudoTerminal term;
 
+    connect(&term, &PseudoTerminal::errorOccured, this, &PseudoTerminalTests::errorOccured);
+
     QSignalSpy dataSpy(&term, SIGNAL(lineReceived(QString)));
 
     term.start("/bin/bash");
@@ -90,6 +98,8 @@ void PseudoTerminalTests::testDataReceived()
 void PseudoTerminalTests::testTerminate()
 {
     PseudoTerminal term;
+
+    connect(&term, &PseudoTerminal::errorOccured, this, &PseudoTerminalTests::errorOccured);
 
     QSignalSpy finishedSpy(&term, SIGNAL(finished(int)));
 
@@ -111,6 +121,9 @@ void PseudoTerminalTests::testInParallel()
 {
     PseudoTerminal term1;
     PseudoTerminal term2;
+
+    connect(&term1, &PseudoTerminal::errorOccured, this, &PseudoTerminalTests::errorOccured);
+    connect(&term2, &PseudoTerminal::errorOccured, this, &PseudoTerminalTests::errorOccured);
 
     QSignalSpy dataSpy1(&term1, SIGNAL(lineReceived(QString)));
     QSignalSpy dataSpy2(&term2, SIGNAL(lineReceived(QString)));
@@ -152,8 +165,13 @@ void PseudoTerminalTests::testInParallel()
     QVERIFY(!term2.isRunning());
 }
 
-void PseudoTerminalTests::lineReceived(const QString &data)
+void PseudoTerminalTests::lineReceived(QString data)
 {
     std::cout << "New data:\n";
     std::cout << data.toStdString() << "\n";
+}
+
+void PseudoTerminalTests::errorOccured(QProcess::ProcessError error, QString message)
+{
+    std::cerr << "Process error: " << " " << message.toStdString() << "\n";
 }

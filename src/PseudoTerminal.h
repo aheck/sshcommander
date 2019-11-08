@@ -16,6 +16,7 @@
 
 #include <termios.h>
 #include <iostream>
+#include <signal.h>
 
 class PseudoTerminal : public QObject
 {

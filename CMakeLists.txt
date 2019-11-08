@@ -6,6 +6,8 @@ set(CMAKE_AUTOMOC ON)
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_FLAGS "-O0 -ggdb -std=c++14 -Wall -pthread")
 
+set(qtermwidget5_DIR "../qtermwidget")
+
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(Qt5Svg REQUIRED)
@@ -21,17 +23,14 @@ include_directories(
     ${Qt5Core_INCLUDE_DIRS}
     ${Qt5Widgets_INCLUDE_DIRS}
     ${Qt5Network_INCLUDE_DIRS}
+    ${Qt5Test_INCLUDE_DIRS}
     ${Qt5Svg_INCLUDE_DIRS})
 
 link_directories("/usr/local/lib")
 
 option(STATIC_BUILD "Create a build where qtermwidget and libssh2 are statically linked")
-option(BUILD_TEST "Build the unit tests" OFF)
 
 add_subdirectory(src)
-
-if (BUILD_TEST)
-    add_subdirectory(tests)
-endif()
+add_subdirectory(tests)
 
 add_test(tests tests/tests)

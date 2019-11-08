@@ -5,6 +5,7 @@ Section: net
 
 Package: sshcommander
 Architecture: amd64
-Depends: libqt5gui5 (>= 5.5), libqt5network5 (>= 5.5), qtermwidget5-data
+Depends: ${shlibs:Depends}, ${misc:Depends}, libqt5gui5 (>= 5.5), libqt5network5 (>= 5.5), qtermwidget5-data
+Build-Depends: debhelper (>= 11)
 Description: Graphical SSH client
  A graphical SSH client built for the cloud

@@ -85,8 +85,24 @@ void PseudoTerminal::start(const QString &command, const QStringList &args)
 void PseudoTerminal::readReady(int fd)
 {
     char buf[BUF_SIZE];
+    fd_set readset;
+    struct timeval timeout;
 
-    int numRead = read(this->masterFd, buf, BUF_SIZE - 1);
+    bzero(&timeout, sizeof(timeout));
+    FD_ZERO(&readset);
+    FD_SET(this->masterFd, &readset);
+
+    while (select(this->masterFd + 1, &readset, NULL, NULL, &timeout) == 1) {
+        if (!this->readFromTerminal(buf, sizeof(buf))) {
+            return;
+        }
+        this->appendToLineBuffer(buf, sizeof(buf));
+    }
+}
+
+bool PseudoTerminal::readFromTerminal(char *buf, int bufSize)
+{
+    int numRead = read(this->masterFd, buf, sizeof(buf) - 1);
 
     if (numRead <= 0) {
         if (numRead == -1) {
@@ -105,23 +121,31 @@ void PseudoTerminal::readReady(int fd)
             emit finished(this->_statusCode);
         }
 
-        return;
+        return false;
     }
 
     buf[numRead] = '\0';
     emit(dataReceived(QString(buf)));
 
+    return true;
+}
+
+void PseudoTerminal::appendToLineBuffer(char *buf, int bufSize)
+{
     this->buffer.append(buf);
     int pos;
+
     while (1) {
         pos = this->buffer.indexOf('\n');
+
         if (pos == -1) {
             break;
         }
+
         QString line = this->buffer.left(pos + 1);
         this->buffer.remove(0, pos + 1);
         emit lineReceived(line);
-    };
+    }
 }
 
 bool PseudoTerminal::isRunning()

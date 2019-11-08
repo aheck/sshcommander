@@ -48,6 +48,8 @@ private:
     QStringList args;
     QSocketNotifier *fdWatcher;
 
+    bool readFromTerminal(char *buf, int bufSize);
+    void appendToLineBuffer(char *buf, int bufSize);
     int ptyMasterOpen(char *slaveName, size_t snLen);
     pid_t ptyFork(int *masterFd, char *slaveName, size_t snLen,
             const struct termios *slaveTermios, const struct winsize *slaveWS);

@@ -23,6 +23,7 @@ private slots:
     void testArgs();
     void testDataReceived();
     void testTerminate();
+    void testInParallel();
 };
 
 #endif

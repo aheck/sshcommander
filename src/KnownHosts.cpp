@@ -142,12 +142,14 @@ bool KnownHosts::addHostToKnownHostsFile(QString hostname, QString keyType, QStr
     return true;
 }
 
-bool KnownHosts::removeHostFromKnownHostsFile(QString hostname)
+bool KnownHosts::removeHostFromKnownHostsFile(QString hostname, QString knownHostsFilePath)
 {
     QStringList linesToWrite;
-    QString filePath = KnownHosts::getKnownHostsFilePath();
+    if (knownHostsFilePath.isEmpty()) {
+        knownHostsFilePath = KnownHosts::getKnownHostsFilePath();
+    }
 
-    QFile file(filePath);
+    QFile file(knownHostsFilePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return false;
     }
@@ -163,7 +165,7 @@ bool KnownHosts::removeHostFromKnownHostsFile(QString hostname)
 
     file.close();
 
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
         return false;
     }
 
@@ -174,7 +176,7 @@ bool KnownHosts::removeHostFromKnownHostsFile(QString hostname)
     return true;
 }
 
-bool KnownHosts::replaceHostInKnownHostsFile(QString hostname, QString keyType, QString key)
+bool KnownHosts::replaceHostInKnownHostsFile(QString hostname, QString keyType, QString key, QString knownHostsFilePath)
 {
     if (KnownHosts::removeHostFromKnownHostsFile(hostname)) {
         return KnownHosts::addHostToKnownHostsFile(hostname, keyType, key);

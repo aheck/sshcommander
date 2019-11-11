@@ -24,6 +24,14 @@ private slots:
     void testIsHostnameHashingEnabledNegative1();
     void testIsHostnameHashingEnabledNegative2();
 
+    void testIsHostInKnownHostsFile();
+
+    void testAddHostToKnownHostsFile();
+
+    void testRemoveHostFromKnownHostsFile();
+
+    void testReplaceHostInKnownHostsFile();
+
 private:
     bool writeStringToFile(const QString &filename, QString &data);
 };

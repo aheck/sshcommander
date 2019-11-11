@@ -35,8 +35,8 @@ public:
     static QString getKnownHostsFilePath();
     static bool isHostInKnownHostsFile(QString hostname, QString knownHostsFilePath="");
     static bool addHostToKnownHostsFile(QString hostname, QString keyType, QString key, QString knownHostsFilePath="");
-    static bool removeHostFromKnownHostsFile(QString hostname);
-    static bool replaceHostInKnownHostsFile(QString hostname, QString keyType, QString key);
+    static bool removeHostFromKnownHostsFile(QString hostname, QString knownHostsFilePath="");
+    static bool replaceHostInKnownHostsFile(QString hostname, QString keyType, QString key, QString knownHostsFilePath="");
     static KnownHostsCheckResult checkKey(QString hostname, QString key);
 
 private:

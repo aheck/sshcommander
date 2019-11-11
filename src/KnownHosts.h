@@ -31,10 +31,10 @@ class KnownHosts
 {
 public:
     static const QString getSSHClientConfigFilePath();
-    static bool isHostnameHashingEnabled();
+    static bool isHostnameHashingEnabled(QString clientConfigPath = "");
     static QString getKnownHostsFilePath();
-    static bool isHostInKnownHostsFile(QString hostname);
-    static bool addHostToKnownHostsFile(QString hostname, QString keyType, QString key);
+    static bool isHostInKnownHostsFile(QString hostname, QString knownHostsFilePath="");
+    static bool addHostToKnownHostsFile(QString hostname, QString keyType, QString key, QString knownHostsFilePath="");
     static bool removeHostFromKnownHostsFile(QString hostname);
     static bool replaceHostInKnownHostsFile(QString hostname, QString keyType, QString key);
     static KnownHostsCheckResult checkKey(QString hostname, QString key);

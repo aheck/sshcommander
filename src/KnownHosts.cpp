@@ -5,13 +5,16 @@ const QString KnownHosts::getSSHClientConfigFilePath()
     return "/etc/ssh/ssh_config";
 }
 
-bool KnownHosts::isHostnameHashingEnabled()
+bool KnownHosts::isHostnameHashingEnabled(QString clientConfigPath)
 {
-    QString filePath = KnownHosts::getSSHClientConfigFilePath();
-    QFile file(filePath);
+    if (clientConfigPath.isEmpty()) {
+        clientConfigPath = KnownHosts::getSSHClientConfigFilePath();
+    }
+
+    QFile file(clientConfigPath);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "Failed to open file: " << filePath;
+        qDebug() << "Failed to open file: " << clientConfigPath;
         return false;
     }
 
@@ -76,10 +79,13 @@ bool KnownHosts::isHostInKnownHostLine(QString hostname, QString line)
     return false;
 }
 
-bool KnownHosts::isHostInKnownHostsFile(QString hostname)
+bool KnownHosts::isHostInKnownHostsFile(QString hostname, QString knownHostsFilePath)
 {
-    QString filePath = KnownHosts::getKnownHostsFilePath();
-    QFile file(filePath);
+    if (knownHostsFilePath.isEmpty()) {
+        knownHostsFilePath = KnownHosts::getKnownHostsFilePath();
+    }
+
+    QFile file(knownHostsFilePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return false;
     }
@@ -96,7 +102,7 @@ bool KnownHosts::isHostInKnownHostsFile(QString hostname)
     return false;
 }
 
-bool KnownHosts::addHostToKnownHostsFile(QString hostname, QString keyType, QString key)
+bool KnownHosts::addHostToKnownHostsFile(QString hostname, QString keyType, QString key, QString knownHostsFilePath)
 {
     QString line;
 
@@ -111,7 +117,11 @@ bool KnownHosts::addHostToKnownHostsFile(QString hostname, QString keyType, QStr
         line = hostname + " " + keyType + " " + key;
     }
 
-    QFile file(QDir::home().filePath(".ssh/known_hosts"));
+    if (knownHostsFilePath.isEmpty()) {
+        knownHostsFilePath = KnownHosts::getKnownHostsFilePath();
+    }
+
+    QFile file(knownHostsFilePath);
 
     if (!file.exists()) {
         if (!file.open(QIODevice::WriteOnly)) {

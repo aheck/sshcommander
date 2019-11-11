@@ -19,7 +19,10 @@ class KnownHostsTests : public QObject
     Q_OBJECT
 
 private slots:
-    void testIsHostnameHashingEnabled();
+    void testIsHostnameHashingEnabledPositive1();
+    void testIsHostnameHashingEnabledPositive2();
+    void testIsHostnameHashingEnabledNegative1();
+    void testIsHostnameHashingEnabledNegative2();
 
 private:
     bool writeStringToFile(const QString &filename, QString &data);

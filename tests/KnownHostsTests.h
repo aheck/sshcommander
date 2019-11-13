@@ -25,6 +25,7 @@ private slots:
     void testIsHostnameHashingEnabledNegative2();
 
     void testIsHostInKnownHostsFilePositive1();
+    void testIsHostInKnownHostsFilePlain();
     void testIsHostInKnownHostsFilePositive2();
     void testIsHostInKnownHostsFileNegative1();
 
@@ -38,8 +39,9 @@ private slots:
     void testReplaceHostInKnownHostsFile2();
 
 private:
-    static const QString keyEntry1;
-    static const QString keyEntry2;
+    static const QString plainKeyEntry1;
+    static const QString hashedKeyEntry1;
+    static const QString hashedKeyEntry2;
 
     bool writeStringToFile(const QString &filename, QString &data);
     QString readFileContents(const QString &filename);

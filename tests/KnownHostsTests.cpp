@@ -1,7 +1,8 @@
 #include "KnownHostsTests.h"
 
-const QString KnownHostsTests::keyEntry1 = "|1|6EUC3WtSQchRUj6EdY2P4aWCyng=|Ljfjdig29DGTbUpXl8qskIVhZco= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPnVqUGfx30dBxPboia3amukmrTCBYhPwGByh28Wl5P3dk9OZHeGidILyjqcp3rTGJlNPeZgsPaoienXILwBeJY=\n"; // 192.168.0.192
-const QString KnownHostsTests::keyEntry2 = "|1|QwqKhVmCzzHlsrSHYWDjaJ1QkZI=|mgVlL2tnMEaJlrTY8qF8WiJ3NZA= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBBgrEhqiEwuSsw9vOIcJG3/exPISQe/YzQH+xjjAcbG6al7vTO/GFn/eMeIhl2DNM41HD1ssgU264Eq/+2roI74=\n";
+const QString KnownHostsTests::plainKeyEntry1 = "192.168.0.192 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPnVqUGfx30dBxPboia3amukmrTCBYhPwGByh28Wl5P3dk9OZHeGidILyjqcp3rTGJlNPeZgsPaoienXILwBeJY=\n";
+const QString KnownHostsTests::hashedKeyEntry1 = "|1|6EUC3WtSQchRUj6EdY2P4aWCyng=|Ljfjdig29DGTbUpXl8qskIVhZco= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPnVqUGfx30dBxPboia3amukmrTCBYhPwGByh28Wl5P3dk9OZHeGidILyjqcp3rTGJlNPeZgsPaoienXILwBeJY=\n"; // 192.168.0.192
+const QString KnownHostsTests::hashedKeyEntry2 = "|1|QwqKhVmCzzHlsrSHYWDjaJ1QkZI=|mgVlL2tnMEaJlrTY8qF8WiJ3NZA= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBBgrEhqiEwuSsw9vOIcJG3/exPISQe/YzQH+xjjAcbG6al7vTO/GFn/eMeIhl2DNM41HD1ssgU264Eq/+2roI74=\n";
 
 void KnownHostsTests::testIsHostnameHashingEnabledPositive1()
 {
@@ -19,6 +20,7 @@ void KnownHostsTests::testIsHostnameHashingEnabledPositive1()
 
     QVERIFY(KnownHosts::isHostnameHashingEnabled(filename));
 }
+
 
 void KnownHostsTests::testIsHostnameHashingEnabledPositive2()
 {
@@ -76,7 +78,21 @@ void KnownHostsTests::testIsHostInKnownHostsFilePositive1()
     QVERIFY(tmpFile.open());
 
     // our config only contains the entry for the host we are looking for
-    QString configContents = this->keyEntry1;
+    QString configContents = this->hashedKeyEntry1;
+
+    QString filename = tmpFile.fileName();
+    writeStringToFile(filename, configContents);
+
+    QVERIFY(KnownHosts::isHostInKnownHostsFile("192.168.0.192", filename));
+}
+
+void KnownHostsTests::testIsHostInKnownHostsFilePlain()
+{
+    QTemporaryFile tmpFile;
+    tmpFile.setFileTemplate("qtest-knownhosts-XXXXXXX");
+    QVERIFY(tmpFile.open());
+
+    QString configContents = this->plainKeyEntry1;
 
     QString filename = tmpFile.fileName();
     writeStringToFile(filename, configContents);
@@ -92,7 +108,7 @@ void KnownHostsTests::testIsHostInKnownHostsFilePositive2()
 
     // our config contains the entry for another host as well as the entry for
     // the host we are looking for
-    QString configContents = this->keyEntry2 + this->keyEntry1;
+    QString configContents = this->hashedKeyEntry2 + this->hashedKeyEntry1;
 
     QString filename = tmpFile.fileName();
     writeStringToFile(filename, configContents);
@@ -106,7 +122,7 @@ void KnownHostsTests::testIsHostInKnownHostsFileNegative1()
     tmpFile.setFileTemplate("qtest-knownhosts-XXXXXXX");
     QVERIFY(tmpFile.open());
 
-    QString configContents = this->keyEntry2;
+    QString configContents = this->hashedKeyEntry2;
 
     QString filename = tmpFile.fileName();
     writeStringToFile(filename, configContents);
@@ -134,7 +150,7 @@ void KnownHostsTests::testAddHostToKnownHostsFile2()
     tmpFile.setFileTemplate("qtest-knownhosts-XXXXXXX");
     QVERIFY(tmpFile.open());
 
-    QString configContents = this->keyEntry2;
+    QString configContents = this->hashedKeyEntry2;
 
     QString filename = tmpFile.fileName();
     writeStringToFile(filename, configContents);
@@ -154,7 +170,7 @@ void KnownHostsTests::testRemoveHostFromKnownHostsFile1()
     tmpFile.setFileTemplate("qtest-knownhosts-XXXXXXX");
     QVERIFY(tmpFile.open());
 
-    QString configContents = this->keyEntry1;
+    QString configContents = this->hashedKeyEntry1;
 
     QString filename = tmpFile.fileName();
     writeStringToFile(filename, configContents);
@@ -170,7 +186,7 @@ void KnownHostsTests::testRemoveHostFromKnownHostsFile2()
     tmpFile.setFileTemplate("qtest-knownhosts-XXXXXXX");
     QVERIFY(tmpFile.open());
 
-    QString configContents = this->keyEntry2 + this->keyEntry1;
+    QString configContents = this->hashedKeyEntry2 + this->hashedKeyEntry1;
 
     QString filename = tmpFile.fileName();
     writeStringToFile(filename, configContents);
@@ -180,7 +196,7 @@ void KnownHostsTests::testRemoveHostFromKnownHostsFile2()
     QVERIFY(!KnownHosts::isHostInKnownHostsFile("192.168.0.192", filename));
 
     QString fileContents = this->readFileContents(filename);
-    QCOMPARE(this->keyEntry2, fileContents);
+    QCOMPARE(this->hashedKeyEntry2, fileContents);
 }
 
 void KnownHostsTests::testReplaceHostInKnownHostsFile1()
@@ -189,7 +205,7 @@ void KnownHostsTests::testReplaceHostInKnownHostsFile1()
     tmpFile.setFileTemplate("qtest-knownhosts-XXXXXXX");
     QVERIFY(tmpFile.open());
 
-    QString configContents = this->keyEntry1;
+    QString configContents = this->hashedKeyEntry1;
 
     QString filename = tmpFile.fileName();
     writeStringToFile(filename, configContents);
@@ -206,7 +222,7 @@ void KnownHostsTests::testReplaceHostInKnownHostsFile2()
     tmpFile.setFileTemplate("qtest-knownhosts-XXXXXXX");
     QVERIFY(tmpFile.open());
 
-    QString configContents = this->keyEntry2 + this->keyEntry1;
+    QString configContents = this->hashedKeyEntry2 + this->hashedKeyEntry1;
 
     QString filename = tmpFile.fileName();
     writeStringToFile(filename, configContents);
@@ -214,7 +230,7 @@ void KnownHostsTests::testReplaceHostInKnownHostsFile2()
     QVERIFY(KnownHosts::replaceHostInKnownHostsFile("192.168.0.192", "ecdsa-sha2-nistp256", "AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPnVqUGfx30dBxPboia3amukmrTCBYhPwGByh28Wl5P3dk9OZHeGidILyjqcp3rTGJlNPeZg_OTHERKEY_wBeJY=", filename));
 
     QString fileContents = this->readFileContents(filename);
-    QVERIFY(fileContents.startsWith(this->keyEntry2));
+    QVERIFY(fileContents.startsWith(this->hashedKeyEntry2));
     QVERIFY(fileContents.endsWith("ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPnVqUGfx30dBxPboia3amukmrTCBYhPwGByh28Wl5P3dk9OZHeGidILyjqcp3rTGJlNPeZg_OTHERKEY_wBeJY=\n"));
 }
 

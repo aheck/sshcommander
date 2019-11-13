@@ -38,6 +38,9 @@ private slots:
     void testReplaceHostInKnownHostsFile2();
 
 private:
+    static const QString keyEntry1;
+    static const QString keyEntry2;
+
     bool writeStringToFile(const QString &filename, QString &data);
     QString readFileContents(const QString &filename);
 };

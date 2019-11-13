@@ -24,7 +24,9 @@ private slots:
     void testIsHostnameHashingEnabledNegative1();
     void testIsHostnameHashingEnabledNegative2();
 
-    void testIsHostInKnownHostsFile();
+    void testIsHostInKnownHostsFilePositive1();
+    void testIsHostInKnownHostsFilePositive2();
+    void testIsHostInKnownHostsFileNegative1();
 
     void testAddHostToKnownHostsFile();
 

@@ -66,7 +66,7 @@ void KnownHostsTests::testIsHostnameHashingEnabledNegative2()
     QVERIFY(!KnownHosts::isHostnameHashingEnabled(filename));
 }
 
-void KnownHostsTests::testIsHostInKnownHostsFile()
+void KnownHostsTests::testIsHostInKnownHostsFilePositive1()
 {
     QTemporaryFile tmpFile;
     tmpFile.setFileTemplate("qtest-knownhosts-XXXXXXX");
@@ -78,6 +78,35 @@ void KnownHostsTests::testIsHostInKnownHostsFile()
     writeStringToFile(filename, configContents);
 
     QVERIFY(KnownHosts::isHostInKnownHostsFile("192.168.0.192", filename));
+}
+
+void KnownHostsTests::testIsHostInKnownHostsFilePositive2()
+{
+    QTemporaryFile tmpFile;
+    tmpFile.setFileTemplate("qtest-knownhosts-XXXXXXX");
+    QVERIFY(tmpFile.open());
+
+    QString configContents = "|1|QwqKhVmCzzHlsrSHYWDjaJ1QkZI=|mgVlL2tnMEaJlrTY8qF8WiJ3NZA= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBBgrEhqiEwuSsw9vOIcJG3/exPISQe/YzQH+xjjAcbG6al7vTO/GFn/eMeIhl2DNM41HD1ssgU264Eq/+2roI74=\n"
+        "|1|6EUC3WtSQchRUj6EdY2P4aWCyng=|Ljfjdig29DGTbUpXl8qskIVhZco= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPnVqUGfx30dBxPboia3amukmrTCBYhPwGByh28Wl5P3dk9OZHeGidILyjqcp3rTGJlNPeZgsPaoienXILwBeJY=\n";
+
+    QString filename = tmpFile.fileName();
+    writeStringToFile(filename, configContents);
+
+    QVERIFY(KnownHosts::isHostInKnownHostsFile("192.168.0.192", filename));
+}
+
+void KnownHostsTests::testIsHostInKnownHostsFileNegative1()
+{
+    QTemporaryFile tmpFile;
+    tmpFile.setFileTemplate("qtest-knownhosts-XXXXXXX");
+    QVERIFY(tmpFile.open());
+
+    QString configContents = "|1|QwqKhVmCzzHlsrSHYWDjaJ1QkZI=|mgVlL2tnMEaJlrTY8qF8WiJ3NZA= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBBgrEhqiEwuSsw9vOIcJG3/exPISQe/YzQH+xjjAcbG6al7vTO/GFn/eMeIhl2DNM41HD1ssgU264Eq/+2roI74=\n";
+
+    QString filename = tmpFile.fileName();
+    writeStringToFile(filename, configContents);
+
+    QVERIFY(!KnownHosts::isHostInKnownHostsFile("192.168.0.192", filename));
 }
 
 void KnownHostsTests::testAddHostToKnownHostsFile()

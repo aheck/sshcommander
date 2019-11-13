@@ -178,8 +178,8 @@ bool KnownHosts::removeHostFromKnownHostsFile(QString hostname, QString knownHos
 
 bool KnownHosts::replaceHostInKnownHostsFile(QString hostname, QString keyType, QString key, QString knownHostsFilePath)
 {
-    if (KnownHosts::removeHostFromKnownHostsFile(hostname)) {
-        return KnownHosts::addHostToKnownHostsFile(hostname, keyType, key);
+    if (KnownHosts::removeHostFromKnownHostsFile(hostname, knownHostsFilePath)) {
+        return KnownHosts::addHostToKnownHostsFile(hostname, keyType, key, knownHostsFilePath);
     }
 
     return false;

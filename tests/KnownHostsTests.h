@@ -34,6 +34,7 @@ private slots:
 
 private:
     bool writeStringToFile(const QString &filename, QString &data);
+    QString readFileContents(const QString &filename);
 };
 
 #endif

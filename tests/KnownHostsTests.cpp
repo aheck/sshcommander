@@ -112,6 +112,19 @@ void KnownHostsTests::testRemoveHostFromKnownHostsFile()
 
 void KnownHostsTests::testReplaceHostInKnownHostsFile()
 {
+    QTemporaryFile tmpFile;
+    tmpFile.setFileTemplate("qtest-knownhosts-XXXXXXX");
+    QVERIFY(tmpFile.open());
+
+    QString configContents = "|1|6EUC3WtSQchRUj6EdY2P4aWCyng=|Ljfjdig29DGTbUpXl8qskIVhZco= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPnVqUGfx30dBxPboia3amukmrTCBYhPwGByh28Wl5P3dk9OZHeGidILyjqcp3rTGJlNPeZgsPaoienXILwBeJY=\n";
+
+    QString filename = tmpFile.fileName();
+    writeStringToFile(filename, configContents);
+
+    QVERIFY(KnownHosts::replaceHostInKnownHostsFile("192.168.0.192", "ecdsa-sha2-nistp256", "AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPnVqUGfx30dBxPboia3amukmrTCBYhPwGByh28Wl5P3dk9OZHeGidILyjqcp3rTGJlNPeZg_OTHERKEY_wBeJY=", filename));
+
+    QString fileContents = this->readFileContents(filename);
+    QVERIFY(fileContents.endsWith("ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPnVqUGfx30dBxPboia3amukmrTCBYhPwGByh28Wl5P3dk9OZHeGidILyjqcp3rTGJlNPeZg_OTHERKEY_wBeJY=\n"));
 }
 
 bool KnownHostsTests::writeStringToFile(const QString &filename, QString &data)
@@ -128,4 +141,17 @@ bool KnownHostsTests::writeStringToFile(const QString &filename, QString &data)
     file.close();
 
     return true;
+}
+
+QString KnownHostsTests::readFileContents(const QString &filename)
+{
+    QFile file(filename);
+
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        return "";
+    }
+
+    QTextStream stream(&file);
+
+    return stream.readAll();
 }

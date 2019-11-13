@@ -28,11 +28,14 @@ private slots:
     void testIsHostInKnownHostsFilePositive2();
     void testIsHostInKnownHostsFileNegative1();
 
-    void testAddHostToKnownHostsFile();
+    void testAddHostToKnownHostsFile1();
+    void testAddHostToKnownHostsFile2();
 
-    void testRemoveHostFromKnownHostsFile();
+    void testRemoveHostFromKnownHostsFile1();
+    void testRemoveHostFromKnownHostsFile2();
 
-    void testReplaceHostInKnownHostsFile();
+    void testReplaceHostInKnownHostsFile1();
+    void testReplaceHostInKnownHostsFile2();
 
 private:
     bool writeStringToFile(const QString &filename, QString &data);

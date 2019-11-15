@@ -25,9 +25,8 @@ ProcessesApplet::ProcessesApplet()
     this->table->setSelectionBehavior(QAbstractItemView::SelectRows);
     this->table->setSelectionMode(QAbstractItemView::SingleSelection);
     this->table->setSortingEnabled(true);
-    for (int i = 0; i < this->table->horizontalHeader()->count(); i++) {
-        this->table->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Interactive);
-    }
+    this->table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+
     this->layout()->addWidget(this->table);
 }
 

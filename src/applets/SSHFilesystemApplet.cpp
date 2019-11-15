@@ -59,10 +59,7 @@ SSHFilesystemApplet::SSHFilesystemApplet()
 
     this->table->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this->table, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
-
-    for (int i = 0; i < this->table->horizontalHeader()->count(); i++) {
-        this->table->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Interactive);
-    }
+    this->table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
     connect(this->table->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
             this, SLOT(selectionChanged()));
@@ -105,13 +102,14 @@ void SSHFilesystemApplet::onShow()
         return;
     }
 
+    this->table->resizeColumnsToContents();
     this->firstShow = false;
     this->updateData();
 }
 
 void SSHFilesystemApplet::updateData()
 {
-    this->model->clear();
+    this->model->reloadData();
 }
 
 void SSHFilesystemApplet::showNewDialog()

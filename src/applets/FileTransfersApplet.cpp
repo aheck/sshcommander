@@ -14,12 +14,15 @@ FileTransfersApplet::FileTransfersApplet()
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
             "Reload", this, SLOT(reloadData()));
     this->toolBar->addSeparator();
-    this->toolBar->addAction(QIcon(":/images/edit-redo.svg"),
+    this->restartAction = this->toolBar->addAction(QIcon(":/images/edit-redo.svg"),
             "Restart File Transfer", this, SLOT(restartFileTransfer()));
-    this->toolBar->addAction(QIcon(":/images/red-light.svg"),
+    this->restartAction->setEnabled(false);
+    this->cancelAction = this->toolBar->addAction(QIcon(":/images/red-light.svg"),
             "Cancel File Transfer", this, SLOT(cancelFileTransfer()));
-    this->toolBar->addAction(QIcon(":/images/process-stop.svg"),
+    this->cancelAction->setEnabled(false);
+    this->removeAction = this->toolBar->addAction(QIcon(":/images/process-stop.svg"),
             "Remove File Transfer", this, SLOT(removeFileTransfer()));
+    this->removeAction->setEnabled(false);
 
     this->setLayout(new QHBoxLayout());
     this->layout()->setContentsMargins(0, 0, 0, 0);
@@ -32,6 +35,9 @@ FileTransfersApplet::FileTransfersApplet()
     this->model = new FileTransfersItemModel();
     this->table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     this->table->setModel(this->model);
+
+    connect(this->table->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
+            this, SLOT(selectionChanged()));
 
     this->layout()->addWidget(this->table);
 }
@@ -122,4 +128,21 @@ void FileTransfersApplet::removeFileTransfer()
     }
 
     SSHConnectionManager::getInstance().removeFileTransferJob(this->connEntry->getIdentifier(), row);
+}
+
+void FileTransfersApplet::selectionChanged()
+{
+    QModelIndexList indexes = this->table->selectionModel()->selectedIndexes();
+
+    if (indexes.size() == 0) {
+        this->cancelAction->setEnabled(false);
+        this->restartAction->setEnabled(false);
+        this->removeAction->setEnabled(false);
+
+        return;
+    }
+
+    this->cancelAction->setEnabled(true);
+    this->restartAction->setEnabled(true);
+    this->removeAction->setEnabled(true);
 }

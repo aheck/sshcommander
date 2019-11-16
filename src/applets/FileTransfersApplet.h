@@ -49,10 +49,14 @@ public slots:
     void cancelFileTransfer();
     void restartFileTransfer();
     void removeFileTransfer();
+    void selectionChanged();
 
 private:
     int getSelectedRow();
 
+    QAction *restartAction;
+    QAction *cancelAction;
+    QAction *removeAction;
     QTableView *table;
     FileTransfersItemModel *model;
     QToolBar *toolBar;

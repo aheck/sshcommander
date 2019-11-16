@@ -28,7 +28,9 @@ FileTransfersApplet::FileTransfersApplet()
     this->table = new QTableView(this);
     this->table->setSelectionBehavior(QAbstractItemView::SelectRows);
     this->table->setSelectionMode(QAbstractItemView::SingleSelection);
+    this->table->horizontalHeader()->setStretchLastSection(true);
     this->model = new FileTransfersItemModel();
+    this->table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     this->table->setModel(this->model);
 
     this->layout()->addWidget(this->table);

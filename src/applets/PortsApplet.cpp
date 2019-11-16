@@ -33,9 +33,7 @@ PortsApplet::PortsApplet()
     this->table->horizontalHeader()->setStretchLastSection(true);
     this->table->setSelectionBehavior(QAbstractItemView::SelectRows);
     this->table->setSelectionMode(QAbstractItemView::SingleSelection);
-    for (int i = 0; i < this->table->horizontalHeader()->count(); i++) {
-        this->table->horizontalHeader()->setSectionResizeMode(i, QHeaderView::Interactive);
-    }
+    this->table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
     connect(this->table->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
             this, SLOT(selectionChanged()));

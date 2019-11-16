@@ -40,6 +40,7 @@ public:
 
 public slots:
     void jobDataChanged(QUuid jobUuid);
+    bool removeFileTransferJob(int row);
 
 private:
     QString connectionId;

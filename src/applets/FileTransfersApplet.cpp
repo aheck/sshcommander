@@ -127,7 +127,7 @@ void FileTransfersApplet::removeFileTransfer()
         return;
     }
 
-    SSHConnectionManager::getInstance().removeFileTransferJob(this->connEntry->getIdentifier(), row);
+    this->model->removeFileTransferJob(row);
 }
 
 void FileTransfersApplet::selectionChanged()

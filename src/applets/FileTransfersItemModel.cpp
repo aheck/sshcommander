@@ -130,3 +130,18 @@ void FileTransfersItemModel::jobDataChanged(QUuid jobUuid)
     this->dataChanged(this->index(row, 0, QModelIndex()),
             this->index(row, this->columnCount(QModelIndex()), QModelIndex()));
 }
+
+bool FileTransfersItemModel::removeFileTransferJob(int row)
+{
+    if (this->connectionId.isEmpty()) {
+        return false;
+    }
+
+    emit layoutAboutToBeChanged();
+
+    SSHConnectionManager::getInstance().removeFileTransferJob(this->connectionId, row);
+
+    emit layoutChanged();
+
+    return true;
+}

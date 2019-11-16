@@ -14,10 +14,10 @@ FileTransfersApplet::FileTransfersApplet()
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
             "Reload", this, SLOT(reloadData()));
     this->toolBar->addSeparator();
-    this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
-            "Cancel File Transfer", this, SLOT(cancelFileTransfer()));
-    this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
+    this->toolBar->addAction(QIcon(":/images/edit-redo.svg"),
             "Restart File Transfer", this, SLOT(restartFileTransfer()));
+    this->toolBar->addAction(QIcon(":/images/red-light.svg"),
+            "Cancel File Transfer", this, SLOT(cancelFileTransfer()));
     this->toolBar->addAction(QIcon(":/images/process-stop.svg"),
             "Remove File Transfer", this, SLOT(removeFileTransfer()));
 

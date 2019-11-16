@@ -22,7 +22,7 @@ TunnelsApplet::TunnelsApplet()
     this->restartAction = this->toolBar->addAction(QIcon(":/images/edit-redo.svg"),
             "Restart Tunnel", this, SLOT(restartTunnel()));
     this->restartAction->setEnabled(false);
-    this->shutdownAction = this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
+    this->shutdownAction = this->toolBar->addAction(QIcon(":/images/red-light.svg"),
             "Shutdown Tunnel", this, SLOT(shutdownTunnel()));
     this->shutdownAction->setEnabled(false);
     this->deleteAction = this->toolBar->addAction(QIcon(":/images/process-stop.svg"),

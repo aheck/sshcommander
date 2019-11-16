@@ -16,7 +16,6 @@ add_executable(tests main.cpp
     ../src/applets/MachineInfoApplet.cpp
     ../src/applets/PortsApplet.cpp
     ../src/applets/PortsItemModel.cpp
-    ../src/applets/PortsNewTunnelDialog.cpp
     ../src/applets/ProcessesApplet.cpp
     ../src/applets/ProcessesItemModel.cpp
     ../src/applets/RemoteFileView.cpp

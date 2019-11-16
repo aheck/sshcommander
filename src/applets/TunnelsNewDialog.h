@@ -29,8 +29,10 @@ public:
     TunnelsNewDialog(QWidget *parent = Q_NULLPTR);
 
     const int getLocalPort();
+    void setRemotePort(int remotePort);
     const int getRemotePort();
     const QString getShortDescription();
+    void setRemotePortWidgetEnabled(bool value);
     void clear();
 
 public slots:
@@ -39,8 +41,8 @@ public slots:
 private:
     int localPort;
     int remotePort;
-    QSpinBox *localPortLineEdit;
-    QSpinBox *remotePortLineEdit;
+    QSpinBox *localPortSpinBox;
+    QSpinBox *remotePortSpinBox;
     QLineEdit *shortDescriptionLineEdit;
 };
 

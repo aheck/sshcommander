@@ -19,7 +19,7 @@
 
 #include "Applet.h"
 #include "PortsItemModel.h"
-#include "PortsNewTunnelDialog.h"
+#include "TunnelsNewDialog.h"
 #include "RichTextDelegate.h"
 #include "SSHConnectionManager.h"
 
@@ -54,7 +54,7 @@ private:
     QTableView *table;
     QAction *tunnelPortAction;
     PortsItemModel *model;
-    PortsNewTunnelDialog *newDialog;
+    TunnelsNewDialog *newDialog;
     bool firstShow;
 };
 

@@ -38,7 +38,8 @@ PortsApplet::PortsApplet()
     connect(this->table->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
             this, SLOT(selectionChanged()));
 
-    this->newDialog = new PortsNewTunnelDialog(this);
+    this->newDialog = new TunnelsNewDialog(this);
+    this->newDialog->setRemotePortWidgetEnabled(false);
     connect(this->newDialog, SIGNAL(accepted()), this, SLOT(createTunnel()));
 
     this->layout()->addWidget(this->table);
@@ -140,7 +141,7 @@ void PortsApplet::showNewTunnelDialog()
     int remotePort = netstatEntry->localPort.toInt(nullptr, 10);
 
     this->newDialog->clear();
-    this->newDialog->setRemoteHostname(this->connEntry->hostname);
+    //this->newDialog->setRemoteHostname(this->connEntry->hostname);
     this->newDialog->setRemotePort(remotePort);
     this->newDialog->update();
     this->newDialog->show();

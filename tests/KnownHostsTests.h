@@ -13,6 +13,7 @@
 #include <iostream>
 
 #include "KnownHosts.h"
+#include "TestHelpers.h"
 
 class KnownHostsTests : public QObject
 {
@@ -42,9 +43,6 @@ private:
     static const QString plainKeyEntry1;
     static const QString hashedKeyEntry1;
     static const QString hashedKeyEntry2;
-
-    bool writeStringToFile(const QString &filename, QString &data);
-    QString readFileContents(const QString &filename);
 };
 
 #endif

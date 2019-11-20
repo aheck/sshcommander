@@ -42,7 +42,11 @@ void FileTransferJob::setState(FileTransferState state)
 {
     this->state = state;
     QMetaObject::invokeMethod(this, "emitDataChanged", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(this, "emitStateChanged", Qt::QueuedConnection);
+}
 
+void FileTransferJob::notifyUser()
+{
     if (this->state == FileTransferState::Failed || this->state == FileTransferState::FailedConnect) {
         QString icon = ":/images/process-stop.svg";
         QString message;
@@ -164,6 +168,11 @@ void FileTransferJob::sendNotification(QString svgIconPath, QString message)
 void FileTransferJob::emitDataChanged()
 {
     emit dataChanged(this->getUuid());
+}
+
+void FileTransferJob::emitStateChanged()
+{
+    emit stateChanged(this->getUuid());
 }
 
 QString FileTransferJob::getLabel()

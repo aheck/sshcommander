@@ -1,5 +1,27 @@
 #include "PseudoTerminalTests.h"
 
+void PseudoTerminalTests::testWithSimpleProgram()
+{
+    PseudoTerminal term;
+
+    connect(&term, &PseudoTerminal::errorOccured, this, &PseudoTerminalTests::errorOccured);
+
+    QSignalSpy dataSpy(&term, SIGNAL(lineReceived(QString)));
+    QSignalSpy finishedSpy(&term, SIGNAL(finished(int)));
+
+    QCOMPARE(finishedSpy.count(), 0);
+    term.start("/bin/ls");
+    term.waitForFinished();
+
+    QCOMPARE(finishedSpy.count(), 1);
+    QList<QVariant> arguments = finishedSpy.takeFirst();
+    QCOMPARE(arguments.at(0).toInt(), 0);
+    QCOMPARE(term.statusCode(), 0);
+
+    QString output = term.readAllOutput();
+    QVERIFY(output.length() > 0);
+}
+
 void PseudoTerminalTests::testBasicOperation()
 {
     PseudoTerminal term;
@@ -57,23 +79,23 @@ void PseudoTerminalTests::testArgZero()
 
 void PseudoTerminalTests::testArgs()
 {
+    QTemporaryFile tmpFile;
+    tmpFile.setFileTemplate("/tmp/qtest-pseudoterm-XXXXXXX");
+    QVERIFY(tmpFile.open());
+
+    QString script = "echo \"$1 $2 $3 $4 $5\"\nexit 0\n";
+
+    TestHelpers::writeStringToFile(tmpFile.fileName(), script);
+
     PseudoTerminal term;
 
     connect(&term, &PseudoTerminal::errorOccured, this, &PseudoTerminalTests::errorOccured);
 
-    QSignalSpy dataSpy(&term, SIGNAL(lineReceived(QString)));
-    QSignalSpy finishedSpy(&term, SIGNAL(finished(int)));
+    term.start("/bin/bash", QStringList() << tmpFile.fileName() << "arg1" << "arg2" << "arg3" << "arg4" << "arg5");
+    term.waitForFinished();
 
-    term.start("/bin/bash", QStringList("/tmp"));
-    QTest::qWait(500);
-
-    QCOMPARE(finishedSpy.count(), 1);
-    QList<QVariant> arguments = finishedSpy.takeFirst();
-    QCOMPARE(arguments.at(0).toInt(), 126);
-
-    QCOMPARE(dataSpy.count(), 1);
-    arguments = dataSpy.at(0);
-    QVERIFY(arguments.at(0).toString().startsWith("/tmp: /tmp: "));
+    QString output = term.readAllOutput();
+    QCOMPARE(output, QString("arg1 arg2 arg3 arg4 arg5\r\n"));
 }
 
 void PseudoTerminalTests::testDataReceived()
@@ -115,6 +137,80 @@ void PseudoTerminalTests::testTerminate()
     QList<QVariant> arguments = finishedSpy.takeFirst();
     QCOMPARE(arguments.at(0).toInt(), 0);
     QCOMPARE(term.statusCode(), 0);
+}
+
+void PseudoTerminalTests::testWaitForFinished()
+{
+    PseudoTerminal term;
+
+    connect(&term, &PseudoTerminal::errorOccured, this, &PseudoTerminalTests::errorOccured);
+
+    term.start("/bin/bash");
+    QTest::qWait(500);
+    QVERIFY(term.isRunning());
+
+    term.terminate();
+    QVERIFY(term.waitForFinished() && !term.isRunning());
+}
+
+void PseudoTerminalTests::testWaitForFinishedTimeout()
+{
+    PseudoTerminal term;
+
+    connect(&term, &PseudoTerminal::errorOccured, this, &PseudoTerminalTests::errorOccured);
+
+    term.start("/bin/bash");
+    QTest::qWait(500);
+    QVERIFY(term.isRunning());
+
+    qint64 start = QDateTime::currentMSecsSinceEpoch();
+    bool result = term.waitForFinished(2000);
+    qint64 end = QDateTime::currentMSecsSinceEpoch();
+    qint64 diff = end - start;
+    QCOMPARE(result, false);
+    QCOMPARE(term.isRunning(), true);
+    QVERIFY(diff >= 2000);
+    QVERIFY(diff <= 2200);
+}
+
+void PseudoTerminalTests::testWaitForReadyRead()
+{
+    PseudoTerminal term;
+
+    connect(&term, &PseudoTerminal::errorOccured, this, &PseudoTerminalTests::errorOccured);
+
+    term.start("/bin/bash");
+    QTest::qWait(500);
+    QVERIFY(term.isRunning());
+
+    term.readAllOutput(); // discard output until this point in time
+    term.sendData("echo \"Hello World\"\n");
+    QVERIFY(term.waitForReadyRead());
+
+    QString output = term.readAllOutput();
+    QVERIFY(output.contains("Hello World\r\n"));
+}
+
+void PseudoTerminalTests::testWaitForReadyReadTimeout()
+{
+    PseudoTerminal term;
+
+    connect(&term, &PseudoTerminal::errorOccured, this, &PseudoTerminalTests::errorOccured);
+
+    term.start("/bin/bash");
+    QTest::qWait(500);
+    QVERIFY(term.isRunning());
+
+    term.readAllOutput(); // discard output until this point in time
+    qint64 start = QDateTime::currentMSecsSinceEpoch();
+    bool result = term.waitForReadyRead(2000);
+    int diff = QDateTime::currentMSecsSinceEpoch() - start;
+    QCOMPARE(result, false);
+    QVERIFY(diff >= 2000);
+    QVERIFY(diff <= 2200);
+
+    QString output = term.readAllOutput();
+    QCOMPARE(output, QString(""));
 }
 
 void PseudoTerminalTests::testInParallel()

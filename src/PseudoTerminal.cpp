@@ -60,12 +60,14 @@ void PseudoTerminal::start(const QString &command, const QStringList &args)
 
     if (this->childPid == 0) {
         // Child
+
+        // prepare args array
         int size = args.length() + 2;
         arglist = new const char*[size];
-        arglist[0] = command.toStdString().c_str();
+        arglist[0] = strdup(command.toStdString().c_str());
         int i = 1;
         for (const QString &arg: args) {
-            arglist[i] = arg.toStdString().c_str();
+            arglist[i] = strdup(arg.toStdString().c_str());
             i++;
         }
 
@@ -73,16 +75,16 @@ void PseudoTerminal::start(const QString &command, const QStringList &args)
 
         execv(command.toLatin1().data(), (char* const*) arglist);
 
-        emit errorOccured(QProcess::FailedToStart, "QProcess::FailedToStart: Failed to start shell");
+        std::cerr << "QProcess::FailedToStart: Failed to start PseudoTerminal child process\n";
         exit(0);
     }
 
     // Parent
     this->fdWatcher = new QSocketNotifier(this->masterFd, QSocketNotifier::Read, this);
-    connect(this->fdWatcher, &QSocketNotifier::activated, this, &PseudoTerminal::readReady);
+    connect(this->fdWatcher, &QSocketNotifier::activated, this, &PseudoTerminal::readFd);
 }
 
-void PseudoTerminal::readReady(int fd)
+void PseudoTerminal::readFd(int fd)
 {
     char buf[BUF_SIZE];
     fd_set readset;
@@ -97,7 +99,10 @@ void PseudoTerminal::readReady(int fd)
             return;
         }
         this->appendToLineBuffer(buf, sizeof(buf));
+        this->readBuffer.append(buf);
     }
+
+    emit readReady();
 }
 
 bool PseudoTerminal::readFromTerminal(char *buf, int bufSize)
@@ -132,18 +137,18 @@ bool PseudoTerminal::readFromTerminal(char *buf, int bufSize)
 
 void PseudoTerminal::appendToLineBuffer(char *buf, int bufSize)
 {
-    this->buffer.append(buf);
+    this->lineBuffer.append(buf);
     int pos;
 
     while (1) {
-        pos = this->buffer.indexOf('\n');
+        pos = this->lineBuffer.indexOf('\n');
 
         if (pos == -1) {
             break;
         }
 
-        QString line = this->buffer.left(pos + 1);
-        this->buffer.remove(0, pos + 1);
+        QString line = this->lineBuffer.left(pos + 1);
+        this->lineBuffer.remove(0, pos + 1);
         emit lineReceived(line);
     }
 }
@@ -171,6 +176,49 @@ bool PseudoTerminal::isRunning()
 int PseudoTerminal::statusCode()
 {
     return this->_statusCode;
+}
+
+bool PseudoTerminal::waitForFinished(int msecs)
+{
+    qint64 msecsPassed = 0;
+    qint64 start = QDateTime::currentMSecsSinceEpoch();
+
+    while (this->isRunning()) {
+        QThread::msleep(50);
+        QCoreApplication::processEvents();
+        msecsPassed = QDateTime::currentMSecsSinceEpoch() - start;
+
+        if (msecs > -1 && msecsPassed >= msecs) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool PseudoTerminal::waitForReadyRead(int msecs)
+{
+    qint64 msecsPassed = 0;
+    qint64 start = QDateTime::currentMSecsSinceEpoch();
+
+    while (this->readBuffer.isEmpty()) {
+        QThread::msleep(50);
+        QCoreApplication::processEvents();
+        msecsPassed = QDateTime::currentMSecsSinceEpoch() - start;
+
+        if (msecs > -1 && msecsPassed >= msecs) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+QString PseudoTerminal::readAllOutput() {
+    QString buffer = this->readBuffer;
+    this->readBuffer = "";
+
+    return buffer;
 }
 
 void PseudoTerminal::sendData(const QString &data)

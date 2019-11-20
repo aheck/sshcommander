@@ -16,7 +16,7 @@ void KnownHostsTests::testIsHostnameHashingEnabledPositive1()
         "   GSSAPIAuthentication yes\n";
 
     QString filename = tmpFile.fileName();
-    writeStringToFile(filename, configContents);
+    TestHelpers::writeStringToFile(filename, configContents);
 
     QVERIFY(KnownHosts::isHostnameHashingEnabled(filename));
 }
@@ -33,7 +33,7 @@ void KnownHostsTests::testIsHostnameHashingEnabledPositive2()
         "HashKnownHosts yes";
 
     QString filename = tmpFile.fileName();
-    writeStringToFile(filename, configContents);
+    TestHelpers::writeStringToFile(filename, configContents);
 
     QVERIFY(KnownHosts::isHostnameHashingEnabled(filename));
 }
@@ -50,7 +50,7 @@ void KnownHostsTests::testIsHostnameHashingEnabledNegative1()
         "GSSAPIAuthentication yes\n";
 
     QString filename = tmpFile.fileName();
-    writeStringToFile(filename, configContents);
+    TestHelpers::writeStringToFile(filename, configContents);
 
     QVERIFY(!KnownHosts::isHostnameHashingEnabled(filename));
 }
@@ -66,7 +66,7 @@ void KnownHostsTests::testIsHostnameHashingEnabledNegative2()
         "GSSAPIAuthentication yes\n";
 
     QString filename = tmpFile.fileName();
-    writeStringToFile(filename, configContents);
+    TestHelpers::writeStringToFile(filename, configContents);
 
     QVERIFY(!KnownHosts::isHostnameHashingEnabled(filename));
 }
@@ -81,7 +81,7 @@ void KnownHostsTests::testIsHostInKnownHostsFilePositive1()
     QString configContents = this->hashedKeyEntry1;
 
     QString filename = tmpFile.fileName();
-    writeStringToFile(filename, configContents);
+    TestHelpers::writeStringToFile(filename, configContents);
 
     QVERIFY(KnownHosts::isHostInKnownHostsFile("192.168.0.192", filename));
 }
@@ -95,7 +95,7 @@ void KnownHostsTests::testIsHostInKnownHostsFilePlain()
     QString configContents = this->plainKeyEntry1;
 
     QString filename = tmpFile.fileName();
-    writeStringToFile(filename, configContents);
+    TestHelpers::writeStringToFile(filename, configContents);
 
     QVERIFY(KnownHosts::isHostInKnownHostsFile("192.168.0.192", filename));
 }
@@ -111,7 +111,7 @@ void KnownHostsTests::testIsHostInKnownHostsFilePositive2()
     QString configContents = this->hashedKeyEntry2 + this->hashedKeyEntry1;
 
     QString filename = tmpFile.fileName();
-    writeStringToFile(filename, configContents);
+    TestHelpers::writeStringToFile(filename, configContents);
 
     QVERIFY(KnownHosts::isHostInKnownHostsFile("192.168.0.192", filename));
 }
@@ -125,7 +125,7 @@ void KnownHostsTests::testIsHostInKnownHostsFileNegative1()
     QString configContents = this->hashedKeyEntry2;
 
     QString filename = tmpFile.fileName();
-    writeStringToFile(filename, configContents);
+    TestHelpers::writeStringToFile(filename, configContents);
 
     QVERIFY(!KnownHosts::isHostInKnownHostsFile("192.168.0.192", filename));
 }
@@ -153,14 +153,14 @@ void KnownHostsTests::testAddHostToKnownHostsFile2()
     QString configContents = this->hashedKeyEntry2;
 
     QString filename = tmpFile.fileName();
-    writeStringToFile(filename, configContents);
+    TestHelpers::writeStringToFile(filename, configContents);
     QVERIFY(!KnownHosts::isHostInKnownHostsFile("192.168.1.1", filename));
 
     QVERIFY(KnownHosts::addHostToKnownHostsFile("192.168.1.1", "ssh-rsa", "KW1kG4Ql9+Usdk1M4ig1jQ==", filename));
 
     QVERIFY(KnownHosts::isHostInKnownHostsFile("192.168.1.1", filename));
 
-    QString fileContents = this->readFileContents(filename);
+    QString fileContents = TestHelpers::readFileContents(filename);
     QVERIFY(fileContents.startsWith(configContents));
 }
 
@@ -173,7 +173,7 @@ void KnownHostsTests::testRemoveHostFromKnownHostsFile1()
     QString configContents = this->hashedKeyEntry1;
 
     QString filename = tmpFile.fileName();
-    writeStringToFile(filename, configContents);
+    TestHelpers::writeStringToFile(filename, configContents);
 
     QVERIFY(KnownHosts::isHostInKnownHostsFile("192.168.0.192", filename));
     QVERIFY(KnownHosts::removeHostFromKnownHostsFile("192.168.0.192", filename));
@@ -189,13 +189,13 @@ void KnownHostsTests::testRemoveHostFromKnownHostsFile2()
     QString configContents = this->hashedKeyEntry2 + this->hashedKeyEntry1;
 
     QString filename = tmpFile.fileName();
-    writeStringToFile(filename, configContents);
+    TestHelpers::writeStringToFile(filename, configContents);
 
     QVERIFY(KnownHosts::isHostInKnownHostsFile("192.168.0.192", filename));
     QVERIFY(KnownHosts::removeHostFromKnownHostsFile("192.168.0.192", filename));
     QVERIFY(!KnownHosts::isHostInKnownHostsFile("192.168.0.192", filename));
 
-    QString fileContents = this->readFileContents(filename);
+    QString fileContents = TestHelpers::readFileContents(filename);
     QCOMPARE(this->hashedKeyEntry2, fileContents);
 }
 
@@ -208,11 +208,11 @@ void KnownHostsTests::testReplaceHostInKnownHostsFile1()
     QString configContents = this->hashedKeyEntry1;
 
     QString filename = tmpFile.fileName();
-    writeStringToFile(filename, configContents);
+    TestHelpers::writeStringToFile(filename, configContents);
 
     QVERIFY(KnownHosts::replaceHostInKnownHostsFile("192.168.0.192", "ecdsa-sha2-nistp256", "AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPnVqUGfx30dBxPboia3amukmrTCBYhPwGByh28Wl5P3dk9OZHeGidILyjqcp3rTGJlNPeZg_OTHERKEY_wBeJY=", filename));
 
-    QString fileContents = this->readFileContents(filename);
+    QString fileContents = TestHelpers::readFileContents(filename);
     QVERIFY(fileContents.endsWith("ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPnVqUGfx30dBxPboia3amukmrTCBYhPwGByh28Wl5P3dk9OZHeGidILyjqcp3rTGJlNPeZg_OTHERKEY_wBeJY=\n"));
 }
 
@@ -225,40 +225,11 @@ void KnownHostsTests::testReplaceHostInKnownHostsFile2()
     QString configContents = this->hashedKeyEntry2 + this->hashedKeyEntry1;
 
     QString filename = tmpFile.fileName();
-    writeStringToFile(filename, configContents);
+    TestHelpers::writeStringToFile(filename, configContents);
 
     QVERIFY(KnownHosts::replaceHostInKnownHostsFile("192.168.0.192", "ecdsa-sha2-nistp256", "AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPnVqUGfx30dBxPboia3amukmrTCBYhPwGByh28Wl5P3dk9OZHeGidILyjqcp3rTGJlNPeZg_OTHERKEY_wBeJY=", filename));
 
-    QString fileContents = this->readFileContents(filename);
+    QString fileContents = TestHelpers::readFileContents(filename);
     QVERIFY(fileContents.startsWith(this->hashedKeyEntry2));
     QVERIFY(fileContents.endsWith("ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPnVqUGfx30dBxPboia3amukmrTCBYhPwGByh28Wl5P3dk9OZHeGidILyjqcp3rTGJlNPeZg_OTHERKEY_wBeJY=\n"));
-}
-
-bool KnownHostsTests::writeStringToFile(const QString &filename, QString &data)
-{
-    QFile file(filename);
-
-    if (!file.open(QIODevice::WriteOnly)) {
-        return false;
-    }
-
-    QTextStream stream(&file);
-    stream << (data);
-
-    file.close();
-
-    return true;
-}
-
-QString KnownHostsTests::readFileContents(const QString &filename)
-{
-    QFile file(filename);
-
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        return "";
-    }
-
-    QTextStream stream(&file);
-
-    return stream.readAll();
 }

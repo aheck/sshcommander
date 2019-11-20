@@ -3,9 +3,11 @@ cmake_minimum_required(VERSION 3.0)
 include_directories("../src")
 
 add_executable(tests main.cpp
+    FileTransferTests.cpp
     InstanceItemModelTests.cpp
     PseudoTerminalTests.cpp
     KnownHostsTests.cpp
+    TestHelpers.cpp
 
     ../src/applets/AWSInfoApplet.cpp
     ../src/applets/FileBrowserApplet.cpp

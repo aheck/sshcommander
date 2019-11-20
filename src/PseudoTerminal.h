@@ -8,6 +8,8 @@
 #ifndef PSEUDOTERMINAL_H
 #define PSEUDOTERMINAL_H
 
+#include <QCoreApplication>
+#include <QDateTime>
 #include <QList>
 #include <QProcess>
 #include <QSocketNotifier>
@@ -31,22 +33,27 @@ public:
     void sendData(const QString &data);
     void terminate(int secsToForce = 10);
     int statusCode();
+    bool waitForFinished(int msecs = 30000);
+    bool waitForReadyRead(int msecs = 30000);
+    QString readAllOutput();
 
 signals:
     void finished(int exitCode);
     void dataReceived(const QString data);
+    void readReady();
     void lineReceived(const QString line);
     void errorOccured(QProcess::ProcessError, QString message);
 
-public slots:
-    void readReady(int fd);
+private slots:
+    void readFd(int fd);
 
 private:
     pid_t childPid;
     int masterFd;
     int slaveFd;
     int _statusCode;
-    QString buffer;
+    QString lineBuffer;
+    QString readBuffer;
     QString command;
     QStringList args;
     QSocketNotifier *fdWatcher;

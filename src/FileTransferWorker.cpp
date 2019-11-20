@@ -26,6 +26,7 @@ FileTransferWorker::FileTransferWorker(std::shared_ptr<FileTransferJob> job)
     this->fileOverwriteAnswer = FileOverwriteAnswer::None;
     this->lastTransferTime = 0;
     this->accumulatedByteDiff = 0;
+    this->conn = nullptr;
 }
 
 FileTransferWorker::~FileTransferWorker()
@@ -38,7 +39,12 @@ void FileTransferWorker::process()
     this->job->setState(FileTransferState::Connecting);
 
     auto connEntry = this->job->getConnEntry();
-    this->conn = SSHConnectionManager::getInstance().createSSHConnection(connEntry);
+
+    // Create a new connection for the download. When we run inside a test
+    // this->conn is already set by the calling test code.
+    if (this->conn == nullptr) {
+        this->conn = SSHConnectionManager::getInstance().createSSHConnection(connEntry);
+    }
 
     if (this->conn == nullptr) {
         this->job->setState(FileTransferState::Failed);
@@ -49,7 +55,7 @@ void FileTransferWorker::process()
 
     if (conn->sftp == nullptr) {
         while ((conn->sftp = libssh2_sftp_init(conn->session)) == nullptr &&
-                libssh2_session_last_error(conn->session,NULL,NULL,0) == LIBSSH2_ERROR_EAGAIN)  {
+                libssh2_session_last_error(conn->session,NULL,NULL,0) == LIBSSH2_ERROR_EAGAIN) {
             CHECK_CANCEL();
             QThread::msleep(this->sleeptime);
             CHECK_CANCEL();

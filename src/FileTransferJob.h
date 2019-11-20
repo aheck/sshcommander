@@ -71,12 +71,17 @@ public:
 
     static QString fileTransferStateToString(FileTransferState value);
 
+public slots:
+    void notifyUser();
+
 signals:
     void dataChanged(QUuid uuid);
+    void stateChanged(QUuid uuid);
 
 private slots:
     void sendNotification(QString svgIconPath, QString message);
     void emitDataChanged();
+    void emitStateChanged();
 
 private:
     QUuid uuid;

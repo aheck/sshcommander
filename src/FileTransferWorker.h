@@ -74,6 +74,8 @@ public:
     FileTransferWorker(std::shared_ptr<FileTransferJob> job);
     ~FileTransferWorker();
 
+    friend class FileTransferTests;
+
     void copyFileFromRemoteRecursively(QString remotePath, QString localDir);
     void copyFileToRemoteRecursively(QString localPath, QString remoteDir);
     void copyFileFromRemote(QString remotePath, QString localDir);

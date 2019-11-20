@@ -432,6 +432,7 @@ bool SSHConnectionManager::restartFileTransferJob(QString connectionId, int row)
 void SSHConnectionManager::executeFileTransfer(std::shared_ptr<FileTransferJob> job)
 {
     QThread *thread = new QThread();
+    connect(job.get(), &FileTransferJob::stateChanged, job.get(), &FileTransferJob::notifyUser);
     job->setThread(thread);
     FileTransferWorker *worker = new FileTransferWorker(job);
     worker->moveToThread(thread);

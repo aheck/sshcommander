@@ -18,7 +18,9 @@ SSHConnectionEntry::SSHConnectionEntry()
 
 SSHConnectionEntry::~SSHConnectionEntry()
 {
-    delete this->tabs;
+    if (this->tabs) {
+        delete this->tabs;
+    }
 }
 
 void SSHConnectionEntry::read(const QJsonObject &json)

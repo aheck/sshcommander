@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     );
 
     MainWindow mainWindow;
-    QObject::connect(&app, SIGNAL(aboutToQuit()), &mainWindow, SLOT(aboutToQuit()));
+    QObject::connect(&app, &QApplication::aboutToQuit, &mainWindow, &MainWindow::aboutToQuit);
     mainWindow.show();
 
     return app.exec();

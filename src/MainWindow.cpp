@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setWindowIcon(QIcon(":/images/utilities-terminal.svg"));
 
     this->fileWatcher.addPath(QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)).filePath("appNotify"));
-    connect(&this->fileWatcher, SIGNAL(fileChanged(QString)), this, SLOT(bringToForeground()));
+    connect(&this->fileWatcher, &QFileSystemWatcher::fileChanged, this, &MainWindow::bringToForeground);
 
     this->viewEnlarged = false;
     this->awsConsoleDetached = false;
@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->aboutDialog = new AboutDialog(this);
     this->newDialog = new NewDialog(this);
     this->preferencesDialog = new PreferencesDialog(this);
-    connect(newDialog, SIGNAL (accepted()), this, SLOT (createNewConnection()));
+    connect(newDialog, &NewDialog::accepted, this, &MainWindow::createNewConnection);
 
     // build the menu bar
     QMenuBar *menuBar = new QMenuBar(0);
@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #ifndef Q_OS_MACOS
     newRole->setIcon(QIcon(":/images/applications-internet.svg"));
 #endif
-    connect(newRole, SIGNAL(triggered()), this, SLOT(showNewDialog()));
+    connect(newRole, &QAction::triggered, this, &MainWindow::showNewDialog);
     newRole->setShortcuts(QKeySequence::New);
     newRole->setMenuRole(QAction::NoRole);
     connMenu->addAction(newRole);
@@ -82,14 +82,14 @@ MainWindow::MainWindow(QWidget *parent) :
     this->connectionModel = new SSHConnectionItemModel();
     this->connectionList = new ConnectionListWidget(this->connectionModel);
 
-    connect(this->connectionList, SIGNAL(newDialogRequested()), this, SLOT(showNewDialog()));
-    connect(this->connectionList, SIGNAL(connectionRemoved(std::shared_ptr<SSHConnectionEntry>)),
-            this, SLOT(connectionRemoved(std::shared_ptr<SSHConnectionEntry>)));
-    connect(this->connectionList, SIGNAL(connectionChanged(int)),
-            this, SLOT(changeConnection(int)));
-    connect(this->connectionList, SIGNAL(toggleAwsConsole(bool)), this, SLOT(toggleAwsConsole(bool)));
-    connect(this->connectionList, SIGNAL(connectionMoved(int, int)),
-            this, SLOT(moveConnection(int, int)));
+    connect(this->connectionList, &ConnectionListWidget::newDialogRequested, this, &MainWindow::showNewDialog);
+    connect(this->connectionList, &ConnectionListWidget::connectionRemoved,
+            this, &MainWindow::connectionRemoved);
+    connect(this->connectionList, &ConnectionListWidget::connectionChanged,
+            this, &MainWindow::changeConnection);
+    connect(this->connectionList, &ConnectionListWidget::toggleAwsConsole, this, &MainWindow::toggleAwsConsole);
+    connect(this->connectionList, &ConnectionListWidget::connectionMoved,
+            this, &MainWindow::moveConnection);
 
     this->splitter->addWidget(this->connectionList);
 
@@ -99,18 +99,15 @@ MainWindow::MainWindow(QWidget *parent) :
     this->terminalView = new TerminalViewWidget();
     this->terminalViewContainer->layout()->addWidget(this->terminalView);
     this->terminalViewContainer->layout()->setContentsMargins(0, 0, 0, 0);
-    connect(this->terminalView, SIGNAL(requestToggleEnlarge()), this, SLOT(toggleEnlargeWidget()));
+    connect(this->terminalView, &TerminalViewWidget::requestToggleEnlarge, this, &MainWindow::toggleEnlargeWidget);
 
     // create the stacked widget that allows to switch between SSH and AWS
     this->rightWidget = new QStackedWidget();
     rightWidget->addWidget(this->terminalViewContainer);
 
     this->awsWidget = new AWSWidget();
-    connect(this->awsWidget, SIGNAL(newConnection(std::shared_ptr<AWSInstance>,
-            std::vector<std::shared_ptr<AWSInstance>>, bool)), this,
-            SLOT(createSSHConnectionToAWS(std::shared_ptr<AWSInstance>,
-            std::vector<std::shared_ptr<AWSInstance>>, bool)));
-    connect(this->awsWidget, SIGNAL(awsInstancesUpdated()), this->connectionList, SLOT(updateAWSInstances()));
+    connect(this->awsWidget, &AWSWidget::newConnection, this, &MainWindow::createSSHConnectionToAWS);
+    connect(this->awsWidget, &AWSWidget::awsInstancesUpdated, this->connectionList, &ConnectionListWidget::updateAWSInstances);
     rightWidget->addWidget(this->awsWidget);
 
     this->splitter->addWidget(rightWidget);
@@ -129,8 +126,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setCentralWidget(this->widgetStack);
 
     this->awsConsoleWindow = new AWSConsoleWindow();
-    connect(this->awsWidget, SIGNAL(requestToggleDetach(bool)), this, SLOT(toggleDetachAwsConsole(bool)));
-    connect(this->awsConsoleWindow, SIGNAL(requestReattach()), this->awsWidget, SLOT(reattach()));
+    connect(this->awsWidget, &AWSWidget::requestToggleDetach, this, &MainWindow::toggleDetachAwsConsole);
+    connect(this->awsConsoleWindow, &AWSConsoleWindow::requestReattach, this->awsWidget, &AWSWidget::reattach);
 
     this->readSettings();
 

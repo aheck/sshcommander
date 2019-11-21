@@ -83,7 +83,7 @@ ImageDialog::ImageDialog(QWidget *parent)
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *closeButton = new QPushButton(tr("Close"));
-    QObject::connect(closeButton, SIGNAL(clicked()), this, SLOT(reject()));
+    QObject::connect(closeButton, &QPushButton::clicked, this, &ImageDialog::reject);
     buttonLayout->addStretch(1);
     buttonLayout->addWidget(closeButton);
     layout->addLayout(buttonLayout);

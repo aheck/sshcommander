@@ -3,7 +3,7 @@
 CustomTabBar::CustomTabBar(QWidget *parent) :
     QTabBar(parent)
 {
-    connect(this, SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
+    connect(this, &CustomTabBar::currentChanged, this, &CustomTabBar::currentChanged);
 
 #ifdef Q_OS_MACOS
     this->setDocumentMode(true);

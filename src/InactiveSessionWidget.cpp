@@ -16,7 +16,7 @@ InactiveSessionWidget::InactiveSessionWidget(QUuid uuid)
     buttonLayout->setAlignment(Qt::AlignHCenter);
     QPushButton *connectButton = new QPushButton(tr("&Connect"));
     connectButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    QObject::connect(connectButton, SIGNAL(clicked()), this, SLOT(createSessionSlot()));
+    QObject::connect(connectButton, &QPushButton::clicked, this, &InactiveSessionWidget::createSessionSlot);
     buttonLayout->addWidget(connectButton);
 
     layout->addLayout(buttonLayout);

@@ -21,7 +21,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
     this->pageList->setSelectionMode(QAbstractItemView::SingleSelection	);
     this->pageList->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
-    connect(this->pageList, SIGNAL(itemSelectionChanged()), this, SLOT(pageSelectionChanged()));
+    connect(this->pageList, &PreferencesListWidget::itemSelectionChanged, this, &PreferencesDialog::pageSelectionChanged);
 
     QListWidgetItem *terminalItem = new QListWidgetItem("Terminal");
     terminalItem->setIcon(QIcon(":/images/utilities-terminal.svg"));
@@ -44,7 +44,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
     QFormLayout *terminalLayout = new QFormLayout();
 
     this->fontButton = new QPushButton("");
-    QObject::connect(this->fontButton, SIGNAL (clicked()), this, SLOT (selectFont()));
+    QObject::connect(this->fontButton, &QPushButton::clicked, this, &PreferencesDialog::selectFont);
     terminalLayout->addRow(tr("Font:"), fontButton);
 
     this->colorSchemeComboBox = new QComboBox();
@@ -70,10 +70,10 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
     // General dialog layout
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *okButton = new QPushButton(tr("OK"));
-    QObject::connect(okButton, SIGNAL (clicked()), this, SLOT (accept()));
+    QObject::connect(okButton, &QPushButton::clicked, this, &PreferencesDialog::accept);
     buttonLayout->addWidget(okButton);
     QPushButton *cancelButton = new QPushButton(tr("Cancel"));
-    QObject::connect(cancelButton, SIGNAL (clicked()), this, SLOT (reject()));
+    QObject::connect(cancelButton, &QPushButton::clicked, this, &PreferencesDialog::reject);
     buttonLayout->addWidget(cancelButton);
 
     layout->addWidget(pageList);

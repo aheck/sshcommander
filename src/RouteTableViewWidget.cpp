@@ -17,7 +17,7 @@ RouteTableViewWidget::RouteTableViewWidget(QWidget *parent) :
     this->table->setSelectionBehavior(QAbstractItemView::SelectRows);
     this->table->setSelectionMode(QAbstractItemView::SingleSelection);
     this->table->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this->table, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+    connect(this->table, &QTableWidget::customContextMenuRequested, this, &RouteTableViewWidget::showContextMenu);
 
     layout->addWidget(this->table);
     layout->setContentsMargins(0, 0, 0, 0);

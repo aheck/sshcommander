@@ -27,18 +27,18 @@ NewDialog::NewDialog(QWidget *parent, bool editDialog)
     fileLayout->addWidget(this->sshkeyComboBox);
     QToolButton *fileButton = new QToolButton();
     fileButton->setText("...");
-    QObject::connect(fileButton, SIGNAL(clicked()), this, SLOT(selectKeyFileDefault()));
+    QObject::connect(fileButton, &QToolButton::clicked, this, &NewDialog::selectKeyFileDefault);
     fileLayout->addWidget(fileButton);
 
     this->hopFileLayout = new QHBoxLayout();
     hopFileLayout->addWidget(this->hopSSHKeyComboBox);
     this->hopFileButton = new QToolButton();
     this->hopFileButton->setText("...");
-    QObject::connect(this->hopFileButton, SIGNAL(clicked()), this, SLOT(selectKeyFileHop()));
+    QObject::connect(this->hopFileButton, &QToolButton::clicked, this, &NewDialog::selectKeyFileHop);
     hopFileLayout->addWidget(this->hopFileButton);
 
-    QObject::connect(this->portCheckBox, SIGNAL (clicked(bool)), this, SLOT (portCheckBoxStateChanged(bool)));
-    QObject::connect(this->hopCheckBox, SIGNAL (clicked(bool)), this, SLOT (hopCheckBoxStateChanged(bool)));
+    QObject::connect(this->portCheckBox, &QCheckBox::clicked, this, &NewDialog::portCheckBoxStateChanged);
+    QObject::connect(this->hopCheckBox, &QCheckBox::clicked, this, &NewDialog::hopCheckBoxStateChanged);
 
     this->formLayout = new QFormLayout;
 #ifdef Q_OS_MACOS
@@ -60,11 +60,11 @@ NewDialog::NewDialog(QWidget *parent, bool editDialog)
     hopCheckBoxStateChanged(this->hopCheckBox->isChecked());
 
     QPushButton *connectButton = new QPushButton(tr("Connect"));
-    QObject::connect(connectButton, SIGNAL (clicked()), this, SLOT (acceptDialog()));
+    QObject::connect(connectButton, &QPushButton::clicked, this, &NewDialog::acceptDialog);
     connectButton->setDefault(true);
 
     QPushButton *cancelButton = new QPushButton(tr("Cancel"));
-    QObject::connect(cancelButton, SIGNAL (clicked()), this, SLOT(reject()));
+    QObject::connect(cancelButton, &QPushButton::clicked, this, &NewDialog::reject);
     cancelButton->setDefault(false);
 
     QHBoxLayout *buttonsLayout = new QHBoxLayout();

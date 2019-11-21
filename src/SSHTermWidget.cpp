@@ -7,7 +7,7 @@ SSHTermWidget::SSHTermWidget(const QStringList *args, std::weak_ptr<SSHConnectio
     auto connEntry = this->connEntryWeak.lock();
 
     if (!connEntry->password.isEmpty()) {
-        connect(this, SIGNAL(receivedData(QString)), this, SLOT(dataReceived(QString)));
+        connect(this, &SSHTermWidget::receivedData, this, &SSHTermWidget::dataReceived);
     }
 
     Preferences &preferences = Preferences::getInstance();
@@ -50,8 +50,7 @@ void SSHTermWidget::dataReceived(const QString &text)
     }
 
     if (connEntry->password.isEmpty()) {
-        disconnect(this, SIGNAL(receivedData(QString)),
-                this, SLOT(dataReceived(QString)));
+        disconnect(this, &SSHTermWidget::receivedData, this, &SSHTermWidget::dataReceived);
         return;
     }
 
@@ -64,16 +63,14 @@ void SSHTermWidget::dataReceived(const QString &text)
     this->passwordLineCounter++;
 
     if (this->passwordLineCounter > 10) {
-        disconnect(this, SIGNAL(receivedData(QString)),
-                this, SLOT(dataReceived(QString)));
+        disconnect(this, &SSHTermWidget::receivedData, this, &SSHTermWidget::dataReceived);
     }
 
     if (this->passwordRegex1.exactMatch(text) || this->passwordRegex2.exactMatch(text)) {
         std::cout << "Sending ssh password...\n";
         this->sendText(connEntry->password + "\n");
 
-        disconnect(this, SIGNAL(receivedData(QString)),
-                this, SLOT(dataReceived(QString)));
+        disconnect(this, &SSHTermWidget::receivedData, this, &SSHTermWidget::dataReceived);
     }
 }
 

@@ -100,7 +100,7 @@ TunnelManager& TunnelManager::getInstance()
 
 TunnelManager::TunnelManager()
 {
-    connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
+    connect(qApp, &QApplication::aboutToQuit, this, &TunnelManager::cleanup);
 
     this->restoreFromJson();
 }
@@ -241,7 +241,7 @@ void TunnelManager::createTunnel(std::shared_ptr<SSHConnectionEntry> connEntry, 
     const QStringList args = connEntry->generateTunnelArgs(localPort, remotePort);
     SSHTermWidget *termWidget = new SSHTermWidget(&args, connEntryWeak, 0);
     termWidget->setAutoClose(true);
-    connect(termWidget, SIGNAL(finished(int)), this, SLOT(tunnelTerminated(int)));
+    connect(termWidget, &SSHTermWidget::finished, this, &TunnelManager::tunnelTerminated);
     termWidget->startShellProgram();
 
     std::shared_ptr<TunnelEntry> tunnelEntry = std::make_shared<TunnelEntry>();
@@ -275,7 +275,7 @@ void TunnelManager::restartTunnel(std::shared_ptr<SSHConnectionEntry> connEntry,
     const QStringList args = connEntry->generateTunnelArgs(localPort, remotePort);
     tunnel->termWidget = new SSHTermWidget(&args, connEntryWeak, 0);
     tunnel->termWidget->setAutoClose(true);
-    connect(tunnel->termWidget, SIGNAL(finished(int)), this, SLOT(tunnelTerminated(int)));
+    connect(tunnel->termWidget, &SSHTermWidget::finished, this, &TunnelManager::tunnelTerminated);
     tunnel->termWidget->startShellProgram();
 }
 

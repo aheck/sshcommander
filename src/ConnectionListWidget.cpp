@@ -7,12 +7,11 @@ ConnectionListWidget::ConnectionListWidget(SSHConnectionItemModel *model)
     this->listView = new ConnectionListView();
     this->listView->setIconSize(QSize(24, 24));
     this->listView->setModel(this->model);
-    connect(this->listView, SIGNAL(connectionMoved(int, int)), this, SLOT(moveConnection(int, int)));
+    connect(this->listView, &ConnectionListView::connectionMoved, this, &ConnectionListWidget::moveConnection);
 
-    connect(this->listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
-            this, SLOT(selectionChanged(QItemSelection, QItemSelection)));
-    connect(this->listView, SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(showContextMenu(QPoint)));
+    connect(this->listView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &ConnectionListWidget::selectionChanged);
+    connect(this->listView, &ConnectionListView::customContextMenuRequested, this, &ConnectionListWidget::showContextMenu);
 
     this->toolBar = new QToolBar();
 
@@ -21,7 +20,7 @@ ConnectionListWidget::ConnectionListWidget(SSHConnectionItemModel *model)
 #endif
 
     toolBar->addAction(QIcon(":/images/applications-internet.svg"), "New Connection",
-            this, SIGNAL(newDialogRequested()));
+            this, &ConnectionListWidget::newDialogRequested);
     this->editAction = toolBar->addAction(QIcon(":/images/preferences-system.svg"), "Edit Connection",
             this, SLOT(editConnection()));
     this->editAction->setEnabled(false);
@@ -31,7 +30,7 @@ ConnectionListWidget::ConnectionListWidget(SSHConnectionItemModel *model)
     toolBar->addSeparator();
     this->awsConsoleAction = toolBar->addAction(QIcon(":/images/connection-type-aws.svg"), tr("Show AWS Console"));
     this->awsConsoleAction->setCheckable(true);
-    connect(this->awsConsoleAction, SIGNAL(toggled(bool)), this, SLOT(awsConsoleToggled(bool)));
+    connect(this->awsConsoleAction, &QAction::toggled, this, &ConnectionListWidget::awsConsoleToggled);
 
     this->editDialog = new NewDialog(this, true);
 

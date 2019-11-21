@@ -23,7 +23,7 @@ DetachedSessionWidget::DetachedSessionWidget()
     layout->addWidget(hintLabel);
 
     QPushButton *showButton = new QPushButton(tr("&Show Window"));
-    QObject::connect(showButton, SIGNAL(clicked()), this, SLOT(showDetachedWindow()));
+    QObject::connect(showButton, &QPushButton::clicked, this, &DetachedSessionWidget::showDetachedWindow);
     layout->addWidget(showButton);
 
     this->setLayout(layout);

@@ -43,7 +43,7 @@ void SSHFSMountEntry::mount(std::shared_ptr<SSHConnectionEntry> connEntry)
     termWidget->setShellProgram(ExternalProgramFinder::getSSHFSPath());
     termWidget->startShellProgram();
     this->termWidget = termWidget;
-    termWidget->connect(termWidget, SIGNAL(finished(int)), &SSHFilesystemManager::getInstance(), SLOT(sshfsTerminated(int)));
+    termWidget->connect(termWidget, &SSHTermWidget::finished, &SSHFilesystemManager::getInstance(), &SSHFilesystemManager::sshfsTerminated);
 
     std::cout << "SSHFS command: sshfs " << args.join(" ").toStdString() << "\n";
 }
@@ -147,7 +147,7 @@ SSHFilesystemManager& SSHFilesystemManager::getInstance()
 
 SSHFilesystemManager::SSHFilesystemManager()
 {
-    connect(qApp, SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
+    connect(qApp, &QApplication::aboutToQuit, this, &SSHFilesystemManager::cleanup);
 
     this->restoreFromJson();
 }

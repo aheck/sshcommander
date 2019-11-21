@@ -33,7 +33,7 @@ AppletWidget::AppletWidget(std::shared_ptr<SSHConnectionEntry> connEntry, QWidge
         connect(applet, SIGNAL(changed()), this, SLOT(appletContentChanged()));
     }
 
-    connect(this, SIGNAL(currentChanged(int)), this, SLOT(appletChanged(int)));
+    connect(this, &AppletWidget::currentChanged, this, &AppletWidget::appletChanged);
 
     //this->layout()->setContentsMargins(0, 0, 0, 0);
 }

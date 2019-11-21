@@ -10,7 +10,7 @@ AWSWidget::AWSWidget()
     this->firstTryToLogin = false;
     this->requestRunning = false;
     this->awsConnector = new AWSConnector();
-    QObject::connect(this->awsConnector, SIGNAL(awsReplyReceived(AWSResult*)), this, SLOT(handleAWSResult(AWSResult*)));
+    QObject::connect(this->awsConnector, &AWSConnector::awsReplyReceived, this, &AWSWidget::handleAWSResult);
 
     this->securityGroupsDialog = new SecurityGroupsDialog(this);
     this->tagsDialog = new TagsDialog(this);
@@ -40,7 +40,7 @@ AWSWidget::AWSWidget()
     loginLayout->addLayout(awsFormLayout);
     this->loginWidget->setLayout(loginLayout);
 
-    QObject::connect(this->awsLoginButton, SIGNAL(clicked()), this, SLOT(connectToAWS()));
+    QObject::connect(this->awsLoginButton, &QPushButton::clicked, this, &AWSWidget::connectToAWS);
 
     // build the mainWidget
     this->mainWidget = new QWidget();
@@ -57,7 +57,7 @@ AWSWidget::AWSWidget()
     this->connectButton->setEnabled(false);
     this->toggleWindowButton = this->toolBar->addAction(QIcon(":/images/window-new.svg"),
             "Detach Window");
-    connect(this->toggleWindowButton, SIGNAL(toggled(bool)), this, SLOT(toggleWindowMode(bool)));
+    connect(this->toggleWindowButton, &QAction::toggled, this, &AWSWidget::toggleWindowMode);
     this->toggleWindowButton->setCheckable(true);
     this->toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
 
@@ -65,6 +65,7 @@ AWSWidget::AWSWidget()
     this->vpcComboBox->setMinimumWidth(250);
     this->vpcComboBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     this->vpcComboBox->setToolTip(tr("Virtual Private Cloud (VPC)"));
+    // connect with old syntax because QComboBox::currentIndexChanged is overloaded
     QObject::connect(this->vpcComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeVpc(int)));
     this->vpcToolBar = new QToolBar("vpcToolBar", this->mainWidget);
     this->showVpcButton = this->vpcToolBar->addAction(QIcon(":/images/dialog-information.svg"), "Show VPC Details", this, SLOT(showVpcDialog()));
@@ -74,8 +75,7 @@ AWSWidget::AWSWidget()
     this->searchLineEdit = new QLineEdit(this);
     this->searchLineEdit->setPlaceholderText(tr("Filter by name, tag, instance ID, SSH key, IP or stack"));
     this->searchLineEdit->setClearButtonEnabled(true);
-    QObject::connect(this->searchLineEdit, SIGNAL(textEdited(QString)),
-            this, SLOT(searchForText(QString)));
+    QObject::connect(this->searchLineEdit, &QLineEdit::textEdited, this, &AWSWidget::searchForText);
     this->regionComboBox = new QComboBox();
     this->regionComboBox->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     this->regionComboBox->setToolTip(tr("Region"));
@@ -85,7 +85,7 @@ AWSWidget::AWSWidget()
                 AWSConnector::Regions.at(i));
     }
 
-    QObject::connect(this->regionComboBox, SIGNAL(currentTextChanged(QString)), this, SLOT(changeRegion(QString)));
+    QObject::connect(this->regionComboBox, &QComboBox::currentTextChanged, this, &AWSWidget::changeRegion);
 
     this->instanceTable = new QTableView(this->mainWidget);
     this->instanceModel = new InstanceItemModel();
@@ -98,11 +98,11 @@ AWSWidget::AWSWidget()
     }
     this->instanceTable->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
     this->instanceTable->horizontalHeader()->setStretchLastSection(true);
-    QObject::connect(this->instanceTable->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
-            this, SLOT(selectionChanged(QItemSelection, QItemSelection)));
+    QObject::connect(this->instanceTable->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &AWSWidget::selectionChanged);
     this->instanceTable->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this->instanceTable, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showInstanceContextMenu(QPoint)));
-    connect(this->instanceTable, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClicked(QModelIndex)));
+    connect(this->instanceTable, &QTableView::customContextMenuRequested, this, &AWSWidget::showInstanceContextMenu);
+    connect(this->instanceTable, &QTableView::doubleClicked, this, &AWSWidget::doubleClicked);
 
     QHBoxLayout *toolBarLayout = new QHBoxLayout();
     toolBarLayout->addWidget(this->toolBar);

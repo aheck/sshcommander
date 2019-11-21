@@ -487,6 +487,14 @@ FileOverwriteAnswer FileTransferWorker::getFileOverwriteAnswer()
     return this->fileOverwriteAnswer;
 }
 
+void FileTransferWorker::connectWithThread(QThread *thread)
+{
+    thread->connect(thread, &QThread::started, this, &FileTransferWorker::process);
+    thread->connect(this, &FileTransferWorker::finished, thread, &QThread::quit);
+    this->connect(this, &FileTransferWorker::finished, this, &FileTransferWorker::deleteLater);
+    thread->connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+}
+
 void FileTransferWorker::waitUntilFileOverwriteAnswerChanged(QString title, QString message, QString infoText)
 {
     this->mutex.lock();

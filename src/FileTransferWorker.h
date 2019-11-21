@@ -83,6 +83,7 @@ public:
     void setFileOverwriteAnswer(FileOverwriteAnswer answer);
     void setFileOverwriteAnswerAndNotify(FileOverwriteAnswer answer);
     FileOverwriteAnswer getFileOverwriteAnswer();
+    void connectWithThread(QThread *thread);
 public slots:
     void process();
 signals:

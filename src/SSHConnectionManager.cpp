@@ -439,11 +439,7 @@ void SSHConnectionManager::executeFileTransfer(std::shared_ptr<FileTransferJob> 
 
     // connect slots for message box handling in the main thread
     thread->connect(worker, SIGNAL(askToOverwriteFile(QString, QString, QString)), this, SLOT(askToOverwriteFile(QString, QString, QString)));
-
-    thread->connect(thread, SIGNAL(started()), worker, SLOT(process()));
-    thread->connect(worker, SIGNAL(finished()), thread, SLOT(quit()));
-    thread->connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
-    thread->connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    worker->connectWithThread(thread);
 
     thread->start();
 }

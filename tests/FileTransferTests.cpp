@@ -68,10 +68,7 @@ void FileTransferTests::testSimpleDownload()
     worker->conn = connEntry->connection;
     worker->moveToThread(thread);
 
-    thread->connect(thread, SIGNAL(started()), worker, SLOT(process()));
-    thread->connect(worker, SIGNAL(finished()), thread, SLOT(quit()));
-    thread->connect(worker, SIGNAL(finished()), worker, SLOT(deleteLater()));
-    thread->connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    worker->connectWithThread(thread);
 
     qDebug() << "Starting file transfer";
     thread->start();

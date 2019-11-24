@@ -37,6 +37,7 @@ private:
     static const QString isoFileSHA1Sum;
 
     int stopDockerContainer();
+    void runFileTransferJob(std::shared_ptr<SSHConnectionEntry> connEntry, std::shared_ptr<FileTransferJob> job);
 };
 
 #endif

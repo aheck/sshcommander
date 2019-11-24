@@ -72,21 +72,8 @@ void FileTransferTests::testSimpleDownload()
     auto job = std::make_shared<FileTransferJob>(connEntry, FileTransferType::Download, targetDir.path());
     job->addFileToCopy("/root/test.c");
 
-    QThread *thread = new QThread();
-    job->setThread(thread);
-    FileTransferWorker *worker = new FileTransferWorker(job);
-    worker->conn = connEntry->connection;
-    worker->moveToThread(thread);
-
-    worker->connectWithThread(thread);
-
     qDebug() << "Starting file download";
-    thread->start();
-
-    while (thread->isRunning()) {
-        QTest::qWait(200);
-        QCoreApplication::processEvents();
-    }
+    this->runFileTransferJob(connEntry, job);
 
     QCOMPARE(job->getState(), FileTransferState::Completed);
 
@@ -107,21 +94,8 @@ void FileTransferTests::testSimpleUpload()
     auto job = std::make_shared<FileTransferJob>(connEntry, FileTransferType::Upload, "/root");
     job->addFileToCopy(filename);
 
-    QThread *thread = new QThread();
-    job->setThread(thread);
-    FileTransferWorker *worker = new FileTransferWorker(job);
-    worker->conn = connEntry->connection;
-    worker->moveToThread(thread);
-
-    worker->connectWithThread(thread);
-
     qDebug() << "Starting file upload";
-    thread->start();
-
-    while (thread->isRunning()) {
-        QTest::qWait(200);
-        QCoreApplication::processEvents();
-    }
+    this->runFileTransferJob(connEntry, job);
 
     QCOMPARE(job->getState(), FileTransferState::Completed);
 
@@ -141,21 +115,8 @@ void FileTransferTests::testIsoFileDownload()
     auto job = std::make_shared<FileTransferJob>(connEntry, FileTransferType::Download, targetDir.path());
     job->addFileToCopy("/root/" + Util::basename(FileTransferTests::isoFilePath));
 
-    QThread *thread = new QThread();
-    job->setThread(thread);
-    FileTransferWorker *worker = new FileTransferWorker(job);
-    worker->conn = connEntry->connection;
-    worker->moveToThread(thread);
-
-    worker->connectWithThread(thread);
-
     qDebug() << "Starting file download";
-    thread->start();
-
-    while (thread->isRunning()) {
-        QTest::qWait(200);
-        QCoreApplication::processEvents();
-    }
+    this->runFileTransferJob(connEntry, job);
 
     QCOMPARE(job->getState(), FileTransferState::Completed);
 
@@ -172,6 +133,17 @@ void FileTransferTests::testIsoFileUpload()
     auto job = std::make_shared<FileTransferJob>(connEntry, FileTransferType::Upload, "/root");
     job->addFileToCopy(FileTransferTests::isoFilePath);
 
+    qDebug() << "Starting file upload";
+    this->runFileTransferJob(connEntry, job);
+
+    QCOMPARE(job->getState(), FileTransferState::Completed);
+
+    QString checksum = TestHelpers::sshSHA1Sum(connEntry, "/root/" + Util::basename(FileTransferTests::isoFilePath));
+    QCOMPARE(checksum, QString(FileTransferTests::isoFileSHA1Sum));
+}
+
+void FileTransferTests::runFileTransferJob(std::shared_ptr<SSHConnectionEntry> connEntry, std::shared_ptr<FileTransferJob> job)
+{
     QThread *thread = new QThread();
     job->setThread(thread);
     FileTransferWorker *worker = new FileTransferWorker(job);
@@ -180,16 +152,10 @@ void FileTransferTests::testIsoFileUpload()
 
     worker->connectWithThread(thread);
 
-    qDebug() << "Starting file upload";
     thread->start();
 
     while (thread->isRunning()) {
         QTest::qWait(200);
         QCoreApplication::processEvents();
     }
-
-    QCOMPARE(job->getState(), FileTransferState::Completed);
-
-    QString checksum = TestHelpers::sshSHA1Sum(connEntry, "/root/" + Util::basename(FileTransferTests::isoFilePath));
-    QCOMPARE(checksum, QString(FileTransferTests::isoFileSHA1Sum));
 }

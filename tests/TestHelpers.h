@@ -23,7 +23,7 @@
 class TestHelpers
 {
 public:
-    static bool writeStringToFile(const QString &filename, QString &data);
+    static bool writeStringToFile(const QString &filename, const QString &data);
     static QString readFileContents(const QString &filename);
     static QString genFileChecksum(const QString &filename, QCryptographicHash::Algorithm algo);
 

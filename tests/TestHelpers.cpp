@@ -1,6 +1,6 @@
 #include "TestHelpers.h"
 
-bool TestHelpers::writeStringToFile(const QString &filename, QString &data)
+bool TestHelpers::writeStringToFile(const QString &filename, const QString &data)
 {
     QFile file(filename);
 

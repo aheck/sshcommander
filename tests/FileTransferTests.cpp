@@ -1,5 +1,16 @@
 #include "FileTransferTests.h"
 
+const QString FileTransferTests::testCFile = "#include <stdio.h>\n"
+        "\n"
+        "int main(void)\n"
+        "{\n"
+        "    unsigned long test;\n"
+        "    printf(\"test: %ld\\n\", sizeof(test));\n"
+        "    return 0;\n"
+        "}\n";
+
+const QString FileTransferTests::testCFileSHA1Sum = "93f4ca7a4cb79b9e911881c8b8780756b5695c01";
+
 void FileTransferTests::init()
 {
     QProcess proc1;
@@ -41,18 +52,9 @@ void FileTransferTests::testSimpleDownload()
     connEntry->password = "root";
     connEntry->port = this->sshPort;
 
-    QString code = "#include <stdio.h>\n"
-        "\n"
-        "int main(void)\n"
-        "{\n"
-        "    unsigned long test;\n"
-        "    printf(\"test: %ld\\n\", sizeof(test));\n"
-        "    return 0;\n"
-        "}\n";
-
     QTemporaryDir tmpDir("");
     QString filename = tmpDir.path() + "/test.c";
-    TestHelpers::writeStringToFile(filename, code);
+    TestHelpers::writeStringToFile(filename, FileTransferTests::testCFile);
 
     QCOMPARE(TestHelpers::scpFiles(connEntry, filename), 0);
 
@@ -81,7 +83,7 @@ void FileTransferTests::testSimpleDownload()
     QCOMPARE(job->getState(), FileTransferState::Completed);
 
     QString checksum = TestHelpers::genFileChecksum(targetDir.path() + "/test.c", QCryptographicHash::Sha1);
-    QCOMPARE(checksum, QString("93f4ca7a4cb79b9e911881c8b8780756b5695c01"));
+    QCOMPARE(checksum, QString(FileTransferTests::testCFileSHA1Sum));
 }
 
 void FileTransferTests::testSimpleUpload()
@@ -92,18 +94,9 @@ void FileTransferTests::testSimpleUpload()
     connEntry->password = "root";
     connEntry->port = this->sshPort;
 
-    QString code = "#include <stdio.h>\n"
-        "\n"
-        "int main(void)\n"
-        "{\n"
-        "    unsigned long test;\n"
-        "    printf(\"test: %ld\\n\", sizeof(test));\n"
-        "    return 0;\n"
-        "}\n";
-
     QTemporaryDir tmpDir("");
     QString filename = tmpDir.path() + "/test.c";
-    TestHelpers::writeStringToFile(filename, code);
+    TestHelpers::writeStringToFile(filename, FileTransferTests::testCFile);
 
     QVERIFY(TestHelpers::connectConnEntry(connEntry));
 
@@ -129,5 +122,5 @@ void FileTransferTests::testSimpleUpload()
     QCOMPARE(job->getState(), FileTransferState::Completed);
 
     QString checksum = TestHelpers::sshSHA1Sum(connEntry, "/root/test.c");
-    QCOMPARE(checksum, QString("93f4ca7a4cb79b9e911881c8b8780756b5695c01"));
+    QCOMPARE(checksum, QString(FileTransferTests::testCFileSHA1Sum));
 }

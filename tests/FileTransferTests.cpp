@@ -127,7 +127,6 @@ void FileTransferTests::testSimpleUpload()
     }
 
     QCOMPARE(job->getState(), FileTransferState::Completed);
-    QTest::qWait(500);
 
     QString checksum = TestHelpers::sshSHA1Sum(connEntry, "/root/test.c");
     QCOMPARE(checksum, QString("93f4ca7a4cb79b9e911881c8b8780756b5695c01"));

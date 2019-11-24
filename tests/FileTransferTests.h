@@ -31,6 +31,8 @@ private:
     int sshPort;
     static const QString testCFile;
     static const QString testCFileSHA1Sum;
+
+    int stopDockerContainer();
 };
 
 #endif

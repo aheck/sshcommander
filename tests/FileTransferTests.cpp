@@ -13,6 +13,10 @@ const QString FileTransferTests::testCFileSHA1Sum = "93f4ca7a4cb79b9e911881c8b87
 
 void FileTransferTests::init()
 {
+    // If the previous test run crashed the docker container might still be
+    // running. Ensure that it doesn't interfere with this test run.
+    this->stopDockerContainer();
+
     QProcess proc1;
     proc1.start("docker run --rm -d -P --name testing_sshd rastasheep/ubuntu-sshd:18.04");
     proc1.waitForFinished(-1);
@@ -37,11 +41,16 @@ void FileTransferTests::init()
 
 void FileTransferTests::cleanup()
 {
+    QCOMPARE(this->stopDockerContainer(), 0);
+}
+
+int FileTransferTests::stopDockerContainer()
+{
     QProcess proc;
     proc.start("docker stop testing_sshd");
     proc.waitForFinished(-1);
 
-    QCOMPARE(proc.exitCode(), 0);
+    return proc.exitCode();
 }
 
 void FileTransferTests::testSimpleDownload()

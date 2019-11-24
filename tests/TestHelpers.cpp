@@ -128,7 +128,7 @@ bool TestHelpers::connectConnEntry(std::shared_ptr<SSHConnectionEntry> connEntry
     return true;
 }
 
-int TestHelpers::scpFiles(std::shared_ptr<SSHConnectionEntry> connEntry, QString path)
+int TestHelpers::scpFiles(std::shared_ptr<SSHConnectionEntry> connEntry, const QString &path)
 {
     //QString cmd("/usr/bin/scp -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ");
     PseudoTerminal term;
@@ -137,18 +137,9 @@ int TestHelpers::scpFiles(std::shared_ptr<SSHConnectionEntry> connEntry, QString
         << "-P" << QString::number(connEntry->port) << "-r" << path << "root@localhost:/root";
     term.start("/usr/bin/scp", args);
 
-    while (term.isRunning()) {
-        if (!term.waitForReadyRead()) {
-            continue;
-        }
-
-        QString output = term.readAllOutput();
-        output = output.trimmed();
-        if (output.endsWith("password:")) {
-            QString input = connEntry->password + "\n";
-            term.sendData(input.toUtf8().constData());
-            break;
-        }
+    if (!enterPassword(term, connEntry->password)) {
+        term.terminate();
+        return 1;
     }
 
     term.waitForFinished(-1);
@@ -156,7 +147,7 @@ int TestHelpers::scpFiles(std::shared_ptr<SSHConnectionEntry> connEntry, QString
     return term.statusCode();
 }
 
-QString TestHelpers::sshSHA1Sum(std::shared_ptr<SSHConnectionEntry> connEntry, QString path)
+QString TestHelpers::sshSHA1Sum(std::shared_ptr<SSHConnectionEntry> connEntry, const QString &path)
 {
     PseudoTerminal term;
     QStringList args = QStringList() << "-o" << "GlobalKnownHostsFile=/dev/null" << "-o"
@@ -165,27 +156,36 @@ QString TestHelpers::sshSHA1Sum(std::shared_ptr<SSHConnectionEntry> connEntry, Q
         << "sha1sum " + path;
     term.start("/usr/bin/ssh", args);
 
-    QString output;
-    while (term.isRunning()) {
-        if (!term.waitForReadyRead()) {
-            continue;
-        }
-
-        output = term.readAllOutput();
-        output = output.trimmed();
-        if (output.endsWith("password:")) {
-            QString input = connEntry->password + "\n";
-            term.sendData(input.toUtf8().constData());
-            break;
-        }
+    if (!enterPassword(term, connEntry->password)) {
+        term.terminate();
+        return "";
     }
 
     term.waitForFinished(-1);
 
-    output = term.readAllOutput();
+    QString output = term.readAllOutput();
     output = output.trimmed();
     QStringList fields = output.split(QRegExp("\\s+"));
     output = fields[0];
 
     return output;
+}
+
+bool TestHelpers::enterPassword(PseudoTerminal &term, const QString &password, int timeoutMsecs)
+{
+    while (term.isRunning()) {
+        if (!term.waitForReadyRead(timeoutMsecs)) {
+            break;
+        }
+
+        QString output = term.readAllOutput();
+        output = output.trimmed();
+        if (output.endsWith("password:")) {
+            QString input = password + "\n";
+            term.sendData(input.toUtf8().constData());
+            return true;
+        }
+    }
+
+    return false;
 }

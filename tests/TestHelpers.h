@@ -2,6 +2,7 @@
 #define TESTHELPERS_H
 
 #include <QCryptographicHash>
+#include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QHostAddress>
@@ -28,8 +29,11 @@ public:
 
     static bool connectConnEntry(std::shared_ptr<SSHConnectionEntry> connEntry);
 
-    static int scpFiles(std::shared_ptr<SSHConnectionEntry> connEntry, QString path);
-    static QString sshSHA1Sum(std::shared_ptr<SSHConnectionEntry> connEntry, QString path);
+    static int scpFiles(std::shared_ptr<SSHConnectionEntry> connEntry, const QString &path);
+    static QString sshSHA1Sum(std::shared_ptr<SSHConnectionEntry> connEntry, const QString &path);
+
+private:
+    static bool enterPassword(PseudoTerminal &term, const QString &password, int timeoutMsecs = 30000);
 };
 
 #endif

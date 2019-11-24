@@ -1,6 +1,6 @@
 #include "FileTransferTests.h"
 
-const QString FileTransferTests::testCFile = "#include <stdio.h>\n"
+const QString FileTransferTests::testCFileContent = "#include <stdio.h>\n"
         "\n"
         "int main(void)\n"
         "{\n"
@@ -10,6 +10,9 @@ const QString FileTransferTests::testCFile = "#include <stdio.h>\n"
         "}\n";
 
 const QString FileTransferTests::testCFileSHA1Sum = "93f4ca7a4cb79b9e911881c8b8780756b5695c01";
+
+const QString FileTransferTests::isoFilePath = QDir::homePath() + "/Downloads/TinyCore-10.1.iso";
+const QString FileTransferTests::isoFileSHA1Sum = "e443d29775abab64322f8d0ef81dd11104553dac";
 
 void FileTransferTests::init()
 {
@@ -63,7 +66,7 @@ void FileTransferTests::testSimpleDownload()
 
     QTemporaryDir tmpDir("");
     QString filename = tmpDir.path() + "/test.c";
-    TestHelpers::writeStringToFile(filename, FileTransferTests::testCFile);
+    TestHelpers::writeStringToFile(filename, FileTransferTests::testCFileContent);
 
     QCOMPARE(TestHelpers::scpFiles(connEntry, filename), 0);
 
@@ -105,7 +108,7 @@ void FileTransferTests::testSimpleUpload()
 
     QTemporaryDir tmpDir("");
     QString filename = tmpDir.path() + "/test.c";
-    TestHelpers::writeStringToFile(filename, FileTransferTests::testCFile);
+    TestHelpers::writeStringToFile(filename, FileTransferTests::testCFileContent);
 
     QVERIFY(TestHelpers::connectConnEntry(connEntry));
 
@@ -132,4 +135,77 @@ void FileTransferTests::testSimpleUpload()
 
     QString checksum = TestHelpers::sshSHA1Sum(connEntry, "/root/test.c");
     QCOMPARE(checksum, QString(FileTransferTests::testCFileSHA1Sum));
+}
+
+void FileTransferTests::testIsoFileDownload()
+{
+    auto connEntry = std::make_shared<SSHConnectionEntry>();
+    connEntry->hostname = "localhost";
+    connEntry->username = "root";
+    connEntry->password = "root";
+    connEntry->port = this->sshPort;
+
+    QCOMPARE(TestHelpers::scpFiles(connEntry, FileTransferTests::isoFilePath), 0);
+
+    QVERIFY(TestHelpers::connectConnEntry(connEntry));
+
+    QTemporaryDir targetDir("/tmp/qtest-filetransfer-XXXXXX");
+    auto job = std::make_shared<FileTransferJob>(connEntry, FileTransferType::Download, targetDir.path());
+    job->addFileToCopy("/root/" + Util::basename(FileTransferTests::isoFilePath));
+
+    QThread *thread = new QThread();
+    job->setThread(thread);
+    FileTransferWorker *worker = new FileTransferWorker(job);
+    worker->conn = connEntry->connection;
+    worker->moveToThread(thread);
+
+    worker->connectWithThread(thread);
+
+    qDebug() << "Starting file download";
+    thread->start();
+
+    while (thread->isRunning()) {
+        QTest::qWait(200);
+        QCoreApplication::processEvents();
+    }
+
+    QCOMPARE(job->getState(), FileTransferState::Completed);
+
+    QString checksum = TestHelpers::genFileChecksum(targetDir.path() + "/" + Util::basename(FileTransferTests::isoFilePath), QCryptographicHash::Sha1);
+    QCOMPARE(checksum, QString(FileTransferTests::isoFileSHA1Sum));
+}
+
+void FileTransferTests::testIsoFileUpload()
+{
+    auto connEntry = std::make_shared<SSHConnectionEntry>();
+    connEntry->hostname = "localhost";
+    connEntry->username = "root";
+    connEntry->password = "root";
+    connEntry->port = this->sshPort;
+
+    QVERIFY(TestHelpers::connectConnEntry(connEntry));
+
+    auto job = std::make_shared<FileTransferJob>(connEntry, FileTransferType::Upload, "/root");
+    job->addFileToCopy(FileTransferTests::isoFilePath);
+
+    QThread *thread = new QThread();
+    job->setThread(thread);
+    FileTransferWorker *worker = new FileTransferWorker(job);
+    worker->conn = connEntry->connection;
+    worker->moveToThread(thread);
+
+    worker->connectWithThread(thread);
+
+    qDebug() << "Starting file upload";
+    thread->start();
+
+    while (thread->isRunning()) {
+        QTest::qWait(200);
+        QCoreApplication::processEvents();
+    }
+
+    QCOMPARE(job->getState(), FileTransferState::Completed);
+
+    QString checksum = TestHelpers::sshSHA1Sum(connEntry, "/root/" + Util::basename(FileTransferTests::isoFilePath));
+    QCOMPARE(checksum, QString(FileTransferTests::isoFileSHA1Sum));
 }

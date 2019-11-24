@@ -26,11 +26,15 @@ private slots:
 
     void testSimpleDownload();
     void testSimpleUpload();
+    void testIsoFileDownload();
+    void testIsoFileUpload();
 
 private:
     int sshPort;
-    static const QString testCFile;
+    static const QString testCFileContent;
     static const QString testCFileSHA1Sum;
+    static const QString isoFilePath;
+    static const QString isoFileSHA1Sum;
 
     int stopDockerContainer();
 };

@@ -99,11 +99,11 @@ public:
 
 public slots:
     // this slot is used by FileTransferWorkers (which run in separate
-    // threads) to communicate with the user by creating a box in the
+    // threads) to communicate with the user by showing a dialog in the
     // main thread
     void askToOverwriteFile(QString title, QString message, QString infoText);
 
-    // same for known host checking
+    // dialog requests for known host checking
     void askToAddKey(QString fingerprint);
     void askToReplaceKey(QString fingerprint);
 

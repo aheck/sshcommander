@@ -21,7 +21,7 @@ class SSHConnection
 public:
     friend class SSHConnectionManager;
     friend class FileTransferWorker;
-    friend class FileTransferTests;
+    friend class TestHelpers;
 
     SSHConnection();
     ~SSHConnection();

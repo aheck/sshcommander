@@ -94,4 +94,4 @@ add_executable(tests main.cpp
 )
 
 target_link_libraries(tests ${Qt5Widgets_LIBRARIES} ${Qt5Network_LIBRARIES} ${Qt5Test_LIBRARIES}
-    ${Qt5Svg_LIBRARIES} ${QTERMWIDGET_LIBRARIES} ${LIBSSH2_LIBRARIES})
+    ${Qt5Svg_LIBRARIES} libqtermwidget5.a ${LIBSSH2_LIBRARIES})

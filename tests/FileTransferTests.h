@@ -14,7 +14,6 @@
 
 #include "FileTransferJob.h"
 #include "FileTransferWorker.h"
-#include "PseudoTerminal.h"
 #include "TestHelpers.h"
 
 class FileTransferTests : public QObject
@@ -22,17 +21,14 @@ class FileTransferTests : public QObject
     Q_OBJECT
 
 private slots:
-    void initTestCase();
-    void cleanupTestCase();
+    void init();
+    void cleanup();
 
     void testSimpleDownload();
     void testSimpleUpload();
 
 private:
     int sshPort;
-
-    int scpFiles(std::shared_ptr<SSHConnectionEntry> connEntry, QString path);
-    bool connectConnEntry(std::shared_ptr<SSHConnectionEntry> connEntry);
 };
 
 #endif

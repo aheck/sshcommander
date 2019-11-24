@@ -42,3 +42,150 @@ QString TestHelpers::genFileChecksum(const QString &filename, QCryptographicHash
 
     return "";
 }
+
+bool TestHelpers::connectConnEntry(std::shared_ptr<SSHConnectionEntry> connEntry)
+{
+    LIBSSH2_SESSION *session = nullptr;
+    struct sockaddr_in sin;
+    int sock;
+    int retval;
+
+    auto conn = std::make_shared<SSHConnection>();
+
+    QHostInfo hostInfo = QHostInfo::fromName(connEntry->hostname);
+    if (hostInfo.addresses().count() == 0) {
+        return false;
+    }
+
+    QHostAddress address = hostInfo.addresses().first();
+
+    qDebug() << "Trying to connect to " << address.toString() << ":" << connEntry->port;
+
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    sin.sin_family = AF_INET;
+    sin.sin_port = htons(connEntry->port);
+    sin.sin_addr.s_addr = htonl(address.toIPv4Address());
+    if (::connect(sock, (struct sockaddr*)(&sin),
+                sizeof(struct sockaddr_in)) != 0) {
+        qDebug() << "Failed to connect to " << connEntry->hostname
+            << "(" << address.toString() << ")";
+        return false;
+    }
+
+    conn->socket_fd = sock;
+
+    qDebug() << "Connected socket";
+ 
+    qDebug() << "Trying to init session";
+    session = libssh2_session_init();
+
+    if (!session) {
+        return false;
+    }
+
+    qDebug() << "Succeeded to init session";
+ 
+    qDebug() << "Trying handshake";
+    while ((retval = libssh2_session_handshake(session, sock)) == LIBSSH2_ERROR_EAGAIN);
+    qDebug() << "Handshake succeeded";
+
+    if (retval) {
+        qDebug() << "Failed to establish SSH session: " <<  retval;
+        return false;
+    }
+
+    QByteArray username = connEntry->username.toLatin1();
+
+    if (!connEntry->password.isEmpty()) {
+        QByteArray password;
+        password = connEntry->password.toLatin1();
+
+        retval = libssh2_userauth_password(session, username.data(), password.data());
+        if (retval != 0) {
+            qDebug() << "Authentication by password failed.";
+            return false;
+        }
+    } else {
+        QString sshkey = connEntry->sshkey;
+        if (sshkey.isEmpty()) {
+            sshkey = QDir(QDir::home().filePath(".ssh")).filePath("id_rsa");
+        }
+        QByteArray privateCertPath = sshkey.toLatin1();
+        retval = libssh2_userauth_publickey_fromfile(session, username.data(), NULL, privateCertPath.data(), "");
+        if (retval) {
+            qDebug() << "Authentication by public key failed";
+            return false;
+        }
+    }
+
+    libssh2_session_set_blocking(session, 0);
+
+    conn->session = session;
+    conn->alive = true;
+    connEntry->connection = conn;
+    qDebug() << "Successfully connected";
+
+    return true;
+}
+
+int TestHelpers::scpFiles(std::shared_ptr<SSHConnectionEntry> connEntry, QString path)
+{
+    //QString cmd("/usr/bin/scp -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ");
+    PseudoTerminal term;
+    QStringList args = QStringList() << "-o" << "GlobalKnownHostsFile=/dev/null" << "-o"
+        << "UserKnownHostsFile=/dev/null" << "-o" << "StrictHostKeyChecking=no"
+        << "-P" << QString::number(connEntry->port) << "-r" << path << "root@localhost:/root";
+    term.start("/usr/bin/scp", args);
+
+    while (term.isRunning()) {
+        if (!term.waitForReadyRead()) {
+            continue;
+        }
+
+        QString output = term.readAllOutput();
+        output = output.trimmed();
+        if (output.endsWith("password:")) {
+            QString input = connEntry->password + "\n";
+            term.sendData(input.toUtf8().constData());
+            break;
+        }
+    }
+
+    term.waitForFinished(-1);
+
+    return term.statusCode();
+}
+
+QString TestHelpers::sshSHA1Sum(std::shared_ptr<SSHConnectionEntry> connEntry, QString path)
+{
+    PseudoTerminal term;
+    QStringList args = QStringList() << "-o" << "GlobalKnownHostsFile=/dev/null" << "-o"
+        << "UserKnownHostsFile=/dev/null" << "-o" << "StrictHostKeyChecking=no"
+        << "-p" << QString::number(connEntry->port) << "root@localhost"
+        << "sha1sum " + path;
+    term.start("/usr/bin/ssh", args);
+
+    QString output;
+    while (term.isRunning()) {
+        if (!term.waitForReadyRead()) {
+            continue;
+        }
+
+        output = term.readAllOutput();
+        output = output.trimmed();
+        if (output.endsWith("password:")) {
+            QString input = connEntry->password + "\n";
+            term.sendData(input.toUtf8().constData());
+            break;
+        }
+    }
+
+    term.waitForFinished(-1);
+
+    output = term.readAllOutput();
+    output = output.trimmed();
+    QStringList fields = output.split(QRegExp("\\s+"));
+    output = fields[0];
+
+    return output;
+}

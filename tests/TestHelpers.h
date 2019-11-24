@@ -27,6 +27,7 @@ public:
     static QString readFileContents(const QString &filename);
     static QString genFileChecksum(const QString &filename, QCryptographicHash::Algorithm algo);
 
+    static std::shared_ptr<SSHConnectionEntry> buildConnEntry(int sshPort);
     static bool connectConnEntry(std::shared_ptr<SSHConnectionEntry> connEntry);
 
     static int scpFiles(std::shared_ptr<SSHConnectionEntry> connEntry, const QString &path);

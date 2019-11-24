@@ -58,11 +58,7 @@ int FileTransferTests::stopDockerContainer()
 
 void FileTransferTests::testSimpleDownload()
 {
-    auto connEntry = std::make_shared<SSHConnectionEntry>();
-    connEntry->hostname = "localhost";
-    connEntry->username = "root";
-    connEntry->password = "root";
-    connEntry->port = this->sshPort;
+    auto connEntry = TestHelpers::buildConnEntry(this->sshPort);
 
     QTemporaryDir tmpDir("");
     QString filename = tmpDir.path() + "/test.c";
@@ -100,11 +96,7 @@ void FileTransferTests::testSimpleDownload()
 
 void FileTransferTests::testSimpleUpload()
 {
-    auto connEntry = std::make_shared<SSHConnectionEntry>();
-    connEntry->hostname = "localhost";
-    connEntry->username = "root";
-    connEntry->password = "root";
-    connEntry->port = this->sshPort;
+    auto connEntry = TestHelpers::buildConnEntry(this->sshPort);
 
     QTemporaryDir tmpDir("");
     QString filename = tmpDir.path() + "/test.c";
@@ -139,11 +131,7 @@ void FileTransferTests::testSimpleUpload()
 
 void FileTransferTests::testIsoFileDownload()
 {
-    auto connEntry = std::make_shared<SSHConnectionEntry>();
-    connEntry->hostname = "localhost";
-    connEntry->username = "root";
-    connEntry->password = "root";
-    connEntry->port = this->sshPort;
+    auto connEntry = TestHelpers::buildConnEntry(this->sshPort);
 
     QCOMPARE(TestHelpers::scpFiles(connEntry, FileTransferTests::isoFilePath), 0);
 
@@ -177,11 +165,7 @@ void FileTransferTests::testIsoFileDownload()
 
 void FileTransferTests::testIsoFileUpload()
 {
-    auto connEntry = std::make_shared<SSHConnectionEntry>();
-    connEntry->hostname = "localhost";
-    connEntry->username = "root";
-    connEntry->password = "root";
-    connEntry->port = this->sshPort;
+    auto connEntry = TestHelpers::buildConnEntry(this->sshPort);
 
     QVERIFY(TestHelpers::connectConnEntry(connEntry));
 

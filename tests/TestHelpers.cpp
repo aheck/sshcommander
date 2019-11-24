@@ -43,6 +43,17 @@ QString TestHelpers::genFileChecksum(const QString &filename, QCryptographicHash
     return "";
 }
 
+std::shared_ptr<SSHConnectionEntry> TestHelpers::buildConnEntry(int sshPort)
+{
+    auto connEntry = std::make_shared<SSHConnectionEntry>();
+    connEntry->hostname = "localhost";
+    connEntry->username = "root";
+    connEntry->password = "root";
+    connEntry->port = sshPort;
+
+    return connEntry;
+}
+
 bool TestHelpers::connectConnEntry(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
     LIBSSH2_SESSION *session = nullptr;

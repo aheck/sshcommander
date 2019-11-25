@@ -160,18 +160,7 @@ int TestHelpers::scpFiles(std::shared_ptr<SSHConnectionEntry> connEntry, const Q
 QString TestHelpers::sshSHA1Sum(std::shared_ptr<SSHConnectionEntry> connEntry, const QString &path)
 {
     PseudoTerminal term;
-    QStringList args = QStringList() << "-o" << "GlobalKnownHostsFile=/dev/null" << "-o"
-        << "UserKnownHostsFile=/dev/null" << "-o" << "StrictHostKeyChecking=no"
-        << "-p" << QString::number(connEntry->port) << "root@localhost"
-        << "sha1sum " + path;
-    term.start("/usr/bin/ssh", args);
-
-    if (!enterPassword(term, connEntry->password)) {
-        term.terminate();
-        return "";
-    }
-
-    term.waitForFinished(-1);
+    sshExecuteCommand(connEntry, term, "sha1sum " + path);
 
     QString output = term.readAllOutput();
     output = output.trimmed();
@@ -184,10 +173,15 @@ QString TestHelpers::sshSHA1Sum(std::shared_ptr<SSHConnectionEntry> connEntry, c
 int TestHelpers::sshInstallRsync(std::shared_ptr<SSHConnectionEntry> connEntry)
 {
     PseudoTerminal term;
+    return sshExecuteCommand(connEntry, term, "apt update && apt -y install rsync");
+}
+
+int TestHelpers::sshExecuteCommand(std::shared_ptr<SSHConnectionEntry> connEntry, PseudoTerminal &term, const QString &cmd)
+{
     QStringList args = QStringList() << "-o" << "GlobalKnownHostsFile=/dev/null" << "-o"
         << "UserKnownHostsFile=/dev/null" << "-o" << "StrictHostKeyChecking=no"
         << "-p" << QString::number(connEntry->port) << "root@localhost"
-        << "apt update && apt -y install rsync";
+        << cmd;
     term.start("/usr/bin/ssh", args);
 
     if (!enterPassword(term, connEntry->password)) {

@@ -36,6 +36,7 @@ public:
 
 private:
     static int sshInstallRsync(std::shared_ptr<SSHConnectionEntry> connEntry);
+    static int sshExecuteCommand(std::shared_ptr<SSHConnectionEntry> connEntry, PseudoTerminal &term, const QString &cmd);
     static bool enterPassword(PseudoTerminal &term, const QString &password, int timeoutMsecs = 30000);
 };
 

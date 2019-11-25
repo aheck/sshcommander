@@ -32,8 +32,10 @@ public:
 
     static int scpFiles(std::shared_ptr<SSHConnectionEntry> connEntry, const QString &path);
     static QString sshSHA1Sum(std::shared_ptr<SSHConnectionEntry> connEntry, const QString &path);
+    static bool sshCompareDirs(std::shared_ptr<SSHConnectionEntry> connEntry, const QString &localDir, const QString &remoteDir);
 
 private:
+    static int sshInstallRsync(std::shared_ptr<SSHConnectionEntry> connEntry);
     static bool enterPassword(PseudoTerminal &term, const QString &password, int timeoutMsecs = 30000);
 };
 

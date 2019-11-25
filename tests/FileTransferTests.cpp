@@ -60,7 +60,8 @@ void FileTransferTests::testSimpleDownload()
 {
     auto connEntry = TestHelpers::buildConnEntry(this->sshPort);
 
-    QTemporaryDir tmpDir("");
+    QTemporaryDir tmpDir("/tmp/qtest-filetransfer-XXXXXX");
+    QVERIFY(tmpDir.isValid());
     QString filename = tmpDir.path() + "/test.c";
     TestHelpers::writeStringToFile(filename, FileTransferTests::testCFileContent);
 
@@ -69,6 +70,7 @@ void FileTransferTests::testSimpleDownload()
     QVERIFY(TestHelpers::connectConnEntry(connEntry));
 
     QTemporaryDir targetDir("/tmp/qtest-filetransfer-XXXXXX");
+    QVERIFY(targetDir.isValid());
     auto job = std::make_shared<FileTransferJob>(connEntry, FileTransferType::Download, targetDir.path());
     job->addFileToCopy("/root/test.c");
 
@@ -85,7 +87,8 @@ void FileTransferTests::testSimpleUpload()
 {
     auto connEntry = TestHelpers::buildConnEntry(this->sshPort);
 
-    QTemporaryDir tmpDir("");
+    QTemporaryDir tmpDir("/tmp/qtest-filetransfer-XXXXXX");
+    QVERIFY(tmpDir.isValid());
     QString filename = tmpDir.path() + "/test.c";
     TestHelpers::writeStringToFile(filename, FileTransferTests::testCFileContent);
 
@@ -112,6 +115,7 @@ void FileTransferTests::testIsoFileDownload()
     QVERIFY(TestHelpers::connectConnEntry(connEntry));
 
     QTemporaryDir targetDir("/tmp/qtest-filetransfer-XXXXXX");
+    QVERIFY(targetDir.isValid());
     auto job = std::make_shared<FileTransferJob>(connEntry, FileTransferType::Download, targetDir.path());
     job->addFileToCopy("/root/" + Util::basename(FileTransferTests::isoFilePath));
 
@@ -142,6 +146,54 @@ void FileTransferTests::testIsoFileUpload()
     QCOMPARE(checksum, QString(FileTransferTests::isoFileSHA1Sum));
 }
 
+void FileTransferTests::testDirDownload()
+{
+    auto connEntry = TestHelpers::buildConnEntry(this->sshPort);
+
+    QTemporaryDir tmpDir("/tmp/qtest-filetransfer-XXXXXX");
+    QVERIFY(tmpDir.isValid());
+    QVERIFY(this->createTestDirTree(tmpDir.path()));
+    QCOMPARE(TestHelpers::scpFiles(connEntry, tmpDir.path()), 0);
+
+    QVERIFY(TestHelpers::connectConnEntry(connEntry));
+
+    QTemporaryDir targetDir("/tmp/qtest-filetransfer-XXXXXX");
+    QVERIFY(targetDir.isValid());
+
+    auto job = std::make_shared<FileTransferJob>(connEntry, FileTransferType::Download, targetDir.path());
+    QString remoteDir = "/root/" + Util::basename(tmpDir.path());
+    job->addFileToCopy(remoteDir);
+
+    qDebug() << "Starting dir download";
+    this->runFileTransferJob(connEntry, job);
+
+    QCOMPARE(job->getState(), FileTransferState::Completed);
+
+    QVERIFY(TestHelpers::sshCompareDirs(connEntry, targetDir.path() + "/" + Util::basename(tmpDir.path()), remoteDir));
+}
+
+void FileTransferTests::testDirUpload()
+{
+    auto connEntry = TestHelpers::buildConnEntry(this->sshPort);
+
+    QTemporaryDir tmpDir("/tmp/qtest-filetransfer-XXXXXX");
+    QVERIFY(tmpDir.isValid());
+    QVERIFY(this->createTestDirTree(tmpDir.path()));
+
+    QVERIFY(TestHelpers::connectConnEntry(connEntry));
+
+    auto job = std::make_shared<FileTransferJob>(connEntry, FileTransferType::Upload, "/root");
+    QString remoteDir = "/root/" + Util::basename(tmpDir.path());
+    job->addFileToCopy(tmpDir.path());
+
+    qDebug() << "Starting dir upload";
+    this->runFileTransferJob(connEntry, job);
+
+    QCOMPARE(job->getState(), FileTransferState::Completed);
+
+    QVERIFY(TestHelpers::sshCompareDirs(connEntry, tmpDir.path(), remoteDir));
+}
+
 void FileTransferTests::runFileTransferJob(std::shared_ptr<SSHConnectionEntry> connEntry, std::shared_ptr<FileTransferJob> job)
 {
     QThread *thread = new QThread();
@@ -158,4 +210,93 @@ void FileTransferTests::runFileTransferJob(std::shared_ptr<SSHConnectionEntry> c
         QTest::qWait(200);
         QCoreApplication::processEvents();
     }
+}
+
+bool FileTransferTests::createTestDirTree(const QString &rootDir)
+{
+    QDir root(rootDir);
+
+    // create all subdirectories first
+    if (!root.mkpath("etc")) {
+        return false;
+    }
+
+    if (!root.mkpath("usr/bin")) {
+        return false;
+    }
+
+    if (!root.mkpath("usr/lib")) {
+        return false;
+    }
+
+    if (!root.mkpath("home/testuser/Documents/Taxes")) {
+        return false;
+    }
+
+    if (!root.mkpath("home/testuser/Documents/Letters")) {
+        return false;
+    }
+
+    if (!root.mkpath("home/testuser2/Desktop")) {
+        return false;
+    }
+
+    if (!root.mkpath("home/testuser2/Pictures")) {
+        return false;
+    }
+
+    // create all files
+    if (!QFile::copy("/etc/fstab", rootDir + "/etc/fstab")) {
+        return false;
+    }
+
+    if (!QFile::copy("/usr/bin/awk", rootDir + "/usr/bin/awk")) {
+        return false;
+    }
+
+    if (!QFile::copy("/usr/bin/perl", rootDir + "/usr/bin/perl")) {
+        return false;
+    }
+
+    if (!QFile::copy("/usr/bin/locale", rootDir + "/usr/bin/locale")) {
+        return false;
+    }
+
+    if (!QFile::copy("/usr/bin/xargs", rootDir + "/usr/bin/xargs")) {
+        return false;
+    }
+
+    if (!TestHelpers::writeStringToFile(rootDir + "/home/testuser/test.txt", "Test Test Test")) {
+        return false;
+    }
+
+    if (!TestHelpers::writeStringToFile(rootDir + "/home/testuser/test2.txt", "Test2 Test2 Test2")) {
+        return false;
+    }
+
+    if (!TestHelpers::writeStringToFile(rootDir + "/home/testuser/Documents/Taxes/taxes2017.txt", "Taxes 2017...")) {
+        return false;
+    }
+
+    if (!TestHelpers::writeStringToFile(rootDir + "/home/testuser/Documents/Taxes/taxes2018.txt", "Taxes 2018...")) {
+        return false;
+    }
+
+    if (!TestHelpers::writeStringToFile(rootDir + "/home/testuser/Documents/Taxes/taxes2019.txt", "Taxes 2019...")) {
+        return false;
+    }
+
+    if (!TestHelpers::writeStringToFile(rootDir + "/home/testuser/Documents/Letters/letter1.txt", "Letter 1...")) {
+        return false;
+    }
+
+    if (!TestHelpers::writeStringToFile(rootDir + "/home/testuser/Documents/Letters/letter2.txt", "Letter 2...")) {
+        return false;
+    }
+
+    if (!TestHelpers::writeStringToFile(rootDir + "/home/testuser/Documents/Letters/letter3.txt", "Letter 3...")) {
+        return false;
+    }
+
+    return true;
 }

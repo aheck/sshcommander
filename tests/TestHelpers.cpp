@@ -141,7 +141,6 @@ bool TestHelpers::connectConnEntry(std::shared_ptr<SSHConnectionEntry> connEntry
 
 int TestHelpers::scpFiles(std::shared_ptr<SSHConnectionEntry> connEntry, const QString &path)
 {
-    //QString cmd("/usr/bin/scp -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ");
     PseudoTerminal term;
     QStringList args = QStringList() << "-o" << "GlobalKnownHostsFile=/dev/null" << "-o"
         << "UserKnownHostsFile=/dev/null" << "-o" << "StrictHostKeyChecking=no"
@@ -180,6 +179,50 @@ QString TestHelpers::sshSHA1Sum(std::shared_ptr<SSHConnectionEntry> connEntry, c
     output = fields[0];
 
     return output;
+}
+
+int TestHelpers::sshInstallRsync(std::shared_ptr<SSHConnectionEntry> connEntry)
+{
+    PseudoTerminal term;
+    QStringList args = QStringList() << "-o" << "GlobalKnownHostsFile=/dev/null" << "-o"
+        << "UserKnownHostsFile=/dev/null" << "-o" << "StrictHostKeyChecking=no"
+        << "-p" << QString::number(connEntry->port) << "root@localhost"
+        << "apt update && apt -y install rsync";
+    term.start("/usr/bin/ssh", args);
+
+    if (!enterPassword(term, connEntry->password)) {
+        term.terminate();
+        return 1;
+    }
+
+    term.waitForFinished(-1);
+
+    return term.statusCode();
+}
+
+bool TestHelpers::sshCompareDirs(std::shared_ptr<SSHConnectionEntry> connEntry, const QString &localDir, const QString &remoteDir)
+{
+    TestHelpers::sshInstallRsync(connEntry);
+
+    PseudoTerminal term;
+    QStringList args = QStringList() << "-e"
+        << "ssh -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p"
+        + QString::number(connEntry->port) << "--dry-run" << "-vrc" << "--delete" << localDir + "/" << QString("root@localhost:") + remoteDir + "/";
+
+    term.start("/usr/bin/rsync", args);
+
+    if (!enterPassword(term, connEntry->password)) {
+        term.terminate();
+        return false;
+    }
+
+    term.waitForFinished(-1);
+
+    QString output = term.readAllOutput();
+    output = output.trimmed();
+    QStringList lines = output.split(QRegExp("\n|\r\n|\r"));
+
+    return lines.length() == 4; //empty response with no changed files contains 4 lines
 }
 
 bool TestHelpers::enterPassword(PseudoTerminal &term, const QString &password, int timeoutMsecs)

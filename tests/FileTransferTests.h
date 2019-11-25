@@ -28,6 +28,8 @@ private slots:
     void testSimpleUpload();
     void testIsoFileDownload();
     void testIsoFileUpload();
+    void testDirDownload();
+    void testDirUpload();
 
 private:
     int sshPort;
@@ -38,6 +40,7 @@ private:
 
     int stopDockerContainer();
     void runFileTransferJob(std::shared_ptr<SSHConnectionEntry> connEntry, std::shared_ptr<FileTransferJob> job);
+    bool createTestDirTree(const QString &rootDir);
 };
 
 #endif

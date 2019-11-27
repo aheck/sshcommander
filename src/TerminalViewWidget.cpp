@@ -18,7 +18,7 @@ TerminalViewWidget::TerminalViewWidget(QWidget *parent) :
 #endif
 
     this->toolBar->addAction(QIcon(":/images/utilities-terminal.svg"), "New Session", this, SLOT(createNewSession()));
-    this->toolBar->addAction(QIcon(":/images/view-refresh.svg"), "Restart Session", this, SLOT(restartCurrentSession()));
+    this->toolBar->addAction(QIcon(":/images/edit-redo.svg"), "Restart Session", this, SLOT(restartCurrentSession()));
     this->toggleWindowButton = this->toolBar->addAction(QIcon(":/images/window-new.svg"),
             "Detach Terminal");
     connect(this->toggleWindowButton, SIGNAL(toggled(bool)), this, SLOT(toggleWindowMode(bool)));

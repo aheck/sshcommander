@@ -153,6 +153,7 @@ void FileTransferTests::testDirDownload()
     QTemporaryDir tmpDir("/tmp/qtest-filetransfer-XXXXXX");
     QVERIFY(tmpDir.isValid());
     QVERIFY(this->createTestDirTree(tmpDir.path()));
+    QVERIFY(!QDir(tmpDir.path()).isEmpty());
     QCOMPARE(TestHelpers::scpFiles(connEntry, tmpDir.path()), 0);
 
     QVERIFY(TestHelpers::connectConnEntry(connEntry));
@@ -179,7 +180,7 @@ void FileTransferTests::testDirUpload()
     QTemporaryDir tmpDir("/tmp/qtest-filetransfer-XXXXXX");
     QVERIFY(tmpDir.isValid());
     QVERIFY(this->createTestDirTree(tmpDir.path()));
-    QVERIFY(this->createTestDirTree("/tmp/dirtest"));
+    QVERIFY(!QDir(tmpDir.path()).isEmpty());
 
     QVERIFY(TestHelpers::connectConnEntry(connEntry));
 

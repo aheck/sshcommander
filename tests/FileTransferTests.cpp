@@ -179,6 +179,7 @@ void FileTransferTests::testDirUpload()
     QTemporaryDir tmpDir("/tmp/qtest-filetransfer-XXXXXX");
     QVERIFY(tmpDir.isValid());
     QVERIFY(this->createTestDirTree(tmpDir.path()));
+    QVERIFY(this->createTestDirTree("/tmp/dirtest"));
 
     QVERIFY(TestHelpers::connectConnEntry(connEntry));
 
@@ -214,88 +215,49 @@ void FileTransferTests::runFileTransferJob(std::shared_ptr<SSHConnectionEntry> c
 
 bool FileTransferTests::createTestDirTree(const QString &rootDir)
 {
+    QStringList paths;
+    paths << "etc" << "usr/bin" << "usr/lib" << "home/testuser/Documents/Taxes"
+        << "home/testuser/Documents/Letters" << "home/testuser2/Desktop"
+        << "home/testuser2/Pictures";
+
+    QStringList filesToCopy;
+    filesToCopy << "/etc/fstab" << "/usr/bin/awk" << "/usr/bin/perl" << "/usr/bin/locale" << "/usr/bin/xargs";
+
+    QList<QPair<QString, QString>> filesToCreate;
+    filesToCreate.append(qMakePair(QString("/home/testuser/test.txt"), QString("Test Test Test")));
+    filesToCreate.append(qMakePair(QString("/home/testuser/test2.txt"), QString("Test2 Test2 Test2")));
+    filesToCreate.append(qMakePair(QString("/home/testuser/Documents/Taxes/taxes2017.txt"), QString("Taxes 2017...")));
+    filesToCreate.append(qMakePair(QString("/home/testuser/Documents/Taxes/taxes2018.txt"), QString("Taxes 2018...")));
+    filesToCreate.append(qMakePair(QString("/home/testuser/Documents/Taxes/taxes2019.txt"), QString("Taxes 2019...")));
+    filesToCreate.append(qMakePair(QString("/home/testuser/Documents/Letters/letter1.txt"), QString("Letter 1...")));
+    filesToCreate.append(qMakePair(QString("/home/testuser/Documents/Letters/letter2.txt"), QString("Letter 2...")));
+    filesToCreate.append(qMakePair(QString("/home/testuser/Documents/Letters/letter3.txt"), QString("Letter 3...")));
+
     QDir root(rootDir);
 
     // create all subdirectories first
-    if (!root.mkpath("etc")) {
-        return false;
-    }
-
-    if (!root.mkpath("usr/bin")) {
-        return false;
-    }
-
-    if (!root.mkpath("usr/lib")) {
-        return false;
-    }
-
-    if (!root.mkpath("home/testuser/Documents/Taxes")) {
-        return false;
-    }
-
-    if (!root.mkpath("home/testuser/Documents/Letters")) {
-        return false;
-    }
-
-    if (!root.mkpath("home/testuser2/Desktop")) {
-        return false;
-    }
-
-    if (!root.mkpath("home/testuser2/Pictures")) {
-        return false;
+    for (const QString &path : paths) {
+        if (!root.mkpath(path)) {
+            qDebug() << "Failed to create path: " << path;
+            return false;
+        }
     }
 
     // create all files
-    if (!QFile::copy("/etc/fstab", rootDir + "/etc/fstab")) {
-        return false;
+    for (const QString &filename : filesToCopy) {
+        if (!QFile::copy(filename, rootDir + filename)) {
+            qDebug() << "Failed to copy file: " << filename;
+            return false;
+        }
     }
 
-    if (!QFile::copy("/usr/bin/awk", rootDir + "/usr/bin/awk")) {
-        return false;
-    }
-
-    if (!QFile::copy("/usr/bin/perl", rootDir + "/usr/bin/perl")) {
-        return false;
-    }
-
-    if (!QFile::copy("/usr/bin/locale", rootDir + "/usr/bin/locale")) {
-        return false;
-    }
-
-    if (!QFile::copy("/usr/bin/xargs", rootDir + "/usr/bin/xargs")) {
-        return false;
-    }
-
-    if (!TestHelpers::writeStringToFile(rootDir + "/home/testuser/test.txt", "Test Test Test")) {
-        return false;
-    }
-
-    if (!TestHelpers::writeStringToFile(rootDir + "/home/testuser/test2.txt", "Test2 Test2 Test2")) {
-        return false;
-    }
-
-    if (!TestHelpers::writeStringToFile(rootDir + "/home/testuser/Documents/Taxes/taxes2017.txt", "Taxes 2017...")) {
-        return false;
-    }
-
-    if (!TestHelpers::writeStringToFile(rootDir + "/home/testuser/Documents/Taxes/taxes2018.txt", "Taxes 2018...")) {
-        return false;
-    }
-
-    if (!TestHelpers::writeStringToFile(rootDir + "/home/testuser/Documents/Taxes/taxes2019.txt", "Taxes 2019...")) {
-        return false;
-    }
-
-    if (!TestHelpers::writeStringToFile(rootDir + "/home/testuser/Documents/Letters/letter1.txt", "Letter 1...")) {
-        return false;
-    }
-
-    if (!TestHelpers::writeStringToFile(rootDir + "/home/testuser/Documents/Letters/letter2.txt", "Letter 2...")) {
-        return false;
-    }
-
-    if (!TestHelpers::writeStringToFile(rootDir + "/home/testuser/Documents/Letters/letter3.txt", "Letter 3...")) {
-        return false;
+    for (const QPair<QString, QString> data : filesToCreate) {
+        QString filename = data.first;
+        QString content = data.second;
+        if (!TestHelpers::writeStringToFile(rootDir + filename, content)) {
+            qDebug() << "Failed to create file: " << filename;
+            return false;
+        }
     }
 
     return true;

@@ -30,13 +30,13 @@ QModelIndex SFTPFilesystemModel::index(int row, int column, const QModelIndex &p
         QString *parentPath = static_cast<QString*>(parent.internalPointer());
 
         if (this->dirCache.count(*parentPath) != 1) {
-            std::cerr << "index(): Parent Path '" << parentPath->toStdString() << "' does not exist" << "\n";
+            qDebug() << "index(): Parent Path '" << parentPath << "' does not exist";
             return QModelIndex();
         }
 
         auto dirEntries = this->dirCache.at(*parentPath);
         if (dirEntries.size() < (row + 1)) {
-            std::cerr << "index(): Row does not exist\n";
+            qDebug() << "index(): Row does not exist";
             return QModelIndex();
         }
         auto dirEntry = dirEntries.at(row);
@@ -61,7 +61,7 @@ QModelIndex SFTPFilesystemModel::parent(const QModelIndex &index) const
     int row = -1;
     QString *path = static_cast<QString*>(index.internalPointer());
     if (path == nullptr) {
-        std::cerr << "SFTPFilesystemModel::parent: internalPointer is NULL but expected a valid pointer\n";
+        qDebug() << "SFTPFilesystemModel::parent: internalPointer is NULL but expected a valid pointer";
         return QModelIndex();
     }
 
@@ -151,7 +151,7 @@ bool SFTPFilesystemModel::canFetchMore(const QModelIndex &parent) const
 {
     QString *path = static_cast<QString*>(parent.internalPointer());
     if (path == nullptr) {
-        std::cerr << "SFTPFilesystemModel: internalPointer is NULL but expected a valid pointer\n";
+        qDebug() << "SFTPFilesystemModel: internalPointer is NULL but expected a valid pointer";
         return false;
     }
 
@@ -211,7 +211,7 @@ void SFTPFilesystemModel::fetchMore(const QModelIndex &parent)
 
 int SFTPFilesystemModel::loadDirectory(QString path)
 {
-    std::cout << "Calling readDirectory for " << path.toStdString() << "\n";
+    qDebug() << "Calling readDirectory for " << path;
     auto entries = SSHConnectionManager::getInstance().readDirectory(this->connEntry, path, this->showOnlyDirs);
     std::sort(entries.begin(), entries.end(), compareDirEntries);
     this->dirCache[path] = entries;
@@ -226,7 +226,7 @@ int SFTPFilesystemModel::loadDirectory(QString path)
         }
     }
 
-    std::cout << "Finished readDirectory for " << path.toStdString() << "\n";
+    qDebug() << "Finished readDirectory for " << path;
 
     return entries.size();
 }
@@ -264,7 +264,7 @@ QVariant SFTPFilesystemModel::headerData(int section, Qt::Orientation orientatio
 QVariant SFTPFilesystemModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid()) {
-        std::cerr << "\nData called with invalid index!!!!\n\n";
+        qDebug() << "Data called with invalid index!!!!";
         return QVariant();
     }
 
@@ -290,7 +290,7 @@ QVariant SFTPFilesystemModel::data(const QModelIndex &index, int role) const
     QString parentPath = Util::dirname(*path);
 
     if (this->dirCache.count(parentPath) != 1) {
-        std::cerr << "dirEntries has no entry for " << parentPath.toStdString() << "\n";
+        qDebug() << "dirEntries has no entry for " << parentPath;
         return QVariant();
     }
 
@@ -403,9 +403,9 @@ QString* SFTPFilesystemModel::getPathString(QString pathString) const
 
 void SFTPFilesystemModel::dumpPathStrings() const
 {
-    std::cerr << "Path String Dump:" << "\n";
+    qDebug() << "Path String Dump:";
     for (auto pair : this->pathStrings) {
-        std::cerr << pair.second->toStdString() << "\n";
+        qDebug() << pair.second;
     }
 }
 
@@ -458,8 +458,8 @@ QStringList SFTPFilesystemModel::mimeTypes() const
 QMimeData* SFTPFilesystemModel::mimeData(const QModelIndexList &indexes) const
 {
     QStringList sftpFiles;
-    std::cerr << "mimeData called!!!\n";
-    std::cerr << "Num Indexes: " << indexes.count() << "\n";
+    qDebug() << "mimeData called!!!";
+    qDebug() << "Num Indexes: " << indexes.count();
     QString lastFilename;
 
     for (const QModelIndex &index : indexes) {
@@ -477,7 +477,7 @@ QMimeData* SFTPFilesystemModel::mimeData(const QModelIndexList &indexes) const
     }
 
     QMimeData *data = new QMimeData();
-    std::cerr << "Num sftp files: " << sftpFiles.count() << "\n";
+    qDebug() << "Num sftp files: " << sftpFiles.count();
     data->setData("application/sftp-files", sftpFiles.join("\n").toUtf8());
 
     return data;
@@ -495,7 +495,7 @@ bool SFTPFilesystemModel::canDropMimeData(const QMimeData *data, Qt::DropAction 
 bool SFTPFilesystemModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
     QStringList filenames;
-    std::cerr << "row: " << row << " column: " << column <<  "\n";
+    qDebug() << "row: " << row << " column: " << column;
 
     if (action != Qt::CopyAction) {
         return false;
@@ -511,7 +511,7 @@ bool SFTPFilesystemModel::dropMimeData(const QMimeData *data, Qt::DropAction act
     }
 
     for (QUrl const& url: data->urls()) {
-        std::cout << url.toString().toStdString() << "\n";
+        qDebug() << url.toString();
         filenames.append(url.path());
     }
 

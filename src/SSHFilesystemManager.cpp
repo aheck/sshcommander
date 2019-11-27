@@ -45,7 +45,7 @@ void SSHFSMountEntry::mount(std::shared_ptr<SSHConnectionEntry> connEntry)
     this->termWidget = termWidget;
     termWidget->connect(termWidget, &SSHTermWidget::finished, &SSHFilesystemManager::getInstance(), &SSHFilesystemManager::sshfsTerminated);
 
-    std::cout << "SSHFS command: sshfs " << args.join(" ").toStdString() << "\n";
+    qDebug() << "SSHFS command: sshfs " << args.join(" ");
 }
 
 void SSHFSMountEntry::unmount()

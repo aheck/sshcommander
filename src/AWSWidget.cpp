@@ -176,7 +176,7 @@ void AWSWidget::loadData()
     this->instanceModel->setVpcFilter(this->selectedVpcId);
     this->instanceModel->clear();
 
-    std::cout << "Trying to connect to AWS..." << std::endl;
+    qDebug() << "Trying to connect to AWS...";
 
     this->awsConnector->setAccessKey(preferences.getAWSAccessKey());
     this->awsConnector->setSecretKey(preferences.getAWSSecretKey());
@@ -235,10 +235,10 @@ void AWSWidget::updateNumberOfInstances()
 
 void AWSWidget::handleAWSResult(AWSResult *result)
 {
-    std::cout << "AWS Result received in AWSWidget" << std::endl;
-    std::cout << "Success: " << result->isSuccess << std::endl;
-    std::cout << "HTTP Status: " << result->httpStatus << std::endl;
-    std::cout << "Body: " << result->httpBody.toStdString() << std::endl;
+    qDebug() << "AWS Result received in AWSWidget";
+    qDebug() << "Success: " << result->isSuccess;
+    qDebug() << "HTTP Status: " << result->httpStatus;
+    qDebug() << "Body: " << result->httpBody;
 
     if (!result->isSuccess) {
         QMessageBox msgBox;
@@ -481,7 +481,7 @@ void AWSWidget::updateVpcs(std::vector<std::shared_ptr<AWSVpc>> &vpcs)
 
     if (!this->selectedVpcId.isEmpty()) {
         int currentIndex = this->vpcComboBox->findData(QVariant(this->selectedVpcId));
-        std::cout << "updateVpcs: currentIndex: " << currentIndex << std::endl;
+        qDebug() << "updateVpcs: currentIndex: " << currentIndex;
 
         // reset selected VPC ID in case the VPC no longer exists
         if (currentIndex == -1) {

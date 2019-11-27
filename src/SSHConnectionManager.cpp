@@ -26,7 +26,7 @@ SSHConnectionManager::SSHConnectionManager()
     int status = libssh2_init(0);
 
     if (status != 0) {
-        std::cerr << "SSHConnectionManager: libssh2 initialization failed with error code " << status << std::endl;
+        qDebug() << "SSHConnectionManager: libssh2 initialization failed with error code " << status;
     }
 
     qRegisterMetaType<std::shared_ptr<RemoteCmdResult>>();
@@ -109,7 +109,7 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
 
     QHostAddress address = hostInfo.addresses().first();
 
-    std::cout << "Trying to connect to " << address.toString().toStdString() << std::endl;
+    qDebug() << "Trying to connect to " << address.toString();
 
     if (address.protocol() == QAbstractSocket::IPv4Protocol) {
         sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -118,8 +118,8 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
         sin.sin_addr.s_addr = htonl(address.toIPv4Address());
         if (::connect(sock, (struct sockaddr*)(&sin),
                     sizeof(struct sockaddr_in)) != 0) {
-            std::cerr << "SSHConnectionManager: Failed to connect to "
-                << hostname.toStdString() << "(" << address.toString().toStdString() << ")" << std::endl;
+            qDebug() << "SSHConnectionManager: Failed to connect to "
+                << hostname << "(" << address.toString() << ")";
             return nullptr;
         }
     } else if (address.protocol() == QAbstractSocket::IPv6Protocol) {
@@ -130,12 +130,12 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
         memcpy(&(sin6.sin6_addr), &ipv6, sizeof(ipv6));
         if (::connect(sock, (struct sockaddr*)(&sin6),
                     sizeof(struct sockaddr_in6)) != 0) {
-            std::cerr << "SSHConnectionManager: Failed to connect to "
-                << hostname.toStdString() << "(" << address.toString().toStdString() << ")" << std::endl;
+            qDebug() << "SSHConnectionManager: Failed to connect to "
+                << hostname << "(" << address.toString() << ")";
             return nullptr;
         }
     } else {
-        std::cerr << "createSSHConnection: Error, address is neither IPv4 nor IPv6!\n";
+        qDebug() << "createSSHConnection: Error, address is neither IPv4 nor IPv6!";
         return nullptr;
     }
 
@@ -150,8 +150,8 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
     while ((retval = libssh2_session_handshake(session, sock)) == LIBSSH2_ERROR_EAGAIN);
 
     if (retval) {
-        std::cerr << "SSHConnectionManager: Failed to establish SSH session: "
-            <<  retval << std::endl;
+        qDebug() << "SSHConnectionManager: Failed to establish SSH session: "
+            <<  retval;
         return nullptr;
     }
 
@@ -241,7 +241,7 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
         char *userauthlist;
         userauthlist = libssh2_userauth_list(session, username.data(), username.size());
         if (userauthlist == nullptr) {
-            std::cerr << "SSHConnectionManager: Failed to get list of accepted auth methods from server\n";
+            qDebug() << "SSHConnectionManager: Failed to get list of accepted auth methods from server";
             return nullptr;
         }
 
@@ -250,7 +250,7 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
         if (authMethods.contains("password", Qt::CaseInsensitive)) {
             retval = libssh2_userauth_password(session, username.data(), password.data());
             if (retval != 0) {
-                std::cerr << "SSHConnectionManager: Authentication by password failed.\n";
+                qDebug() << "SSHConnectionManager: Authentication by password failed.";
                 return nullptr;
             }
         } else if (authMethods.contains("keyboard-interactive", Qt::CaseInsensitive)) {
@@ -258,12 +258,12 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
             this->interactiveAuthPassword = password;
             retval = libssh2_userauth_keyboard_interactive(session, username.data(), &kbd_callback);
             if (retval != 0) {
-                std::cerr << "SSHConnectionManager: Authentication by password (fake keyboard-interactive) failed.\n";
+                qDebug() << "SSHConnectionManager: Authentication by password (fake keyboard-interactive) failed.";
             }
             this->interactiveAuthMutex.unlock();
         } else {
-            std::cerr << "SSHConnectionManager: Authentication by password failed. "
-                "Neither password nor keyboard-interactie are supported by host\n";
+            qDebug() << "SSHConnectionManager: Authentication by password failed. "
+                "Neither password nor keyboard-interactie are supported by host";
         }
     } else {
         QString sshkey = connEntry->sshkey;
@@ -273,7 +273,7 @@ std::shared_ptr<SSHConnection> SSHConnectionManager::createSSHConnection(std::sh
         QByteArray privateCertPath = sshkey.toLatin1();
         retval = libssh2_userauth_publickey_fromfile(session, username.data(), NULL, privateCertPath.data(), "");
         if (retval) {
-            std::cerr << "SSHConnectionManager: Authentication by public key failed" << std::endl;
+            qDebug() << "SSHConnectionManager: Authentication by public key failed";
             return nullptr;
         }
     }
@@ -308,7 +308,7 @@ std::shared_ptr<RemoteCmdResult> SSHConnectionManager::doExecuteRemoteCmd(std::s
     }
 
     if (channel == NULL) {
-        std::cerr << "Failed to create channel" << std::endl;
+        qDebug() << "Failed to create channel";
         return result;
     }
 
@@ -321,7 +321,7 @@ std::shared_ptr<RemoteCmdResult> SSHConnectionManager::doExecuteRemoteCmd(std::s
     }
 
     if (retval != 0) {
-        std::cerr << "Failed to execute command: " << cmd.toStdString() << std::endl;
+        qDebug() << "Failed to execute command: " << cmd;
         return result;
     }
 
@@ -338,7 +338,7 @@ std::shared_ptr<RemoteCmdResult> SSHConnectionManager::doExecuteRemoteCmd(std::s
                 result->resultString.append(QString::fromUtf8(buffer, retval));
             } else {
                 if(retval != LIBSSH2_ERROR_EAGAIN) {
-                    std::cerr << "libssh2_channel_read returned: " << retval << std::endl;
+                    qDebug() << "libssh2_channel_read returned: " << retval;
                 }
             }
         } while(retval > 0);
@@ -463,7 +463,7 @@ std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std
         }
 
         if (conn->sftp == nullptr) {
-            std::cerr << "Unable to init SFTP session" << libssh2_session_last_error(conn->session,NULL,NULL,0) << "\n";
+            qDebug() << "Unable to init SFTP session" << libssh2_session_last_error(conn->session,NULL,NULL,0);
             return entries;
         }
     }
@@ -477,7 +477,7 @@ std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std
     }
 
     if (sftp_handle == nullptr) {
-        std::cerr << "Failed to open directory" << dir.toLatin1().data() << "\n";
+        qDebug() << "Failed to open directory" << dir.toLatin1().data();
         return entries;
     }
 
@@ -489,7 +489,7 @@ std::vector<std::shared_ptr<DirEntry>> SSHConnectionManager::doReadDirectory(std
 
         while ((rc = libssh2_sftp_readdir_ex(sftp_handle, mem, sizeof(mem), longentry, sizeof(longentry), &attrs)) <= 0 &&
                 libssh2_session_last_error(conn->session,NULL,NULL,0) == LIBSSH2_ERROR_EAGAIN) {
-            std::cerr << "Waiting for socket..\n";
+            qDebug() << "Waiting for socket...";
             libssh2_session_set_last_error(conn->session, LIBSSH2_ERROR_NONE, "");
             SSHConnectionManager::waitsocket(conn);
             if (SSHConnectionManager::waitsocketWrapper(conn, 5) == 0) {

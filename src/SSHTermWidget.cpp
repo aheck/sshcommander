@@ -44,8 +44,8 @@ void SSHTermWidget::dataReceived(const QString &text)
 #endif
 
     if (connEntry == nullptr) {
-        std::cerr << "Failed to acquire shared_ptr on connEntryWeak in " <<
-            __FILE__ << ":" << __LINE__ << std::endl;
+        qDebug() << "Failed to acquire shared_ptr on connEntryWeak in " <<
+            __FILE__ << ":" << __LINE__;
         return;
     }
 
@@ -67,7 +67,7 @@ void SSHTermWidget::dataReceived(const QString &text)
     }
 
     if (this->passwordRegex1.exactMatch(text) || this->passwordRegex2.exactMatch(text)) {
-        std::cout << "Sending ssh password...\n";
+        qDebug() << "Sending ssh password...";
         this->sendText(connEntry->password + "\n");
 
         disconnect(this, &SSHTermWidget::receivedData, this, &SSHTermWidget::dataReceived);

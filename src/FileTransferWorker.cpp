@@ -64,7 +64,7 @@ void FileTransferWorker::process()
         if (conn->sftp == nullptr) {
             QString error = QString("Unable to init SFTP session: ")
                 + QString::number(libssh2_session_last_error(conn->session,NULL,NULL,0));
-            std::cerr << error.toStdString() << "\n";
+            qDebug() << error;
             this->job->setErrorMessage(error);
             this->job->setState(FileTransferState::FailedConnect);
 
@@ -124,7 +124,7 @@ void FileTransferWorker::copyFileFromRemoteRecursively(QString remotePath, QStri
 
     if (rc <= 0) {
         QString error = QString("Failed to resolve realpath for: ") + remotePath;
-        std::cerr << error.toStdString() << "\n";
+        qDebug() << error;
         throw FileTransferException(error);
     }
 
@@ -136,15 +136,15 @@ void FileTransferWorker::copyFileFromRemoteRecursively(QString remotePath, QStri
 
     if (rc < 0) {
         QString error = "Failed stat over SFTP: " + remotePath;
-        std::cerr << error.toStdString() << "\n";
+        qDebug() << error;
         throw FileTransferException(error);
     }
 
     if (LIBSSH2_SFTP_S_ISREG(attrs.permissions)) {
-        std::cerr << "Is regular file: " << remotePath.toStdString() << "\n";
+        qDebug() << "Is regular file: " << remotePath;
         this->copyFileFromRemote(remotePath, localDir);
     } else if (LIBSSH2_SFTP_S_ISDIR(attrs.permissions)) {
-        std::cerr << "Is directory: " << remotePath.toStdString() << "\n";
+        qDebug() << "Is directory: " << remotePath;
         QString basename = Util::basename(remotePath);
 
         QDir dir(localDir);
@@ -168,7 +168,7 @@ void FileTransferWorker::copyFileFromRemoteRecursively(QString remotePath, QStri
         }
     } else {
         // Ignore
-        std::cerr << "Ignoring file '" << remotePath.toStdString() << "' of unknown type" << "\n";
+        qDebug() << "Ignoring file '" << remotePath << "' of unknown type";
     }
 }
 
@@ -178,7 +178,7 @@ void FileTransferWorker::copyFileToRemoteRecursively(QString localPath, QString 
         throw FileTransferException("No connection");
     }
 
-    std::cerr << "Copy file recursively: " << localPath.toStdString() << " to " << remoteDir.toStdString() << "\n";
+    qDebug() << "Copy file recursively: " << localPath << " to " << remoteDir;
     QFileInfo fileInfo(localPath);
 
     if (fileInfo.isDir()) {
@@ -228,10 +228,10 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
     QString errorString;
     LIBSSH2_SFTP_ATTRIBUTES attrs;
 
-    std::cerr << "Downloading file " << remotePath.toStdString() << "\n";
+    qDebug() << "Downloading file " << remotePath;
 
     if (this->conn == nullptr) {
-        std::cerr << "No connection\n";
+        qDebug() << "No connection";
         throw FileTransferException("No connection");
     }
 
@@ -244,7 +244,7 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
 
         if (!sftp_handle && (libssh2_session_last_errno(this->conn->session) != LIBSSH2_ERROR_EAGAIN)) {
             QString error = "Unable to open file with SFTP: " + remotePath;
-            std::cerr << error.toStdString() << "\n";
+            qDebug() << error;
             throw FileTransferException(error);
         }
         CHECK_CANCEL();
@@ -280,7 +280,7 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
     fp = fopen(localFilename.toLatin1().data(), "w");
     if (!fp) {
         errorString = "Can't open local file: " + localFilename;
-        std::cerr << errorString.toStdString() << "\n";
+        qDebug() << errorString;
         throw FileTransferException(errorString);
     }
 
@@ -322,17 +322,17 @@ void FileTransferWorker::copyFileFromRemote(QString remotePath, QString localDir
 
     if (rc != 0) {
         errorString = "Failed stat over SFTP: " + remotePath;
-        std::cerr << errorString.toStdString() << "\n";
+        qDebug() << errorString;
         throw FileTransferException(errorString);
     }
 
     if (chmod(localFilename.toLatin1().data(), attrs.permissions) != 0) {
         errorString = "Failed chmod for file: " + localFilename;
-        std::cerr << errorString.toStdString() << "\n";
+        qDebug() << errorString;
         throw FileTransferException(errorString);
     }
 
-    std::cerr << "Finished downloading file " << remotePath.toStdString() << "\n";
+    qDebug() << "Finished downloading file " << remotePath;
 }
 
 void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
@@ -351,12 +351,12 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
         throw FileTransferException("No connection");
     }
 
-    std::cerr << "Uploading file " << localPath.toStdString() << "\n";
+    qDebug() << "Uploading file " << localPath;
 
     fp = fopen(localPath.toLatin1().data(), "rb");
     if (!fp) {
         QString error = "Can't open local file: " + localPath;
-        std::cerr << error.toStdString() << "\n";
+        qDebug() << error;
         throw FileTransferException(error);
     }
 
@@ -394,7 +394,7 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
                 (libssh2_session_last_errno(this->conn->session) != LIBSSH2_ERROR_EAGAIN)) {
 
             QString error = "Unable to open file '" + remoteFilename + "' with SFTP";
-            std::cerr << error.toStdString() << "\n";
+            qDebug() << error;
             throw FileTransferException(error);
         }
     } while (!sftp_handle);
@@ -434,7 +434,7 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
     // set file permissions
     if (stat(localPath.toLatin1().data(), &statbuf) != 0) {
         errorString = "Failed stat for file: " + localPath;
-        std::cerr << errorString.toStdString() << "\n";
+        qDebug() << errorString;
         throw FileTransferException(errorString);
     }
 
@@ -446,7 +446,7 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
 
     if (rc != 0) {
         errorString = "Failed stat over SFTP: " + remoteFilename;
-        std::cerr << errorString.toStdString() << "\n";
+        qDebug() << errorString;
         throw FileTransferException(errorString);
     }
 
@@ -460,11 +460,11 @@ void FileTransferWorker::copyFileToRemote(QString localPath, QString remoteDir)
 
     if (rc != 0) {
         errorString = "Failed change permissions over SFTP: " + remoteFilename;
-        std::cerr << errorString.toStdString() << "\n";
+        qDebug() << errorString;
         throw FileTransferException(errorString);
     }
 
-    std::cerr << "Finished uploading file " << localPath.toStdString() << "\n";
+    qDebug() << "Finished uploading file " << localPath;
 }
 
 void FileTransferWorker::setFileOverwriteAnswer(FileOverwriteAnswer answer)
@@ -525,7 +525,7 @@ bool FileTransferWorker::sftpFileExists(QString filename)
         }
 
         QString error = "Failed stat for sftpFileExists: " + filename;
-        std::cerr << error.toStdString() << "\n";
+        qDebug() << error;
         throw FileTransferException(error);
     }
 

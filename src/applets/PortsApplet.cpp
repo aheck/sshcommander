@@ -94,7 +94,7 @@ void PortsApplet::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult)
             return;
         }
 
-        std::cerr << "ERROR: SSH remote command failed: " << cmdResult->errorString.toStdString() << "\n";
+        qDebug() << "ERROR: SSH remote command failed: " << cmdResult->errorString;
         return;
     }
 

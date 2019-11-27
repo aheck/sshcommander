@@ -267,7 +267,7 @@ void MainWindow::readSettings()
     settings.endGroup();
 
     QString filename = QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)).filePath("connections.json");
-    std::cerr << "Filename: " << filename.toStdString() << "\n";
+    qDebug() << "Filename: " << filename;
     QFile file(filename);
     if (!file.open(QFile::ReadOnly)) {
         // on first start the file hasn't been created, yet

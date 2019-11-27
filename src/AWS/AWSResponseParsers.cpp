@@ -116,7 +116,7 @@ std::vector<std::shared_ptr<AWSInstance>> parseDescribeInstancesResponse(AWSResu
     }
 
     if (xml.hasError()) {
-        std::cout << "XML error: " << xml.errorString().data() << std::endl;
+        qDebug() << "XML error: " << xml.errorString();
     }
 
     return vector;

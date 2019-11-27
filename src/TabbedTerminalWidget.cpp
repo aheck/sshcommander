@@ -85,7 +85,7 @@ void TabbedTerminalWidget::closeAllDetachedWindows()
 
 void TabbedTerminalWidget::startInactiveSession(QUuid uuid)
 {
-    std::cout << "startInactiveSession\n";
+    qDebug() << "startInactiveSession";
 
     QWidget *oldWidget = nullptr;
     auto connEntry = this->connEntryWeak.lock();
@@ -143,8 +143,8 @@ void TabbedTerminalWidget::closeTab(int tabIndex)
     auto connEntry = this->connEntryWeak.lock();
 
     if (!connEntry) {
-        std::cerr << "Failed to acquire shared_ptr on connEntryWeak in " <<
-            __FILE__ << ":" << __LINE__ << std::endl;
+        qDebug() << "Failed to acquire shared_ptr on connEntryWeak in " <<
+            __FILE__ << ":" << __LINE__;
         return;
     }
 
@@ -176,8 +176,8 @@ void TabbedTerminalWidget::detachTab(int index)
     auto connEntry = this->connEntryWeak.lock();
 
     if (!connEntry) {
-        std::cerr << "Failed to acquire shared_ptr on connEntryWeak in " <<
-            __FILE__ << ":" << __LINE__ << std::endl;
+        qDebug() << "Failed to acquire shared_ptr on connEntryWeak in " <<
+            __FILE__ << ":" << __LINE__;
         return;
     }
 

@@ -1,6 +1,6 @@
 #include "TagsViewWidget.h"
 
-#include <iostream>
+#include <QDebug>
 
 TagsViewWidget::TagsViewWidget(QWidget *parent) :
     QWidget(parent)
@@ -29,7 +29,7 @@ void TagsViewWidget::updateData(QList<AWSTag> &tags)
     this->clear();
 
     if (tags.count() == 0) {
-        std::cout << "No Tags!!!\n";
+        qDebug() << "No Tags!!!";
         this->table->setRowCount(1);
         this->table->setItem(0, 0, new QTableWidgetItem("No Tags"));
         this->table->setItem(0, 1, new QTableWidgetItem(""));

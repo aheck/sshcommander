@@ -1,6 +1,6 @@
 #include "RouteTableViewWidget.h"
 
-#include <iostream>
+#include <QDebug>
 
 RouteTableViewWidget::RouteTableViewWidget(QWidget *parent) :
     QWidget(parent)
@@ -29,7 +29,7 @@ void RouteTableViewWidget::updateData(std::shared_ptr<AWSRouteTable> routeTable)
     this->clear();
 
     if (routeTable->routes.count() == 0) {
-        std::cout << "No Routes!!!\n";
+        qDebug() << "No Routes!!!";
         this->table->setRowCount(1);
         this->table->setItem(0, 0, new QTableWidgetItem("No Routes"));
         this->table->setItem(0, 1, new QTableWidgetItem(""));

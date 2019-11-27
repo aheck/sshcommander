@@ -69,7 +69,7 @@ bool TunnelEntry::isConnected()
 
         nb = proc_pidfdinfo(pid, fdBuffer[i].proc_fd, PROC_PIDFDSOCKETINFO, &si, sizeof(si));
         if (nb < sizeof(struct socket_fdinfo)) {
-            std::cerr << "ERROR: Call to proc_pidfdinfo failed\n";
+            qDebug() << "ERROR: Call to proc_pidfdinfo failed";
             return false;
         }
 
@@ -255,7 +255,7 @@ void TunnelManager::createTunnel(std::shared_ptr<SSHConnectionEntry> connEntry, 
 
     this->tunnelsByConnection[connection].push_back(tunnelEntry);
 
-    std::cout << "SSH tunnel command: " << args.join(" ").toStdString() << "\n";
+    qDebug() << "SSH tunnel command: " << args.join(" ");
 }
 
 void TunnelManager::restartTunnel(std::shared_ptr<SSHConnectionEntry> connEntry, QString username, QString hostname, int localPort, int remotePort)
@@ -335,7 +335,7 @@ bool TunnelManager::isProcessOwnerOfSocketInode(int pid, int inode)
 
     QDir dir(path);
     if (!dir.exists()) {
-        std::cerr << "Failed to open directory: " << path.toStdString() << "\n";
+        qDebug() << "Failed to open directory: " << path;
         return false;
     }
 

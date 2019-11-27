@@ -79,7 +79,7 @@ void RoutesApplet::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult)
             return;
         }
 
-        std::cout << "ERROR: SSH remote command failed: " << cmdResult->errorString.toStdString() << std::endl;
+        qDebug() << "ERROR: SSH remote command failed: " << cmdResult->errorString;
         return;
     }
 

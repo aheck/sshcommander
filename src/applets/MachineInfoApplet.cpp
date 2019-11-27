@@ -185,7 +185,7 @@ void MachineInfoApplet::updateKnownHostsData()
 void MachineInfoApplet::sshResultReceived(std::shared_ptr<RemoteCmdResult> cmdResult)
 {
     if (!cmdResult->isSuccess) {
-        std::cout << "ERROR: SSH remote command failed: " << cmdResult->errorString.toStdString() << std::endl;
+        qDebug() << "ERROR: SSH remote command failed: " << cmdResult->errorString;
         return;
     }
 

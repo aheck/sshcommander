@@ -206,10 +206,10 @@ void AWSInfoApplet::updateData(std::shared_ptr<AWSInstance> newInstance)
 
 void AWSInfoApplet::handleAWSResult(AWSResult *result)
 {
-    std::cout << "AWS Result received in AWSWidget" << std::endl;
-    std::cout << "Success: " << result->isSuccess << std::endl;
-    std::cout << "HTTP Status: " << result->httpStatus << std::endl;
-    std::cout << "Body: " << result->httpBody.toStdString() << std::endl;
+    qDebug() << "AWS Result received in AWSWidget";
+    qDebug() << "Success: " << result->isSuccess;
+    qDebug() << "HTTP Status: " << result->httpStatus;
+    qDebug() << "Body: " << result->httpBody;
 
     if (!result->isSuccess) {
         QMessageBox msgBox;
@@ -222,7 +222,7 @@ void AWSInfoApplet::handleAWSResult(AWSResult *result)
 
             this->securityGroupsDialog->updateData(securityGroups);
         } else if (result->responseType == "DescribeInstancesResponse") {
-            std::cout << "Describe Instances" << std::endl;
+            qDebug() << "Describe Instances";
 
             std::vector<std::shared_ptr<AWSInstance>> instances = parseDescribeInstancesResponse(result, this->instance->region);
 

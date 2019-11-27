@@ -5,7 +5,7 @@ TunnelsApplet::TunnelsApplet()
     this->firstShow = true;
 
     this->newDialog = new TunnelsNewDialog(this);
-    connect(this->newDialog, SIGNAL(accepted()), this, SLOT(createTunnel()));
+    connect(this->newDialog, &TunnelsNewDialog::accepted, this, &TunnelsApplet::createTunnel);
 
     this->toolBar = new QToolBar();
 
@@ -15,18 +15,18 @@ TunnelsApplet::TunnelsApplet()
 
     this->toolBar->setOrientation(Qt::Vertical);
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
-            "Reload", this, SLOT(reloadData()));
+            "Reload", this, &TunnelsApplet::reloadData);
     this->toolBar->addAction(QIcon(":/images/applications-internet.svg"),
-            "New Tunnel", this, SLOT(showCreateTunnelDialog()));
+            "New Tunnel", this, &TunnelsApplet::showCreateTunnelDialog);
     this->toolBar->addSeparator();
     this->restartAction = this->toolBar->addAction(QIcon(":/images/edit-redo.svg"),
-            "Restart Tunnel", this, SLOT(restartTunnel()));
+            "Restart Tunnel", this, &TunnelsApplet::restartTunnel);
     this->restartAction->setEnabled(false);
     this->shutdownAction = this->toolBar->addAction(QIcon(":/images/red-light.svg"),
-            "Shutdown Tunnel", this, SLOT(shutdownTunnel()));
+            "Shutdown Tunnel", this, &TunnelsApplet::shutdownTunnel);
     this->shutdownAction->setEnabled(false);
     this->deleteAction = this->toolBar->addAction(QIcon(":/images/process-stop.svg"),
-            "Delete Tunnel", this, SLOT(removeTunnel()));
+            "Delete Tunnel", this, &TunnelsApplet::removeTunnel);
     this->deleteAction->setEnabled(false);
 
     this->setLayout(new QHBoxLayout());
@@ -42,11 +42,11 @@ TunnelsApplet::TunnelsApplet()
     this->table->setSelectionMode(QAbstractItemView::SingleSelection);
 
     this->table->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this->table, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+    connect(this->table, &QTableView::customContextMenuRequested, this, &TunnelsApplet::showContextMenu);
     this->table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
-    connect(this->table->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
-            this, SLOT(selectionChanged()));
+    connect(this->table->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &TunnelsApplet::selectionChanged);
 
     this->layout()->addWidget(this->table);
 }

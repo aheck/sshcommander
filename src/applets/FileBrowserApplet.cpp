@@ -13,10 +13,10 @@ FileBrowserApplet::FileBrowserApplet()
 
     this->toolBar->setOrientation(Qt::Vertical);
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
-            tr("Reload remote directory"), this, SLOT(reloadData()));
+            tr("Reload remote directory"), this, &FileBrowserApplet::reloadData);
     this->toolBar->addSeparator();
     this->showLocalAction = this->toolBar->addAction(QIcon(":/images/drive-harddisk.svg"),
-            tr("Show Local File Browser"), this, SLOT(toggleLocalFileBrowser()));
+            tr("Show Local File Browser"), this, &FileBrowserApplet::toggleLocalFileBrowser);
     this->showLocalAction->setCheckable(true);
 
     this->setLayout(new QHBoxLayout());
@@ -28,8 +28,8 @@ FileBrowserApplet::FileBrowserApplet()
     this->localFileSystemModel->setRootPath("/");
     this->localFileBrowser->setModel(this->localFileSystemModel);
     this->localFileBrowser->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    connect(this->localFileSystemModel, SIGNAL(fileDownloadRequested(QStringList, QString)),
-            this, SLOT(fileDownloadRequested(QStringList, QString)));
+    connect(this->localFileSystemModel, &FileSystemModel::fileDownloadRequested,
+            this, &FileBrowserApplet::fileDownloadRequested);
     this->localFileBrowser->setSortingEnabled(true);
 
     this->localFileBrowserWidget = new QWidget();
@@ -54,9 +54,9 @@ FileBrowserApplet::FileBrowserApplet()
     this->remoteFileBrowser->setDragDropMode(QAbstractItemView::DragDrop);
     this->remoteFileBrowser->setDropIndicatorShown(true);
     this->remoteFileBrowser->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    connect(this->remoteFileBrowser, SIGNAL(expanded(QModelIndex)), this, SLOT(expanded(QModelIndex)));
-    connect(this->remoteFileSystemModel, SIGNAL(fileUploadRequested(QStringList, QString)),
-            this, SLOT(fileUploadRequested(QStringList, QString)));
+    connect(this->remoteFileBrowser, &RemoteFileView::expanded, this, &FileBrowserApplet::expanded);
+    connect(this->remoteFileSystemModel, &SFTPFilesystemModel::fileUploadRequested,
+            this, &FileBrowserApplet::fileUploadRequested);
 
     QWidget *remoteFileBrowserWidget = new QWidget();
     remoteFileBrowserWidget->setLayout(new QVBoxLayout());
@@ -163,7 +163,7 @@ void FileBrowserApplet::toggleLocalFileBrowser()
 void FileBrowserApplet::fileUploadRequested(QStringList files, QString targetPath)
 {
     auto transferJob = std::make_shared<FileTransferJob>(this->connEntry, FileTransferType::Upload, targetPath);
-    connect(transferJob.get(), SIGNAL(dataChanged(QUuid)), this->fileTransfersApplet, SLOT(jobDataChanged(QUuid)));
+    connect(transferJob.get(), &FileTransferJob::dataChanged, this->fileTransfersApplet, &FileTransfersApplet::jobDataChanged);
 
     for (const QString &filename : files) {
         transferJob->addFileToCopy(filename);
@@ -178,7 +178,7 @@ void FileBrowserApplet::fileUploadRequested(QStringList files, QString targetPat
 void FileBrowserApplet::fileDownloadRequested(QStringList files, QString targetPath)
 {
     auto transferJob = std::make_shared<FileTransferJob>(this->connEntry, FileTransferType::Download, targetPath);
-    connect(transferJob.get(), SIGNAL(dataChanged(QUuid)), this->fileTransfersApplet, SLOT(jobDataChanged(QUuid)));
+    connect(transferJob.get(), &FileTransferJob::dataChanged, this->fileTransfersApplet, &FileTransfersApplet::jobDataChanged);
 
     for (const QString &filename : files) {
         transferJob->addFileToCopy(filename);

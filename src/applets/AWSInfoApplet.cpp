@@ -8,7 +8,7 @@ AWSInfoApplet::AWSInfoApplet()
     this->vpcDialog = new VpcDialog(this);
 
     this->awsConnector = new AWSConnector();
-    QObject::connect(this->awsConnector, SIGNAL(awsReplyReceived(AWSResult*)), this, SLOT(handleAWSResult(AWSResult*)));
+    QObject::connect(this->awsConnector, &AWSConnector::awsReplyReceived, this, &AWSInfoApplet::handleAWSResult);
 
     this->awsPage = new QWidget();
     this->awsContent = new QWidget();
@@ -21,7 +21,7 @@ AWSInfoApplet::AWSInfoApplet()
 #endif
 
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
-            "Reload", this, SLOT(reloadInstanceData()));
+            "Reload", this, &AWSInfoApplet::reloadInstanceData);
     this->toolBar->setOrientation(Qt::Vertical);
     this->awsPage->setLayout(new QHBoxLayout());
     this->awsPage->layout()->setContentsMargins(0, 0, 0, 0);
@@ -49,7 +49,7 @@ AWSInfoApplet::AWSInfoApplet()
     this->valueType->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueImage = new QLabel("");
     this->valueImage->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextBrowserInteraction);
-    QObject::connect(this->valueImage, SIGNAL(linkActivated(QString)), this, SLOT(showImage()));
+    QObject::connect(this->valueImage, &QLabel::linkActivated, this, &AWSInfoApplet::showImage);
     this->valueLaunchTime = new QLabel("");
     this->valueLaunchTime->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valuePublicIP = new QLabel("");
@@ -58,11 +58,11 @@ AWSInfoApplet::AWSInfoApplet()
     this->valuePrivateIP->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueVpc = new QLabel("");
     this->valueVpc->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextBrowserInteraction);
-    QObject::connect(this->valueVpc, SIGNAL(linkActivated(QString)), this, SLOT(showVpc()));
+    QObject::connect(this->valueVpc, &QLabel::linkActivated, this, &AWSInfoApplet::showVpc);
     this->valueSubnet = new QLabel("");
     this->valueSubnet->setTextFormat(Qt::RichText);
     this->valueSubnet->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    QObject::connect(this->valueSubnet, SIGNAL(linkActivated(QString)), this, SLOT(showSubnet()));
+    QObject::connect(this->valueSubnet, &QLabel::linkActivated, this, &AWSInfoApplet::showSubnet);
     this->valueSourceDestCheck = new QLabel("");
     this->valueSourceDestCheck->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueCfStackName = new QLabel("");
@@ -73,7 +73,7 @@ AWSInfoApplet::AWSInfoApplet()
     this->valueSecurityGroups->setText("<a href=\"http://localhost/\" style=\"font-weight: bold;\">View Security Groups</a>");
     this->valueSecurityGroups->setTextFormat(Qt::RichText);
     this->valueSecurityGroups->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    QObject::connect(this->valueSecurityGroups, SIGNAL(linkActivated(QString)), this, SLOT(showSecurityGroups()));
+    QObject::connect(this->valueSecurityGroups, &QLabel::linkActivated, this, &AWSInfoApplet::showSecurityGroups);
     this->valueVirtualizationType = new QLabel("");
     this->valueVirtualizationType->setTextInteractionFlags(Qt::TextSelectableByMouse);
     this->valueArchitecture = new QLabel("");

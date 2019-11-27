@@ -19,14 +19,14 @@ SSHFilesystemNewDialog::SSHFilesystemNewDialog(QWidget *parent)
     localDirLayout->addWidget(this->localDirLineEdit);
     QToolButton *localDirButton = new QToolButton();
     localDirButton->setText("...");
-    connect(localDirButton, SIGNAL(clicked()), this, SLOT(selectLocalDir()));
+    connect(localDirButton, &QToolButton::clicked, this, &SSHFilesystemNewDialog::selectLocalDir);
     localDirLayout->addWidget(localDirButton);
 
     QHBoxLayout *remoteDirLayout = new QHBoxLayout();
     remoteDirLayout->addWidget(this->remoteDirLineEdit);
     QToolButton *remoteDirButton = new QToolButton();
     remoteDirButton->setText("...");
-    connect(remoteDirButton, SIGNAL(clicked()), this, SLOT(selectRemoteDir()));
+    connect(remoteDirButton, &QToolButton::clicked, this, &SSHFilesystemNewDialog::selectRemoteDir);
     remoteDirLayout->addWidget(remoteDirButton);
 
     this->formLayout = new QFormLayout;
@@ -38,11 +38,11 @@ SSHFilesystemNewDialog::SSHFilesystemNewDialog(QWidget *parent)
     this->formLayout->addRow(tr("Short Description:"), this->shortDescriptionLineEdit);
 
     QPushButton *connectButton = new QPushButton(tr("Connect"));
-    QObject::connect(connectButton, SIGNAL (clicked()), this, SLOT (acceptDialog()));
+    QObject::connect(connectButton, &QPushButton::clicked, this, &SSHFilesystemNewDialog::acceptDialog);
     connectButton->setDefault(true);
 
     QPushButton *cancelButton = new QPushButton(tr("Cancel"));
-    QObject::connect(cancelButton, SIGNAL (clicked()), this, SLOT(reject()));
+    QObject::connect(cancelButton, &QPushButton::clicked, this, &SSHFilesystemNewDialog::reject);
     cancelButton->setDefault(false);
 
     QHBoxLayout *buttonsLayout = new QHBoxLayout();

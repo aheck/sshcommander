@@ -17,9 +17,9 @@ SFTPDirectoryDialog::SFTPDirectoryDialog(QWidget *parent)
     this->remoteFileBrowser->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 
     QPushButton *okButton = new QPushButton(tr("OK"));
-    connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(okButton, &QPushButton::clicked, this, &SFTPDirectoryDialog::accept);
     QPushButton *cancelButton = new QPushButton(tr("Cancel"));
-    connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(cancelButton, &QPushButton::clicked, this, &SFTPDirectoryDialog::reject);
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addStretch(1);

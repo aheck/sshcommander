@@ -19,7 +19,7 @@ SSHFilesystemApplet::SSHFilesystemApplet()
     }
 
     this->newDialog = new SSHFilesystemNewDialog(this);
-    connect(this->newDialog, SIGNAL(accepted()), this, SLOT(createNewMountEntry()));
+    connect(this->newDialog, &SSHFilesystemNewDialog::accepted, this, &SSHFilesystemApplet::createNewMountEntry);
 
     this->toolBar = new QToolBar();
 
@@ -29,21 +29,21 @@ SSHFilesystemApplet::SSHFilesystemApplet()
 
     this->toolBar->setOrientation(Qt::Vertical);
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
-            "Reload", this, SLOT(reloadData()));
+            "Reload", this, &SSHFilesystemApplet::reloadData);
     this->toolBar->addAction(QIcon(":/images/applications-internet.svg"),
-            "Create New Mount", this, SLOT(showNewDialog()));
+            "Create New Mount", this, &SSHFilesystemApplet::showNewDialog);
     this->toolBar->addSeparator();
     this->openAction = this->toolBar->addAction(QIcon(":/images/folder-open.svg"),
-            "Open Directory", this, SLOT(openDirectory()));
+            "Open Directory", this, &SSHFilesystemApplet::openDirectory);
     this->openAction->setEnabled(false);
     this->mountAction = this->toolBar->addAction(QIcon(":/images/go-next.svg"),
-            "Mount", this, SLOT(mountMountEntry()));
+            "Mount", this, &SSHFilesystemApplet::mountMountEntry);
     this->mountAction->setEnabled(false);
     this->unmountAction = this->toolBar->addAction(QIcon(":/images/go-top.svg"),
-            "Unmount", this, SLOT(unmountMountEntry()));
+            "Unmount", this, &SSHFilesystemApplet::unmountMountEntry);
     this->unmountAction->setEnabled(false);
     this->deleteAction = this->toolBar->addAction(QIcon(":/images/process-stop.svg"),
-            "Delete Mount", this, SLOT(removeMountEntry()));
+            "Delete Mount", this, &SSHFilesystemApplet::removeMountEntry);
     this->deleteAction->setEnabled(false);
 
     this->layout()->addWidget(this->toolBar);
@@ -55,14 +55,14 @@ SSHFilesystemApplet::SSHFilesystemApplet()
     this->table->horizontalHeader()->setStretchLastSection(true);
     this->table->setSelectionBehavior(QAbstractItemView::SelectRows);
     this->table->setSelectionMode(QAbstractItemView::SingleSelection);
-    connect(this->table, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openDirectory()));
+    connect(this->table, &QTableView::doubleClicked, this, &SSHFilesystemApplet::openDirectory);
 
     this->table->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this->table, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+    connect(this->table, &QTableView::customContextMenuRequested, this, &SSHFilesystemApplet::showContextMenu);
     this->table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
-    connect(this->table->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
-            this, SLOT(selectionChanged()));
+    connect(this->table->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &SSHFilesystemApplet::selectionChanged);
 
     this->layout()->addWidget(this->table);
 }

@@ -49,11 +49,11 @@ TunnelsNewDialog::TunnelsNewDialog(QWidget *parent)
     descLayout->addWidget(this->shortDescriptionLineEdit);
 
     QPushButton *connectButton = new QPushButton(tr("Connect"));
-    QObject::connect(connectButton, SIGNAL (clicked()), this, SLOT (acceptDialog()));
+    QObject::connect(connectButton, &QPushButton::clicked, this, &TunnelsNewDialog::acceptDialog);
     connectButton->setDefault(true);
 
     QPushButton *cancelButton = new QPushButton(tr("Cancel"));
-    QObject::connect(cancelButton, SIGNAL (clicked()), this, SLOT(reject()));
+    QObject::connect(cancelButton, &QPushButton::clicked, this, &TunnelsNewDialog::reject);
     cancelButton->setDefault(false);
 
     QHBoxLayout *buttonsLayout = new QHBoxLayout();

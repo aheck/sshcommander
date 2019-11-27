@@ -18,8 +18,8 @@ const QString AWSConnector::LOCATION_EU_CENTRAL_1 = "eu-central-1";
 
 AWSConnector::AWSConnector()
 {
-    connect(&this->networkManager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(replyFinished(QNetworkReply*)));
+    connect(&this->networkManager, &QNetworkAccessManager::finished,
+            this, &AWSConnector::replyFinished);
 }
 
 AWSConnector::~AWSConnector()

@@ -10,11 +10,11 @@ PortsApplet::PortsApplet()
 #endif
 
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
-            "Reload", this, SLOT(reloadData()));
+            "Reload", this, &PortsApplet::reloadData);
     this->toolBar->addSeparator();
     this->tunnelPortAction = this->toolBar->addAction(
             QIcon(":/images/network-wired.svg"), tr("Tunnel this port to local machine"),
-            this, SLOT(showNewTunnelDialog()));
+            this, &PortsApplet::showNewTunnelDialog);
     this->tunnelPortAction->setEnabled(false);
     this->toolBar->setOrientation(Qt::Vertical);
 
@@ -27,7 +27,7 @@ PortsApplet::PortsApplet()
     this->table->setItemDelegateForColumn(static_cast<int>(PortColumns::Details), new RichTextDelegate());
     this->table->setSortingEnabled(true);
     this->table->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this->table, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+    connect(this->table, &QTableView::customContextMenuRequested, this, &PortsApplet::showContextMenu);
     this->model = new PortsItemModel();
     this->table->setModel(this->model);
     this->table->horizontalHeader()->setStretchLastSection(true);
@@ -35,12 +35,12 @@ PortsApplet::PortsApplet()
     this->table->setSelectionMode(QAbstractItemView::SingleSelection);
     this->table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
 
-    connect(this->table->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
-            this, SLOT(selectionChanged()));
+    connect(this->table->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &PortsApplet::selectionChanged);
 
     this->newDialog = new TunnelsNewDialog(this);
     this->newDialog->setRemotePortWidgetEnabled(false);
-    connect(this->newDialog, SIGNAL(accepted()), this, SLOT(createTunnel()));
+    connect(this->newDialog, &TunnelsNewDialog::accepted, this, &PortsApplet::createTunnel);
 
     this->layout()->addWidget(this->table);
 }

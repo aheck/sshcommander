@@ -17,7 +17,7 @@ NotesEditor::NotesEditor()
     toolBar->setIconSize(QSize(MAC_ICON_SIZE, MAC_ICON_SIZE));
 #endif
 
-    this->actionSave = toolBar->addAction("", this, SLOT(save()));
+    this->actionSave = toolBar->addAction("", this, &NotesEditor::save);
     this->actionSave->setIcon(QIcon(":/images/document-save.svg"));
     this->actionSave->setToolTip("Save");
 
@@ -25,7 +25,7 @@ NotesEditor::NotesEditor()
 
     this->comboFont = new QFontComboBox();
     toolBar->addWidget(this->comboFont);
-    connect(this->comboFont, SIGNAL(currentFontChanged(QFont)), this, SLOT(changeFont(QFont)));
+    connect(this->comboFont, &QFontComboBox::currentFontChanged, this, &NotesEditor::changeFont);
 
     this->comboSize = new QComboBox();
     this->comboSize->setObjectName("comboSize");
@@ -38,30 +38,30 @@ NotesEditor::NotesEditor()
     }
     comboSize->setCurrentIndex(standardSizes.indexOf(QApplication::font().pointSize()));
 
-    connect(comboSize, SIGNAL(currentTextChanged(QString)), this, SLOT(changeFontSize(QString)));
+    connect(comboSize, &QComboBox::currentTextChanged, this, &NotesEditor::changeFontSize);
 
     toolBar->addSeparator();
 
-    actionUndo = toolBar->addAction(QIcon(":/images/edit-undo.svg"), tr("Undo"), this->editor, SLOT(undo()));
+    actionUndo = toolBar->addAction(QIcon(":/images/edit-undo.svg"), tr("Undo"), this->editor, &QTextEdit::undo);
     actionUndo->setShortcut(QKeySequence::Undo);
 
-    actionRedo = toolBar->addAction(QIcon(":/images/edit-redo.svg"), tr("Redo"), this->editor, SLOT(redo()));
+    actionRedo = toolBar->addAction(QIcon(":/images/edit-redo.svg"), tr("Redo"), this->editor, &QTextEdit::redo);
     actionRedo->setPriority(QAction::LowPriority);
     actionRedo->setShortcut(QKeySequence::Redo);
 
     toolBar->addSeparator();
 
-    this->actionTextBold = toolBar->addAction("", this, SLOT(formatTextBold()));
+    this->actionTextBold = toolBar->addAction("", this, &NotesEditor::formatTextBold);
     this->actionTextBold->setIcon(QIcon(":/images/format-text-bold.svg"));
     this->actionTextBold->setCheckable(true);
     this->actionTextBold->setToolTip(tr("Bold"));
 
-    this->actionTextItalic = toolBar->addAction("", this, SLOT(formatTextItalic()));
+    this->actionTextItalic = toolBar->addAction("", this, &NotesEditor::formatTextItalic);
     this->actionTextItalic->setIcon(QIcon(":/images/format-text-italic.svg"));
     this->actionTextItalic->setCheckable(true);
     this->actionTextItalic->setToolTip(tr("Italic"));
 
-    this->actionTextUnderline = toolBar->addAction("", this, SLOT(formatTextUnderline()));
+    this->actionTextUnderline = toolBar->addAction("", this, &NotesEditor::formatTextUnderline);
     this->actionTextUnderline->setIcon(QIcon(":/images/format-text-underline.svg"));
     this->actionTextUnderline->setCheckable(true);
     this->actionTextUnderline->setToolTip(tr("Underline"));
@@ -69,10 +69,10 @@ NotesEditor::NotesEditor()
     toolBar->addSeparator();
 
     this->actionTextColor = toolBar->addAction(QIcon(), tr("Text Color"), this,
-            SLOT(selectTextColor()));
+            &NotesEditor::selectTextColor);
     colorChanged(Qt::black);
     this->actionTextBackgroundColor = toolBar->addAction(QIcon(), tr("Background Color"), this,
-            SLOT(selectBackgroundColor()));
+            &NotesEditor::selectBackgroundColor);
     backgroundColorChanged(Qt::white);
 
     this->statusBar = new QStatusBar();
@@ -82,16 +82,16 @@ NotesEditor::NotesEditor()
     layout->addWidget(this->editor);
     layout->addWidget(this->statusBar);
     this->statusBar->setHidden(true);
-    connect(this->statusBar, SIGNAL(messageChanged(QString)), this, SLOT(statusBarChanged(QString)));
+    connect(this->statusBar, &QStatusBar::messageChanged, this, &NotesEditor::statusBarChanged);
 
     layout->setSpacing(0);
     layout->setMargin(0);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    QObject::connect(this->editor, SIGNAL(textChanged()),
-            this, SLOT(textWasChanged()));
-    connect(this->editor, SIGNAL(currentCharFormatChanged(QTextCharFormat)),
-            this, SLOT(currentCharFormatChanged(QTextCharFormat)));
+    QObject::connect(this->editor, &QTextEdit::textChanged,
+            this, &NotesEditor::textWasChanged);
+    connect(this->editor, &QTextEdit::currentCharFormatChanged,
+            this, &NotesEditor::currentCharFormatChanged);
 
     editorWidget->setLayout(layout);
 
@@ -122,7 +122,7 @@ void NotesEditor::init(std::shared_ptr<SSHConnectionEntry> connEntry)
 
 void NotesEditor::setHtml(const QString &text)
 {
-    // QTextEditor forgets to save background color white with empty paragraphs
+    // QTextEdit forgets to save background color white with empty paragraphs
     // which makes them become black (although the background is still displayed white)
     //
     // By adding the background color where it is missing we prevent the

@@ -10,7 +10,7 @@ RoutesApplet::RoutesApplet()
 #endif
 
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
-            "Reload", this, SLOT(reloadData()));
+            "Reload", this, &RoutesApplet::reloadData);
     this->toolBar->setOrientation(Qt::Vertical);
 
     this->setLayout(new QHBoxLayout());

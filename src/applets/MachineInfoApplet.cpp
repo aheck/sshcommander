@@ -4,7 +4,7 @@ MachineInfoApplet::MachineInfoApplet()
 {
     this->firstShow = true;
     this->dataLoaded = false;
-    connect(&this->fileWatcher, SIGNAL(fileChanged(QString)), this, SLOT(updateKnownHostsData()));
+    connect(&this->fileWatcher, &QFileSystemWatcher::fileChanged, this, &MachineInfoApplet::updateKnownHostsData);
 
     this->page = new QWidget();
     this->page->setObjectName("scrollAreaContent");
@@ -92,7 +92,7 @@ MachineInfoApplet::MachineInfoApplet()
     knownHostsLayout->addRow(tr("Known Hosts File:"), this->valueKnownHostsFile);
     knownHostsLayout->addRow(tr("File Exists:"), this->valueFileExists);
     this->removeHostButton = new QPushButton(this->tr("Remove Host"));
-    connect(this->removeHostButton, SIGNAL(clicked()), this, SLOT(removeHostFromKnownHosts()));
+    connect(this->removeHostButton, &QPushButton::clicked, this, &MachineInfoApplet::removeHostFromKnownHosts);
     this->removeHostButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
     knownHostsLayout->addRow(tr("Host exists in Known Hosts File:"), this->valueKnownHostsEntryExists);
     knownHostsLayout->addRow(tr("Remove this Host from Known Hosts:"), this->removeHostButton);

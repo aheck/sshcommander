@@ -12,16 +12,16 @@ FileTransfersApplet::FileTransfersApplet()
 
     this->toolBar->setOrientation(Qt::Vertical);
     this->toolBar->addAction(QIcon(":/images/view-refresh.svg"),
-            "Reload", this, SLOT(reloadData()));
+            "Reload", this, &FileTransfersApplet::reloadData);
     this->toolBar->addSeparator();
     this->restartAction = this->toolBar->addAction(QIcon(":/images/edit-redo.svg"),
-            "Restart File Transfer", this, SLOT(restartFileTransfer()));
+            "Restart File Transfer", this, &FileTransfersApplet::restartFileTransfer);
     this->restartAction->setEnabled(false);
     this->cancelAction = this->toolBar->addAction(QIcon(":/images/red-light.svg"),
-            "Cancel File Transfer", this, SLOT(cancelFileTransfer()));
+            "Cancel File Transfer", this, &FileTransfersApplet::cancelFileTransfer);
     this->cancelAction->setEnabled(false);
     this->removeAction = this->toolBar->addAction(QIcon(":/images/process-stop.svg"),
-            "Remove File Transfer", this, SLOT(removeFileTransfer()));
+            "Remove File Transfer", this, &FileTransfersApplet::removeFileTransfer);
     this->removeAction->setEnabled(false);
 
     this->setLayout(new QHBoxLayout());
@@ -36,8 +36,8 @@ FileTransfersApplet::FileTransfersApplet()
     this->table->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     this->table->setModel(this->model);
 
-    connect(this->table->selectionModel(), SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
-            this, SLOT(selectionChanged()));
+    connect(this->table->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &FileTransfersApplet::selectionChanged);
 
     this->layout()->addWidget(this->table);
 }

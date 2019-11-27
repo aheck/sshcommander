@@ -16,7 +16,6 @@
 #include <QPushButton>
 #include <QMessageBox>
 #include <QSpinBox>
-#include <QToolButton>
 
 #include "../SvgWidget.h"
 #include "../TunnelManager.h"

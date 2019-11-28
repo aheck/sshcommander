@@ -35,32 +35,32 @@ MainWindow::MainWindow(QWidget *parent) :
     connMenu->addAction(newRole);
     connMenu->addSeparator();
 #ifdef Q_OS_MACOS
-    connMenu->addAction(tr("&Quit"), this, SLOT(quit()));
+    connMenu->addAction(tr("&Quit"), this, &MainWindow::quit);
 #else
-    connMenu->addAction(QIcon(":/images/system-log-out.svg"), tr("&Quit"), this, SLOT(quit()));
+    connMenu->addAction(QIcon(":/images/system-log-out.svg"), tr("&Quit"), this, &MainWindow::quit);
 #endif
 
     QMenu *editMenu = new QMenu(tr("Edit"));
 #ifdef Q_OS_MACOS
-    editMenu->addAction(tr("Preferences"), this, SLOT(showPreferencesDialog()));
+    editMenu->addAction(tr("Preferences"), this, &MainWindow::showPreferencesDialog);
 #else
     editMenu->addAction(QIcon(":/images/preferences-system.svg"),
-                tr("Preferences"), this, SLOT(showPreferencesDialog()));
+                tr("Preferences"), this, &MainWindow::showPreferencesDialog);
 #endif
     QMenu *helpMenu = new QMenu(tr("Help"));
 
 #ifdef Q_OS_MACOS
-    helpMenu->addAction(tr("Website..."), this, SLOT(openWebsite()));
+    helpMenu->addAction(tr("Website..."), this, &MainWindow::openWebsite);
 #else
     helpMenu->addAction(QIcon(":/images/go-home.svg"),
-            tr("Website"), this, SLOT(openWebsite()));
+            tr("Website"), this, &MainWindow::openWebsite);
 #endif
     helpMenu->addSeparator();
 #ifdef Q_OS_MACOS
-    helpMenu->addAction(tr("About"), this->aboutDialog, SLOT(exec()));
+    helpMenu->addAction(tr("About"), this->aboutDialog, &MainWindow::exec);
 #else
     helpMenu->addAction(QIcon(":/images/help-browser.svg"),
-            tr("About"), this->aboutDialog, SLOT(exec()));
+            tr("About"), this->aboutDialog, &AboutDialog::exec);
 #endif
 
     menuBar->addMenu(connMenu);

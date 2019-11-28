@@ -66,7 +66,7 @@ void RouteTableViewWidget::showContextMenu(QPoint pos)
             return;
         }
 
-        menu.addAction("Copy '" + this->clipboardCandidate + "' to Clipboard", this, SLOT(copyItemToClipboard()));
+        menu.addAction("Copy '" + this->clipboardCandidate + "' to Clipboard", this, &RouteTableViewWidget::copyItemToClipboard);
 
         menu.exec(globalPos);
     }

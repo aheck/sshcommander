@@ -122,7 +122,7 @@ AboutDialog::AboutDialog(QWidget *parent)
 
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     QPushButton *okButton = new QPushButton("OK", this);
-    QObject::connect(okButton, SIGNAL (clicked()), this, SLOT (accept()));
+    QObject::connect(okButton, &QPushButton::clicked, this, &AboutDialog::accept);
     buttonLayout->addStretch(1);
     buttonLayout->addWidget(okButton);
     layout->addLayout(buttonLayout);

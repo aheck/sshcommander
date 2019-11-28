@@ -51,9 +51,9 @@ AWSWidget::AWSWidget()
     this->toolBar->setIconSize(QSize(MAC_ICON_SIZE, MAC_ICON_SIZE));
 #endif
 
-    this->toolBar->addAction(QIcon(":/images/view-refresh.svg"), "Refresh", this, SLOT(loadData()));
+    this->toolBar->addAction(QIcon(":/images/view-refresh.svg"), "Refresh", this, &AWSWidget::loadData);
     this->connectButton = this->toolBar->addAction(QIcon(":/images/applications-internet.svg"),
-            "Connect to Instance", this, SLOT(connectToPublicIP()));
+            "Connect to Instance", this, &AWSWidget::connectToPublicIP);
     this->connectButton->setEnabled(false);
     this->toggleWindowButton = this->toolBar->addAction(QIcon(":/images/window-new.svg"),
             "Detach Window");
@@ -68,9 +68,9 @@ AWSWidget::AWSWidget()
     // connect with old syntax because QComboBox::currentIndexChanged is overloaded
     QObject::connect(this->vpcComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeVpc(int)));
     this->vpcToolBar = new QToolBar("vpcToolBar", this->mainWidget);
-    this->showVpcButton = this->vpcToolBar->addAction(QIcon(":/images/dialog-information.svg"), "Show VPC Details", this, SLOT(showVpcDialog()));
+    this->showVpcButton = this->vpcToolBar->addAction(QIcon(":/images/dialog-information.svg"), "Show VPC Details", this, &AWSWidget::showVpcDialog);
     this->showVpcButton->setEnabled(false);
-    this->vpcToolBar->addAction(QIcon(":/images/edit-clear.svg"), "Clear VPC", this, SLOT(clearVpcComboBox()));
+    this->vpcToolBar->addAction(QIcon(":/images/edit-clear.svg"), "Clear VPC", this, &AWSWidget::clearVpcComboBox);
 
     this->searchLineEdit = new QLineEdit(this);
     this->searchLineEdit->setPlaceholderText(tr("Filter by name, tag, instance ID, SSH key, IP or stack"));
@@ -356,7 +356,7 @@ void AWSWidget::showInstanceContextMenu(QPoint pos)
 
         this->clipboardCandidate = this->instanceModel->data(index, Qt::DisplayRole).toString();
         if (!this->clipboardCandidate.isEmpty()) {
-            menu.addAction("Copy '" + this->clipboardCandidate + "' to Clipboard", this, SLOT(copyItemToClipboard()));
+            menu.addAction("Copy '" + this->clipboardCandidate + "' to Clipboard", this, &AWSWidget::copyItemToClipboard);
             menu.addSeparator();
         }
 
@@ -364,38 +364,38 @@ void AWSWidget::showInstanceContextMenu(QPoint pos)
 
         QMenu *instanceActions = menu.addMenu(tr("Instance Actions"));
 
-        QAction *startAction = instanceActions->addAction(tr("Start"), this, SLOT(startInstance()));
+        QAction *startAction = instanceActions->addAction(tr("Start"), this, &AWSWidget::startInstance);
         if (instance->status != "stopped") {
             startAction->setEnabled(false);
         }
 
-        QAction *stopAction = instanceActions->addAction(tr("Stop"), this, SLOT(stopInstance()));
+        QAction *stopAction = instanceActions->addAction(tr("Stop"), this, &AWSWidget::stopInstance);
         if (instance->status != "running") {
             stopAction->setEnabled(false);
         }
 
-        QAction *rebootAction = instanceActions->addAction(tr("Reboot"), this, SLOT(rebootInstance()));
+        QAction *rebootAction = instanceActions->addAction(tr("Reboot"), this, &AWSWidget::rebootInstance);
         if (instance->status != "running") {
             rebootAction->setEnabled(false);
         }
 
-        QAction *terminateAction = instanceActions->addAction(tr("Terminate"), this, SLOT(terminateInstance()));
+        QAction *terminateAction = instanceActions->addAction(tr("Terminate"), this, &AWSWidget::terminateInstance);
         if (instance->status != "pending" && instance->status != "running") {
             terminateAction->setEnabled(false);
         }
 
-        menu.addAction(tr("View Security Groups"), this, SLOT(showSecurityGroups()));
-        menu.addAction(tr("View Tags"), this, SLOT(showTags()));
+        menu.addAction(tr("View Security Groups"), this, &AWSWidget::showSecurityGroups);
+        menu.addAction(tr("View Tags"), this, &AWSWidget::showTags);
 
         menu.addSeparator();
 
         this->vpcIdCandidate = instance->vpcId;
-        menu.addAction(tr("Filter by Instance VPC"), this, SLOT(selectVpc()));
+        menu.addAction(tr("Filter by Instance VPC"), this, &AWSWidget::selectVpc);
 
         menu.addSeparator();
 
-        menu.addAction(tr("Connect to Private IP"), this, SLOT(connectToPrivateIP()));
-        QAction *connectToInstance = menu.addAction(tr("Connect to Instance"), this, SLOT(connectToPublicIP()));
+        menu.addAction(tr("Connect to Private IP"), this, &AWSWidget::connectToPrivateIP);
+        QAction *connectToInstance = menu.addAction(tr("Connect to Instance"), this, &AWSWidget::connectToPublicIP);
         connectToInstance->setIcon(QIcon(":/images/applications-internet.svg"));
         connectToInstance->setEnabled(this->connectButton->isEnabled());
 

@@ -444,7 +444,7 @@ void MainWindow::updateConnectionTabs()
 
 void MainWindow::openWebsite()
 {
-    QDesktopServices::openUrl(QUrl("https://github.com/aheck/sshcommander"));
+    QDesktopServices::openUrl(QUrl(SSHCOMMANDER_WEBSITE));
 }
 
 void MainWindow::showPreferencesDialog()

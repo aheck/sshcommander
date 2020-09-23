@@ -76,9 +76,7 @@ AboutDialog::AboutDialog(QWidget *parent)
     commitIdLabel->setAlignment(Qt::AlignCenter);
     layout->addWidget(commitIdLabel);
 
-    QLabel *copyrightLabel = new QLabel("\nCopyright © 2016-2018 Andreas Heck\n\n"
-            "This program is free software under the\n"
-            "terms of the GNU General Public License Version 2", this);
+    QLabel *copyrightLabel = new QLabel(SSHCOMMANDER_LICENSE, this);
     copyrightLabel->setAlignment(Qt::AlignCenter);
     layout->addWidget(copyrightLabel);
 

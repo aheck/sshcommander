@@ -5,6 +5,6 @@ GenericName=SSH Client
 Comment=Graphical and user-friendly SSH Client
 Type=Application
 Exec=sshcommander
-Icon=sshcommander
+Icon=/usr/share/pixmaps/sshcommander.svg
 Keywords=ssh;connect;
 Categories=Network;

@@ -48,6 +48,7 @@ public:
     void resetAWSConsoleButton();
     void disableAWSConsoleButton();
     void enableAWSConsoleButton();
+    int connectionCount() const;
 
 public slots:
     void editConnection();

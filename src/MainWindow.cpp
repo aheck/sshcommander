@@ -216,6 +216,10 @@ void MainWindow::createNewConnection()
 
 bool MainWindow::askToQuit()
 {
+    if (connectionList->connectionCount() == 0) {
+        return true;
+    }
+
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, "Really Quit SSH Commander?",
             QString("Quitting SSH Commander will terminate all your running SSH "

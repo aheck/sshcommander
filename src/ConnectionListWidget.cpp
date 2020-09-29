@@ -230,3 +230,8 @@ void ConnectionListWidget::enableAWSConsoleButton()
 {
     this->awsConsoleAction->setEnabled(true);
 }
+
+int ConnectionListWidget::connectionCount() const
+{
+    return this->listView->model()->rowCount();
+}

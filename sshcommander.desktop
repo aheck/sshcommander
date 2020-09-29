@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=SSH Commander
+GenericName=SSH Client
+Comment=Graphical and user-friendly SSH Client
+Type=Application
+Exec=sshcommander
+Icon=sshcommander
+Keywords=ssh;connect;
+Categories=Network;

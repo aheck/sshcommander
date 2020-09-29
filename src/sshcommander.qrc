@@ -1,5 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
+    <file>images/sshcommander.svg</file>
     <file>images/view-refresh.svg</file>
     <file>images/view-fullscreen.svg</file>
     <file>images/utilities-terminal.svg</file>

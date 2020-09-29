@@ -1,1 +1,3 @@
 src/sshcommander usr/bin
+src/images/sshcommander.svg usr/share/pixmaps
+sshcommander.desktop usr/share/applications

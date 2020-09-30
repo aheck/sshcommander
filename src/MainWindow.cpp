@@ -276,6 +276,10 @@ void MainWindow::readSettings()
     if (!file.open(QFile::ReadOnly)) {
         // on first start the file hasn't been created, yet
         if (!file.exists(filename)) {
+            // set default size of splitter
+            const QList<int> splitterSizes({300, 700});
+            this->splitter->setSizes(splitterSizes);
+
             return;
         }
 

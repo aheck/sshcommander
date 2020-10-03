@@ -1,3 +1,12 @@
+sshcommander (0.5.1) bionic; urgency=medium
+
+  * Installs .desktop file and program icon
+  * Fixes Layout on first program start
+  * User is only asked if he really wants to quit if there are any
+    connections configured
+
+ -- Andreas Heck <aheck@trinity>  Sat, 03 Oct 2020 23:14:48 +0200
+
 sshcommander (0.5.0) bionic; urgency=medium
 
   * Initial Beta Release

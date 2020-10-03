@@ -3,7 +3,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
-    this->setWindowIcon(QIcon(":/images/utilities-terminal.svg"));
+    this->setWindowIcon(QIcon(":/images/sshcommander.svg"));
 
     this->fileWatcher.addPath(QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)).filePath("appNotify"));
     connect(&this->fileWatcher, &QFileSystemWatcher::fileChanged, this, &MainWindow::bringToForeground);
